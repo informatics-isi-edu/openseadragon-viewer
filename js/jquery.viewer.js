@@ -8,6 +8,14 @@ or
          http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
 */
 
+
+/* tracking current location .. */
+
+var myViewer=null;
+var logX=null;
+var logY=null;
+var logZoom=null;
+
 jQuery(document).ready(function() {
 
 //process args
@@ -50,7 +58,7 @@ jQuery(document).ready(function() {
       alertify.error("Error: Unable to load url, "+url);
       } else {
         if( e.match(/deepzoom/)) { // not ours, call direct
-          var viewer = OpenSeadragon({
+          myViewer = OpenSeadragon({
                    id: "viewDiv",
                    prefixUrl: "images/",
 //                   debugMode: "true",
@@ -74,7 +82,7 @@ jQuery(document).ready(function() {
               
 //window.console.log("min is "+_minLevel + " max is "+_maxLevel, "_realMin "+_realMin); 
               path = url.replace('ImageProperties.xml',_dir);
-              var viewer = OpenSeadragon({
+              myViewer = OpenSeadragon({
                          id: "viewDiv",
                          prefixUrl: "images/",
 //                       debugMode: "true",
@@ -91,17 +99,88 @@ visibilityRatio: 	1,
                            maxLevel: _maxLevel,
                            getTileUrl: function( level, x, y ) {
                              t=path+'/'+(level)+"/"+x+"_"+y+".jpg";
-                             window.console.log("tile is.."+t);
+//                             window.console.log("tile is.."+t);
                              return t;
                            }
                          }
                         })
+
+/*
+            // add handlers
+              myViewer.addHandler('canvas-click', function(target) {
+                pointIt(target);
+                printIt();
+              });
+*/
             }
         }
     }
   }
 
 });
+
+function pointIt(target) {
+  if(myViewer === null) {
+     alertify.error("viewer is not setup yet..");
+     return;
+  }
+  if(target === null) {
+     alertify.error("target is not valid..");
+     return;
+  }
+  var viewportPoint = myViewer.viewport.pointFromPixel( target.position);
+  var imagePoint = myViewer.viewport.viewportToImageCoordinates(
+                   viewportPoint.x, viewportPoint.y);
+  msg= "click point: ("+imagePoint.x
+                    +", "+imagePoint.y+")";
+  alertify.success(msg);
+
+}
+
+function savePosition() {
+  if(myViewer === null) {
+     alertify.error("viewer is not setup yet..");
+     return;
+  }
+  var viewportCenter = myViewer.viewport.getCenter('true');
+  logX=viewportCenter.x;
+  logY=viewportCenter.y;
+  logZoom = myViewer.viewport.getZoom(true);
+  window.console.log("here..");
+}
+
+function printIt() {
+  if(myViewer === null) {
+     alertify.error("viewer is not setup yet..");
+     return;
+  }
+  var viewportCenter = myViewer.viewport.getCenter('true');
+  var imageCenter = myViewer.viewport.viewportToImageCoordinates(
+                    viewportCenter.x, viewportCenter.y);
+  msg10= "viewport center: ("+viewportCenter.x
+                         +", "+viewportCenter.y+")";
+  msg11= "center point: ("+imageCenter.x
+                         +", "+imageCenter.y+")";
+  msg1= msg10+ "<br/>" +msg11;
+
+  viewportZoom = myViewer.viewport.getZoom(true);
+  imageZoom = myViewer.viewport.viewportToImageZoom(viewportZoom);
+  msg2= "imageZoom: "+imageZoom + " from viewportZoom:"+viewportZoom;
+     
+  msg= msg1 + "<br/>" + msg2;
+  alertify.success(msg);
+}
+
+function goPosition() {
+  _Zoom=logZoom;
+  _X=logX;
+  _Y=logY;
+  var _center=new OpenSeadragon.Point(_X,_Y);
+  myViewer.viewport.panTo(_center,'true');
+  myViewer.viewport.zoomTo(_Zoom);
+  myViewer.viewport.applyConstraints();
+
+}
 
 // should be a very small file
 function ckExist(url) {

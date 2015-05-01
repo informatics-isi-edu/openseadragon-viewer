@@ -10714,9 +10714,6 @@ $.TileSource = function( width, height, tileSize, tileOverlap, minLevel, maxLeve
                     Math.log( 2 )
                 ) : 0
             );
-window.console.log("MEI--> SET the minlevel to be.."+this.minLevel);
-window.console.log("MEI--> SET the maxlevel to be.."+this.maxLevel);
-window.console.log("MEI--> SET the TileSize to be.."+this.tileSize);
         if( this.success && $.isFunction( this.success ) ){
             this.success( this );
         }
@@ -11056,8 +11053,6 @@ function processResponse( xhr ){
         status       = xhr.status,
         statusText,
         data;
-
-window.console.log("MEI, responseText is..("+responseText+")");
 
     if ( !xhr ) {
         throw new Error( $.getString( "Errors.Security" ) );
@@ -17741,7 +17736,6 @@ function onTileLoad( tiledImage, tile, time, image ) {
             cutoff: cutoff,
             tiledImage: tiledImage
         });
-window.console.log("MEI, finish loading. %s at %s" , tile, tile.url );
     };
 
     // Check if we're mid-update; this can happen on IE8 because image load events for
@@ -18131,7 +18125,6 @@ $.TileCache.prototype = /** @lends OpenSeadragon.TileCache.prototype */{
      */
     cacheTile: function( options ) {
 
-window.console.log("MEI,this._imagesLoadedCount > this._maxImageCacheCount(%d > %d) ", this._imagesLoadedCount,this._maxImageCacheCount);
 
         $.console.assert( options, "[TileCache.cacheTile] options is required" );
         $.console.assert( options.tile, "[TileCache.cacheTile] options.tile is required" );

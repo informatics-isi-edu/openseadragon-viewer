@@ -103,7 +103,7 @@ p { padding: 0 1.5em; }
 .navigation ul li{
     margin-bottom: 5px;
 }
-.demoarea{
+.viewer{
     clear: both;
 }
 .license ul.copyrights{
@@ -173,16 +173,18 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     color:      #333; /* text color for messages */
     background-color: black;
 }
-.demoheading {
+
+.toolbar a {
     color: #437AB2; 
     padding: 0 0 0.2em 1em;
 }
+
 .toolbar
 {
     width:      800px;
     height:     33px;
     border:     none;
-    color:      #333;
+    color:      #333; 
     padding:    4px;
     background-color: transparent;
 }
