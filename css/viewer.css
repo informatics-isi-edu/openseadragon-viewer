@@ -179,6 +179,45 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     padding: 0 0 0.2em 1em;
 }
 
+.snap {
+   background-image: url(../images/camera_rest.png);
+   background-color: transparent; 
+   background-repeat: no-repeat;  
+   background-position: 0px 0px;
+   border: none;
+   height: 30px;           
+   padding-left: 20px;     
+   vertical-align: middle; 
+}
+.snap:hover {
+   background-image: url(../images/camera_hover.png);
+}
+.snap:hover {
+   background-image: url(../images/camera_hover.png);
+}
+.snap:active {
+   background-image: url(../images/camera_pressed.png);
+}
+.go {
+   background-image: url(../images/rotateright_rest.png);
+   background-color: transparent; 
+   background-repeat: no-repeat;  
+   background-position: 0px 0px;
+   border: none;
+   height: 34px;           
+   padding-left: 30px;     
+   vertical-align: middle; 
+}
+.go:hover {
+   background-image: url(../images/rotateright_hover.png);
+}
+.go:hover {
+   background-image: url(../images/rotateright_hover.png);
+}
+.go:active {
+   background-image: url(../images/rotateright_pressed.png);
+}
+
 .toolbar
 {
     width:      800px;

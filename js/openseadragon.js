@@ -8904,6 +8904,8 @@ function onCanvasKeyPress( event ) {
 function onCanvasClick( event ) {
     var gestureSettings;
 
+
+window.console.log("onCanvasClick");
     var haveKeyboardFocus = document.activeElement == this.canvas;
 
     // If we don't have keyboard focus, request it.
@@ -8914,6 +8916,7 @@ function onCanvasClick( event ) {
     if ( !event.preventDefaultAction && this.viewport && event.quick ) {
         gestureSettings = this.gestureSettingsByDeviceType( event.pointerType );
         if ( gestureSettings.clickToZoom ) {
+window.console.log("calling zoomBy from canvas click..");
             this.viewport.zoomBy(
                 event.shift ? 1.0 / this.zoomPerClick : this.zoomPerClick,
                 this.viewport.pointFromPixel( event.position, true )

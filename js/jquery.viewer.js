@@ -1,11 +1,12 @@
 
 /* run : 
 
-  http://localhost/tiletiff/sea.html?
+  http://localhost/tiletiff/index.html?
          url=http://localhost/tiletiff/data/tall.dzi
 or
-  http://localhost/tiletiff/sea.html?
+  http://localhost/tiletiff/index.html?
          http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
+         &x=0.123&y=1.234&m=2.5
 */
 
 
@@ -15,44 +16,63 @@ var myViewer=null;
 var logX=null;
 var logY=null;
 var logZoom=null;
+var logHeader=null;
+var logURL=null;
 
 jQuery(document).ready(function() {
 
+/*
+  http://localhost/tiletiff/index.html?
+     http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
+or,
+  http://localhost/tiletiff/index.html?
+     http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
+     &x=0.123&y=1.234&m=2.5
+*/
+
+alertify.success("LOADING document..");
+
 //process args
-  var args = document.location.search.substring(1).split('&');
-  argsParsed = [];
-  for (var i=0; i < args.length; i++)
-  {
-      arg = unescape(args[i]);
-
-      if (arg.length == 0) {
-        continue;
-      }
-
-      if (arg.indexOf('=') == -1)
-      {
-          var _url=arg.replace(new RegExp('/$'),'').trim();
-          argsParsed.push(_url);
-      }
-      else
-      {
-          kvp = arg.split('=');
-          if(kvp[0].trim() == 'url') {
-              var _url=kvp[1].replace(new RegExp('/$'),'').trim();
-              argsParsed.push(_url);
-          } else {
-              var _unknown=kvp[1].replace(new RegExp('/$'),'').trim();
-              var _utype=kvp[0].trim();
-              alertify.error("Error: Unable to handle param type, "+_utype);
-          }
-      }
+//  var args = document.location.search.substring(1).split('?');
+  var args= document.location.href.split('?');
+  if (args.length != 2) {
+      alertify.error("Error: Need to supply an url");
+      return;
   }
-  if(argsParsed.length != 1) {
+  logHeader=args[0];
+  var params = args[1].split('&');
+
+  for (var i=0; i < params.length; i++)
+      {
+        param = unescape(params[i]);
+  
+        if (param.indexOf('=') == -1)
+        {
+            logURL=param.replace(new RegExp('/$'),'').trim();
+        }
+        else
+        {
+            kvp = param.split('=');
+            if(kvp[0].trim() == 'url') {
+                logURL=kvp[1].replace(new RegExp('/$'),'').trim();
+            } else if(kvp[0].trim() == 'x') {
+                logX=parseFloat(kvp[1]); 
+            } else if(kvp[0].trim() == 'y') {
+                logY=parseFloat(kvp[1]); 
+            } else if(kvp[0].trim() == 'z') {
+                logZoom=parseFloat(kvp[1]); 
+            } else {
+                var _unknown=kvp[1].replace(new RegExp('/$'),'').trim();
+                var _utype=kvp[0].trim();
+                alertify.error("Error: Unable to handle param type, "+_utype);
+            }
+        }
+  }
+  if(logURL == null) {
     alertify.error("Error: Need to supply an url");
   } else {
-    var url=argsParsed[0];
-    var e = ckExist(url);
 /* make sure it exists */
+    var url=logURL;
     var e = ckExist(url);
     if(e==null) {
       alertify.error("Error: Unable to load url, "+url);
@@ -91,6 +111,16 @@ constrainDuringPan: true,
 defaultZoomLevel: _realMin,
 visibilityRatio: 	1,
 //                         navigatorId: "navigatorDiv",
+/*
+    zoomInButton:   "zoom-in",
+    zoomOutButton:  "zoom-out",
+    homeButton:     "home",
+    fullPageButton: "full-page",
+    nextButton:     "next",
+    previousButton: "previous",
+*/
+    snapButton: "snap",
+                         
                          tileSources: {
                            height: _height,
                            width:  _width,
@@ -103,21 +133,40 @@ visibilityRatio: 	1,
                              return t;
                            }
                          }
-                        })
+                        });
 
-/*
             // add handlers
+/*
               myViewer.addHandler('canvas-click', function(target) {
-                pointIt(target);
-                printIt();
+                checkIt();
+                savePosition();
               });
 */
+            // if logX, logY, logZoom are not null
+              if( (logX != null) && (logY != null) && (logZoom !=null)) {
+                startPosition(logX, logY, logZoom);
+              }
             }
         }
     }
   }
 
 });
+
+/* https://github.com/openseadragon/openseadragon/issues/317 */
+/*
+var snapbutton=new .Button({
+            element: OpenSeadragon.getElement('snap'),
+            clickTimeThreshold: OpenSeadragon.clickTimeThreshold,
+            clickDistThreshold: OpenSeadragon.clickDistThreshold,
+            tooltip: 'Snap',
+            onClick: snap
+});
+function snap(){ 
+window.console.log("calling snap..");
+savePosition();
+}
+*/
 
 function pointIt(target) {
   if(myViewer === null) {
@@ -137,7 +186,16 @@ function pointIt(target) {
 
 }
 
+// will alwyas have _X,_Y,_Z
+function updateTitle(_X,_Y,_Z) {
+  var newTitle=
+    logHeader+"?"+logURL+"&x="+_X+"&y="+_Y+"&z="+_Z;
+//MEI???  document.location=newTitle;
+  alertify.confirm(newTitle);
+}
+
 function savePosition() {
+  window.console.log("Calling saving savePosition..");
   if(myViewer === null) {
      alertify.error("viewer is not setup yet..");
      return;
@@ -146,10 +204,11 @@ function savePosition() {
   logX=viewportCenter.x;
   logY=viewportCenter.y;
   logZoom = myViewer.viewport.getZoom(true);
-  window.console.log("here..");
+  window.console.log("after calling savePosition "+logX + " "+logY);
+  updateTitle(logX,logY,logZoom);
 }
 
-function printIt() {
+function checkIt() {
   if(myViewer === null) {
      alertify.error("viewer is not setup yet..");
      return;
@@ -168,18 +227,25 @@ function printIt() {
   msg2= "imageZoom: "+imageZoom + " from viewportZoom:"+viewportZoom;
      
   msg= msg1 + "<br/>" + msg2;
-  alertify.success(msg);
+  alertify.confirm(msg);
 }
 
 function goPosition() {
-  _Zoom=logZoom;
   _X=logX;
   _Y=logY;
+  _Zoom=logZoom;
   var _center=new OpenSeadragon.Point(_X,_Y);
   myViewer.viewport.panTo(_center,'true');
   myViewer.viewport.zoomTo(_Zoom);
   myViewer.viewport.applyConstraints();
+}
 
+function startPosition(_X,_Y,_Zoom) {
+  alertify.success("Calling startPosition..");
+  var _center=new OpenSeadragon.Point(_X,_Y);
+  myViewer.viewport.panTo(_center,'true');
+  myViewer.viewport.zoomTo(_Zoom);
+  myViewer.viewport.applyConstraints();
 }
 
 // should be a very small file
