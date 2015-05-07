@@ -13,24 +13,24 @@ or
 /* tracking current location .. */
 
 var myViewer=null;
+
+/* for snap and go buttons */
+var snapX=null;
+var snapY=null;
+var snapZoom=null;
+
+/* tracking current location .. */
 var logX=null;
 var logY=null;
 var logZoom=null;
 var logHeader=null;
 var logURL=null;
 
+// this is to work around that the initial load of the viewport
+// always goes to the initial view first
+var startState=false;
+
 jQuery(document).ready(function() {
-
-/*
-  http://localhost/tiletiff/index.html?
-     http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
-or,
-  http://localhost/tiletiff/index.html?
-     http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
-     &x=0.123&y=1.234&m=2.5
-*/
-
-alertify.success("LOADING document..");
 
 //process args
 //  var args = document.location.search.substring(1).split('?');
@@ -83,7 +83,6 @@ alertify.success("LOADING document..");
                    prefixUrl: "images/",
 //                   debugMode: "true",
                    showNavigator: true,
-//                   navigatorId: "navigatorDiv",
                    tileSources: url
                    });
           } else {
@@ -100,7 +99,6 @@ alertify.success("LOADING document..");
               if(_minLevel != 0)
                   _realMin = _minLevel+1;
               
-//window.console.log("min is "+_minLevel + " max is "+_maxLevel, "_realMin "+_realMin); 
               path = url.replace('ImageProperties.xml',_dir);
               myViewer = OpenSeadragon({
                          id: "viewDiv",
@@ -110,17 +108,6 @@ alertify.success("LOADING document..");
 constrainDuringPan: true,
 defaultZoomLevel: _realMin,
 visibilityRatio: 	1,
-//                         navigatorId: "navigatorDiv",
-/*
-    zoomInButton:   "zoom-in",
-    zoomOutButton:  "zoom-out",
-    homeButton:     "home",
-    fullPageButton: "full-page",
-    nextButton:     "next",
-    previousButton: "previous",
-*/
-    snapButton: "snap",
-                         
                          tileSources: {
                            height: _height,
                            width:  _width,
@@ -129,44 +116,30 @@ visibilityRatio: 	1,
                            maxLevel: _maxLevel,
                            getTileUrl: function( level, x, y ) {
                              t=path+'/'+(level)+"/"+x+"_"+y+".jpg";
-//                             window.console.log("tile is.."+t);
                              return t;
                            }
                          }
                         });
 
-            // add handlers
-/*
-              myViewer.addHandler('canvas-click', function(target) {
-                checkIt();
-                savePosition();
-              });
-*/
             // if logX, logY, logZoom are not null
               if( (logX != null) && (logY != null) && (logZoom !=null)) {
-                startPosition(logX, logY, logZoom);
+                startState=true;
               }
+            // add handlers
+              myViewer.addHandler('update-viewport', function(target) {
+                  if(startState) {
+                    goPosition(logX,logY,logZoom);
+                    startState=false;
+                    } else {
+                      savePosition();
+                  }
+              });
             }
         }
     }
   }
 
 });
-
-/* https://github.com/openseadragon/openseadragon/issues/317 */
-/*
-var snapbutton=new .Button({
-            element: OpenSeadragon.getElement('snap'),
-            clickTimeThreshold: OpenSeadragon.clickTimeThreshold,
-            clickDistThreshold: OpenSeadragon.clickDistThreshold,
-            tooltip: 'Snap',
-            onClick: snap
-});
-function snap(){ 
-window.console.log("calling snap..");
-savePosition();
-}
-*/
 
 function pointIt(target) {
   if(myViewer === null) {
@@ -186,16 +159,51 @@ function pointIt(target) {
 
 }
 
-// will alwyas have _X,_Y,_Z
+// will always have _X,_Y,_Z
+//    document.location=newTitle;
 function updateTitle(_X,_Y,_Z) {
   var newTitle=
     logHeader+"?"+logURL+"&x="+_X+"&y="+_Y+"&z="+_Z;
-//MEI???  document.location=newTitle;
-  alertify.confirm(newTitle);
+
+  var stateObj = { update: newTitle };
+
+  var i=history.length;
+  if(i > 0) {
+    var e=history.state;
+    if (e) {
+      var t=e.update;
+      if (t) {
+        if ( t != newTitle ) {
+            history.pushState(stateObj, 'Title', newTitle)
+            window.console.log("...replace the location..");
+            return 1;
+            } else {
+               window.console.log("...same place, no action");
+               return 0;
+        }
+        return 0;
+      }
+    }
+  }
+  history.pushState(stateObj, 'Title', newTitle)
+  return 1;
+//  alertify.confirm(newTitle);
+}
+
+function snapPosition() {
+   savePosition();
+   snapX=logX;
+   snapY=logY;
+   snapZoom=logZoom;
+}
+
+function snapGo() {
+   if(snapX!=null && snapY!=null && snapZoom!=null)
+     goPosition(snapX,snapY,snapZoom);
 }
 
 function savePosition() {
-  window.console.log("Calling saving savePosition..");
+
   if(myViewer === null) {
      alertify.error("viewer is not setup yet..");
      return;
@@ -204,8 +212,7 @@ function savePosition() {
   logX=viewportCenter.x;
   logY=viewportCenter.y;
   logZoom = myViewer.viewport.getZoom(true);
-  window.console.log("after calling savePosition "+logX + " "+logY);
-  updateTitle(logX,logY,logZoom);
+  return updateTitle(logX,logY,logZoom);
 }
 
 function checkIt() {
@@ -227,21 +234,10 @@ function checkIt() {
   msg2= "imageZoom: "+imageZoom + " from viewportZoom:"+viewportZoom;
      
   msg= msg1 + "<br/>" + msg2;
-  alertify.confirm(msg);
+//  alertify.confirm(msg);
 }
 
-function goPosition() {
-  _X=logX;
-  _Y=logY;
-  _Zoom=logZoom;
-  var _center=new OpenSeadragon.Point(_X,_Y);
-  myViewer.viewport.panTo(_center,'true');
-  myViewer.viewport.zoomTo(_Zoom);
-  myViewer.viewport.applyConstraints();
-}
-
-function startPosition(_X,_Y,_Zoom) {
-  alertify.success("Calling startPosition..");
+function goPosition(_X,_Y,_Zoom) {
   var _center=new OpenSeadragon.Point(_X,_Y);
   myViewer.viewport.panTo(_center,'true');
   myViewer.viewport.zoomTo(_Zoom);
