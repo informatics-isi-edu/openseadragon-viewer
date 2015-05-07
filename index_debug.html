@@ -14,7 +14,7 @@
 <script type="text/javascript" src="js/jquery.viewer.js"> </script>
 <script type="text/javascript" src="js/openseadragon.js"> </script>
 <script>
-    $.holdReady(false);
+    $.holdReady(true);
 </script>
 </head>
 
@@ -24,9 +24,10 @@ body { background-color: black; }
 
 <body>
   <!-- The viewer -->
+  <input id="loadbtn" type="button" value="load"  onclick="this.style.visibility='hidden'; $.holdReady(false); document.getElementById('tools').style.display = 'block';" />
 
 <div class="viewer">
-  <div id="toolbarDiv" class="toolbar">
+  <div id="tools" style="display:none;" class="toolbar">
         <span style='float:right;margin:10px 0 0 20px'>
           <input class="snap" type="button" onclick="snapPosition()"/>
           <input class="go" type="button" onclick="snapGo()"/>

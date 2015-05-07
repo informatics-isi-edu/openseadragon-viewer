@@ -175,10 +175,8 @@ function updateTitle(_X,_Y,_Z) {
       if (t) {
         if ( t != newTitle ) {
             history.pushState(stateObj, 'Title', newTitle)
-            window.console.log("...replace the location..");
             return 1;
             } else {
-               window.console.log("...same place, no action");
                return 0;
         }
         return 0;
