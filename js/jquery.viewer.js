@@ -148,7 +148,7 @@ jQuery('pre.code').highlight({source:0, zebra:1, indent:'space', list:'ol'});
               myViewer.addHandler('canvas-exit', function(target) {
                 var button = document.getElementById('map-annotate-button');
                 /* make it invisible */
-                button.style.visibility='hidden';
+//                button.style.visibility='hidden';
               });
             }
         }
