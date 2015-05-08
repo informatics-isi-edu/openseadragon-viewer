@@ -1,0 +1,28 @@
+/*
+  from annotorious demo
+*/
+
+#map-annotate-button {
+    background-image: url(../images/feather_rest.png);
+/*
+    background-color: #9f9f9f;
+*/
+    background-color: transparent;
+    background-repeat: no-repeat;
+    position:absolute;
+    opacity: 0.8;
+    bottom:3px;
+    right:3px;
+    width:12px;
+    height:16px;
+    padding:16px 12px;
+    border:2px solid white;
+    border-bottom:1px solid #9f9f9f;
+    -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+    -webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+#map-annotate-button:hover {
+    background-image: url(../images/feather_hover.png);
+}

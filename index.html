@@ -8,25 +8,31 @@
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.css" rel="stylesheet">
 <link href="css/viewer.css" rel="stylesheet">
+<link href="css/osea_viewer.css" rel="stylesheet">
 
 <script type="text/javascript" src="js/alertify.min.js"> </script>
 <script type="text/javascript" src="js/jquery.js"> </script>
 <script type="text/javascript" src="js/jquery.viewer.js"> </script>
 <script type="text/javascript" src="js/openseadragon.js"> </script>
-<script>
-    $.holdReady(false);
-</script>
-</head>
 
-<style>
-body { background-color: black; }
-</style>
+<!-- for annotorious -->
+<link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
+<link href="css/annotorious/highlight.css" rel="stylesheet">
+<link href="css/anno_viewer.css" rel="stylesheet">
+
+<script type="text/javascript" src="js/annotorious.js"> </script>
+<script type="text/javascript" src="js/highlight.js"> </script>
+</head>
 
 <body>
   <!-- The viewer -->
-
 <div class="viewer">
-  <div id="viewDiv" class="openseadragon"></div>
+    <div style="position:relative; width:800px; height:500px; margin-bottom:0px;">
+      <div id="openseadragon" class="openseadragon"></div>
+      <div id="anno-button">
+      <input id="map-annotate-button" type="button"  onclick="annotate(); "/>
+      </div>
+    </div>
 </div>
 </body>
 </html>

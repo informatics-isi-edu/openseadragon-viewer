@@ -32,6 +32,9 @@ var startState=false;
 
 jQuery(document).ready(function() {
 
+// for annotorious
+jQuery('pre.code').highlight({source:0, zebra:1, indent:'space', list:'ol'});
+
 //process args
 //  var args = document.location.search.substring(1).split('?');
   var args= document.location.href.split('?');
@@ -79,12 +82,13 @@ jQuery(document).ready(function() {
       } else {
         if( e.match(/deepzoom/)) { // not ours, call direct
           myViewer = OpenSeadragon({
-                   id: "viewDiv",
+                   id: "openseadragon",
                    prefixUrl: "images/",
 //                   debugMode: "true",
                    showNavigator: true,
                    tileSources: url
                    });
+          anno.makeAnnotatable(myViewer);
           } else {
             var r = extractInfo(e); 
             if( r != null) {
@@ -101,13 +105,13 @@ jQuery(document).ready(function() {
               
               path = url.replace('ImageProperties.xml',_dir);
               myViewer = OpenSeadragon({
-                         id: "viewDiv",
+                         id: "openseadragon",
                          prefixUrl: "images/",
 //                       debugMode: "true",
                          showNavigator: "true",
-constrainDuringPan: true,
-defaultZoomLevel: _realMin,
-visibilityRatio: 	1,
+                         constrainDuringPan: true,
+                         defaultZoomLevel: _realMin,
+                         visibilityRatio: 	1,
                          tileSources: {
                            height: _height,
                            width:  _width,
@@ -121,6 +125,8 @@ visibilityRatio: 	1,
                          }
                         });
 
+              anno.makeAnnotatable(myViewer);
+
             // if logX, logY, logZoom are not null
               if( (logX != null) && (logY != null) && (logZoom !=null)) {
                 startState=true;
@@ -133,6 +139,16 @@ visibilityRatio: 	1,
                     } else {
                       savePosition();
                   }
+              });
+              myViewer.addHandler('canvas-enter', function(target) {
+                /* make it visible */
+                var button = document.getElementById('map-annotate-button');
+                button.style.visibility='visible';
+              });
+              myViewer.addHandler('canvas-exit', function(target) {
+                var button = document.getElementById('map-annotate-button');
+                /* make it invisible */
+                button.style.visibility='hidden';
               });
             }
         }
@@ -302,3 +318,17 @@ function extractInfo(str) {
 
   return [_h,_w,_t,_min,_max,_dir];
 }
+
+/***** for annotorious *****/
+function annotate() {
+window.console.log("click on annotate..");
+  var button = document.getElementById('map-annotate-button');
+  button.style.color = '#777';
+
+  anno.activateSelector(function() {
+    // Reset button style
+    button.style.color = '#fff';
+  });
+}
+
+
