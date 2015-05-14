@@ -4,10 +4,7 @@
 
 #map-annotate-button {
     background-image: url(../images/feather_rest.png);
-/*
-    background-color: #9f9f9f;
-*/
-    background-color: transparent;
+    background-color: #ccc;
     background-repeat: no-repeat;
     position:absolute;
     opacity: 0.8;
@@ -20,4 +17,7 @@
 
 #map-annotate-button:hover {
     background-image: url(../images/feather_hover.png);
+}
+#map-annotate-button:active {
+    background-image: url(../images/feather_pressed.png);
 }

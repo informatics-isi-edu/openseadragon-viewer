@@ -12,27 +12,32 @@
 
 <script type="text/javascript" src="js/alertify.min.js"> </script>
 <script type="text/javascript" src="js/jquery.js"> </script>
+
+<!-- for openseadragon and viewer -->
 <script type="text/javascript" src="js/jquery.viewer.js"> </script>
 <script type="text/javascript" src="js/openseadragon.js"> </script>
 
 <!-- for annotorious -->
 <link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
-<link href="css/annotorious/highlight.css" rel="stylesheet">
 <link href="css/anno_viewer.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
 
 <script type="text/javascript" src="js/annotorious.min.js"> </script>
 <script type="text/javascript" src="js/highlight.js"> </script>
+
+<script type="text/javascript" src="js/jquery.viewer_anno.js"> </script>
 </head>
 
 <body>
   <!-- The viewer -->
+
 <div class="viewer">
-    <div style="position:relative; width:800px; height:500px; margin-bottom:0px;">
-      <div id="openseadragon" class="openseadragon"></div>
-      <div id="anno-button">
-      <input id="map-annotate-button" type="button"  onclick="annotate(); "/>
-      </div>
+  <div style="position:relative; width:800px; height:500px; margin-bottom:0px;">
+    <div id="openseadragon" class="openseadragon"></div>
+    <div id="anno-button">
+      <input id="map-annotate-button" type="button" style="display:hidden" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
     </div>
+  </div>
 </div>
 </body>
 </html>

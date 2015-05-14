@@ -32,9 +32,6 @@ var startState=false;
 
 jQuery(document).ready(function() {
 
-// for annotorious
-jQuery('pre.code').highlight({source:0, zebra:1, indent:'space', list:'ol'});
-
 //process args
 //  var args = document.location.search.substring(1).split('?');
   var args= document.location.href.split('?');
@@ -88,7 +85,7 @@ jQuery('pre.code').highlight({source:0, zebra:1, indent:'space', list:'ol'});
                    showNavigator: true,
                    tileSources: url
                    });
-          anno.makeAnnotatable(myViewer);
+          annoSetup(anno,myViewer);
           } else {
             var r = extractInfo(e); 
             if( r != null) {
@@ -125,7 +122,7 @@ jQuery('pre.code').highlight({source:0, zebra:1, indent:'space', list:'ol'});
                          }
                         });
 
-              anno.makeAnnotatable(myViewer);
+              annoSetup(anno,myViewer);
 
             // if logX, logY, logZoom are not null
               if( (logX != null) && (logY != null) && (logZoom !=null)) {
@@ -142,13 +139,14 @@ jQuery('pre.code').highlight({source:0, zebra:1, indent:'space', list:'ol'});
               });
               myViewer.addHandler('canvas-enter', function(target) {
                 /* make it visible */
-                var button = document.getElementById('map-annotate-button');
-                button.style.visibility='visible';
+window.console.log("canvas-enter is on..");
+                annoBtnFadeIn();
               });
+
               myViewer.addHandler('canvas-exit', function(target) {
-                var button = document.getElementById('map-annotate-button');
                 /* make it invisible */
-//                button.style.visibility='hidden';
+window.console.log("-->canvas-exit is on..");
+                annoBtnFadeOut();
               });
             }
         }
@@ -318,17 +316,4 @@ function extractInfo(str) {
 
   return [_h,_w,_t,_min,_max,_dir];
 }
-
-/***** for annotorious *****/
-function annotate() {
-window.console.log("click on annotate..");
-  var button = document.getElementById('map-annotate-button');
-  button.style.color = '#777';
-
-  anno.activateSelector(function() {
-    // Reset button style
-    button.style.color = '#fff';
-  });
-}
-
 

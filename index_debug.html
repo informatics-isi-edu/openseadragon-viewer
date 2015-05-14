@@ -8,32 +8,49 @@
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.css" rel="stylesheet">
 <link href="css/viewer.css" rel="stylesheet">
+<link href="css/osea_viewer.css" rel="stylesheet">
 
 <script type="text/javascript" src="js/alertify.min.js"> </script>
 <script type="text/javascript" src="js/jquery.js"> </script>
+
+<!-- for openseadragon and viewer -->
 <script type="text/javascript" src="js/jquery.viewer.js"> </script>
 <script type="text/javascript" src="js/openseadragon.js"> </script>
+
+<!-- for annotorious -->
+<link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
+<link href="css/anno_viewer.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+
+<script type="text/javascript" src="js/annotorious.min.js"> </script>
+<script type="text/javascript" src="js/highlight.js"> </script>
+
+<script type="text/javascript" src="js/jquery.viewer_anno.js"> </script>
 <script>
     $.holdReady(true);
 </script>
 </head>
 
-<style>
-body { background-color: black; }
-</style>
-
 <body>
   <!-- The viewer -->
-  <input id="loadbtn" type="button" value="load"  onclick="this.style.visibility='hidden'; $.holdReady(false); document.getElementById('tools').style.display = 'block';" />
+<input id="loadbtn" type="button" value="load"  onclick="this.style.visibility='hidden'; $.holdReady(false); document.getElementById('tools').style.display = 'block';" />
 
 <div class="viewer">
-  <div id="tools" style="display:none;" class="toolbar">
+  <div style="position:relative; width:800px; height:50px; margin-bottom:0px;">
+    <div id="tools" class="toolbar">
         <span style='float:right;margin:10px 0 0 20px'>
           <input class="snap" type="button" onclick="snapPosition()"/>
           <input class="go" type="button" onclick="snapGo()"/>
+          <input class="dump" type="button" value="dump" onclick="annoDump()"/>
         </span>
+    </div>
   </div>
-  <div id="viewDiv" class="openseadragon"></div>
+  <div style="position:relative; width:800px; height:500px; margin-bottom:0px;">
+    <div id="openseadragon" class="openseadragon"></div>
+    <div id="anno-button">
+      <input id="map-annotate-button" type="button" style="display:hidden" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
+    </div>
+  </div>
 </div>
 </body>
 </html>
