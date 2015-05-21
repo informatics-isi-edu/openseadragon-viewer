@@ -1,68 +1,161 @@
 
 /* functions related to annotorious */
 
-var myHovering=false;
 var myAnno=null;
 
+var CREATE_EVENT_TYPE='CREATE';
+var UPDATE_EVENT_TYPE='UPDATE';
+var REMOVE_EVENT_TYPE='REMOVE';
+var INFO_EVENT_TYPE='INFO';
+
+/*
+  http://stackoverflow.com/questions/7616461/
+        generate-a-hash-from-string-in-javascript-jquery
+*/
+String.prototype.hashCode = function() {
+  var hash = 0;
+  var len=this.length;
+  for (var i = 0; i < len; i++) {
+    hash  = ((hash << 5) - hash) + this.charCodeAt(i);
+    hash = hash >>> 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+function getHash(item) {
+   var txt= item.context
+              +item.shapes[0].geometry.x
+                +item.shapes[0].geometry.y
+              +item.shapes[0].geometry.width
+                +item.shapes[0].geometry.height;
+   return txt.hashCode();
+}
+   
 function annoDump() {
-//  var json=annoMakeJson(myAnno);
   var p=myAnno.getAnnotations();
-  alertify.success("got "+p.length+" annotations..");
-  var i=p[0];
+  var len=p.length;
+  var tmp="";
+  for(var i=0; i < len; i++) {
+      tmp=tmp + annoLog(p[i],INFO_EVENT_TYPE);
+  }
+  return tmp;
+}
+
+
+function annoExist(item) {
+  var p=myAnno.getAnnotations();
+  for (var i = 0; i < p.length; i++) {
+    if (getHash(p[i]) === getHash(item)) {
+       return 1;
+    }
+  }
+  return 0;
 }
 
 function annoSetup(_anno,_viewer) {
   _anno.makeAnnotatable(_viewer);
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
-    annoPrint(item);
-    var p=_anno.getAnnotations();
+    var json=annoLog(item,CREATE_EVENT_TYPE);
+  });
+  _anno.addHandler("onAnnotationRemoved", function(target) {
+    var item=target;
+    var json=annoLog(item,REMOVE_EVENT_TYPE);
+    makeDummy();
+  });
+  _anno.addHandler("onAnnotationUpdated", function(target) {
+    var item=target;
+    var json=annoLog(item,UPDATE_EVENT_TYPE);
   });
   myAnno=_anno;
 }
 
-function annoMakeJson() {
-  var a=myAnno.getAnnotations();
-  return a;
+function annoInject(item, item2) {
+  printDebug("======");
+  if( annoExist(item) ) { 
+    return;
+  }
+  myAnno.addAnnotation(item);
+
+/* following did not work..
+  annoDump();
+  printDebug("XXXXXXX");
+  myAnno.addAnnotation(item2,item);
+  annoDump();
+*/
 }
 
-function annoLoadJson(json) {
-}
-
-function annoMakeAnno()
+// only shape supported is rect
+function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
 {
-var myAnnotation = {
-  /** The URL of the image where the annotation should go **/
-  src : 'http://www.example.com/myimage.jpg',
+  var myAnnotation = {
+    src : _src,
+    context : _context,
+    text : _text,
+    shapes : [{
+      type : 'rect',
+      geometry : { x : _x, y: _y, width : _width, height: _height }
+    }]
+  } 
 
-  /** The annotation text **/
-  text : 'My annotation',
+  var _w2= _width *2;
+  var _h2= _height/2;
+  var myAnnotation2 = {
+    src : _src,
+    context : _context,
+    text : _text+"and a new one..",
+    shapes : [{
+      type : 'rect',
+      geometry : { x : _x, y: _y, width : _w2, height: _h2 }
+    }]
+  } 
 
-  /** The annotation shape **/
-  shapes : [{
-    /** The shape type **/
-    type : 'rect',
-
-    /** The shape geometry (relative coordinates) **/
-    geometry : { x : 0.1, y: 0.1, width : 0.4, height: 0.3 }
-  }]
-} 
+  annoInject(myAnnotation, myAnnotation2);
 }
 
-function annoPrint(item) {
-   var msg=  "src is =>"+item.src+ "<br/>";
-   msg= msg+ "context is =>"+item.context+ "<br/>";
-   msg= msg+ "text is =>"+item.text+ "<br/>";
-   msg= msg+ "shapes is =>"+item.shapes[0].type + "<br/>";
-   msg= msg+ "x,y is =>"+item.shapes[0].geometry.x +
-                     " "+ +item.shapes[0].geometry.y + "<br/>";
-   msg= msg+ "height,width is =>"+item.shapes[0].geometry.height +
-                     " "+ +item.shapes[0].geometry.width + "<br/>";
-   alertify.confirm(msg);
+function makeDummy() {
+  annoMakeAnno(
+    "dzi://openseadragon/something",
+    "http://localhost/tiletiff/index.html?url=http://localhost/tiletiff/data/wide.dzi",
+    "123",
+    0.6491228070175439,
+    -0.017857142857142877,
+    0.032581453634085156,
+    0.3020050125313283
+  );
+}
+
+function annoLog(item, eventType) {
+   var hash=getHash(item);
+   var data = { src:item.src,
+                context:item.context,
+                text:item.text,
+                shape:item.shapes[0].type,
+                x: item.shapes[0].geometry.x,
+                y: item.shapes[0].geometry.y,
+                width: item.shapes[0].geometry.width,
+                height: item.shapes[0].geometry.height
+              };
+   var tmp= { type: 'openseadragon_dzi',
+              id : hash,
+              event : eventType,
+              data : data
+            };
+
+   var json = JSON.stringify(tmp,null,2);
+  
+/* if data has url embedded in there. need to escape with
+encoded = encodeURIComponent( parm )
+*/
+   if( debug ) {
+      printDebug(json);
+      } else {
+        alertify.confirm(json);
+   }
+   return json;
 }
 
 function annotate() {
-window.console.log("click on annotate..");
   var button = document.getElementById('map-annotate-button');
   button.style.color = '#777';
 
@@ -73,27 +166,24 @@ window.console.log("click on annotate..");
 }
 
 function annoBtnEnter() {
-   myHovering=true;
    annoBtnFadeIn();
 }
 
 function annoBtnExit() {
-   myHovering=false;
 }
 
 function annoBtnFadeOut() {
-window.console.log("calling fadeOut..");
+window.console.log("-->calling fadeOut..");
 
-  if(myHovering == true) {
-window.console.log("(don't fade), hovering is "+myHovering);
-    return;
-  }
   var $button = $("#map-annotate-button");
-  if( ($button).is(":hover") ){
-      window.console.log("SKIP OUT...");
-      return;
+
+  if ($button.is(':hover')) {
+window.console.log("..don't fade..");
+  } else {
+    $button.fadeOut(2000);
+window.console.log("..fading for sure..");
   }
-  $button.fadeOut(2000);
+
 }
 
 function annoBtnFadeIn(){

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title> okfn_demo viewer </title>
+<link href="css/annotorious/style.css" rel="stylesheet">
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/alertify.core.css" rel="stylesheet">
+<link href="css/alertify.default.css" rel="stylesheet">
+<link href="css/jquery-ui.css" rel="stylesheet">
+<link href="css/viewer.css" rel="stylesheet">
+<link href="css/osea_viewer.css" rel="stylesheet">
+
+<script type="text/javascript" src="js/alertify.min.js"> </script>
+<script type="text/javascript" src="js/jquery.js"> </script>
+<script type="text/javascript" src="js/debug.js"> </script>
+
+<!-- for openseadragon and viewer -->
+<script type="text/javascript" src="js/jquery.viewer.js"> </script>
+<script type="text/javascript" src="js/openseadragon.js"> </script>
+
+<!-- for annotorious -->
+<link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
+<link href="css/anno_viewer.css" rel="stylesheet">
+<script type="text/javascript" src="js/jquery.viewer_anno.js"> </script>
+<script type="text/javascript" src="js/annotorious.js"> </script>
+
+<!-- for annotorious okfn/annotator plugin  -->
+<link rel='stylesheet' href='css/annotator.css'>
+<link rel="stylesheet" href="css/annotorious.okfn.css" type="text/css" />
+
+<script type="text/javascript" src="js/stock/annotator.min.js"> </script>
+<script type="text/javascript" src="js/stock/annotorious.okfn.js"> </script>
+
+    <script>
+      window.onload = function() {
+        $(document.body).annotator()
+          .annotator('addPlugin', 'AnnotoriousImagePlugin');
+      }
+    </script>
+  </head>
+
+  <body>
+<div class="viewer">
+  <div id="viewer"  style="position:relative; width:800px; height:500px; margin-bottom:0px;">
+    <div id="openseadragon" class="openseadragon"></div>
+    <div id="anno-button">
+      <input id="map-annotate-button" type="button" style="display:hidden" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
+    </div>
+  </div>
+</div>
+
+    <div class="content" id="annotatable-area">
+      <h1>Annotation Test Page</h1>
+      <p>
+        This is a simple test page for the Annotorious Image Plugin for <em>Annotator</em>. Select some text to annotate
+        with <em>Annotator</em>, hover the mouse over the image to annotate with the Annotorious plugin. Use this page
+        as a reference when annotation-enabling your own pages!
+      </p>
+      
+      <h2>Test Image</h2>
+      <div style="float:right; margin:0px 0px 10px 20px;">
+        <img src="data/Hallstatt.jpg" class="annotatable">
+        <p class="image-caption">
+          Hallstatt, Austria. By Nick Csakany, 2007. Public Domain. Source:
+          <a href="http://commons.wikimedia.org/wiki/File:Hallstatt_300.jpg">Wikimedia
+          Commons</a>          
+        </p>
+      </div>
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut varius 
+        diam posuere quam molestie vestibulum. Vestibulum non volutpat elit. Integer 
+        vitae felis eget magna rutrum sagittis. Nulla facilisi. Praesent a consectetur
+        velit. Cras eget nibh est, eu imperdiet mauris. Nulla quis justo urna. Sed eu
+        rutrum mauris. Integer aliquet nulla sit amet ante mollis pellentesque.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut varius 
+        diam posuere quam molestie vestibulum. Vestibulum non volutpat elit. Integer 
+        vitae felis eget magna rutrum sagittis. Nulla facilisi. Praesent a consectetur
+        velit. Cras eget nibh est, eu imperdiet mauris. Nulla quis justo urna. Sed eu
+        rutrum mauris. Integer aliquet nulla sit amet ante mollis pellentesque.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut varius 
+        diam posuere quam molestie vestibulum. Vestibulum non volutpat elit. Integer 
+        vitae felis eget magna rutrum sagittis. Nulla facilisi. Praesent a consectetur
+        velit. Cras eget nibh est, eu imperdiet mauris. Nulla quis justo urna. Sed eu
+        rutrum mauris. Integer aliquet nulla sit amet ante mollis pellentesque.
+      </p>
+
+      <h2 style="clear:both;">Getting Started</h2>
+      <p>
+        To use Annotorious, link the <strong>annotorious.css</strong> stylesheet into the &lt;head&gt;
+        of your HTML page.
+      </p>
+
+      <p>
+        <code>
+          &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href="annotorious.css" /&gt;
+        </code>
+      </p>
+        
+      <p>
+        Include the <strong>annotorious.min.js</strong> script at the end of the document &lt;body&gt;.
+      </p>
+      <p>
+        <code>
+          &lt;script type=&quot;text/javascript&quot; src=&quot;annotorious.min.js&quot;&gt;&lt;/script&gt;<br/>
+        </code>
+      </p>
+      <p style="padding:20px;"/>
+    </div>
+  </body>  
+</html>

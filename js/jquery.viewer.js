@@ -2,7 +2,7 @@
 /* run : 
 
   http://localhost/tiletiff/index.html?
-         url=http://localhost/tiletiff/data/tall.dzi
+         url=http://localhost/tiletiff/data/wide.dzi
 or
   http://localhost/tiletiff/index.html?
          http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
