@@ -147,13 +147,13 @@ jQuery(document).ready(function() {
               });
               myViewer.addHandler('canvas-enter', function(target) {
                 /* make it visible */
-window.console.log("canvas-enter is on..");
+//window.console.log("canvas-enter is on..");
                 annoBtnFadeIn();
               });
 
               myViewer.addHandler('canvas-exit', function(target) {
                 /* make it invisible */
-window.console.log("-->canvas-exit is on..");
+//window.console.log("-->canvas-exit is on..");
                 annoBtnFadeOut();
               });
             }

@@ -6985,7 +6985,7 @@ $.Viewer = function( options ) {
         maxImageCacheCount: this.maxImageCacheCount
     });
 
-window.console.log("creating a drawer with opacity of.."+this.opacity);
+//window.console.log("creating a drawer with opacity of.."+this.opacity);
     // Create the drawer
     this.drawer = new $.Drawer({
         viewer:             this,
@@ -8906,7 +8906,7 @@ function onCanvasClick( event ) {
     var gestureSettings;
 
 
-window.console.log("onCanvasClick");
+//window.console.log("onCanvasClick");
     var haveKeyboardFocus = document.activeElement == this.canvas;
 
     // If we don't have keyboard focus, request it.
@@ -8917,7 +8917,7 @@ window.console.log("onCanvasClick");
     if ( !event.preventDefaultAction && this.viewport && event.quick ) {
         gestureSettings = this.gestureSettingsByDeviceType( event.pointerType );
         if ( gestureSettings.clickToZoom ) {
-window.console.log("calling zoomBy from canvas click..");
+//window.console.log("calling zoomBy from canvas click..");
             this.viewport.zoomBy(
                 event.shift ? 1.0 / this.zoomPerClick : this.zoomPerClick,
                 this.viewport.pointFromPixel( event.position, true )

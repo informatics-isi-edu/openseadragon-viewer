@@ -173,15 +173,15 @@ function annoBtnExit() {
 }
 
 function annoBtnFadeOut() {
-window.console.log("-->calling fadeOut..");
+//window.console.log("-->calling fadeOut..");
 
   var $button = $("#map-annotate-button");
 
   if ($button.is(':hover')) {
-window.console.log("..don't fade..");
+//window.console.log("..don't fade..");
   } else {
     $button.fadeOut(2000);
-window.console.log("..fading for sure..");
+//window.console.log("..fading for sure..");
   }
 
 }
