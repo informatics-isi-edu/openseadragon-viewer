@@ -2,11 +2,20 @@
 /* run : 
 
   http://localhost/tiletiff/index.html?
+         http://localhost/tiletiff/data/wide.dzi
+       or
          url=http://localhost/tiletiff/data/wide.dzi
 or
   http://localhost/tiletiff/index.html?
          http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
          &x=0.123&y=1.234&m=2.5
+       or just
+         http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
+or
+  http://localhost/tiletiff/index.html?
+         url=http://localhost/tiletiff/data/first.dzi
+         &url=http://localhost/tiletiff/data/second.dzi
+         &url=http://localhost/tiletiff/data/third.dzi
 */
 
 
@@ -48,10 +57,9 @@ jQuery(document).ready(function() {
   
         if (param.indexOf('=') == -1)
         {
-            logURL=param.replace(new RegExp('/$'),'').trim();
+          logURL=param.replace(new RegExp('/$'),'').trim();
         }
-        else
-        {
+        else {
             kvp = param.split('=');
             if(kvp[0].trim() == 'url') {
                 logURL=kvp[1].replace(new RegExp('/$'),'').trim();

@@ -6985,6 +6985,7 @@ $.Viewer = function( options ) {
         maxImageCacheCount: this.maxImageCacheCount
     });
 
+window.console.log("creating a drawer with opacity of.."+this.opacity);
     // Create the drawer
     this.drawer = new $.Drawer({
         viewer:             this,
