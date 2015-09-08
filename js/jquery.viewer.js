@@ -22,6 +22,7 @@ or
 /* tracking current location .. */
 
 var myViewer=null;
+var usingAnno=false;
 
 /* for snap and go buttons */
 var snapX=null;
@@ -93,7 +94,9 @@ jQuery(document).ready(function() {
                    showNavigator: true,
                    tileSources: url
                    });
-          annoSetup(anno,myViewer);
+          if (typeof annoSetup === "function") { 
+            annoSetup(anno,myViewer);
+          }
           } else {
             var r = extractInfo(e); 
             if( r != null) {
@@ -130,7 +133,9 @@ jQuery(document).ready(function() {
                          }
                         });
 
-              annoSetup(anno,myViewer);
+              if (typeof annoSetup === "function") { 
+                annoSetup(anno,myViewer);
+              }
 
             // if logX, logY, logZoom are not null
               if( (logX != null) && (logY != null) && (logZoom !=null)) {
@@ -148,13 +153,17 @@ jQuery(document).ready(function() {
               myViewer.addHandler('canvas-enter', function(target) {
                 /* make it visible */
 //window.console.log("canvas-enter is on..");
-                annoBtnFadeIn();
+                if (typeof annoBtnFadeIn === "function") { 
+                  annoBtnFadeIn();
+                }
               });
 
               myViewer.addHandler('canvas-exit', function(target) {
                 /* make it invisible */
 //window.console.log("-->canvas-exit is on..");
-                annoBtnFadeOut();
+                if (typeof annoBtnFadeOut === "function") { 
+                  annoBtnFadeOut();
+                }
               });
             }
         }
