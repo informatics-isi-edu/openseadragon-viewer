@@ -19,7 +19,7 @@
   position:absolute;
   top:6px;
   left: 5px;
-  background:url('feather_icon.png');
+  background:none;
   background-repeat: no-repeat;
   width:19px;
   height:22px;
@@ -29,7 +29,7 @@
 /** Popup **/
 
 .annotorious-popup {
-  line-height:135%;
+  line-height:135%; 
   font-family:Arial, Verdana, Sans;
   font-size:12px;
   color:#000;
