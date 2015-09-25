@@ -16,6 +16,9 @@ or
          url=http://localhost/tiletiff/data/first.dzi
          &url=http://localhost/tiletiff/data/second.dzi
          &url=http://localhost/tiletiff/data/third.dzi
+
+Should not use dzi if there is special setting for MINLEVEL or MAXLEVEL
+(the ImageProperties.xml should be used for our application by default)
 */
 
 
@@ -110,8 +113,17 @@ jQuery(document).ready(function() {
 //this is needed because there is no level 0
               if(_minLevel != 0)
                   _realMin = _minLevel+1;
-              
-              path = url.replace('ImageProperties.xml',_dir);
+/* usually data is at the same level with url.. */
+              path = url.replace('/ImageProperties.xml','');
+              if(_dir.split('/').length > 1) {
+                if(_dir.search('http')==0) {
+                  path = _dir;
+                }
+                } else {
+                  if(url.search(_dir) == -1) {
+                       alertify.error("data jpegs should be at the same level as ImageProperties.xml");
+                  }
+              }
               myViewer = OpenSeadragon({
                          id: "openseadragon",
                          prefixUrl: "images/",
