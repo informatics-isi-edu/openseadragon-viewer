@@ -68,7 +68,16 @@ function _addURLLayer(url) {
     if(_minLevel != 0)
       _realMin = _minLevel+1;
               
-    path = url.replace('ImageProperties.xml',_dir);
+    path = url.replace('/ImageProperties.xml','');
+    if(_dir.split('/').length > 1) {
+      if(_dir.search('http')==0) {
+        path = _dir;
+      }
+      } else {
+        if(url.search(_dir) == -1) {
+          alertify.error("data jpegs should be at the same level as ImageProperties.xml");
+        }
+    }
     var options = {
                   tileSource: {
                      height: _height,
