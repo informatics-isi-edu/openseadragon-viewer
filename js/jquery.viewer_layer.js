@@ -14,6 +14,9 @@ jQuery(document).ready(function() {
                    constrainDuringPan: true,
                    visibilityRatio: 	1,
              });
+   if (typeof annoSetup === "function") {
+     annoSetup(anno,myViewer);
+   }
 
 });
 
@@ -194,8 +197,9 @@ function _updateOpacity(layerID, newOpacity) {
 }
 
 function _getDZI(str) {
-  var res = str.split("_DZI");
-  var name =  res[0].split("/").pop();
+  var res = str.split("DZI");
+/* res[1] -> /DAPI/ImageProperties.xml */
+  var name =  res[1].split("/")[1];
   window.console.log(name);
   return name;
 }
