@@ -25,7 +25,6 @@ Should not use dzi if there is special setting for MINLEVEL or MAXLEVEL
 /* tracking current location .. */
 
 var myViewer=null;
-var usingAnno=false;
 
 /* for snap and go buttons */
 var snapX=null;

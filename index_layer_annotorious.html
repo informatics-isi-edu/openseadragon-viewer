@@ -2,26 +2,35 @@
 <meta charset="utf-8">
 <head>
 <title>2D layering viewer</title>
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/alertify.core.css" rel="stylesheet">
+<link href="css/alertify.default.css" rel="stylesheet">
+<link href="css/jquery-ui.css" rel="stylesheet">
+<link href="css/viewer.css" rel="stylesheet">
+<link href="css/osea_viewer.css" rel="stylesheet">
+
 <script type="text/javascript" src="js/alertify.min.js"> </script>
-<script type='text/javascript' src='js/openseadragon.js'></script>
+<script type="text/javascript" src="js/debug.js"> </script>
 <script type='text/javascript' src='js/jquery.js'></script>
+
+<!-- for openseadragon and viewer -->
 <script type='text/javascript' src='js/jquery.viewer_layer.js'></script>
+<script type='text/javascript' src='js/openseadragon.js'></script>
 <style>
       #content {
           width: 100%;
           height: 100%;
           background-color: #d9d9d9;
       }
-
-      .openseadragon {
-          width: 800px;
-          height:500px;
-          background-color: white;
-          border:4px solid red;
-      }
  </style>
 
+<!-- for annotorious -->
+<link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
+<link href="css/anno_viewer.css" rel="stylesheet">
+<script type="text/javascript" src="js/annotorious.js"> </script>
+<script type="text/javascript" src="js/jquery.viewer_anno.js"> </script>
 </head>
+
 <body>
   <div id="content">
       <div>
@@ -64,7 +73,13 @@
       <button onclick="chkInfo();" style='margin:4px; background:#FF9999;'>Info</button>
   </div>
 
-  <div id="openseadragon" class="openseadragon" >
+  <div class="viewer">
+    <div id="viewer"  style="position:relative; width:800px; height:500px; margin-bottom:0px; border:4px solid red; ">
+      <div id="openseadragon" class="openseadragon" style="background-color:white;"></div>
+      <div id="anno-button">
+        <input id="map-annotate-button" type="button" style="display:hidden" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
+      </div>
+    </div>
   </div>
 </body>
 </html>
