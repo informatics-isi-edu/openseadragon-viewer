@@ -197,7 +197,7 @@ function _updateOpacity(layerID, newOpacity) {
 }
 
 function _getDZI(str) {
-  var res = str.split("DZI");
+  var res = str.split("DZC");
 /* res[1] -> /DAPI/ImageProperties.xml */
   var name =  res[1].split("/")[1];
   window.console.log(name);
@@ -245,7 +245,7 @@ function chkInfo() {
 
 function updateOpacity() {
   var pElm = document.getElementById('inputLayer');
-  var pOpacity = document.getElementById('inputOpacity');
+  var pOpacity = document.getElementById('updateOpacity');
   _updateOpacity(pElm.value, pOpacity.value);
 }
             
