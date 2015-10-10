@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<title>2D++ layering viewer</title>
+<script type="text/javascript" src="js/alertify.min.js"> </script>
+<script type='text/javascript' src='js/openseadragon.js'></script>
+<script type='text/javascript' src='js/jquery.js'></script>
+<script type='text/javascript' src='js/jquery.viewer_layer.js'></script>
+<style>
+      #content {
+          width: 100%;
+          height: 100%;
+          background-color: #d9d9d9;
+      }
+
+      .openseadragon {
+          width: 800px;
+          height:500px;
+          background-color: white;
+          border:4px solid red;
+      }
+ </style>
+
+</head>
+<body>
+  <div id="content">
+      <div>
+      <div style='margin-left:20px'>
+      data source:
+      <select id="inputURL" >
+<!-- canned data -->
+         <option value="A" selected>A</option>
+         <option value="BBlue">BBlue</option>
+         <option value="CCyan">CCyan</option>
+         <option value="DDandelion">DDandelion</option>
+<!-- real test data --> 
+        <option value="http://localhost/data/cirm/real3/DZI/ImageProperties.xml">all</option>
+        <option value="http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml">dapi</option>
+        <option value="http://localhost/data/cirm/real3/DZC/Alexa 
+Fluor 488/ImageProperties.xml" >AF488</option>
+        <option value="http://localhost/data/cirm/real3/DZC/Alexa 
+Fluor 555/ImageProperties.xml" >AF555</option>
+      </select>
+      </div>
+      <div style='margin-left:20px'>
+      opacity:<input id="inputOpacity" value="0.6"/>
+      </div>
+      <button onclick="addData();" style='margin:2px; background:#FF9999;'>Add</button>
+      <div>
+      <div style='margin-left:20px'>
+      select layer:
+      <select id="inputLayer" >NONE</select>
+      </div>
+      <div style='margin-left:20px'>
+      new opacity:<input id="updateOpacity" value="0.2"/>
+      </div>
+      <button onclick="spreadLayer();" style='margin:2px; background:#FF9999;'>spreadLayer</button>
+      <button onclick="removeLayer();" style='margin:2px; background:#FF9999;'>removeLayer</button>
+      <button onclick="updateOpacity();" style='margin:2px; background:#FF9999;'">updateOpacity</button>
+      </div>
+      <button onclick="chkInfo();" style='margin:4px; background:#FF9999;'>Info</button>
+  </div>
+
+  <div id="openseadragon" class="openseadragon" >
+  </div>
+</body>
+</html>
+
+

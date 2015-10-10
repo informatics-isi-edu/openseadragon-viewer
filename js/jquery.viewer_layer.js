@@ -1,5 +1,5 @@
 /* 
-url=>http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
+url=>http://localhost/tiletiff/data/real3/DZI/ImageProperties.xml
 */
 var myViewer=null;
 var layers = { };
@@ -59,7 +59,7 @@ function _addURLLayer(url) {
   var e = ckExist(url);
   var r = extractInfo(e); 
   if( r != null) {
-    var name=_getDZI(url);
+    var name=_getName(url);
     var _height=r[0];
     var _width=r[1];
     var _tileSize=r[2];
@@ -196,12 +196,19 @@ function _updateOpacity(layerID, newOpacity) {
   item.setOpacity(newOpacity);
 }
 
-function _getDZI(str) {
-  var res = str.split("DZI");
+function _getName(str) {
+/* if there is a '/DZC/' */
+  if(str.search('/DZC/') != -1) {
+    var res = str.split("DZC");
 /* res[1] -> /DAPI/ImageProperties.xml */
-  var name =  res[1].split("/")[1];
-  window.console.log(name);
-  return name;
+    var name =  res[1].split("/")[1];
+    return name;
+  } else {
+    var res = str.split("/DZI");
+    var name =  res[0].split("/").pop();
+    return name;
+  }
+  return 'UNKNOWN';
 }
 
 function _chkHTTP(str) {
@@ -245,7 +252,7 @@ function chkInfo() {
 
 function updateOpacity() {
   var pElm = document.getElementById('inputLayer');
-  var pOpacity = document.getElementById('inputOpacity');
+  var pOpacity = document.getElementById('updateOpacity');
   _updateOpacity(pElm.value, pOpacity.value);
 }
             
