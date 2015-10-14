@@ -62,10 +62,11 @@ function _addURLLayer(url) {
     var name=_getName(url);
     var _height=r[0];
     var _width=r[1];
-    var _tileSize=r[2];
-    var _minLevel=r[3];
-    var _maxLevel=r[4];
-    var _dir=r[5];
+    var _tileWidth=r[2];
+    var _tileHeight=r[3];
+    var _minLevel=r[4];
+    var _maxLevel=r[5];
+    var _dir=r[6];
     var _realMin=_minLevel;
 //this is needed because there is no level 0
     if(_minLevel != 0)
@@ -85,7 +86,8 @@ function _addURLLayer(url) {
                   tileSource: {
                      height: _height,
                      width:  _width,
-                     tileSize: _tileSize,
+                     tileWidth: _tileWidth,
+                     tileHeight: _tileHeight,
                      minLevel: _minLevel,
                      maxLevel: _maxLevel,
                      getTileUrl: function( level, x, y ) {
@@ -133,10 +135,14 @@ function extractInfo(str) {
      _w=parseInt(_w);
      else alertify.error("Error: DZI image must have a width");
 
-  var _t=imageElem[0].getAttribute("TILESIZE");
-  if(_t != null)
-     _t=parseInt(_t);
-     else alertify.error("Error: DZI image must have a tilesize");
+  var _tw=imageElem[0].getAttribute("TILEWIDTH");
+  var _th=imageElem[0].getAttribute("TILEHEIGHT");
+  if( _tw == null || _th == null) {
+     alertify.error("Error: DZI image must have tileWidth & tileHeight");
+     } else {
+       _tw=parseInt(_tw,10);
+       _th=parseInt(_th,10);
+  }
 
   var _min=imageElem[0].getAttribute("MINLEVEL");
   if(_min != null)
@@ -152,11 +158,11 @@ function extractInfo(str) {
   if(_dir == null)
      alertify.error("Error: DZI image must have a data directory name");
 
-  if(_h == null || _w == null || _t == null || 
+  if(_h == null || _w == null || _tw == null || _th == null ||
         _min == null || _max == null || _dir == null )
      return null; 
 
-  return [_h,_w,_t,_min,_max,_dir];
+  return [_h,_w,_tw,_th,_min,_max,_dir];
 }
 
 function getOpacity() {
