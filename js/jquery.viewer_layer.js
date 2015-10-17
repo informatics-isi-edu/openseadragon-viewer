@@ -64,9 +64,10 @@ function _addURLLayer(url) {
     var _width=r[1];
     var _tileWidth=r[2];
     var _tileHeight=r[3];
-    var _minLevel=r[4];
-    var _maxLevel=r[5];
-    var _dir=r[6];
+    var _levelScale=r[4];
+    var _minLevel=r[5];
+    var _maxLevel=r[6];
+    var _dir=r[7];
     var _realMin=_minLevel;
 //this is needed because there is no level 0
     if(_minLevel != 0)
@@ -90,6 +91,16 @@ function _addURLLayer(url) {
                      tileHeight: _tileHeight,
                      minLevel: _minLevel,
                      maxLevel: _maxLevel,
+                     getLevelScale: function( level ) {
+                       var levelScaleCache = {}, i;
+                         for( i = 0; i <= _maxLevel; i++ ){
+                            levelScaleCache[ i ] = 1 / Math.pow(_levelScale, _maxLevel - i);
+                         }
+                       this.getLevelScale = function( _level ){
+                         return levelScaleCache[ _level ];
+                       };
+                       return this.getLevelScale( level );
+                     },
                      getTileUrl: function( level, x, y ) {
                        t=path+'/'+(level)+"/"+x+"_"+y+".jpg";
                        return t;
@@ -144,6 +155,11 @@ function extractInfo(str) {
        _th=parseInt(_th,10);
   }
 
+  var _scale=imageElem[0].getAttribute("LEVELSCALE");
+  if(_scale != null)
+     _scale=parseInt(_scale,10);
+     else alertify.error("Error: DZI image must have a level Scale");
+
   var _min=imageElem[0].getAttribute("MINLEVEL");
   if(_min != null)
      _min=parseInt(_min);
@@ -159,10 +175,10 @@ function extractInfo(str) {
      alertify.error("Error: DZI image must have a data directory name");
 
   if(_h == null || _w == null || _tw == null || _th == null ||
-        _min == null || _max == null || _dir == null )
+        _scale == null || _min == null || _max == null || _dir == null )
      return null; 
 
-  return [_h,_w,_tw,_th,_min,_max,_dir];
+  return [_h,_w,_tw,_th,_scale,_min,_max,_dir];
 }
 
 function getOpacity() {
