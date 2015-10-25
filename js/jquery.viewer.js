@@ -194,6 +194,10 @@ window.console.log("scale.. "+i+" "+levelScaleCache[i]);
                   annoBtnFadeOut();
                 }
               });
+              myViewer.addHandler('tile-drawing', function(target) {
+window.console.log("--> making call to tile-drawing..");
+                 var ctxt = viewer.rendered;
+              });
             }
         }
     }

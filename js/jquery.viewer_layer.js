@@ -3,13 +3,17 @@ url=>http://localhost/tiletiff/data/real3/DZI/ImageProperties.xml
 */
 var myViewer=null;
 var layers = { };
+var flip=false;
+var red=true; // has red channel
+var blue=true; // has blue channel
+var green=true; // has green channel
 
 jQuery(document).ready(function() {
   window.console.log("document is ready..");
   myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-//                 debugMode: "true",
+                   debugMode: "true",
                    showNavigator: "true",
                    constrainDuringPan: true,
                    visibilityRatio: 	1,
@@ -17,6 +21,25 @@ jQuery(document).ready(function() {
    if (typeof annoSetup === "function") {
      annoSetup(anno,myViewer);
    }
+
+   myViewer.addHandler('tile-drawing', function(target) {
+
+     var ctxt = target.rendered;
+     var tImage= target.tiledImage;
+
+window.console.log("--> making call to tile-drawing..");
+     if(ctxt) {
+          if(!red)
+            skipRedData(target,ctxt);
+          if(!green)
+            skipGreenData(target,ctxt);
+          if(!blue)
+            skipBlueData(target,ctxt);
+          if(flip)
+            flipData(target,ctxt);
+     }
+   });
+
 
 });
 
@@ -44,8 +67,8 @@ function _addPNGLayer( pngName ) {
                    type: 'legacy-image-pyramid',
                    levels:[{
                      url: pngName,
-                     height: 1000,
-                     width:  1000
+                     height: 500,
+                     width:  500 
                    }]
                  },
      opacity: getOpacity()
@@ -198,6 +221,7 @@ function _removeLayer(layerID) {
 function removeLayer() {
   var pElm = document.getElementById('inputLayer');
   window.console.log("remove .. layerId is "+pElm.selectedIndex);
+  if(pElm.selectedIndex >= 0)
   _removeLayer(pElm.selectedIndex);
 }
 
@@ -242,9 +266,10 @@ function _chkHTTP(str) {
   }
 }
 function addData() {
-  var canvas = document.getElementsByTagName("canvas")[0];
-  var url = canvas.toDataURL();
-  window.console.log(url);
+  var canvas = document.getElementsByTagName("canvas");
+  var canvas0 = document.getElementsByTagName("canvas")[0];
+//  var url = canvas0.toDataURL();
+//  window.console.log("addUrl's url.."+url);
   var pElm = document.getElementById('inputURL');
   window.console.log("this is "+pElm.value);
   if(_chkHTTP(pElm.value)) {
@@ -260,7 +285,124 @@ function spreadLayer() {
   _spreadLayer(pElm.value);
 }
 
+function printData(orig, i) {
+       window.console.log("===> R "+parseInt(i)+" val is "+parseInt(orig.data[i]));
+       window.console.log("===> G "+parseInt(i+1)+" val is "+parseInt(orig.data[i+1]));
+       window.console.log("===> B "+parseInt(i+2)+" val is "+parseInt(orig.data[i+2]));
+       window.console.log("===> alpha `"+parseInt(i+3)+" val is "+parseInt(orig.data[i+3]));
+}
+
+// this is rgba,
+function flipData(viewer,ctxt) {
+window.console.log("flipping");
+  var canvas=ctxt.canvas;
+  var w=canvas.width;
+  var h=canvas.height;
+  var orig = ctxt.getImageData(0,0,w,h);
+
+//Loop through all the pixels in the image
+  var max=h*w*4;
+  for( i=0;i< max;) {
+      var r = orig.data[i];
+      var g = orig.data[i+1];
+      var b = orig.data[i+2];
+      var a = orig.data[i+3];
+      var avg = (r + g + b)/3;
+      orig.data[i] = avg;
+      orig.data[i+1] = avg;
+      orig.data[i+2] = avg;
+      orig.data[i+3] = a;
+      i=i+4;
+  }
+  ctxt.putImageData(orig, 0, 0);
+}
+
+
+// this is rgba,
+function skipRedData(viewer,ctxt) {
+window.console.log("calling skipRedData");
+  var canvas=ctxt.canvas;
+  var w=canvas.width;
+  var h=canvas.height;
+  var orig = ctxt.getImageData(0,0,w,h);
+
+//Loop through all the pixels in the image
+  var max=h*w*4;
+window.console.log("XXX =>"+orig.data[0] + " "+orig.data[1] + " "+ orig.data[2] + " " + orig.data[3]);
+  for( i=0;i< max;) {
+      orig.data[i]=0;
+      i=i+4;
+  }
+  ctxt.putImageData(orig, 0, 0);
+}
+
+// this is rgba,
+function skipGreenData(viewer,ctxt) {
+window.console.log("calling skipGreenData");
+  var canvas=ctxt.canvas;
+  var w=canvas.width;
+  var h=canvas.height;
+  var orig = ctxt.getImageData(0,0,w,h);
+
+//Loop through all the pixels in the image
+  var max=h*w*4;
+  for( i=0;i< max;) {
+      orig.data[i+1]=0;
+      i=i+4;
+  }
+  ctxt.putImageData(orig, 0, 0);
+}
+
+
+// this is rgba,
+function skipBlueData(viewer,ctxt) {
+window.console.log("calling skipGreenData");
+  var canvas=ctxt.canvas;
+  var w=canvas.width;
+  var h=canvas.height;
+  var orig = ctxt.getImageData(0,0,w,h);
+
+//Loop through all the pixels in the image
+  var max=h*w*4;
+  for( i=0;i< max;) {
+      orig.data[i+2]=0;
+      i=i+4;
+  }
+  ctxt.putImageData(orig, 0, 0);
+}
+
+//Image data is now stored in an array in the form
+//originalLakeImageData.data = [r1, g1, b1, a1, r2, g2, b2, a2....]
+function _checkImageData(ctxt) {
+  var canvas=myViewer.drawer.canvas;
+//  var ctxt0 = canvas.getContext('2d');
+//  var ctxt = target.context;
+  var w=canvas.width;
+  var h=canvas.height;
+  var orig = ctxt.getImageData(0,0,w,h);
+  var max = w * h * 4;
+  var i;
+// 1600000, print first set of none-zero one
+  for( i=0;i< max;) {
+    if ( (orig.data[i]!=0) || (orig.data[i+1]!=0) ||
+               (orig.data[i+2]!=0)) {
+       printData(orig,i);
+       printData(orig,i+4);
+       break;
+    }
+    i=i+4;
+  }
+  if (i==max) {
+    window.console.log("===> all zero..");
+    return 1;
+  }
+  return 0;
+}
+
+//Image data is now stored in an array in the form
+//originalLakeImageData.data = [r1, g1, b1, a1, r2, g2, b2, a2....]
 function chkInfo() {
+  var w=myViewer.world;
   var p= myViewer.world.getItemCount();
   window.console.log("===INFO===");
   window.console.log("number of layers: "+p);
@@ -270,6 +412,9 @@ function chkInfo() {
     window.console.log("  opacity"+item.getOpacity());
   }
   window.console.log("==========");
+  var canvas=myViewer.drawer.canvas;
+  var ctxt = canvas.getContext('2d');
+  _checkImageData(ctxt);
 }
 
 function updateOpacity() {
@@ -279,4 +424,48 @@ function updateOpacity() {
 }
             
 
+function toggleFlip() {
+   flip = !flip;
+   window.console.log(flip);
+   if (flip) {
+     jQuery('#toggleFlipBtn').prop('value','noFlip');
+     myViewer.forceRedraw();
+     } else {
+       jQuery('#toggleFlipBtn').prop('value','Flip');
+       myViewer.world.resetItems();
+   }
+}
+
+function toggleZapRed() {
+   red = ! red;
+   if (red) {
+     jQuery('#toggleZapRedBtn').prop('value','Red');
+     myViewer.world.resetItems();
+     } else {
+       jQuery('#toggleZapRedBtn').prop('value','noRed');
+       myViewer.forceRedraw();
+   }
+}
+
+function toggleZapGreen() {
+   green = ! green;
+   if (green) {
+     jQuery('#toggleZapGreenBtn').prop('value','Green');
+     myViewer.world.resetItems();
+     } else {
+       jQuery('#toggleZapGreenBtn').prop('value','noGreen');
+       myViewer.forceRedraw();
+   }
+}
+
+function toggleZapBlue() {
+   blue = ! blue;
+   if (blue) {
+     jQuery('#toggleZapBlueBtn').prop('value','Blue');
+     myViewer.world.resetItems();
+     } else {
+       jQuery('#toggleZapBlueBtn').prop('value','noBlue');
+       myViewer.forceRedraw();
+   }
+}
 
