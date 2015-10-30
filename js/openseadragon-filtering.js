@@ -195,7 +195,7 @@
                 itemsToReset[i].reset();
             }
         }
-    }
+   }
 
     function getAllItems(world) {
         var result = [];
@@ -224,6 +224,25 @@
     }
 
     $.Filters = {
+        CONTRAST: function(factor) { 
+            if (factor < 0) {
+                throw new Error("CONTRAST factor be greater than 0.");
+            }
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                        0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+
+                for (var i = 0; i < pixels.length; i += 4) {
+                   pixels[i] = Math.min(pixels[i]*factor, 255);
+                   pixels[i+1] = Math.min(pixels[i+1]*factor, 255);
+                   pixels[i+2] = Math.min(pixels[i+2]*factor, 255);
+                }
+
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
         HUE: function(angle) { 
             if (angle < 0) {
                 throw new Error("HUE angle be greater than 0.");
