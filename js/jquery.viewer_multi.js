@@ -246,7 +246,6 @@ function addFilters() {
      var s=hueList[i];
      _addHueFilter(s[0],s[1]);
    }
-//   filterList[0].processors.push(OpenSeadragon.Filters.BRIGHTNESS(50));
    myViewer.setFilterOptions({
      filters: filterList
    })
@@ -277,10 +276,20 @@ function _addInvertFilter(ItemID) {
 
 function _addHueFilter(ItemID, angle) {
    var p=myViewer.world.getItemAt(ItemID);
+   window.console.log("XXX.."+ItemID+" "+angle);
+   if(ItemID == 2) {
    filterList.push( {
         items: [myViewer.world.getItemAt(ItemID) ],
-        processors: [ OpenSeadragon.Filters.HUE(angle) ] 
+        processors: [ OpenSeadragon.Filters.CONTRAST(3),
+                      OpenSeadragon.Filters.HUE(angle) ] 
    });
+   } else {
+   filterList.push( {
+        items: [myViewer.world.getItemAt(ItemID) ],
+        processors: [ OpenSeadragon.Filters.CONTRAST(2),
+                     OpenSeadragon.Filters.HUE(angle) ] 
+   });
+   }
 }
 
 function _initOpacity() {
@@ -327,10 +336,10 @@ function toggleItem(itemID, itemLabel) {
              p=1;
         break;
         case 1:
-            p=0.8;
+            p=0.7;
         break;
         case 2:
-            p=0.6;
+            p=0.5;
         break;
         default:
             p=0.8;
