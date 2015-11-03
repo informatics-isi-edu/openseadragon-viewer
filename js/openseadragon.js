@@ -1,6 +1,6 @@
 //! OpenSeadragon 2.0.0
-//! Built on 2015-09-15
-//! Git commit: v2.0.0-101-aa83e01
+//! Built on 2015-10-16
+//! Git commit: v2.0.0-128-10526df
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -811,10 +811,12 @@ if (typeof define === 'function' && define.amd) {
         // Own properties are enumerated firstly, so to speed up,
         // if last one is own, then all properties are own.
 
-        var key;
-        for ( key in obj ) {}
+        var lastKey;
+        for (var key in obj ) {
+            lastKey = key;
+        }
 
-        return key === undefined || hasOwn.call( obj, key );
+        return lastKey === undefined || hasOwn.call( obj, lastKey );
     };
 
 
@@ -7930,11 +7932,15 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
         };
 
         function raiseAddItemFailed( event ) {
-            for (var i = 0; i < _this._loadQueue; i++) {
+            for (var i = 0; i < _this._loadQueue.length; i++) {
                 if (_this._loadQueue[i] === myQueueItem) {
                     _this._loadQueue.splice(i, 1);
                     break;
                 }
+            }
+
+            if (_this._loadQueue.length === 0) {
+                refreshWorld(myQueueItem);
             }
 
              /**
@@ -7952,6 +7958,20 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
 
             if (options.error) {
                 options.error(event);
+            }
+        }
+
+        function refreshWorld(theItem) {
+            if (_this.collectionMode) {
+                _this.world.arrange({
+                    immediately: theItem.options.collectionImmediately,
+                    rows: _this.collectionRows,
+                    columns: _this.collectionColumns,
+                    layout: _this.collectionLayout,
+                    tileSize: _this.collectionTileSize,
+                    tileMargin: _this.collectionTileMargin
+                });
+                _this.world.setAutoRefigureSizes(true);
             }
         }
 
@@ -7981,11 +8001,11 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
                 _this._loadQueue.splice(0, 1);
 
                 if (queueItem.options.replace) {
-                    var newIndex = _this.world.getIndexOfItem(options.replaceItem);
+                    var newIndex = _this.world.getIndexOfItem(queueItem.options.replaceItem);
                     if (newIndex != -1) {
-                        options.index = newIndex;
+                        queueItem.options.index = newIndex;
                     }
-                    _this.world.removeItem(options.replaceItem);
+                    _this.world.removeItem(queueItem.options.replaceItem);
                 }
 
                 tiledImage = new $.TiledImage({
@@ -8015,19 +8035,16 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
                     debugMode: _this.debugMode
                 });
 
+                if (_this.collectionMode) {
+                    _this.world.setAutoRefigureSizes(false);
+                }
                 _this.world.addItem( tiledImage, {
                     index: queueItem.options.index
                 });
 
-                if (_this.collectionMode) {
-                    _this.world.arrange({
-                        immediately: queueItem.options.collectionImmediately,
-                        rows: _this.collectionRows,
-                        columns: _this.collectionColumns,
-                        layout: _this.collectionLayout,
-                        tileSize: _this.collectionTileSize,
-                        tileMargin: _this.collectionTileMargin
-                    });
+                if (_this._loadQueue.length === 0) {
+                    //this restores the autoRefigureSizes flag to true.
+                    refreshWorld(queueItem);
                 }
 
                 if (_this.world.getItemCount() === 1 && !_this.preserveViewport) {
@@ -8669,6 +8686,13 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
         for ( i = 0; i < length; i++ ) {
             this.currentOverlays[ i ].drawHTML( this.overlaysContainer, this.viewport );
         }
+    },
+
+    /**
+     * Cancel the "in flight" images.
+     */
+    _cancelPendingImages: function() {
+        this._loadQueue = [];
     }
 });
 
@@ -10965,7 +10989,7 @@ $.TileSource.prototype = /** @lends OpenSeadragon.TileSource.prototype */{
               Math.floor( rect.y / this.getTileHeight(i) )
             );
             
-            if( tiles.x + 1 >= tilesPerSide.x || tiles.y + 1 >= tilesPerSide.y ){
+            if( tiles.x + 1 >= tilesPerSide.x && tiles.y + 1 >= tilesPerSide.y ){
                 break;
             }
         }
@@ -14924,6 +14948,8 @@ $.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
             return;
         }
 
+        context.save();
+
         context.globalAlpha = this.opacity;
 
         //if we are supposed to be rendering fully opaque rectangle,
@@ -14957,6 +14983,8 @@ $.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
             size.x * $.pixelDensityRatio,
             size.y * $.pixelDensityRatio
         );
+
+        context.restore();
     },
 
     /**
@@ -15232,8 +15260,8 @@ $.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
 
             this.adjust( position, size );
 
-            position = position.apply( Math.floor );
-            size     = size.apply( Math.ceil );
+            position = position.apply( Math.round );
+            size     = size.apply( Math.round );
 
             // rotate the position of the overlay
             // TODO only rotate overlays if in canvas mode
@@ -17198,6 +17226,7 @@ $.TiledImage = function( options ) {
         lastResetTime:  0,     // Last time for which the tiledImage was reset.
         _midDraw:       false, // Is the tiledImage currently updating the viewport?
         _needsDraw:     true,  // Does the tiledImage need to update the viewport again?
+        _hasOpaqueTile: false,  // Do we have even one fully opaque tile? 
 
         //configurable settings
         springStiffness:      $.DEFAULT_SETTINGS.springStiffness,
@@ -18231,6 +18260,7 @@ function blendTile( tiledImage, tile, x, y, level, levelOpacity, currentTime ){
 
     if ( opacity == 1 ) {
         setCoverage( tiledImage.coverage, level, x, y, true );
+        tiledImage._hasOpaqueTile = true;
     } else if ( deltaTime < blendTimeMillis ) {
         return true;
     }
@@ -18379,7 +18409,7 @@ function drawTiles( tiledImage, lastDrawn ) {
         usedClip = true;
     }
 
-    if ( tiledImage.placeholderFillStyle && lastDrawn.length === 0 ) {
+    if ( tiledImage.placeholderFillStyle && tiledImage._hasOpaqueTile === false ) {
         var placeholderRect = tiledImage._drawer.viewportToDrawerRectangle(tiledImage.getBounds(true));
 
         var fillStyle = null;
@@ -18802,7 +18832,12 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
             this._items.push( item );
         }
 
-        this._figureSizes();
+        if (this._autoRefigureSizes) {
+            this._figureSizes();
+        } else {
+            this._needsSizesFigured = true;
+        }
+
         this._needsDraw = true;
 
         item.addHandler('bounds-change', this._delegatedFigureSizes);
@@ -18919,6 +18954,8 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
      * @fires OpenSeadragon.World.event:metrics-change
      */
     removeAll: function() {
+        // We need to make sure any pending images are canceled so the world items don't get messed up
+        this.viewer._cancelPendingImages();
         var item;
         for (var i = 0; i < this._items.length; i++) {
             item = this._items[i];
@@ -19141,3 +19178,5 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
 });
 
 }( OpenSeadragon ));
+
+
