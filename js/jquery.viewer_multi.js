@@ -43,9 +43,11 @@ var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
 
-var hueList= [];
-var invertList = [];
 var filterList = [];
+var showFilters = false;
+
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
+var propertyList = [];
 
 var collectionMode=false;
 
@@ -98,7 +100,7 @@ jQuery(document).ready(function() {
     myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-                   debugMode: "true",
+  //                 debugMode: "true",
                    showNavigator: "true",
                    constrainDuringPan: true,
                    visibilityRatio:     1,
@@ -204,22 +206,32 @@ function _addURLLayer(url, i) {
                        return t;
                    }},
                    defaultZoomLevel: _realMin,
-                   opacity: _initOpacity() 
+                   opacity: 1
                    };
      myViewer.addTiledImage( options );
-     addItemListEntry(_name,i,[1.00, 0.80, 0.40],_dir)
-     if(_name == "unknown") {
-       window.console.log("don't know the color type..");
+     if(_name == "unknown") { // default hue light blue
+//       window.console.log("don't know the color type..");
 //       invertList.push(i);
+       hue=180;
+       contrast=1;
      } else if(_name == "combo") {
 //       invertList.push(i);
+       hue=-1;
+       contrast=1;
      } else if(blueColors.indexOf(_name) != -1) { 
-       hueList.push([i,240]);
+       hue=240;
+       contrast=2;
      } else if(redColors.indexOf(_name) != -1) {
-       hueList.push([i,0]);
+       hue=0;
+       contrast=3;
      } else if(greenColors.indexOf(_name) != -1) {
-       hueList.push([i,120]);
+       hue=120;
+       contrast=2;
      }
+     chkcolor= [1.00, 0.80, 0.40];
+     addItemListEntry(_name,i,chkcolor,_dir,hue,contrast);
+     var cname = _name.replace(/ +/g, "");
+     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':1, 'hue':hue, 'contrast':contrast} );
    }
 }
 
@@ -232,26 +244,109 @@ function _RGBTohex(rgb) {
    return _hex;
 }
 
-function addItemListEntry(name,i,color,label) {
-var _nn='<input type="checkbox" class="mychkbox" style="color:'+_RGBTohex(color)+';" id="'+name+'_'+i+'d" checked="" onClick="toggleItem('+i+','+'\''+name+'\');" /><label for="'+name+'_'+i+'d" >'+name+'</label><br>';
-jQuery('#itemList').append(_nn);
+function setupItemSliders(idx) {
+  var p=propertyList[idx];
+  var name=p['cname'];
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
+  var _s='#'+name+'_opacity';
+  var _sb=name+'_opacity_btn';
+  var _c='#'+name+'_contrast';
+  var _cb=name+'_contrast_btn';
+  var _h='#'+name+'_hue';
+  var _hb=name+'_hue_btn';
+
+  var sbtn=document.getElementById(_sb);
+  jQuery(_s).slider({ 
+      slide: function( event, ui ) {
+        sbtn.value=ui.value;
+        _updateOpacity(name, ui.value);
+      }
+  });
+  jQuery(_s).width(100);
+  jQuery(_s).slider("option", "value", 1); // by default
+  jQuery(_s).slider("option", "min", 0);
+  jQuery(_s).slider("option", "max", 1);
+  jQuery(_s).slider("option", "step", 0.2);
+
+  var cbtn=document.getElementById(_cb);
+  jQuery(_c).slider({ 
+      slide: function( event, ui ) {
+        cbtn.value=ui.value;
+        _updateContrast(name,ui.value);
+      }
+  });
+  jQuery(_c).width(100);
+  jQuery(_c).slider("option", "value", p['contrast']);
+  jQuery(_c).slider("option", "min", 1);
+  jQuery(_c).slider("option", "max", 10);
+  jQuery(_c).slider("option", "step", 1);
+
+  var hbtn=document.getElementById(_hb);
+  jQuery(_h).slider({ 
+      slide: function( event, ui ) {
+        hbtn.value=ui.value;
+        _updateHue(name,ui.value);
+      }
+  });
+  jQuery(_h).width(100);
+  jQuery(_h).slider("option", "value", p['hue']);
+  jQuery(_h).slider("option", "min", 0);
+  jQuery(_h).slider("option", "max", 360);
+  jQuery(_h).slider("option", "step", 10);
+}
+
+window.onload = function() {
+   for(var i=0; i<propertyList.length; i++ ) {
+     setupItemSliders(i);
+   }
+   jQuery('.filtercontrol').hide();
+}
+
+// squeeze out all spaces
+function addItemListEntry(n,i,color,label,hue,constrast) {
+  var name = n.replace(/ +/g, "");
+  var _name=n;
+  var _hue_name=name+'_hue';
+  var _hue_btn=name+'_hue_btn';
+  var _opacity_name=name+'_opacity';
+  var _opacity_btn=name+'_opacity_btn';
+  var _contrast_name=name+'_contrast';
+  var _contrast_btn=name+'_contrast_btn';
+  var _hue_init_value=hue;
+  var _contrast_init_value=contrast;
+  var _opacity_init_value=1;
+
+  var _nn='<div style="color:white;">';
+//hue hint from http://hslpicker.com/#00e1ff
+  _nn+='<div class="item" style="overflow:hidden; width:100%;margin-bottom:4px;"><div class="data" style="float:left; width:200px; margin:10px; font-size:18px;"><input type="checkbox" class="mychkbox" style="color:'+_RGBTohex(color)+';" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /><label for="'+_name+'" >'+_name+'</label></div>';
+  _nn+='<div class="filtercontrol" style="margin:2px;">';
+  _nn+='<div class="left"><div class="caption">contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' style="background:yellow;"></div></div>';
+  _nn+='<div class="middle"><div class="caption">opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="right" id=\''+_opacity_name+'\' style="background:grey;"></div></div>';
+if(hue >= 0) {
+  _nn+='<div class="right"><div class="caption">hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="h-slider" id=\''+_hue_name+'\'></div></div>';
+}
+  _nn+='</div></div></div>';
+  jQuery('#itemList').append(_nn);
 //window.console.log(_nn);
 }
 
-function addFilters() {
-   for(i=0;i<invertList.length;i++) {
-     _addInvertFilter(invertList[i]);
-   }
-   for(i=0;i<hueList.length;i++) {
-     var s=hueList[i];
-     _addHueFilter(s[0],s[1]);
+// this is called when any of the hue/contrast slider got touched
+function _addFilters() {
+   // clear filterlist
+   filterList=[];
+   jQuery('.filtercontrol').show();
+   for(i=0;i<propertyList.length;i++) {
+     var p=propertyList[i];
+//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
+     _addFilter(p['itemID'],p['hue'],p['contrast']);
    }
    myViewer.setFilterOptions({
      filters: filterList
    })
 }
 
-function resetAllFilters() {
+function _clearFilters() {
+   jQuery('.filtercontrol').hide();
    var ilist = ( function() {
           var result = [];
           for (var i = 0; i < myViewer.world.getItemCount(); i++) {
@@ -267,6 +362,17 @@ function resetAllFilters() {
    });
 }
 
+function toggleFilters() {
+  showFilters = ! showFilters;
+  if(showFilters) {
+    _addFilters();
+    jQuery('#filtersBtn').prop('value','clearFilters');
+    } else {
+      _clearFilters();
+      jQuery('#filtersBtn').prop('value','addFilters');
+  }
+}
+
 function _addInvertFilter(ItemID) {
    filterList.push(
       { items: [ myViewer.world.getItemAt(ItemID) ],
@@ -274,50 +380,87 @@ function _addInvertFilter(ItemID) {
       });
 }
 
-function _addHueFilter(ItemID, angle) {
+function _addFilter(ItemID, angle, contrast) {
    var p=myViewer.world.getItemAt(ItemID);
-   window.console.log("XXX.."+ItemID+" "+angle);
-   if(ItemID == 2) {
-   filterList.push( {
+   if(angle < 0) { // special case.. this is a RGB full colored image
+     filterList.push( {
         items: [myViewer.world.getItemAt(ItemID) ],
-        processors: [ OpenSeadragon.Filters.CONTRAST(3),
-                      OpenSeadragon.Filters.HUE(angle) ] 
-   });
-   } else {
-   filterList.push( {
-        items: [myViewer.world.getItemAt(ItemID) ],
-        processors: [ OpenSeadragon.Filters.CONTRAST(2),
-                     OpenSeadragon.Filters.HUE(angle) ] 
-   });
+        processors: [ OpenSeadragon.Filters.CONTRAST(contrast)]
+     });
+     } else {
+       filterList.push( {
+          items: [myViewer.world.getItemAt(ItemID) ],
+          processors: [ OpenSeadragon.Filters.CONTRAST(contrast),
+                        OpenSeadragon.Filters.HUE(angle) ] 
+       });
    }
 }
 
-function _initOpacity() {
-  return 1;
+function _updateContrast(name, newContrast) {
+  for(i=0; i<propertyList.length; i++) {
+     if( propertyList[i]['cname'] == name) {
+       var _i=propertyList[i]['itemID'];
+       propertyList[i]['contrast']=newContrast;
+       _addFilters();
+       return;
+     }
+  }
+  alertify.error("_updateContrast should never be here");
 }
 
-function _updateOpacity(itemID, newOpacity) {
-  var item=myViewer.world.getItemAt(itemID);
-  item.setOpacity(newOpacity);
+function _updateHue(name, newHue) {
+  for(i=0; i<propertyList.length; i++) {
+     if( propertyList[i]['cname'] == name) {
+       var _i=propertyList[i]['itemID'];
+       propertyList[i]['hue']=newHue;
+       _addFilters();
+       return;
+     }
+  }
+  alertify.error("_updateHue should never be here");
+}
+
+function _getOpacityByID(itemID) {
+  for(i=0; i<propertyList.length; i++) {
+     if( propertyList[i]['itemID'] == itemID) {
+        var p=propertyList[i]['opacity'];
+        return p;
+     }
+  }
+  alertify.error("_getOpacityByID should never be here");
+}
+
+function _updateOpacity(name, newOpacity) {
+  for(i=0; i<propertyList.length; i++) {
+     if( propertyList[i]['cname'] == name) {
+       var _i=propertyList[i]['itemID'];
+       propertyList[i]['opacity']=newOpacity;
+       item=myViewer.world.getItemAt(_i);
+       item.setOpacity(newOpacity);
 //myViewer.forceRedraw();
 //myViewer.world.resetItems()
-
+       return;
+     }
+  }
+  alertify.error("_updateOpacity should never be here");
 }
+
 function toggleCollectionMode() {
-  if(collectionMode == true) {
-    var i, tiledImage;
-    var count = myViewer.world.getItemCount();
-    for (i = 0; i < count; i++) {
-      tiledImage = myViewer.world.getItemAt(i);
-      tiledImage.setPosition(new OpenSeadragon.Point(0, 0));
-    }
-    collectionMode=false;
+  collectionMode = ! collectionMode;
+  if(collectionMode ) {
+    var options = { immediately:true,
+                layout:'horizontal',
+                rows:1 };
+    myViewer.world.arrange(options);
+    jQuery('#collectionRowBtn').prop('value','noRow');
     } else {
-      var options = { immediately:true,
-                  layout:'horizontal',
-                  rows:1 };
-      myViewer.world.arrange(options);
-      collectionMode=true;
+      var i, tiledImage;
+      var count = myViewer.world.getItemCount();
+      for (i = 0; i < count; i++) {
+        tiledImage = myViewer.world.getItemAt(i);
+        tiledImage.setPosition(new OpenSeadragon.Point(0, 0));
+      }
+      jQuery('#collectionRowBtn').prop('value','toRow');
   }
   myViewer.viewport.goHome(true);
 }
@@ -327,29 +470,13 @@ function toggleItem(itemID, itemLabel) {
   var item=myViewer.world.getItemAt(itemID);
   var op=item.getOpacity();
   if (op > 0) {
-    _updateOpacity(itemID, 0);
+    item.setOpacity(0);
     } else {
-      var cnt=myViewer.world.getItemCount();
-      var p;
-      switch(itemID) {
-        case 0:
-             p=1;
-        break;
-        case 1:
-            p=0.7;
-        break;
-        case 2:
-            p=0.5;
-        break;
-        default:
-            p=0.8;
-      } 
-      _updateOpacity(itemID, p);
+      op=_getOpacityByID(itemID);
+      item.setOpacity(op);
   }
-
 }
-
-//http://tiku.io/questions/1014477/javascript-convert-grayscale-to-color-given-hue
+namehttp://tiku.io/questions/1014477/javascript-convert-grayscale-to-color-given-hue
 function _hsv2rgb(h, s, v) {
     h /= 60;
     var i = Math.floor(h);
