@@ -24,11 +24,25 @@ jQuery(document).ready(function() {
 
    myViewer.addHandler('tile-drawing', function(target) {
 
+window.console.log("--->calling tile-drawing..");
      var ctxt = target.rendered;
      var tImage= target.tiledImage;
+     var canvas=ctxt.canvas;
+     var w=canvas.width;
+     var h=canvas.height;
+     var orig = ctxt.getImageData(0,0,w,h);
+     printData(orig, 0);
+/*
+  var canvas=myViewer.drawer.canvas;
+  var ctxt0 = canvas.getContext('2d');
+*/
 
-window.console.log("--> making call to tile-drawing..");
+window.console.log("--> making call to tile-drawing.."+w+" "+h);
+     if(myViewer.world.getItemCount() > 0) {
+       var item=myViewer.world.getItemAt(0);
+     }
      if(ctxt) {
+/*
           if(!red)
             skipRedData(target,ctxt);
           if(!green)
@@ -37,6 +51,7 @@ window.console.log("--> making call to tile-drawing..");
             skipBlueData(target,ctxt);
           if(flip)
             flipData(target,ctxt);
+*/
      }
    });
 
