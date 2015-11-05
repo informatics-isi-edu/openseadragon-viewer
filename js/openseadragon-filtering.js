@@ -50,6 +50,7 @@
         this.viewer = options.viewer;
 
         this.viewer.addHandler("tile-loaded", tileLoadedHandler);
+//{context: context, tile: this, rendered: rendered}
         this.viewer.addHandler("tile-drawing", tileDrawingHandler);
 
         // filterIncrement allows to determine whether a tile contains the

@@ -15709,6 +15709,7 @@ $.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
 
         this.context.save();
         this.context.globalAlpha = opacity;
+        this.context.globalCompositeOperation = "lighter"; 
         this.context.drawImage(this.sketchCanvas, 0, 0);
         this.context.restore();
     },
