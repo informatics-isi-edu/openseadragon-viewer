@@ -22,6 +22,10 @@ jQuery(document).ready(function() {
      annoSetup(anno,myViewer);
    }
 
+   myViewer.addHandler("tile-loaded", function(target) {
+window.console.log("--->calling tile-loaded..");
+   });
+
    myViewer.addHandler('tile-drawing', function(target) {
 
 window.console.log("--->calling tile-drawing..");
@@ -301,10 +305,7 @@ function spreadLayer() {
 }
 
 function printData(orig, i) {
-       window.console.log("===> R "+parseInt(i)+" val is "+parseInt(orig.data[i]));
-       window.console.log("===> G "+parseInt(i+1)+" val is "+parseInt(orig.data[i+1]));
-       window.console.log("===> B "+parseInt(i+2)+" val is "+parseInt(orig.data[i+2]));
-       window.console.log("===> alpha `"+parseInt(i+3)+" val is "+parseInt(orig.data[i+3]));
+       window.console.log("===> RGB "+parseInt(i)+" "+parseInt(orig.data[i])+ " "+parseInt(orig.data[i+1])+ " "+parseInt(orig.data[i+2])+ " alpha "+parseInt(orig.data[i+3]));
 }
 
 // this is rgba,
