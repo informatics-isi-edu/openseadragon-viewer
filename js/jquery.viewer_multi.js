@@ -1,5 +1,5 @@
 
-/* run : 
+/* run :
 
   http://localhost/tiletiff/mview.html?
          http://localhost/tiletiff/data/DZI/ImageProperties.xml
@@ -18,7 +18,7 @@ http://localhost/tiletiff/mview.html?
  url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml
- &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml 
+ &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml
 (the ImageProperties.xml should be used for our application by default)
 */
 
@@ -73,7 +73,7 @@ jQuery(document).ready(function() {
   for (var i=0; i < params.length; i++)
       {
         param = unescape(params[i]);
-  
+
         if (param.indexOf('=') == -1)
         {
           url=param.replace(new RegExp('/$'),'').trim();
@@ -84,11 +84,11 @@ jQuery(document).ready(function() {
               url=kvp[1].replace(new RegExp('/$'),'').trim();
               logURL.push(url);
             } else if(kvp[0].trim() == 'x') {
-                logX=parseFloat(kvp[1]); 
+                logX=parseFloat(kvp[1]);
             } else if(kvp[0].trim() == 'y') {
-                logY=parseFloat(kvp[1]); 
+                logY=parseFloat(kvp[1]);
             } else if(kvp[0].trim() == 'z') {
-                logZoom=parseFloat(kvp[1]); 
+                logZoom=parseFloat(kvp[1]);
             } else {
                 var _unknown=kvp[1].replace(new RegExp('/$'),'').trim();
                 var _utype=kvp[0].trim();
@@ -110,10 +110,10 @@ jQuery(document).ready(function() {
 
              });
 
-    if (typeof annoSetup === "function") { 
+    if (typeof annoSetup === "function") {
         annoSetup(anno,myViewer);
     }
-    for( i=0; i<logURL.length; i++) { 
+    for( i=0; i<logURL.length; i++) {
        url=logURL[i];
        _addURLLayer(url,i);
     }
@@ -134,14 +134,14 @@ jQuery(document).ready(function() {
       });
       myViewer.addHandler('canvas-enter', function(target) {
         /* make it visible */
-        if (typeof annoBtnFadeIn === "function") { 
+        if (typeof annoBtnFadeIn === "function") {
           annoBtnFadeIn();
         }
       });
 
       myViewer.addHandler('canvas-exit', function(target) {
         /* make it invisible */
-        if (typeof annoBtnFadeOut === "function") { 
+        if (typeof annoBtnFadeOut === "function") {
           annoBtnFadeOut();
         }
       });
@@ -160,7 +160,7 @@ function _addURLLayer(url, i) {
     alertify.error("Error: Unable to load url, "+url);
     return;
   }
-  var r = extractInfo(e); 
+  var r = extractInfo(e);
   if( r != null) {
     var _name=r['colortype'];
     var _height=r['height'];
@@ -175,7 +175,7 @@ function _addURLLayer(url, i) {
 //this is needed because there is no level 0
     if(_minLevel != 0)
       _realMin = _minLevel+1;
-              
+
     var path = url.replace('/ImageProperties.xml','');
     if(_dir.split('/').length > 1) {
       if(_dir.search('http')==0) {
@@ -210,7 +210,7 @@ function _addURLLayer(url, i) {
                        return t;
                    }},
                    defaultZoomLevel: _realMin,
-                   opacity: o 
+                   opacity: o
                    };
      myViewer.addTiledImage( options );
      if(_name == "unknown") { // default hue light blue
@@ -222,7 +222,7 @@ function _addURLLayer(url, i) {
 //       invertList.push(i);
        hue=-1;
        contrast=1;
-     } else if(blueColors.indexOf(_name) != -1) { 
+     } else if(blueColors.indexOf(_name) != -1) {
        hue=240;
        contrast=2;
      } else if(redColors.indexOf(_name) != -1) {
@@ -238,9 +238,9 @@ function _addURLLayer(url, i) {
    }
 }
 
-// preset 
+// preset
 function presetOpacity(i) {
-  switch (i) { 
+  switch (i) {
    case 0:
      return 1;
      break;
@@ -276,7 +276,7 @@ function setupItemSliders(idx) {
   var _h='#'+name+'_hue';
   var _hb=name+'_hue_btn';
   var sbtn=document.getElementById(_sb);
-  jQuery(_s).slider({ 
+  jQuery(_s).slider({
       slide: function( event, ui ) {
         sbtn.value=ui.value;
         _updateOpacity(name, ui.value);
@@ -289,7 +289,7 @@ function setupItemSliders(idx) {
   jQuery(_s).slider("option", "step", 0.1);
 
   var cbtn=document.getElementById(_cb);
-  jQuery(_c).slider({ 
+  jQuery(_c).slider({
       slide: function( event, ui ) {
         cbtn.value=ui.value;
         _updateContrast(name,ui.value);
@@ -302,7 +302,7 @@ function setupItemSliders(idx) {
   jQuery(_c).slider("option", "step", 1);
 
   var hbtn=document.getElementById(_hb);
-  jQuery(_h).slider({ 
+  jQuery(_h).slider({
       slide: function( event, ui ) {
         hbtn.value=ui.value;
         _updateHue(name,ui.value);
@@ -334,7 +334,7 @@ function addItemListEntry(n,i,label,hue,constrast,opacity) {
   var _contrast_btn=name+'_contrast_btn';
   var _hue_init_value=hue;
   var _contrast_init_value=contrast;
-  var _opacity_init_value=opacity;
+  var _opacity_init_value=0.9;
 
   var _nn='<div style="color:white;">';
 //hue hint from http://hslpicker.com/#00e1ff
@@ -384,7 +384,7 @@ function _clearFilters() {
    myViewer.setFilterOptions({
     filters: {
         items: ilist,
-        processors: [ ] 
+        processors: [ ]
     }
    });
 }
@@ -416,7 +416,7 @@ function toggleFilters() {
 function _addInvertFilter(ItemID) {
    filterList.push(
       { items: [ myViewer.world.getItemAt(ItemID) ],
-        processors: [ OpenSeadragon.Filters.INVERT() ] 
+        processors: [ OpenSeadragon.Filters.INVERT() ]
       });
 }
 
@@ -431,7 +431,7 @@ function _addFilter(ItemID, angle, contrast) {
        filterList.push( {
           items: [myViewer.world.getItemAt(ItemID) ],
           processors: [ OpenSeadragon.Filters.CONTRAST(contrast),
-                        OpenSeadragon.Filters.HUE(angle) ] 
+                        OpenSeadragon.Filters.HUE(angle) ]
        });
    }
 }
@@ -557,9 +557,9 @@ function _hsv2rgb(h, s, v) {
 
 function _hsl2rgb(h, s, l) {
     var r, g, b, q, p;
-    
+
     h /= 360;
-    
+
     if (s == 0) {
         r = g = b = l;
     } else {
@@ -571,15 +571,15 @@ function _hsl2rgb(h, s, l) {
             if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
             return p;
         }
-        
+
         q = l < 0.5 ? l * (1 + s) : l + s - l * s;
         p = 2 * l - q;
-        
+
         r = hue2rgb(p, q, h + 1/3);
         g = hue2rgb(p, q, h);
         b = hue2rgb(p, q, h - 1/3);
     }
-    
+
     return {
         r: r * 255,
         g: g * 255,
@@ -609,7 +609,7 @@ function pointIt(target) {
 //    document.location=newTitle;
 function updateTitle(_X,_Y,_Z) {
   var newTitle= logHeader+"?";
-  for( i=0; i<logURL.length; i++) { 
+  for( i=0; i<logURL.length; i++) {
     url=logURL[i];
     if(i==0) {
       newTitle=newTitle+'url='+url;
@@ -684,7 +684,7 @@ function checkIt() {
   viewportZoom = myViewer.viewport.getZoom(true);
   imageZoom = myViewer.viewport.viewportToImageZoom(viewportZoom);
   msg2= "imageZoom: "+imageZoom + " from viewportZoom:"+viewportZoom;
-     
+
   msg= msg1 + "<br/>" + msg2;
 //  alertify.confirm(msg);
 }
@@ -716,7 +716,7 @@ function extractInfo(str) {
       } else { // Internet Explorer
           xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
           xmlDoc.async=false;
-          xmlDoc.loadXML(str); 
+          xmlDoc.loadXML(str);
   }
   imageElem= xmlDoc.getElementsByTagName("IMAGE_PROPERTIES");
 
@@ -762,14 +762,13 @@ function extractInfo(str) {
   if(_dir == null)
      alertify.error("Error: DZI image must have a data directory name");
 
-  if(_h == null || _w == null || _tw == null || _th == null || 
+  if(_h == null || _w == null || _tw == null || _th == null ||
         _scale == null || _min == null || _max == null ||
               _colortype==null ||_dir == null )
-     return null; 
+     return null;
 
   return { 'height':_h,'width':_w, 'tilewidth':_tw,
             'tileheight':_th,'levelscale':_scale,
             'minlevel':_min,'maxlevel':_max,
             'colortype':_colortype,'dir':_dir };
 }
-
