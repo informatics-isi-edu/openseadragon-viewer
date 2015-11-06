@@ -3,7 +3,7 @@
 <html>
 <head>
 <title> 2D+ mviewer </title>
-<link href="css/bootstrap.css" rel="stylesheet">
+
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.min.css" rel="stylesheet">
@@ -22,6 +22,7 @@
 <script type="text/javascript" src="js/openseadragon-filtering.js"> </script>
 
 <!-- for annotorious -->
+<link href="css/bootstrap.css" rel="stylesheet">
 <link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
 <link href="css/anno_viewer.css" rel="stylesheet">
 <script type="text/javascript" src="js/annotorious.js"> </script>
@@ -41,20 +42,18 @@
           margin-bottom: 0;
       }
 
-      #annotations-list {
+      #annotations {
           color: black;
           position: fixed;
           right: 0;
           width: 20%;
           height: 100%;
           background-color: #fff;
-          /*border-left: 2px solid #1f1f1f;*/
           overflow-y: scroll;
           -webkit-box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
           -moz-box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
           box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
       }
-
 
       #control {
           position: fixed;
@@ -137,8 +136,13 @@
     </div>
     <div id='itemList'></div>
   </div>
-  <div id="annotations-list">
-    Annotations
+  <div id="annotations">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <h3>Annotations</h3>
+        <div id="annotations-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 </body>
