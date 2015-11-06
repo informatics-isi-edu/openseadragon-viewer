@@ -157,7 +157,7 @@ encoded = encodeURIComponent( parm )
 
 function addAnnotationToList(annotation) {
   var formattedAnnotation =
-    '<a href="#"><div class="panel panel-default">' +
+    '<a href="' + annotation.data.context + '"><div class="panel panel-default">' +
       '<div class="panel-body">' +
         annotation.data.text +
       '</div>'
