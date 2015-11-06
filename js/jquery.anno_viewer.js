@@ -157,11 +157,11 @@ encoded = encodeURIComponent( parm )
 
 function addAnnotationToList(annotation) {
   var formattedAnnotation =
-    '<div class="panel panel-default">' +
+    '<a href="#"><div class="panel panel-default">' +
       '<div class="panel-body">' +
         annotation.data.text +
       '</div>'
-    '</div>';
+    '</div></a>';
   var list = document.getElementById('annotations-list');
   list.innerHTML += formattedAnnotation;
 }

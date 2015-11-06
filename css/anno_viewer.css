@@ -21,7 +21,3 @@
 #map-annotate-button:active {
     background-image: url(../images/feather_pressed.png);
 }
-
-h3 {
-  border-top: none;
-}
