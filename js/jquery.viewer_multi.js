@@ -283,7 +283,7 @@ function setupItemSliders(idx) {
       }
   });
   jQuery(_s).width(100);
-  jQuery(_s).slider("option", "value", p['opacity']); // by default
+  jQuery(_s).slider("option", "value", 0.9); // by default
   jQuery(_s).slider("option", "min", 0);
   jQuery(_s).slider("option", "max", 1);
   jQuery(_s).slider("option", "step", 0.1);
@@ -334,7 +334,7 @@ function addItemListEntry(n,i,label,hue,constrast,opacity) {
   var _contrast_btn=name+'_contrast_btn';
   var _hue_init_value=hue;
   var _contrast_init_value=contrast;
-  var _opacity_init_value=opacity;
+  var _opacity_init_value=0.9;
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
