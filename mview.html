@@ -50,9 +50,9 @@
           height: 100%;
           background-color: #fff;
           overflow-y: scroll;
-          -webkit-box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
-          -moz-box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
-          box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
+          -webkit-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.2);
+          -moz-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.2);
+          box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.2);
       }
 
       #control {
@@ -62,6 +62,9 @@
           height: 100%;
           background-color: white;
           overflow-y: scroll;
+          -webkit-box-shadow: 1px 0px 10px 0px rgba(0,0,0,0.2);
+          -moz-box-shadow: 1px 0px 10px 0px rgba(0,0,0,0.2);
+          box-shadow: 1px 0px 10px 0px rgba(0,0,0,0.2);
       }
 
       .filtercontrol {
@@ -85,6 +88,11 @@
      .right {
           width: 100%;
           margin-bottom: 25px;
+     }
+
+     h3.page-header {
+       border-top: none;
+       margin-top: 0;
      }
 
      .h-slider {
@@ -124,22 +132,29 @@
 
 <div class="content">
   <div id="viewer">
-    <div id="openseadragon" class="openseadragon" style="background-color:#1f1f1f;border:none"></div>
+    <div id="openseadragon" class="openseadragon" style="background-color:white;border:none"></div>
     <div id="anno-button">
       <input id="map-annotate-button" type="button" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
     </div>
   </div>
   <div id="control">
-    <div id="selections" style="margin-left:40px;">
-      <input id="filtersBtn" type="button" value="addFilters" onclick="toggleFilters()"/>
-      <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <h3 class="page-header">Filters</h3>
+        <div id="selections" style="margin-left:40px;">
+          <input id="filtersBtn" type="button" value="addFilters" onclick="toggleFilters()"/>
+          <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
+        </div>
+      </div>
     </div>
-    <div id='itemList'></div>
+    <div class="row">
+      <div id='itemList'></div>
+    </div>
   </div>
   <div id="annotations">
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
-        <h3>Annotations</h3>
+        <h3 class="page-header">Annotations</h3>
         <div id="annotations-list"></div>
       </div>
     </div>
