@@ -42,12 +42,17 @@
       }
 
       #annotations-list {
+          color: black;
           position: fixed;
           right: 0;
           width: 20%;
           height: 100%;
-          background-color: white;
+          background-color: #fff;
+          /*border-left: 2px solid #1f1f1f;*/
           overflow-y: scroll;
+          -webkit-box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
+          -moz-box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
+          box-shadow: -3px 0px 10px 0px rgba(0,0,0,0.5);
       }
 
 
@@ -120,7 +125,7 @@
 
 <div class="content">
   <div id="viewer">
-    <div id="openseadragon" class="openseadragon" style="background-color:white;"></div>
+    <div id="openseadragon" class="openseadragon" style="background-color:#1f1f1f;border:none"></div>
     <div id="anno-button">
       <input id="map-annotate-button" type="button" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
     </div>
@@ -133,7 +138,7 @@
     <div id='itemList'></div>
   </div>
   <div id="annotations-list">
-    <p>Test</p>
+    Annotations
   </div>
 </div>
 </body>
