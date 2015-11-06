@@ -338,12 +338,12 @@ function addItemListEntry(n,i,label,hue,constrast,opacity) {
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-  _nn+='<div class="item"><div class="data"><input type="checkbox" class="mychkbox" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /> <label for="'+_name+'" >'+_name+'</label></div>';
-  _nn+='<div class="filtercontrol">';
-  _nn+='<div class="left"><div class="caption">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' style="background:yellow;"></div></div>';
-  _nn+='<div class="middle"><div class="caption">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="right" id=\''+_opacity_name+'\' style="background:grey;"></div></div>';
+  _nn+='<div class="row"><div class="col-md-12 item"><div class="data"><input type="checkbox" class="mychkbox" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /> <label for="'+_name+'" >'+_name+'</label></div>';
+  _nn+='<div class="row filtercontrol">';
+  _nn+='<div class="col-md-4 filter-slider"><div class="caption">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' style="background:yellow;"></div></div>';
+  _nn+='<div class="col-md-4 filter-slider"><div class="caption">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="right" id=\''+_opacity_name+'\' style="background:grey;"></div></div>';
 if(hue >= 0) {
-  _nn+='<div class="right"><div class="caption">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="h-slider" id=\''+_hue_name+'\'></div></div>';
+  _nn+='<div class="col-md-4 filter-slider"><div class="caption">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="h-slider" id=\''+_hue_name+'\'></div></div></div>';
   } else { // this is a combo or unknown type --> rgb
 // XXX
   _nn+='<div id="rgbcontrol" style="display:none" >';
