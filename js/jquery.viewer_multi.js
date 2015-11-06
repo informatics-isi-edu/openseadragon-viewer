@@ -334,12 +334,12 @@ function addItemListEntry(n,i,label,hue,constrast,opacity) {
   var _contrast_btn=name+'_contrast_btn';
   var _hue_init_value=hue;
   var _contrast_init_value=contrast;
-  var _opacity_init_value=0.9;
+  var _opacity_init_value=opacity;
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-  _nn+='<div class="item"><div class="data" style="font-size:12px;"><input type="checkbox" class="mychkbox" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /> <label for="'+_name+'" >'+_name+'</label></div>';
-  _nn+='<div class="filtercontrol" style="margin:2px;">';
+  _nn+='<div class="item"><div class="data"><input type="checkbox" class="mychkbox" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /> <label for="'+_name+'" >'+_name+'</label></div>';
+  _nn+='<div class="filtercontrol">';
   _nn+='<div class="left"><div class="caption">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' style="background:yellow;"></div></div>';
   _nn+='<div class="middle"><div class="caption">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="right" id=\''+_opacity_name+'\' style="background:grey;"></div></div>';
 if(hue >= 0) {
