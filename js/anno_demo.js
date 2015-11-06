@@ -39,5 +39,3 @@ function annotate() {
     button.style.color = '#fff';
   });
 }
-
-

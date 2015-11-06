@@ -30,7 +30,7 @@ function getHash(item) {
                 +item.shapes[0].geometry.height;
    return txt.hashCode();
 }
-   
+
 function annoDump() {
   var p=myAnno.getAnnotations();
   var len=p.length;
@@ -40,7 +40,6 @@ function annoDump() {
   }
   return tmp;
 }
-
 
 function annoExist(item) {
   var p=myAnno.getAnnotations();
@@ -72,7 +71,7 @@ function annoSetup(_anno,_viewer) {
 
 function annoInject(item, item2) {
   printDebug("======");
-  if( annoExist(item) ) { 
+  if( annoExist(item) ) {
     return;
   }
   myAnno.addAnnotation(item);
@@ -96,7 +95,7 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
       type : 'rect',
       geometry : { x : _x, y: _y, width : _width, height: _height }
     }]
-  } 
+  }
 
   var _w2= _width *2;
   var _h2= _height/2;
@@ -108,7 +107,7 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
       type : 'rect',
       geometry : { x : _x, y: _y, width : _w2, height: _h2 }
     }]
-  } 
+  }
 
   annoInject(myAnnotation, myAnnotation2);
 }
@@ -143,16 +142,28 @@ function annoLog(item, eventType) {
             };
 
    var json = JSON.stringify(tmp,null,2);
-  
+
 /* if data has url embedded in there. need to escape with
 encoded = encodeURIComponent( parm )
 */
    if( debug ) {
-      printDebug(json);
+      addAnnotationToList(tmp);
+      // printDebug(json);
       } else {
         alertify.confirm(json);
    }
    return json;
+}
+
+function addAnnotationToList(annotation) {
+  var formattedAnnotation =
+    '<div class="panel panel-default">' +
+      '<div class="panel-body">' +
+        annotation.data.text +
+      '</div>'
+    '</div>';
+  var list = document.getElementById('annotations-list');
+  list.innerHTML += formattedAnnotation;
 }
 
 function annotate() {
@@ -190,4 +201,3 @@ function annoBtnFadeIn(){
   var $button = $("#map-annotate-button");
   $button.fadeIn("fast");
 }
-
