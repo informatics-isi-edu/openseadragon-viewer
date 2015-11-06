@@ -162,7 +162,9 @@
     </div>
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
-        <div id='itemList'></div>
+        <div id='itemList'>
+          <select id="channels-list" name="channels-list"></select>
+        </div>
       </div>
     </div>
   </div>
@@ -175,5 +177,17 @@
     </div>
   </div>
 </div>
+<script>
+  $(document).ready(function() {
+    $('.channel').hide();
+    $('.channel').eq(0).show();
+
+    $('#channels-list').change(function() {
+      var channel = $('#channels-list').find('option:selected').val();
+      $('.channel').hide();
+      $('#'+channel).show();
+    });
+  });
+</script>
 </body>
 </html>
