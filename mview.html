@@ -21,21 +21,44 @@
 <script type="text/javascript" src="js/openseadragon.js"> </script>
 <script type="text/javascript" src="js/openseadragon-filtering.js"> </script>
 
-<!-- for annotorious --> 
+<!-- for annotorious -->
 <link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
 <link href="css/anno_viewer.css" rel="stylesheet">
 <script type="text/javascript" src="js/annotorious.js"> </script>
 <script type="text/javascript" src="js/jquery.anno_viewer.js"> </script>
-`
 <style>
       #content {
-          width: 100%;
-          height: 100%;
+          width: 100vh;
+          height: 100vh;
           background-color: #d9d9d9;
       }
 
+      #viewer {
+          width: 100%;
+          height: 100vh;
+          position: relative;
+          margin-bottom: 0;
+          /*border:4px solid blue;*/
+          float: left;
+      }
+
+      #control {
+          position: fixed;
+          bottom: 0;
+          width: 20%;
+          height: 95%;
+          float: left;
+          background-color: black;
+          overflow-y: scroll;
+          opacity: 0.8;
+      }
+
+      #control:hover {
+          opacity: 1;
+      }
+
       .filtercontrol {
-          margin:2px; 
+          margin:2px;
       }
       .left, .middle, .right {
           display: inline-block;
@@ -45,13 +68,16 @@
           font-size: 12px;
      }
      .left {
-          width: 20%;
+          width: 100%;
+          margin-bottom: 25px;
      }
      .middle {
-          width: 20%;
+          width: 100%;
+          margin-bottom: 25px;
      }
      .right {
-          width: 20%;
+          width: 100%;
+          margin-bottom: 25px;
      }
 
      .h-slider {
@@ -90,17 +116,17 @@
   <!-- The viewer -->
 
 <div class="content">
-  <div id="viewer" style="position:relative; width:800px; height:500px; margin-bottom:0px; border:4px solid blue;">
+  <div id="viewer">
     <div id="openseadragon" class="openseadragon" style="background-color:white;"></div>
     <div id="anno-button">
       <input id="map-annotate-button" type="button" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
     </div>
   </div>
-  <div id="control" style="width:800px;">
+  <div id="control">
     <div id="selections" style="margin-left:40px;">
       <input id="filtersBtn" type="button" value="addFilters" onclick="toggleFilters()"/>
       <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
-    <div>
+    </div>
     <div id='itemList'></div>
   </div>
 </div>
