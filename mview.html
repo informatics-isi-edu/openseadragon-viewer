@@ -30,31 +30,34 @@
       #content {
           width: 100vh;
           height: 100vh;
-          background-color: #d9d9d9;
+          background-color: white;
       }
 
       #viewer {
-          width: 100%;
+          position: fixed;
+          left: 20%;
+          width: 60%;
           height: 100vh;
-          position: relative;
           margin-bottom: 0;
-          /*border:4px solid blue;*/
-          float: left;
       }
+
+      #annotations-list {
+          position: fixed;
+          right: 0;
+          width: 20%;
+          height: 100%;
+          background-color: white;
+          overflow-y: scroll;
+      }
+
 
       #control {
           position: fixed;
-          bottom: 0;
+          left: 0;
           width: 20%;
-          height: 95%;
-          float: left;
-          background-color: black;
+          height: 100%;
+          background-color: white;
           overflow-y: scroll;
-          opacity: 0.8;
-      }
-
-      #control:hover {
-          opacity: 1;
       }
 
       .filtercontrol {
@@ -128,6 +131,9 @@
       <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
     </div>
     <div id='itemList'></div>
+  </div>
+  <div id="annotations-list">
+    <p>Test</p>
   </div>
 </div>
 </body>

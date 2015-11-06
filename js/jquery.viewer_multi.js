@@ -43,7 +43,7 @@ var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
 var filterList = [];
-var showFilters = false;
+var showFilters = true;
 
 var showRed=true;
 var showGreen=true;
@@ -319,7 +319,7 @@ window.onload = function() {
    for(var i=0; i<propertyList.length; i++ ) {
      setupItemSliders(i);
    }
-   jQuery('.filtercontrol').hide();
+  //  jQuery('.filtercontrol').hide();
 }
 
 // squeeze out all spaces in name
@@ -336,7 +336,7 @@ function addItemListEntry(n,i,label,hue,constrast,opacity) {
   var _contrast_init_value=contrast;
   var _opacity_init_value=0.9;
 
-  var _nn='<div style="color:white;">';
+  var _nn='<div style="color:black;">';
 //hue hint from http://hslpicker.com/#00e1ff
   _nn+='<div class="item" style="overflow:hidden; width:100%;margin-bottom:4px;"><div class="data" style="float:left; width:200px; margin:10px; font-size:18px;"><input type="checkbox" class="mychkbox" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /><label for="'+_name+'" >'+_name+'</label></div>';
   _nn+='<div class="filtercontrol" style="margin:2px;">';
