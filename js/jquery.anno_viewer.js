@@ -7,7 +7,8 @@ var CREATE_EVENT_TYPE='CREATE';
 var UPDATE_EVENT_TYPE='UPDATE';
 var REMOVE_EVENT_TYPE='REMOVE';
 var INFO_EVENT_TYPE='INFO';
-
+// Object to track current list of annotations
+var annotationList = {};
 /*
   http://stackoverflow.com/questions/7616461/
         generate-a-hash-from-string-in-javascript-jquery
@@ -56,15 +57,18 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
+    updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
     var json=annoLog(item,REMOVE_EVENT_TYPE);
-    makeDummy();
+    // makeDummy();
+    updateAnnotationList();
   });
   _anno.addHandler("onAnnotationUpdated", function(target) {
     var item=target;
     var json=annoLog(item,UPDATE_EVENT_TYPE);
+    updateAnnotationList();
   });
   myAnno=_anno;
 }
@@ -147,7 +151,6 @@ function annoLog(item, eventType) {
 encoded = encodeURIComponent( parm )
 */
    if( debug ) {
-      addAnnotationToList(tmp);
       // printDebug(json);
       } else {
         alertify.confirm(json);
@@ -155,15 +158,19 @@ encoded = encodeURIComponent( parm )
    return json;
 }
 
-function addAnnotationToList(annotation) {
-  var formattedAnnotation =
-    '<a href="' + annotation.data.context + '"><div class="panel panel-default">' +
-      '<div class="panel-body">' +
-        annotation.data.text +
-      '</div>'
-    '</div></a>';
+function updateAnnotationList() {
+  var annotations = myAnno.getAnnotations();
   var list = document.getElementById('annotations-list');
-  list.innerHTML += formattedAnnotation;
+  list.innerHTML = '';
+  for (var i = 0; i < annotations.length; i++) {
+    var formattedAnnotation =
+      '<a href="#"><div class="panel panel-default">' +
+        '<div class="panel-body">' +
+          annotations[i].text +
+        '</div>' +
+      '</div></a>';
+    list.innerHTML += formattedAnnotation;
+  }
 }
 
 function annotate() {

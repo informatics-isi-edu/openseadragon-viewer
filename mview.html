@@ -196,6 +196,10 @@
       $('.channel').hide();
       $('#'+channel).show();
     });
+    $('#annotations-list').on('click', 'a', function(e) {
+      e.preventDefault();
+      anno.highlightAnnotation($(this).attr('name'));
+    });
   });
 </script>
 </body>
