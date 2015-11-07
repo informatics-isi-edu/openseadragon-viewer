@@ -84,29 +84,32 @@
         font-size: 12px;
       }
 
+      #channels-list {
+        width: 100%;
+        font-size: 28px;
+        margin-bottom: 10px;
+      }
+
       .filtercontrol {
           padding-bottom: 4px;
       }
 
       .filtercontrol .filter-slider {
-          /*display: inline-block;
-          *display: inline;*/
+          display: inline-block;
+          *display: inline;
           zoom: 1;
           vertical-align: top;
           font-size: 12px;
+          margin: 10px 0;
      }
-     /*.left {
-          width: 100%;
-          margin-bottom: 25px;
+
+     .slider {
+       margin-top: 4px;
      }
-     .middle {
-          width: 100%;
-          margin-bottom: 25px;
+
+     .caption {
+       font-weight: 700;
      }
-     .right {
-          width: 100%;
-          margin-bottom: 25px;
-     }*/
 
      .h-slider {
      background: -webkit-linear-gradient(left, hsla(0, 100%, 50%, 1),
@@ -154,16 +157,16 @@
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
         <h3 class="page-header">Channels</h3>
-        <div id="selections" style="margin-left:40px;">
+        <!-- <div id="selections" style="margin-left:40px;">
           <input id="filtersBtn" type="button" value="clearFilters" onclick="toggleFilters()"/>
           <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
-        </div>
+        </div> -->
       </div>
     </div>
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
-        <div id='itemList'>
-          <select id="channels-list" name="channels-list"></select>
+        <div id='itemList' class="row">
+            <select id="channels-list" name="channels-list"></select>
         </div>
       </div>
     </div>
@@ -181,7 +184,6 @@
   $(document).ready(function() {
     $('.channel').hide();
     $('.channel').eq(0).show();
-
     $('#channels-list').change(function() {
       var channel = $('#channels-list').find('option:selected').val();
       $('.channel').hide();
