@@ -409,10 +409,10 @@ function toggleFilters() {
   showFilters = ! showFilters;
   if(showFilters) {
     _addFilters();
-    jQuery('#filtersBtn').prop('value','clearFilters');
+    jQuery('#filtersBtn').prop('value','Remove Color Filters');
     } else {
       _clearFilters();
-      jQuery('#filtersBtn').prop('value','addFilters');
+      jQuery('#filtersBtn').prop('value','Add Color Filters');
   }
 }
 

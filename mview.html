@@ -74,6 +74,10 @@
           box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
       }
 
+      #selections {
+        margin-top: 20px;
+      }
+
       #itemList {
           color: black;
       }
@@ -86,7 +90,6 @@
 
       #channels-list {
         width: 100%;
-        font-size: 28px;
         margin-bottom: 10px;
       }
 
@@ -157,16 +160,20 @@
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
         <h3 class="page-header">Channels</h3>
-        <!-- <div id="selections" style="margin-left:40px;">
-          <input id="filtersBtn" type="button" value="clearFilters" onclick="toggleFilters()"/>
-          <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
-        </div> -->
       </div>
     </div>
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
         <div id='itemList' class="row">
             <select id="channels-list" name="channels-list"></select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div id="selections" class="row text-center">
+          <input id="filtersBtn" class="btn btn-primary btn-sm" type="button" value="Remove Color Filters" onclick="toggleFilters()"/>
+          <!-- <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/> -->
         </div>
       </div>
     </div>
