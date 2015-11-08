@@ -3,7 +3,7 @@
 <html>
 <head>
 <title> 2D+ mviewer </title>
-<link href="css/bootstrap.css" rel="stylesheet">
+
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.min.css" rel="stylesheet">
@@ -21,37 +21,97 @@
 <script type="text/javascript" src="js/openseadragon.js"> </script>
 <script type="text/javascript" src="js/openseadragon-filtering.js"> </script>
 
-<!-- for annotorious --> 
+<!-- for annotorious -->
+<link href="css/bootstrap.css" rel="stylesheet">
 <link href="css/annotorious/themes/dark/annotorious-dark.css" rel="stylesheet">
 <link href="css/anno_viewer.css" rel="stylesheet">
 <script type="text/javascript" src="js/annotorious.js"> </script>
 <script type="text/javascript" src="js/jquery.anno_viewer.js"> </script>
-`
 <style>
+      h3.page-header {
+          border-top: none;
+          margin-top: 0;
+      }
+
       #content {
-          width: 100%;
-          height: 100%;
-          background-color: #d9d9d9;
+          width: 100vh;
+          height: 100vh;
+          background-color: white;
+      }
+
+      #viewer {
+          position: fixed;
+          left: 0;
+          width: 80%;
+          height: 100vh;
+          margin-bottom: 0;
+      }
+
+      #annotations {
+          color: black;
+          position: fixed;
+          right: 0;
+          bottom: 0;
+          width: 20%;
+          height: 50%;
+          background-color: #fff;
+          overflow-y: scroll;
+          -webkit-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
+          -moz-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
+          box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
+          border-top: 1px solid #ccc;
+      }
+
+      #control {
+          position: fixed;
+          right: 0;
+          width: 20%;
+          height: 50%;
+          background-color: white;
+          overflow-y: scroll;
+          -webkit-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
+          -moz-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
+          box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
+      }
+
+      #selections {
+        margin-top: 20px;
+      }
+
+      #itemList {
+          color: black;
+      }
+
+      #itemList .item {
+        margin: 5px;
+        overflow: hidden;
+        font-size: 12px;
+      }
+
+      #channels-list {
+        width: 100%;
+        margin-bottom: 10px;
       }
 
       .filtercontrol {
-          margin:2px; 
+          padding-bottom: 4px;
       }
-      .left, .middle, .right {
+
+      .filtercontrol .filter-slider {
           display: inline-block;
           *display: inline;
           zoom: 1;
           vertical-align: top;
           font-size: 12px;
+          margin: 10px 0;
      }
-     .left {
-          width: 20%;
+
+     .slider {
+       margin-top: 4px;
      }
-     .middle {
-          width: 20%;
-     }
-     .right {
-          width: 20%;
+
+     .caption {
+       font-weight: 700;
      }
 
      .h-slider {
@@ -90,19 +150,57 @@
   <!-- The viewer -->
 
 <div class="content">
-  <div id="viewer" style="position:relative; width:800px; height:500px; margin-bottom:0px; border:4px solid blue;">
-    <div id="openseadragon" class="openseadragon" style="background-color:white;"></div>
+  <div id="viewer">
+    <div id="openseadragon" class="openseadragon" style="background-color:white;border:none"></div>
     <div id="anno-button">
       <input id="map-annotate-button" type="button" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
     </div>
   </div>
-  <div id="control" style="width:800px;">
-    <div id="selections" style="margin-left:40px;">
-      <input id="filtersBtn" type="button" value="addFilters" onclick="toggleFilters()"/>
-      <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/>
-    <div>
-    <div id='itemList'></div>
+  <div id="control">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <h3 class="page-header">Channels</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div id='itemList' class="row">
+            <select id="channels-list" name="channels-list"></select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div id="selections" class="row text-center">
+          <input id="filtersBtn" class="btn btn-primary btn-sm" type="button" value="Remove Color Filters" onclick="toggleFilters()"/>
+          <!-- <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="annotations">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <h3 class="page-header">Annotations</h3>
+        <div id="annotations-list"></div>
+      </div>
+    </div>
   </div>
 </div>
+<script>
+  $(document).ready(function() {
+    $('.channel').hide();
+    $('.channel').eq(0).show();
+    $('#channels-list').change(function() {
+      var channel = $('#channels-list').find('option:selected').val();
+      $('.channel').hide();
+      $('#'+channel).show();
+    });
+    $('#annotations-list').on('click', 'a', function(e) {
+      e.preventDefault();
+      anno.highlightAnnotation($(this).attr('name'));
+    });
+  });
+</script>
 </body>
 </html>
