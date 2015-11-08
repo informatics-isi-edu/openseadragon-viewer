@@ -7,7 +7,8 @@ var CREATE_EVENT_TYPE='CREATE';
 var UPDATE_EVENT_TYPE='UPDATE';
 var REMOVE_EVENT_TYPE='REMOVE';
 var INFO_EVENT_TYPE='INFO';
-
+// Object to track current list of annotations
+var annotationList = {};
 /*
   http://stackoverflow.com/questions/7616461/
         generate-a-hash-from-string-in-javascript-jquery
@@ -30,7 +31,7 @@ function getHash(item) {
                 +item.shapes[0].geometry.height;
    return txt.hashCode();
 }
-   
+
 function annoDump() {
   var p=myAnno.getAnnotations();
   var len=p.length;
@@ -40,7 +41,6 @@ function annoDump() {
   }
   return tmp;
 }
-
 
 function annoExist(item) {
   var p=myAnno.getAnnotations();
@@ -57,22 +57,25 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
+    updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
     var json=annoLog(item,REMOVE_EVENT_TYPE);
-    makeDummy();
+    // makeDummy();
+    updateAnnotationList();
   });
   _anno.addHandler("onAnnotationUpdated", function(target) {
     var item=target;
     var json=annoLog(item,UPDATE_EVENT_TYPE);
+    updateAnnotationList();
   });
   myAnno=_anno;
 }
 
 function annoInject(item, item2) {
   printDebug("======");
-  if( annoExist(item) ) { 
+  if( annoExist(item) ) {
     return;
   }
   myAnno.addAnnotation(item);
@@ -96,7 +99,7 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
       type : 'rect',
       geometry : { x : _x, y: _y, width : _width, height: _height }
     }]
-  } 
+  }
 
   var _w2= _width *2;
   var _h2= _height/2;
@@ -108,7 +111,7 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
       type : 'rect',
       geometry : { x : _x, y: _y, width : _w2, height: _h2 }
     }]
-  } 
+  }
 
   annoInject(myAnnotation, myAnnotation2);
 }
@@ -143,16 +146,31 @@ function annoLog(item, eventType) {
             };
 
    var json = JSON.stringify(tmp,null,2);
-  
+
 /* if data has url embedded in there. need to escape with
 encoded = encodeURIComponent( parm )
 */
    if( debug ) {
-      printDebug(json);
+      // printDebug(json);
       } else {
         alertify.confirm(json);
    }
    return json;
+}
+
+function updateAnnotationList() {
+  var annotations = myAnno.getAnnotations();
+  var list = document.getElementById('annotations-list');
+  list.innerHTML = '';
+  for (var i = 0; i < annotations.length; i++) {
+    var formattedAnnotation =
+      '<a href="#"><div class="panel panel-default">' +
+        '<div class="panel-body">' +
+          annotations[i].text +
+        '</div>' +
+      '</div></a>';
+    list.innerHTML += formattedAnnotation;
+  }
 }
 
 function annotate() {
@@ -190,4 +208,3 @@ function annoBtnFadeIn(){
   var $button = $("#map-annotate-button");
   $button.fadeIn("fast");
 }
-
