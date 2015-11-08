@@ -323,6 +323,7 @@ window.onload = function() {
     setupItemSliders(i);
   }
   dropdown.innerHTML = channels;
+  jQuery('.filtercontrol').hide();
 }
 
 // squeeze out all spaces in name
