@@ -218,7 +218,7 @@ function _addURLLayer(url, i) {
 //       invertList.push(i);
        hue=180;
        contrast=1;
-     } else if(_name == "combo") {
+     } else if(_name == "combo" || _name="Brigh") {
 //       invertList.push(i);
        hue=-1;
        contrast=1;

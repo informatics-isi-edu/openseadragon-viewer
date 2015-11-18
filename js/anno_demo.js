@@ -1,5 +1,5 @@
-
-/***** for annotorious *****/
+/
+//***** for annotorious *****/
 jQuery(document).ready(function(){
 
     window.console.log("calling ready..");
