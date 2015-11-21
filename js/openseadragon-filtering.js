@@ -225,7 +225,7 @@
     }
 
     $.Filters = {
-        CONTRAST: function(factor) { 
+        CONTRASTOLD: function(factor) { 
             if (factor < 0) {
                 throw new Error("CONTRAST factor be greater than 0.");
             }
@@ -240,6 +240,40 @@
                    pixels[i+2] = Math.min(pixels[i+2]*factor, 255);
                 }
 
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+      //http://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently/3115178#3115178
+       CONTRAST: function(factor) {
+            if (factor < -100 || factor > 100) {
+                throw new Error("CONTRAST factor must be within -100 to 100 range.");
+            }
+window.console.log("XXXXX init with .."+factor);
+            factor = (100 + factor) / 100;
+            factor *= factor;
+window.console.log("---> contrast factor is .."+factor);
+
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                        0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+
+                for (var i = 0; i < pixels.length; i += 1) {
+                   var P = pixels[i];
+
+                   var Pixel = P / 255;
+
+                   Pixel = (((Pixel - 0.5) * factor) + 0.5) * 255;
+
+                   var iP = parseInt(Pixel);
+                   iP = iP > 255 ? 255 : iP;
+                   iP = iP < 0 ? 0 : iP;
+   
+if(i==0)
+window.console.log("old and new P[0] is .."+pixels[0]+" "+iP);
+                   pixels[i]=iP;
+                }
                 context.putImageData(imgData, 0, 0);
                 callback();
             };
@@ -259,6 +293,24 @@
                    pixels[i] = col.r;
                    pixels[i+1] = col.g;
                    pixels[i+2] = col.b;
+                }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+        RGB: function(rgb) { 
+            if (len(rgb) != 3) {
+                throw new Error("rgb must be 3 values.");
+            }
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                        0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+                for (var i = 0; i < pixels.length; i += 4) {
+
+                   pixels[i] = Math.min(Math.round(pixels[i] * rgb[0], 255));
+                   pixels[i+1] = Math.min(Math.round(pixels[i+1] * rgb[1], 255));
+                   pixels[i+2] = Math.min(Math.round(pixels[i+2] * rgb[2], 255));
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();

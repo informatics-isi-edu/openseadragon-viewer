@@ -142,7 +142,6 @@ jQuery(document).ready(function() {
                            var levelScaleCache = {}, i;
                            for( i = 0; i <= _maxLevel; i++ ){
                              levelScaleCache[ i ] = 1 / Math.pow(_levelScale, _maxLevel - i);
-window.console.log("scale.. "+i+" "+levelScaleCache[i]);
                            }
                            this.getLevelScale = function( _level ){
                               return levelScaleCache[ _level ];

@@ -39,7 +39,7 @@ var logHeader=null;
 var logURL=[];
 
 var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647']
-var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
+var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488', 'Alexa Fluor 480']
 var blueColors = ['DAPI']
 
 var filterList = [];
@@ -49,8 +49,9 @@ var showRed=true;
 var showGreen=true;
 var showBlue=true;
 
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'rgb': '0.1 0.3 0.2' } );
 var propertyList = [];
+var initial_mode = true;
 
 var collectionMode=false;
 
@@ -162,7 +163,9 @@ function _addURLLayer(url, i) {
   }
   var r = extractInfo(e);
   if( r != null) {
-    var _name=r['colortype'];
+    var _name=r['channelname'];
+    var _alpha=r['channelalpha'];
+    var _rgb=r['channelrgb'];
     var _height=r['height'];
     var _width=r['width'];
     var _tileWidth=r['tilewidth'];
@@ -186,7 +189,9 @@ function _addURLLayer(url, i) {
           alertify.error("data jpegs should be at the same level as ImageProperties.xml");
         }
     }
-    var o=presetOpacity(i);
+    var op=presetOpacity(_alpha,i);
+    var hue=presetHue(_rgb,_name);
+    var contrast=presetContrast(i);
     var options = {
                   tileSource: {
                      height: _height,
@@ -210,36 +215,47 @@ function _addURLLayer(url, i) {
                        return t;
                    }},
                    defaultZoomLevel: _realMin,
-                   opacity: o
+                   opacity: op
                    };
      myViewer.addTiledImage( options );
-     if(_name == "unknown") { // default hue light blue
-//       window.console.log("don't know the color type..");
-//       invertList.push(i);
-       hue=180;
-       contrast=1;
-     } else if(_name == "combo" || _name="Brigh") {
-//       invertList.push(i);
-       hue=-1;
-       contrast=1;
-     } else if(blueColors.indexOf(_name) != -1) {
-       hue=240;
-       contrast=2;
-     } else if(redColors.indexOf(_name) != -1) {
-       hue=0;
-       contrast=3;
-     } else if(greenColors.indexOf(_name) != -1) {
-       hue=120;
-       contrast=2;
-     }
-     addItemListEntry(_name,i,_dir,hue,contrast,o);
+     addItemListEntry(_name,i,_dir,hue,contrast,op);
      var cname = _name.replace(/ +/g, "");
-     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':o, 'hue':hue, 'contrast':contrast} );
+     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast} );
    }
 }
 
 // preset
-function presetOpacity(i) {
+function presetContrast(i) {
+  return 0;
+}
+
+// rgb is a "0.000000 1.000000 0.200000"
+function presetHue(rgb,name) {
+  if(rgb == null) {
+     if(name == "unknown") { // default hue light blue
+//    window.console.log("don't know the color type..");
+      return 180;
+    } else if(name == "combo" || name == "Brigh") {
+      return -1;
+    } else if(blueColors.indexOf(name) != -1) {
+      return 240;
+    } else if(redColors.indexOf(name) != -1) {
+      return 0;
+    } else if(greenColors.indexOf(name) != -1) {
+      return 120;
+    }
+    } else {
+     // get hue from rgb value.. 
+      return hueIs(rgb);
+  }
+}
+
+function presetOpacity(alpha,i) {
+  if(alpha != null) { 
+    var tmp= Math.round(alpha*10)/10;
+    return (tmp==1?0.9:tmp);
+  }
+  // no alpha just some resonable value
   switch (i) {
    case 0:
      return 1;
@@ -251,7 +267,7 @@ function presetOpacity(i) {
      return 0.6;
      break;
    default:
-     return 1;
+     return 0.9;
      break;
  }
 }
@@ -297,9 +313,9 @@ function setupItemSliders(idx) {
   });
   jQuery(_c).width(100 + '%');
   jQuery(_c).slider("option", "value", p['contrast']);
-  jQuery(_c).slider("option", "min", 1);
-  jQuery(_c).slider("option", "max", 10);
-  jQuery(_c).slider("option", "step", 1);
+  jQuery(_c).slider("option", "min", -100);
+  jQuery(_c).slider("option", "max", 100);
+  jQuery(_c).slider("option", "step", 10);
 
   var hbtn=document.getElementById(_hb);
   jQuery(_h).slider({
@@ -327,7 +343,7 @@ window.onload = function() {
 }
 
 // squeeze out all spaces in name
-function addItemListEntry(n,i,label,hue,constrast,opacity) {
+function addItemListEntry(n,i,label,hue,contrast,opacity) {
   var name = n.replace(/ +/g, "");
   var _name=n;
   var _hue_name=name+'_hue';
@@ -452,6 +468,9 @@ function _updateContrast(name, newContrast) {
   alertify.error("_updateContrast should never be here");
 }
 
+
+// after property entry is updated with hue, the initial
+// setting of using rgb is not used anymore..
 function _updateHue(name, newHue) {
   for(i=0; i<propertyList.length; i++) {
      if( propertyList[i]['cname'] == name) {
@@ -557,6 +576,36 @@ function _hsv2rgb(h, s, v) {
         g: rgb[1] * 255 | 0,
         b: rgb[2] * 255 | 0
     }
+}
+
+//"0.000000 1.000000 0.200000"
+function _rgb2hsl(r, g, b) {
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+
+    if(max == min){
+        h = s = 0; 
+    }else{
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max){
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+//  hue = h * 360;
+    return [h, s, l];
+}
+
+function hueIs(rgb) {
+    var _rgb=rgb.split(" ");
+    var R=parseFloat(_rgb[0])*255;
+    var G=parseFloat(_rgb[1])*255;
+    var B=parseFloat(_rgb[2])*255;
+    var hue= Math.round(Math.atan2(1.732050808 * (G - B), (2 * R - G - B)) * 57.295779513);
+    return hue;
 }
 
 function _hsl2rgb(h, s, l) {
@@ -758,9 +807,14 @@ function extractInfo(str) {
      _max=parseInt(_max,10);
      else alertify.error("Error: DZI image must have a maximum Level");
 
-  var _colortype=imageElem[0].getAttribute("COLORTYPE");
-  if(_colortype == null)
-     alertify.error("Error: DZI image must have a color type even if unknown");
+  var _channelname=imageElem[0].getAttribute("CHANNELNAME");
+  if(_channelname == null)
+     alertify.error("Error: DZI image must have a channel name even if unknown");
+// optional
+  var _channelalpha=imageElem[0].getAttribute("CHANNELALPHA");
+  if(_channelalpha != null)
+     _channelalpha=parseFloat(_channelalpha,10);
+  var _channelrgb=imageElem[0].getAttribute("CHANNELRGB");
 
   var _dir=imageElem[0].getAttribute("DATA");
   if(_dir == null)
@@ -768,11 +822,12 @@ function extractInfo(str) {
 
   if(_h == null || _w == null || _tw == null || _th == null ||
         _scale == null || _min == null || _max == null ||
-              _colortype==null ||_dir == null )
+              _channelname==null ||_dir == null )
      return null;
 
   return { 'height':_h,'width':_w, 'tilewidth':_tw,
             'tileheight':_th,'levelscale':_scale,
             'minlevel':_min,'maxlevel':_max,
-            'colortype':_colortype,'dir':_dir };
+            'channelname':_channelname, 'channelalpha':_channelalpha,
+            'channelrgb':_channelrgb,'dir':_dir };
 }
