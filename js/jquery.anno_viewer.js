@@ -151,7 +151,9 @@ function annoLog(item, eventType) {
 encoded = encodeURIComponent( parm )
 */
    if( debug ) {
-      // printDebug(json);
+      var list = document.getElementById('annotations-list');
+      if(list == null)
+        printDebug(json);
       } else {
         alertify.confirm(json);
    }
@@ -161,6 +163,8 @@ encoded = encodeURIComponent( parm )
 function updateAnnotationList() {
   var annotations = myAnno.getAnnotations();
   var list = document.getElementById('annotations-list');
+  if(list == null)
+    return;
   list.innerHTML = '';
   for (var i = 0; i < annotations.length; i++) {
     var formattedAnnotation =
