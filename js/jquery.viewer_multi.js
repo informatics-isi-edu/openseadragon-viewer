@@ -43,11 +43,10 @@ var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488', 'Alexa Fluor 
 var blueColors = ['DAPI']
 
 var filterList = [];
-var showFilters = true;
+var showFilters = false;
 
 //propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'rgb': '0.1 0.3 0.2' } );
 var propertyList = [];
-var initial_mode = true;
 
 var collectionMode=false;
 
