@@ -247,24 +247,10 @@ function presetHue(rgb,name) {
 
 function presetOpacity(alpha,i) {
   if(alpha != null) { 
-    var tmp= Math.round(alpha*10)/10;
-    return (tmp==1?0.9:tmp);
+    return Math.round(alpha*10)/10;
   }
   // no alpha just some resonable value
-  switch (i) {
-   case 0:
-     return 1;
-     break;
-   case 1:
-     return 0.8;
-     break;
-   case 2:
-     return 0.6;
-     break;
-   default:
-     return 0.9;
-     break;
- }
+  return 0.7;
 }
 
 function _RGBTohex(rgb) {
@@ -294,7 +280,7 @@ function setupItemSliders(idx) {
       }
   });
   jQuery(_s).width(100 + '%');
-  jQuery(_s).slider("option", "value", 0.9); // by default
+  jQuery(_s).slider("option", "value", p['opacity']); // by default
   jQuery(_s).slider("option", "min", 0);
   jQuery(_s).slider("option", "max", 1);
   jQuery(_s).slider("option", "step", 0.1);
@@ -310,7 +296,7 @@ function setupItemSliders(idx) {
   jQuery(_c).slider("option", "value", p['contrast']);
   jQuery(_c).slider("option", "min", -100);
   jQuery(_c).slider("option", "max", 100);
-  jQuery(_c).slider("option", "step", 10);
+  jQuery(_c).slider("option", "step", 2);
 
   var hbtn=document.getElementById(_hb);
   jQuery(_h).slider({
@@ -350,7 +336,7 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
   var _contrast_btn=name+'_contrast_btn';
   var _hue_init_value=hue;
   var _contrast_init_value=contrast;
-  var _opacity_init_value=0.9;
+  var _opacity_init_value=opacity;
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
@@ -519,7 +505,11 @@ function toggleItem(itemID, itemLabel) {
     item.setOpacity(0);
     } else {
       op=_getOpacityByID(itemID);
-      item.setOpacity(op);
+      if(op == 1) { // FIX THIS at openseadragon!!
+        item.setOpacity(0.9);
+        } else {
+          item.setOpacity(op);
+      }
   }
 }
 namehttp://tiku.io/questions/1014477/javascript-convert-grayscale-to-color-given-hue
