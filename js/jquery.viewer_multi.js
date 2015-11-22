@@ -247,7 +247,10 @@ function presetHue(rgb,name) {
 
 function presetOpacity(alpha,i) {
   if(alpha != null) { 
-    return Math.round(alpha*10)/10;
+    var tmp=Math.round(alpha*10)/10; // NEED TO FIX !!
+    if(tmp == 1) 
+      return 0.9;
+    return tmp;
   }
   // no alpha just some resonable value
   return 0.7;
@@ -783,7 +786,7 @@ function extractInfo(str) {
   if(_channelname == null)
      alertify.error("Error: DZI image must have a channel name even if unknown");
 // optional
-  var _channelalpha=imageElem[0].getAttribute("CHANNEDLDEFAULTALPHA");
+  var _channelalpha=imageElem[0].getAttribute("CHANNELDEFAULTALPHA");
   if(_channelalpha != null)
      _channelalpha=parseFloat(_channelalpha,10);
   var _channelrgb=imageElem[0].getAttribute("CHANNELDEFAULTRGB");
