@@ -249,10 +249,8 @@
             if (factor < -100 || factor > 100) {
                 throw new Error("CONTRAST factor must be within -100 to 100 range.");
             }
-window.console.log("XXXXX init with .."+factor);
             factor = (100 + factor) / 100;
             factor *= factor;
-window.console.log("---> contrast factor is .."+factor);
 
             return function(context, callback) {
                 var imgData = context.getImageData(
@@ -270,8 +268,6 @@ window.console.log("---> contrast factor is .."+factor);
                    iP = iP > 255 ? 255 : iP;
                    iP = iP < 0 ? 0 : iP;
    
-if(i==0)
-window.console.log("old and new P[0] is .."+pixels[0]+" "+iP);
                    pixels[i]=iP;
                 }
                 context.putImageData(imgData, 0, 0);
