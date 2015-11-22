@@ -574,10 +574,9 @@ function _rgb2hsl(r, g, b) {
 
 function hueIs(rgb) {
     var _rgb=rgb.split(" ");
-    var R=parseFloat(_rgb[0])*255;
-    var G=parseFloat(_rgb[1])*255;
-    var B=parseFloat(_rgb[2])*255;
-    var hue= Math.round(Math.atan2(1.732050808 * (G - B), (2 * R - G - B)) * 57.295779513);
+    var p=_rgb2hsl(parseFloat(_rgb[0]), parseFloat(_rgb[1]), parseFloat(_rgb[
+2]));
+    var hue = p[0] * 360;
     return hue;
 }
 
@@ -784,10 +783,10 @@ function extractInfo(str) {
   if(_channelname == null)
      alertify.error("Error: DZI image must have a channel name even if unknown");
 // optional
-  var _channelalpha=imageElem[0].getAttribute("CHANNELALPHA");
+  var _channelalpha=imageElem[0].getAttribute("CHANNEDLDEFAULTALPHA");
   if(_channelalpha != null)
      _channelalpha=parseFloat(_channelalpha,10);
-  var _channelrgb=imageElem[0].getAttribute("CHANNELRGB");
+  var _channelrgb=imageElem[0].getAttribute("CHANNELDEFAULTRGB");
 
   var _dir=imageElem[0].getAttribute("DATA");
   if(_dir == null)
