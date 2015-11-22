@@ -45,10 +45,6 @@ var blueColors = ['DAPI']
 var filterList = [];
 var showFilters = true;
 
-var showRed=true;
-var showGreen=true;
-var showBlue=true;
-
 //propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'rgb': '0.1 0.3 0.2' } );
 var propertyList = [];
 var initial_mode = true;
@@ -339,7 +335,8 @@ window.onload = function() {
     setupItemSliders(i);
   }
   dropdown.innerHTML = channels;
-  jQuery('.filtercontrol').hide();
+  //jQuery('.filtercontrol').hide();
+  toggleFilters();
 }
 
 // squeeze out all spaces in name
@@ -407,19 +404,6 @@ function _clearFilters() {
         processors: [ ]
     }
    });
-}
-
-// 1XX, 0XX
-function toggleRed(i,name) {
-  showRed = ! showRed;
-}
-// X1X, X0X
-function toggleGreen(i,name) {
-  showGreen = ! showGreen;
-}
-// XX1, XX0
-function toggleBlue(i,name) {
-  showBlue = ! showBlue;
 }
 
 function toggleFilters() {
