@@ -191,6 +191,10 @@
   $(document).ready(function() {
     $('.channel').hide();
     $('.channel').eq(0).show();
+    var numChannels = $('.channels').length;
+    if (numChannels < 2) {
+        $('#channels-list').hide();
+    }
     $('#channels-list').change(function() {
       var channel = $('#channels-list').find('option:selected').val();
       $('.channel').hide();
