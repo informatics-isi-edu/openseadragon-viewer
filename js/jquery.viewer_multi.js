@@ -141,12 +141,14 @@ jQuery(document).ready(function() {
           annoBtnFadeOut();
         }
       });
-/* XXX
-      myViewer.addHandler('tile-drawing', function(target) {
-window.console.log("--> making call to tile-drawing..");
-         var ctxt = viewer.rendered;
-      });
-*/
+
+     myViewer.world.addHandler('add-item', function(target) {
+// when propertyList matches with total cnt..
+       if( propertyList.length == myViewer.world.getItemCount()) {
+         showFilters=true;
+         _addFilters(); 
+       }
+     });
    }
 });
 
@@ -323,8 +325,7 @@ window.onload = function() {
     setupItemSliders(i);
   }
   dropdown.innerHTML = channels;
-  //jQuery('.filtercontrol').hide();
-  toggleFilters();
+//  jQuery('.filtercontrol').hide();
 }
 
 // squeeze out all spaces in name
@@ -364,7 +365,6 @@ if(hue >= 0) {
 
 // this is called when any of the hue/contrast slider got touched
 function _addFilters() {
-   // clear filterlist
    filterList=[];
    jQuery('.filtercontrol').show();
    for(i=0;i<propertyList.length;i++) {
