@@ -39,7 +39,7 @@ var logHeader=null;
 var logURL=[];
 
 var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647']
-var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488', 'Alexa Fluor 480']
+var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
 var filterList = [];
@@ -232,7 +232,7 @@ function presetHue(rgb,name) {
      if(name == "unknown") { // default hue light blue
 //    window.console.log("don't know the color type..");
       return 180;
-    } else if(name == "combo" || name == "Brigh") {
+    } else if(name == "combo" || name == "TL Brightfield") {
       return -1;
     } else if(blueColors.indexOf(name) != -1) {
       return 240;
@@ -351,12 +351,6 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
 if(hue >= 0) {
   _nn+='<div class="col-md-12 filter-slider"><div class="caption">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
   } else { // this is a combo or unknown type --> rgb
-// XXX
-  _nn+='<div id="rgbcontrol" style="display:none" >';
-  _nn+='<input type="checkbox" checked="" style="margin-right:5px;margin-top:5px;" onClick="toggleRed('+i+','+'\''+_name+'\');" />red';
-  _nn+='<input type="checkbox" checked="" style="margin:5px" onClick="toggleGreen('+i+','+'\''+_name+'\');" />green';
-  _nn+='<input type="checkbox" checked="" style="margin:5px" onClick="toggleBlue('+i+','+'\''+_name+'\');" />blue';
-  _nn+='</div>';
 }
   _nn+='</div></div></div>';
   jQuery('#itemList').append(_nn);
@@ -472,8 +466,6 @@ function _updateOpacity(name, newOpacity) {
        propertyList[i]['opacity']=newOpacity;
        item=myViewer.world.getItemAt(_i);
        item.setOpacity(newOpacity);
-//myViewer.forceRedraw();
-//myViewer.world.resetItems()
        return;
      }
   }
