@@ -318,6 +318,9 @@ function setupItemSliders(idx) {
 }
 
 window.onload = function() {
+  if (propertyList.length < 2) {
+      jQuery('#itemList').prepend('<h5>'+propertyList[0].name+'</h5>');
+  }
   var dropdown = document.getElementById('channels-list');
   var channels = '';
   for (var i = 0; i < propertyList.length; i++) {
@@ -325,7 +328,6 @@ window.onload = function() {
     setupItemSliders(i);
   }
   dropdown.innerHTML = channels;
-//  jQuery('.filtercontrol').hide();
 }
 
 // squeeze out all spaces in name
