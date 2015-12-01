@@ -255,7 +255,7 @@ function presetOpacity(alpha,i) {
     return tmp;
   }
   // no alpha just some resonable value
-  return 0.7;
+  return 0.9;
 }
 
 function _RGBTohex(rgb) {
