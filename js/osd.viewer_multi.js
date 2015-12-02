@@ -158,6 +158,7 @@ function _addURLLayer(url, i) {
     var _levelScale=r['levelscale'];
     var _minLevel=r['minlevel'];
     var _maxLevel=r['maxlevel'];
+    var _overlap=r['overlap'];
     var _dir=r['dir'];
     var _realMin=_minLevel;
 //this is needed because there is no level 0
@@ -183,6 +184,7 @@ function _addURLLayer(url, i) {
                      width:  _width,
                      tileWidth: _tileWidth,
                      tileHeight: _tileHeight,
+                     tileOverlap: _overlap,
                      minLevel: _minLevel,
                      maxLevel: _maxLevel,
                      getLevelScale: function( level ) {
@@ -377,6 +379,11 @@ function extractInfo(str) {
      _max=parseInt(_max,10);
      else alertify.error("Error: DZI image must have a maximum Level");
 
+  var _overlap=imageElem[0].getAttribute("overlap");
+  if(_overlap != null)
+     _overlap=parseInt(_overlap,10);
+     else _overlap=0;
+
   var _channelname=imageElem[0].getAttribute("channelName");
   if(_channelname == null)
      alertify.error("Error: DZI image must have a channel name even if unknown");
@@ -397,7 +404,7 @@ function extractInfo(str) {
 
   return { 'height':_h,'width':_w, 'tilewidth':_tw,
             'tileheight':_th,'levelscale':_scale,
-            'minlevel':_min,'maxlevel':_max,
+            'minlevel':_min,'maxlevel':_max, 'overlap':_overlap,
             'channelname':_channelname, 'channelalpha':_channelalpha,
             'channelrgb':_channelrgb,'dir':_dir };
 }
