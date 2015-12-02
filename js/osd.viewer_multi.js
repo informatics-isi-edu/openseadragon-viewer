@@ -38,6 +38,10 @@ var logZoom=null;
 var logHeader=null;
 var logURL=[];
 
+// this is to work around that the initial load of the viewport
+// always goes to the initial view first
+var startState=false;
+
 jQuery(document).ready(function() {
 
 //process args
