@@ -160,6 +160,7 @@ function _addURLLayer(url, i) {
     var _maxLevel=r['maxlevel'];
     var _overlap=r['overlap'];
     var _dir=r['dir'];
+    var _format=r['format'];
     var _realMin=_minLevel;
 //this is needed because there is no level 0
     if(_minLevel != 0)
@@ -198,7 +199,7 @@ function _addURLLayer(url, i) {
                        return this.getLevelScale( level );
                      },
                      getTileUrl: function( level, x, y ) {
-                       t=path+'/'+(level)+"/"+x+"_"+y+".jpg";
+                       t=path+'/'+(level)+"/"+x+"_"+y+"."+_format;
                        return t;
                    }},
                    defaultZoomLevel: _realMin,
@@ -384,6 +385,11 @@ function extractInfo(str) {
      _overlap=parseInt(_overlap,10);
      else _overlap=0;
 
+  var _format=imageElem[0].getAttribute("format");
+  if(_format != null)
+     _format="jpg"; // default
+
+
   var _channelname=imageElem[0].getAttribute("channelName");
   if(_channelname == null)
      alertify.error("Error: DZI image must have a channel name even if unknown");
@@ -406,5 +412,5 @@ function extractInfo(str) {
             'tileheight':_th,'levelscale':_scale,
             'minlevel':_min,'maxlevel':_max, 'overlap':_overlap,
             'channelname':_channelname, 'channelalpha':_channelalpha,
-            'channelrgb':_channelrgb,'dir':_dir };
+            'channelrgb':_channelrgb,'dir':_dir, 'format':_format };
 }
