@@ -386,7 +386,7 @@ function extractInfo(str) {
      else _overlap=0;
 
   var _format=imageElem[0].getAttribute("format");
-  if(_format != null)
+  if(_format == null)
      _format="jpg"; // default
 
 
