@@ -112,10 +112,6 @@ jQuery(document).ready(function() {
               var _overlap=r['overlap']
               var _dir=r['dir'];
               var _format=r['format'];
-              var _realMin=_minLevel;
-//this is needed because there is no level 0
-              if(_minLevel != 0) 
-                _realMin = _minLevel+1;
 /* usually data is at the same level with url.. */
               path = url.replace('/ImageProperties.xml','');
               if(_dir.split('/').length > 1) {
@@ -133,7 +129,6 @@ jQuery(document).ready(function() {
 //                         debugMode: "true",
                          showNavigator: "true",
                          constrainDuringPan: true,
-                         defaultZoomLevel: _realMin,
                          visibilityRatio: 	1,
                          tileSources: {
                            height: _height,
