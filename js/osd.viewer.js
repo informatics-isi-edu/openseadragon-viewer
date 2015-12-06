@@ -102,14 +102,16 @@ jQuery(document).ready(function() {
           } else {
             var r = extractInfo(e); 
             if( r != null) {
-              var _height=r[0];
-              var _width=r[1];
-              var _tileWidth=r[2];
-              var _tileHeight=r[3];
-              var _levelScale=r[4];
-              var _minLevel=r[5];
-              var _maxLevel=r[6];
-              var _dir=r[7];
+              var _height=r['height'];
+              var _width=r['width'];
+              var _tileWidth=r['tilewidth'];
+              var _tileHeight=r['tileheight'];
+              var _levelScale=r['levelscale'];
+              var _minLevel=r['minlevel'];
+              var _maxLevel=r['maxlevel'];
+              var _overlap=r['overlap']
+              var _dir=r['dir'];
+              var _format=r['format'];
               var _realMin=_minLevel;
 //this is needed because there is no level 0
               if(_minLevel != 0) 
@@ -138,6 +140,9 @@ jQuery(document).ready(function() {
                            width:  _width,
                            minLevel: _minLevel,
                            maxLevel: _maxLevel,
+                           tileWidth: _tileWidth,
+                           tileHeight: _tileHeight,
+                           tileOverlap: _overlap,
                          getLevelScale: function( level ) {
                            var levelScaleCache = {}, i;
                            for( i = 0; i <= _maxLevel; i++ ){
@@ -148,14 +153,8 @@ jQuery(document).ready(function() {
                            };
                            return this.getLevelScale( level );
                          },
-                           getTileWidth: function(level) {
-                             return _tileWidth;
-                           },
-                           getTileHeight: function(level) {
-                             return _tileHeight;
-                           },
                            getTileUrl: function( level, x, y ) {
-                             t=path+'/'+(level)+"/"+x+"_"+y+".jpg";
+                             t=path+'/'+(level)+"/"+x+"_"+y+"."+_format;
                              return t;
                            }
                          }
@@ -194,7 +193,7 @@ jQuery(document).ready(function() {
                 }
               });
               myViewer.addHandler('tile-drawing', function(target) {
-window.console.log("--> making call to tile-drawing..");
+//window.console.log("--> making call to tile-drawing..");
                  var ctxt = viewer.rendered;
               });
             }
@@ -325,22 +324,22 @@ function extractInfo(str) {
       } else { // Internet Explorer
           xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
           xmlDoc.async=false;
-          xmlDoc.loadXML(str); 
+          xmlDoc.loadXML(str);
   }
   imageElem= xmlDoc.getElementsByTagName("IMAGE_PROPERTIES");
 
-  var _h=imageElem[0].getAttribute("HEIGHT");
+  var _h=imageElem[0].getAttribute("height");
   if(_h != null)
      _h=parseInt(_h,10);
      else alertify.error("Error: DZI image must have a height");
 
-  var _w=imageElem[0].getAttribute("WIDTH");
+  var _w=imageElem[0].getAttribute("width");
   if(_w != null)
      _w=parseInt(_w,10);
      else alertify.error("Error: DZI image must have a width");
 
-  var _tw=imageElem[0].getAttribute("TILEWIDTH");
-  var _th=imageElem[0].getAttribute("TILEHEIGHT");
+  var _tw=imageElem[0].getAttribute("tileWidth");
+  var _th=imageElem[0].getAttribute("tileHeight");
   if( _tw == null || _th == null) {
      alertify.error("Error: DZI image must have tileWidth & tileHeight");
      } else {
@@ -348,29 +347,52 @@ function extractInfo(str) {
        _th=parseInt(_th,10);
   }
 
-  var _scale=imageElem[0].getAttribute("LEVELSCALE");
+  var _scale=imageElem[0].getAttribute("levelScale");
   if(_scale != null)
      _scale=parseInt(_scale,10);
      else alertify.error("Error: DZI image must have a level Scale");
 
-  var _min=imageElem[0].getAttribute("MINLEVEL");
+  var _min=imageElem[0].getAttribute("minLevel");
   if(_min != null)
      _min=parseInt(_min,10);
      else alertify.error("Error: DZI image must have a minimum Level");
 
-  var _max=imageElem[0].getAttribute("MAXLEVEL");
+  var _max=imageElem[0].getAttribute("maxLevel");
   if(_max != null)
      _max=parseInt(_max,10);
      else alertify.error("Error: DZI image must have a maximum Level");
 
-  var _dir=imageElem[0].getAttribute("DATA");
+  var _overlap=imageElem[0].getAttribute("overlap");
+  if(_overlap != null)
+     _overlap=parseInt(_overlap,10);
+     else _overlap=0;
+
+  var _format=imageElem[0].getAttribute("format");
+  if(_format == null)
+     _format="jpg"; // default
+
+
+  var _channelname=imageElem[0].getAttribute("channelName");
+  if(_channelname == null)
+     alertify.error("Error: DZI image must have a channel name even if unknown");
+// optional
+  var _channelalpha=imageElem[0].getAttribute("channelDefaultAlpha");
+  if(_channelalpha != null)
+     _channelalpha=parseFloat(_channelalpha,10);
+  var _channelrgb=imageElem[0].getAttribute("channelDefaultRGB");
+
+  var _dir=imageElem[0].getAttribute("data");
   if(_dir == null)
      alertify.error("Error: DZI image must have a data directory name");
 
-  if(_h == null || _w == null || _tw == null || _th == null || 
-        _scale == null || _min == null || _max == null || _dir == null )
-     return null; 
+  if(_h == null || _w == null || _tw == null || _th == null ||
+        _scale == null || _min == null || _max == null ||
+              _channelname==null ||_dir == null )
+     return null;
 
-  return [_h,_w,_tw,_th,_scale,_min,_max,_dir];
+  return { 'height':_h,'width':_w, 'tilewidth':_tw,
+            'tileheight':_th,'levelscale':_scale,
+            'minlevel':_min,'maxlevel':_max, 'overlap':_overlap,
+            'channelname':_channelname, 'channelalpha':_channelalpha,
+            'channelrgb':_channelrgb,'dir':_dir, 'format':_format };
 }
-
