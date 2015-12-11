@@ -260,7 +260,7 @@ function saveAnno(fname)
 function loadAnno(fname)
 {
   var tmp=ckExist(fname);
-  window.console.log("got "+tmp);
+//  window.console.log("got "+tmp);
   readAll(JSON.parse(tmp));
 }
 
@@ -281,14 +281,8 @@ function centerAnnoByHash(i)
      var y=item.shapes[0].geometry.y + (h/2);
      var ctxt=item.context;
      var src=item.src;
-window.console.log("start with ",item.shapes[0].geometry.x,
-                  " width ",item.shapes[0].geometry.width);;
-window.console.log("  and with ",item.shapes[0].geometry.y,
-                  " height ",item.shapes[0].geometry.height);;
-window.console.log("going to ",x," and ",y);
      logX=x;
      logY=y;
-window.console.log("reuse logZoom..",logZoom);
      goPosition(x,y,logZoom); 
 //     checkIt();
      annoHighlightAnnotation(item);
