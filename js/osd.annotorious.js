@@ -7,8 +7,7 @@ var CREATE_EVENT_TYPE='CREATE';
 var UPDATE_EVENT_TYPE='UPDATE';
 var REMOVE_EVENT_TYPE='REMOVE';
 var INFO_EVENT_TYPE='INFO';
-// Object to track current list of annotations
-var annotationList = {};
+
 /*
   http://stackoverflow.com/questions/7616461/
         generate-a-hash-from-string-in-javascript-jquery
@@ -32,13 +31,15 @@ function getHash(item) {
    return txt.hashCode();
 }
 
+// dump a listed of annotation wrapped in logInfo
 function annoDump() {
   var p=myAnno.getAnnotations();
   var len=p.length;
-  var tmp="";
+  var alist=[];
   for(var i=0; i < len; i++) {
-      tmp=tmp + annoLog(p[i],INFO_EVENT_TYPE);
+      alist.push(annoLog(p[i],INFO_EVENT_TYPE));
   }
+  var tmp = { "annoList" : alist };
   return tmp;
 }
 
@@ -52,6 +53,37 @@ function annoExist(item) {
   return 0;
 }
 
+// retrieve i-th annotation from the inner list
+function annoRetrieve(i) {
+  var p=myAnno.getAnnotations();
+  var len = p.length;
+  if (i>=0 && i <len) 
+    return p[i];
+  return null;
+}
+
+function annoRetrieveByHash(h) {
+  var p=myAnno.getAnnotations();
+  var len = p.length;
+  for (var i = 0; i < len; i++) {
+    if(h == getHash(p[i])) {
+      return p[i];
+    }
+  }
+  return null;
+}
+
+function annoAdd(item) {
+  if( annoExist(item) ) {
+    return;
+  }
+  myAnno.addAnnotation(item);
+}
+
+function annoHighlightAnnotation(item) {
+  myAnno.highlightAnnotation(item);
+}
+
 function annoSetup(_anno,_viewer) {
   _anno.makeAnnotatable(_viewer);
   _anno.addHandler("onAnnotationCreated", function(target) {
@@ -62,7 +94,6 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
     var json=annoLog(item,REMOVE_EVENT_TYPE);
-    // makeDummy();
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationUpdated", function(target) {
@@ -73,22 +104,47 @@ function annoSetup(_anno,_viewer) {
   myAnno=_anno;
 }
 
-function annoInject(item, item2) {
-  printDebug("======");
-  if( annoExist(item) ) {
-    return;
-  }
-  myAnno.addAnnotation(item);
-
-/* following did not work..
-  annoDump();
-  printDebug("XXXXXXX");
-  myAnno.addAnnotation(item2,item);
-  annoDump();
+/*
+   src:item.src,
+   context:item.context,
+   text:item.text,
+   shape:item.shapes[0].type,
+   x: item.shapes[0].geometry.x,
+   y: item.shapes[0].geometry.y,
+   width: item.shapes[0].geometry.width,
+   height: item.shapes[0].geometry.height
 */
+function annoLog(item, eventType) {
+   var hash=getHash(item);
+   var tmp= { type: 'openseadragon_dzi',
+              id : hash,
+              event : eventType,
+              data : item
+            };
+
+   var json = JSON.stringify(tmp,null,2);
+
+/* if data has url embedded in there. need to escape with
+encoded = encodeURIComponent( parm )
+*/
+   if( debug ) {
+      printDebug(json);
+   }
+   return json;
 }
 
-// only shape supported is rect
+function annotate() {
+  var button = document.getElementById('map-annotate-button');
+  button.style.color = '#777';
+
+  myAnno.activateSelector(function() {
+    // Reset button style
+    button.style.color = '#fff';
+  });
+}
+
+// only shape supported is rect, this is to create an annotation
+// item by hand 
 function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
 {
   var myAnnotation = {
@@ -100,91 +156,51 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
       geometry : { x : _x, y: _y, width : _width, height: _height }
     }]
   }
-
-  var _w2= _width *2;
-  var _h2= _height/2;
-  var myAnnotation2 = {
-    src : _src,
-    context : _context,
-    text : _text+"and a new one..",
-    shapes : [{
-      type : 'rect',
-      geometry : { x : _x, y: _y, width : _w2, height: _h2 }
-    }]
-  }
-
-  annoInject(myAnnotation, myAnnotation2);
+  return myAnnotation;
 }
 
-function makeDummy() {
-  annoMakeAnno(
-    "dzi://openseadragon/something",
-    "http://localhost/tiletiff/index.html?url=http://localhost/tiletiff/data/wide.dzi",
-    "123",
-    0.6491228070175439,
-    -0.017857142857142877,
-    0.032581453634085156,
-    0.3020050125313283
-  );
-}
+/*************************** ui part **************************/
 
-function annoLog(item, eventType) {
-   var hash=getHash(item);
-   var data = { src:item.src,
-                context:item.context,
-                text:item.text,
-                shape:item.shapes[0].type,
-                x: item.shapes[0].geometry.x,
-                y: item.shapes[0].geometry.y,
-                width: item.shapes[0].geometry.width,
-                height: item.shapes[0].geometry.height
-              };
-   var tmp= { type: 'openseadragon_dzi',
-              id : hash,
-              event : eventType,
-              data : data
-            };
-
-   var json = JSON.stringify(tmp,null,2);
-
-/* if data has url embedded in there. need to escape with
-encoded = encodeURIComponent( parm )
-*/
-   if( debug ) {
-      var list = document.getElementById('annotations-list');
-      if(list == null)
-        printDebug(json);
-      } else {
-        alertify.confirm(json);
-   }
-   return json;
-}
+/* functions related to annotorious ui and backend linkup  */
 
 function updateAnnotationList() {
   var annotations = myAnno.getAnnotations();
   var list = document.getElementById('annotations-list');
   if(list == null)
     return;
+  _clearAnnoOptions();
   list.innerHTML = '';
   for (var i = 0; i < annotations.length; i++) {
+    _addAnnoOption(getHash(annotations[i]));
     var formattedAnnotation =
       '<a href="#"><div class="panel panel-default">' +
-        '<div class="panel-body">' +
-          annotations[i].text +
+        '<div class="panel-body" id=' + getHash(annotations[i]) +' ' + 
+                    'onclick=centerAnnoByHash('+ getHash(annotations[i]) +')'+
+'>' +
+                    annotations[i].text +
         '</div>' +
       '</div></a>';
     list.innerHTML += formattedAnnotation;
   }
 }
 
-function annotate() {
-  var button = document.getElementById('map-annotate-button');
-  button.style.color = '#777';
+function _clearAnnoOptions() {
+  var alist = document.getElementById('anno-list');
+  if(alist == null) 
+    return;
+  while (alist.length > 0) {
+      alist.remove(alist.length - 1);
+  }
+}
 
-  myAnno.activateSelector(function() {
-    // Reset button style
-    button.style.color = '#fff';
-  });
+function _addAnnoOption(name) {
+  var alist = document.getElementById('anno-list');
+  if(alist == null)
+    return;
+  var newopt = document.createElement('option');
+  newopt.text=name;
+  newopt.value=name;
+  alist.add(newopt);
 }
 
 function annoBtnEnter() {
@@ -202,7 +218,7 @@ function annoBtnFadeOut() {
   if ($button.is(':hover')) {
 //window.console.log("..don't fade..");
   } else {
-    $button.fadeOut(2000);
+//XXX    $button.fadeOut(2000);
 //window.console.log("..fading for sure..");
   }
 
@@ -210,5 +226,117 @@ function annoBtnFadeOut() {
 
 function annoBtnFadeIn(){
   var $button = $("#map-annotate-button");
-  $button.fadeIn("fast");
+//XXX  $button.fadeIn("fast");
 }
+
+function saveAnno(fname)
+{
+  var tmp = annoDump();
+  var textToWrite = JSON.stringify(tmp);
+  var textFileAsBlob = new Blob([textToWrite], {type:'text/json'});
+  var fileNameToSaveAs = fname;
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null)
+  {
+      // Chrome allows the link to be clicked
+      // without actually adding it to the DOM.
+      downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  }
+  else
+  {
+      // Firefox requires the link to be added to the DOM
+      // before it can be clicked.
+      downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+      downloadLink.onclick = destroyClickedElement;
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+  }
+  downloadLink.click();
+}
+
+// load annotation from a json file
+function loadAnno(fname)
+{
+  var tmp=ckExist(fname);
+  window.console.log("got "+tmp);
+  readAll(JSON.parse(tmp));
+}
+
+// center i-th annotation in the middle
+function centerAnnoByHash(i)
+{
+  var h=i;
+  if(h == null) {
+     h = $('#anno-list').find('option:selected').val();
+  }
+  var item = annoRetrieveByHash(h);
+  if(item) {
+   // get x,y location
+     checkIt();
+     var w=item.shapes[0].geometry.width;
+     var h= item.shapes[0].geometry.height;
+     var x=item.shapes[0].geometry.x + (w/2);
+     var y=item.shapes[0].geometry.y + (h/2);
+     var ctxt=item.context;
+     var src=item.src;
+window.console.log("start with ",item.shapes[0].geometry.x,
+                  " width ",item.shapes[0].geometry.width);;
+window.console.log("  and with ",item.shapes[0].geometry.y,
+                  " height ",item.shapes[0].geometry.height);;
+window.console.log("going to ",x," and ",y);
+     logX=x;
+     logY=y;
+     logZoom=1;
+     goPosition(x,y,1); 
+//     checkIt();
+     annoHighlightAnnotation(item);
+// add a tiny annotation here..
+/*
+  var viewportCenter = myViewer.viewport.getCenter('true');
+  var nx= viewportCenter.x;
+  var ny=viewportCenter.y;
+  var ncenter= annoMakeAnno(src,ctxt,"new center",nx,ny,w,h);
+  annoAdd(ncenter);
+  annoHighlightAnnotation(ncenter);
+*/
+  }
+}
+
+function destroyClickedElement(event)
+{
+    document.body.removeChild(event.target);
+}
+
+
+function readAll(blob) {
+   if(blob) {
+      // step through it and load it in
+      var alist=blob['annoList'];
+      var len=alist.length;
+      var tt;
+      for(var i=0; i< len; i++) {
+         var p=alist[i];
+         // extract item
+         var t=JSON.parse(p);
+         tt= t["data"];
+         annoAdd(tt);
+      }
+      updateAnnotationList();
+   }
+}
+
+// making a test annotation
+function makeDummy() {
+  annoMakeAnno(
+    "dzi://openseadragon/something",
+    "http://localhost/tiletiff/index.html?url=http://localhost/tiletiff/data/wide.dzi",
+    "123",
+    0.6491228070175439,
+    -0.017857142857142877,
+    0.032581453634085156,
+    0.3020050125313283
+  );
+}
+

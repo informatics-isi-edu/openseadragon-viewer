@@ -11582,6 +11582,7 @@ function configureFromXML( tileSource, xmlDoc ){
                     rectNode = dispRectNode.getElementsByTagNameNS(ns, "Rect" )[ 0 ];
                 }
 
+
                 displayRects.push({
                     Rect: {
                         X: parseInt( rectNode.getAttribute( "X" ), 10 ),

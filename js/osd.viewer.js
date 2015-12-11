@@ -92,7 +92,7 @@ jQuery(document).ready(function() {
           myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-//                   debugMode: "true",
+                   debugMode: "true",
                    showNavigator: true,
                    tileSources: url
                    });
@@ -126,7 +126,7 @@ jQuery(document).ready(function() {
               myViewer = OpenSeadragon({
                          id: "openseadragon",
                          prefixUrl: "images/",
-//                         debugMode: "true",
+                         debugMode: "true",
                          showNavigator: "true",
                          constrainDuringPan: true,
                          visibilityRatio: 	1,

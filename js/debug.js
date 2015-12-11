@@ -1,5 +1,5 @@
 
-var debug=1;
+var debug=0;
 var myDebugWin;
 
 function _showDebug (name) {

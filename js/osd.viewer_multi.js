@@ -42,6 +42,9 @@ var logURL=[];
 // always goes to the initial view first
 var startState=false;
 
+// to track if this is the first state change
+var isFirst=true;
+
 jQuery(document).ready(function() {
 
 //process args
@@ -87,7 +90,7 @@ jQuery(document).ready(function() {
     myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-  //                 debugMode: "true",
+//                   debugMode: "true",
                    showNavigator: "true",
                    constrainDuringPan: true,
                    visibilityRatio:     1,
@@ -248,13 +251,20 @@ function updateTitle(_X,_Y,_Z) {
   var stateObj = { update: newTitle };
 
   var i=history.length;
+  var e=null;
+  var t=null;
   if(i > 0) {
     var e=history.state;
     if (e) {
       var t=e.update;
       if (t) {
         if ( t != newTitle ) {
-            history.pushState(stateObj, 'Title', newTitle)
+            if( isFirst ) {
+               isFirst=false;
+               history.replaceState({}, 'Title', newTitle)
+               } else { 
+                 history.pushState(stateObj, 'Title', newTitle)
+            }
             return 1;
             } else {
                return 0;
@@ -263,7 +273,10 @@ function updateTitle(_X,_Y,_Z) {
       }
     }
   }
-  history.pushState(stateObj, 'Title', newTitle)
+  if( isFirst ) {
+    isFirst = false;
+    history.replaceState(stateObj, 'Title', newTitle)
+  }
   return 1;
 //  alertify.confirm(newTitle);
 }
@@ -306,12 +319,15 @@ function checkIt() {
   msg11= "center point: ("+imageCenter.x
                          +", "+imageCenter.y+")";
   msg1= msg10+ "<br/>" +msg11;
+  window.console.log(msg10);
+  window.console.log(msg11);
 
   viewportZoom = myViewer.viewport.getZoom(true);
   imageZoom = myViewer.viewport.viewportToImageZoom(viewportZoom);
   msg2= "imageZoom: "+imageZoom + " from viewportZoom:"+viewportZoom;
-
   msg= msg1 + "<br/>" + msg2;
+  window.console.log(msg2);
+
 //  alertify.confirm(msg);
 }
 
@@ -322,14 +338,14 @@ function goPosition(_X,_Y,_Zoom) {
   myViewer.viewport.applyConstraints();
 }
 
-// should be a very small file
+// should be a very small html file
 function ckExist(url) {
   var http = new XMLHttpRequest();
   http.onload = function () {
     window.console.log(http.responseText);
   }
   http.open("GET", url, false);
-  http.send();
+  http.send(null);
   if(http.status!=404)
       return http.responseText;
       else return null;
