@@ -93,7 +93,7 @@ jQuery(document).ready(function() {
 //                   debugMode: "true",
                    showNavigator: "true",
                    constrainDuringPan: true,
-                   visibilityRatio:     1,
+//                   visibilityRatio:     1,
 
              });
 

@@ -288,8 +288,8 @@ window.console.log("  and with ",item.shapes[0].geometry.y,
 window.console.log("going to ",x," and ",y);
      logX=x;
      logY=y;
-     logZoom=1;
-     goPosition(x,y,1); 
+window.console.log("reuse logZoom..",logZoom);
+     goPosition(x,y,logZoom); 
 //     checkIt();
      annoHighlightAnnotation(item);
 // add a tiny annotation here..
