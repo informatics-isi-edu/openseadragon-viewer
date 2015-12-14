@@ -274,17 +274,13 @@ function centerAnnoByHash(i)
   var item = annoRetrieveByHash(h);
   if(item) {
    // get x,y location
-     checkIt();
      var w=item.shapes[0].geometry.width;
      var h= item.shapes[0].geometry.height;
-     var x=item.shapes[0].geometry.x + (w/2);
-     var y=item.shapes[0].geometry.y + (h/2);
+     var x=item.shapes[0].geometry.x;
+     var y=item.shapes[0].geometry.y;
      var ctxt=item.context;
      var src=item.src;
-     logX=x;
-     logY=y;
-     goPosition(x,y,logZoom); 
-//     checkIt();
+     goPositionByBounds(x,y,w,h);
      annoHighlightAnnotation(item);
 // add a tiny annotation here..
 /*
