@@ -93,7 +93,7 @@ jQuery(document).ready(function() {
 //                   debugMode: "true",
                    showNavigator: "true",
                    constrainDuringPan: true,
-//                   visibilityRatio:     1,
+                   visibilityRatio:     1,
 
              });
 
@@ -311,9 +311,21 @@ function checkIt() {
      alertify.error("viewer is not setup yet..");
      return;
   }
+
+  var tImage0=null;
+  if( myViewer.world.getItemCount() > 1) {
+    tImage0=myViewer.world.getItemAt(0);
+  }
   var viewportCenter = myViewer.viewport.getCenter('true');
-  var imageCenter = myViewer.viewport.viewportToImageCoordinates(
-                    viewportCenter.x, viewportCenter.y);
+  var imageCenter;
+/* need to grab an image and get the center of it.. */
+  if( tImage0 ) {
+    imageCenter = tImage0.viewportToImageCoordinates(
+                         viewportCenter.x, viewportCenter.y);
+    } else {
+      imageCenter = myViewer.viewport.viewportToImageCoordinates(
+                            viewportCenter.x, viewportCenter.y);
+  }
   msg10= "viewport center: ("+viewportCenter.x
                          +", "+viewportCenter.y+")";
   msg11= "center point: ("+imageCenter.x
@@ -323,7 +335,11 @@ function checkIt() {
   window.console.log(msg11);
 
   viewportZoom = myViewer.viewport.getZoom(true);
-  imageZoom = myViewer.viewport.viewportToImageZoom(viewportZoom);
+  if( tImage0 ) {
+    imageZoom = tImage0.viewportToImageZoom(viewportZoom);
+    } else {
+      imageZoom = myViewer.viewport.viewportToImageZoom(viewportZoom);
+  }
   msg2= "imageZoom: "+imageZoom + " from viewportZoom:"+viewportZoom;
   msg= msg1 + "<br/>" + msg2;
   window.console.log(msg2);
@@ -337,6 +353,13 @@ function goPosition(_X,_Y,_Zoom) {
   myViewer.viewport.zoomTo(_Zoom);
   myViewer.viewport.applyConstraints();
 }
+
+function goPositionByBounds(_X,_Y,_width,_height) {
+  var rect  = new OpenSeadragon.Rect(_X, _Y, _width, _height);
+  myViewer.viewport.fitBounds(rect,true);
+}
+
+// should be a very small html file
 
 // should be a very small html file
 function ckExist(url) {
