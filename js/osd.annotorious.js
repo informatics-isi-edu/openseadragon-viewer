@@ -278,9 +278,12 @@ function centerAnnoByHash(i)
      var h= item.shapes[0].geometry.height;
      var x=item.shapes[0].geometry.x;
      var y=item.shapes[0].geometry.y;
+     var mx=(w/10);
+     var my=(h/10);
      var ctxt=item.context;
      var src=item.src;
-     goPositionByBounds(x,y,w,h);
+    
+     goPositionByBounds(x-mx,y-my,w+(2*mx),h+(2*my));
      annoHighlightAnnotation(item);
 // add a tiny annotation here..
 /*
