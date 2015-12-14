@@ -71,11 +71,20 @@ jQuery(document).ready(function() {
               url=kvp[1].replace(new RegExp('/$'),'').trim();
               logURL.push(url);
             } else if(kvp[0].trim() == 'x') {
-                logX=parseFloat(kvp[1]);
+                var t=parseFloat(kvp[1]);
+                if(!isNaN(t)) {
+                  logX=t;
+                }
             } else if(kvp[0].trim() == 'y') {
-                logY=parseFloat(kvp[1]);
+                var t=parseFloat(kvp[1]);
+                if(!isNaN(t)) {
+                  logY=t;
+                }
             } else if(kvp[0].trim() == 'z') {
-                logZoom=parseFloat(kvp[1]);
+                var t=parseFloat(kvp[1]);
+                if(!isNaN(t)) {
+                  logZoom=t;
+                }
             } else {
                 var _unknown=kvp[1].replace(new RegExp('/$'),'').trim();
                 var _utype=kvp[0].trim();
