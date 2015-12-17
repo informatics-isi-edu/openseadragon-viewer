@@ -57,7 +57,7 @@ function annoExist(item) {
 function annoRetrieve(i) {
   var p=myAnno.getAnnotations();
   var len = p.length;
-  if (i>=0 && i <len) 
+  if (i>=0 && i <len)
     return p[i];
   return null;
 }
@@ -89,6 +89,7 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
+    window.top.postMessage(json, 'http://dev.rebuildingakidney.org');
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
@@ -144,7 +145,7 @@ function annotate() {
 }
 
 // only shape supported is rect, this is to create an annotation
-// item by hand 
+// item by hand
 function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
 {
   var myAnnotation = {
@@ -174,7 +175,7 @@ function updateAnnotationList() {
     _addAnnoOption(getHash(annotations[i]));
     var formattedAnnotation =
       '<a href="#"><div class="panel panel-default">' +
-        '<div class="panel-body" id=' + getHash(annotations[i]) +' ' + 
+        '<div class="panel-body" id=' + getHash(annotations[i]) +' ' +
                     'onclick=centerAnnoByHash('+ getHash(annotations[i]) +')'+
 '>' +
                     annotations[i].text +
@@ -186,7 +187,7 @@ function updateAnnotationList() {
 
 function _clearAnnoOptions() {
   var alist = document.getElementById('anno-list');
-  if(alist == null) 
+  if(alist == null)
     return;
   while (alist.length > 0) {
       alist.remove(alist.length - 1);
@@ -282,7 +283,7 @@ function centerAnnoByHash(i)
      var my=(h/10);
      var ctxt=item.context;
      var src=item.src;
-    
+
      goPositionByBounds(x-mx,y-my,w+(2*mx),h+(2*my));
      annoHighlightAnnotation(item);
 // add a tiny annotation here..
@@ -332,4 +333,3 @@ function makeDummy() {
     0.3020050125313283
   );
 }
-
