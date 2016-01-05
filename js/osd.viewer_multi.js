@@ -272,7 +272,7 @@ function updateTitle(_X,_Y,_Z) {
                isFirst=false;
                history.replaceState({}, 'Title', newTitle)
                } else { 
-                 history.pushState(stateObj, 'Title', newTitle)
+                 history.replaceState(stateObj, 'Title', newTitle)
             }
             return 1;
             } else {
