@@ -146,7 +146,7 @@ jQuery(document).ready(function() {
 // when propertyList matches with total cnt..
        if( propertyList.length == myViewer.world.getItemCount()) {
          showFilters=true;
-         _addFilters(); 
+         _addFilters();
        }
      });
    }
@@ -271,8 +271,8 @@ function updateTitle(_X,_Y,_Z) {
             if( isFirst ) {
                isFirst=false;
                history.replaceState({}, 'Title', newTitle)
-               } else { 
-                 history.pushState(stateObj, 'Title', newTitle)
+               } else {
+                   history.replaceState(stateObj, 'Title', newTitle)
             }
             return 1;
             } else {
