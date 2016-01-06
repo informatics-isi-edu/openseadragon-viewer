@@ -1,5 +1,49 @@
+window.addEventListener('message', function(event) {
+    if (event.origin === window.location.origin) {
+        var messageType = event.data.messageType;
+        var data = event.data.content;
+        switch (messageType) {
+            case 'annotationsList':
+                var annotationsToLoad = {"annoList":[]};
+                data.map(function formatAnnotationObj(annotation) {
+                    annotation = annotation.data;
+                    var annotationObj = {
+                        "type": "openseadragon_dzi",
+                        "id": null,
+                        "event": "INFO",
+                        "data": {
+                            "src": "dzi://openseadragon/something",
+                            "text": annotation.comments,
+                            "shapes": [
+                                {
+                                    "type": "rect",
+                                    "geometry": {
+                                        "x": annotation.coords[0],
+                                        "y": annotation.coords[1],
+                                        "width": annotation.coords[2],
+                                        "height": annotation.coords[3]
+                                    },
+                                    "style": {}
+                                }
+                            ],
+                            "context": annotation.context_uri
+                        }
+                    };
+                    annotationsToLoad.annoList.push(annotationObj);
+                });
+                readAll(annotationsToLoad);
+                break;
+            default:
+                console.log('Invalid message type. No action performed.');
+        }
+    } else {
+        console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
+    }
+});
 
 /* functions related to annotorious */
+var myAnnoReady = false;
+window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
 
 var myAnno=null;
 
@@ -89,7 +133,7 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
-    window.top.postMessage(json, 'http://dev.rebuildingakidney.org');
+    window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
@@ -103,6 +147,8 @@ function annoSetup(_anno,_viewer) {
     updateAnnotationList();
   });
   myAnno=_anno;
+  myAnnoReady = true;
+  window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
 }
 
 /*
@@ -313,8 +359,7 @@ function readAll(blob) {
       for(var i=0; i< len; i++) {
          var p=alist[i];
          // extract item
-         var t=JSON.parse(p);
-         tt= t["data"];
+         tt= p["data"];
          annoAdd(tt);
       }
       updateAnnotationList();
