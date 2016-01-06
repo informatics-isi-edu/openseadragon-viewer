@@ -1,3 +1,4 @@
+// An event listener to capture messages from Chaise
 window.addEventListener('message', function(event) {
     if (event.origin === window.location.origin) {
         var messageType = event.data.messageType;
@@ -173,9 +174,9 @@ function annoLog(item, eventType) {
 /* if data has url embedded in there. need to escape with
 encoded = encodeURIComponent( parm )
 */
-   if( debug ) {
-      printDebug(json);
-   }
+   // if( debug ) {
+   //    printDebug(json);
+   // }
    return json;
 }
 
