@@ -1,6 +1,6 @@
 //! OpenSeadragon 2.0.0
-//! Built on 2015-10-16
-//! Git commit: v2.0.0-128-10526df
+//! Built on 2016-01-06
+//! Git commit: v2.0.0-152-ea833a7
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -212,6 +212,11 @@
   * @property {Number} [opacity=1]
   *     Default opacity of the tiled images (1=opaque, 0=transparent)
   *
+  * @property {String} [compositeOperation='source-over']
+  *     Valid values are 'source-atop', 'source-in', 'source-out',
+  *     'destination-over', 'destination-atop', 'destination-in',
+  *     'destination-out', 'lighter', 'copy' or 'xor'.<br>
+  *
   * @property {String|CanvasGradient|CanvasPattern|Function} [placeholderFillStyle=null]
   *     Draws a colored rectangle behind the tile if it is not loaded yet.
   *     You can pass a CSS color value like "#FF8800".
@@ -260,6 +265,11 @@
   *
   * @property {Boolean} [preserveImageSizeOnResize=false]
   *     Set to true to have the image size preserved when the viewer is resized. This requires autoResize=true (default).
+  *
+  * @property {Number} [minScrollDeltaTime=50]
+  *     Number of milliseconds between canvas-scroll events. This value helps normalize the rate of canvas-scroll
+  *     events between different devices, causing the faster devices to slow down enough to make the zoom control
+  *     more manageable.
   *
   * @property {Number} [pixelsPerWheelLine=40]
   *     For pixel-resolution scrolling devices, the number of pixels equal to one scroll line.
@@ -1009,6 +1019,7 @@ if (typeof define === 'function' && define.amd) {
             pixelsPerWheelLine:     40,
             autoResize:             true,
             preserveImageSizeOnResize: false, // requires autoResize=true
+            minScrollDeltaTime:     50,
 
             //DEFAULT CONTROL SETTINGS
             showSequenceControl:     true,  //SEQUENCE
@@ -1044,6 +1055,7 @@ if (typeof define === 'function' && define.amd) {
 
             // APPEARANCE
             opacity:                    1,
+            compositeOperation:         'source-over',
             placeholderFillStyle:       null,
 
             //REFERENCE STRIP SETTINGS
@@ -5190,16 +5202,10 @@ $.EventSource.prototype = /** @lends OpenSeadragon.EventSource.prototype */{
     function onTouchCancel( tracker, event ) {
         var i,
             touchCount = event.changedTouches.length,
-            gPoints = [];
-
-        for ( i = 0; i < touchCount; i++ ) {
-            gPoints.push( {
-                id: event.changedTouches[ i ].identifier,
-                type: 'touch'
-            } );
-        }
-
-        updatePointersCancel( tracker, event, gPoints );
+            gPoints = [],
+            pointsList = tracker.getActivePointersListByType( 'touch' );
+        
+        abortTouchContacts( tracker, event, pointsList );
     }
 
 
@@ -6892,6 +6898,8 @@ $.Viewer = function( options ) {
     this._loadQueue = [];
     this.currentOverlays = [];
 
+    this._lastScrollTime = $.now(); // variable used to help normalize the scroll event speed of different devices
+
     //Inherit some behaviors and properties
     $.EventSource.call( this );
 
@@ -7294,6 +7302,14 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
             options.success = function(event) {
                 successes++;
 
+                // TODO: now that options has other things besides tileSource, the overlays
+                // should probably be at the options level, not the tileSource level.
+                if (options.tileSource.overlays) {
+                    for (var i = 0; i < options.tileSource.overlays.length; i++) {
+                        _this.addOverlay(options.tileSource.overlays[i]);
+                    }
+                }
+
                 if (originalSuccess) {
                     originalSuccess(event);
                 }
@@ -7317,14 +7333,6 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
             };
 
             _this.addTiledImage(options);
-
-            // TODO: now that options has other things besides tileSource, the overlays
-            // should probably be at the options level, not the tileSource level.
-            if (options.tileSource.overlays) {
-                for (var i = 0; i < options.tileSource.overlays.length; i++) {
-                    _this.addOverlay(options.tileSource.overlays[i]);
-                }
-            }
         };
 
         // TileSources
@@ -7894,6 +7902,7 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
      * (portions of the image outside of this area will not be visible). Only works on
      * browsers that support the HTML5 canvas.
      * @param {Number} [options.opacity] Opacity the tiled image should be drawn at by default.
+     * @param {String} [options.compositeOperation] How a tiled source image are drawn onto an existing image.
      * @param {Function} [options.success] A function that gets called when the image is
      * successfully added. It's passed the event object which contains a single property:
      * "item", the resulting TiledImage.
@@ -7925,6 +7934,9 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
         }
         if (options.opacity === undefined) {
             options.opacity = this.opacity;
+        }
+        if (options.compositeOperation === undefined) {
+            options.compositeOperation = this.compositeOperation;
         }
 
         var myQueueItem = {
@@ -8022,6 +8034,7 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
                     clip: queueItem.options.clip,
                     placeholderFillStyle: queueItem.options.placeholderFillStyle,
                     opacity: queueItem.options.opacity,
+                    compositeOperation: queueItem.options.compositeOperation,
                     springStiffness: _this.springStiffness,
                     animationTime: _this.animationTime,
                     minZoomImageRatio: _this.minZoomImageRatio,
@@ -8982,6 +8995,7 @@ function onCanvasKeyDown( event ) {
 function onCanvasKeyPress( event ) {
     if ( !event.preventDefaultAction && !event.ctrl && !event.alt && !event.meta ) {
         switch( event.keyCode ){
+            case 43://=|+
             case 61://=|+
                 this.viewport.zoomBy(1.1);
                 this.viewport.applyConstraints();
@@ -9426,44 +9440,57 @@ function onCanvasPinch( event ) {
 
 function onCanvasScroll( event ) {
     var gestureSettings,
-        factor;
+        factor,
+        thisScrollTime,
+        deltaScrollTime;
 
-    if ( !event.preventDefaultAction && this.viewport ) {
-        gestureSettings = this.gestureSettingsByDeviceType( event.pointerType );
-        if ( gestureSettings.scrollToZoom ) {
-            factor = Math.pow( this.zoomPerScroll, event.scroll );
-            this.viewport.zoomBy(
-                factor,
-                this.viewport.pointFromPixel( event.position, true )
-            );
-            this.viewport.applyConstraints();
+    /* Certain scroll devices fire the scroll event way too fast so we are injecting a simple adjustment to keep things
+     * partially normalized. If we have already fired an event within the last 'minScrollDelta' milliseconds we skip
+     * this one and wait for the next event. */
+    thisScrollTime = $.now();
+    deltaScrollTime = thisScrollTime - this._lastScrollTime;
+    if (deltaScrollTime > this.minScrollDeltaTime) {
+        this._lastScrollTime = thisScrollTime;
+
+        if ( !event.preventDefaultAction && this.viewport ) {
+            gestureSettings = this.gestureSettingsByDeviceType( event.pointerType );
+            if ( gestureSettings.scrollToZoom ) {
+                factor = Math.pow( this.zoomPerScroll, event.scroll );
+                this.viewport.zoomBy(
+                    factor,
+                    this.viewport.pointFromPixel( event.position, true )
+                );
+                this.viewport.applyConstraints();
+            }
+        }
+        /**
+         * Raised when a scroll event occurs on the {@link OpenSeadragon.Viewer#canvas} element (mouse wheel).
+         *
+         * @event canvas-scroll
+         * @memberof OpenSeadragon.Viewer
+         * @type {object}
+         * @property {OpenSeadragon.Viewer} eventSource - A reference to the Viewer which raised this event.
+         * @property {OpenSeadragon.MouseTracker} tracker - A reference to the MouseTracker which originated this event.
+         * @property {OpenSeadragon.Point} position - The position of the event relative to the tracked element.
+         * @property {Number} scroll - The scroll delta for the event.
+         * @property {Boolean} shift - True if the shift key was pressed during this event.
+         * @property {Object} originalEvent - The original DOM event.
+         * @property {?Object} userData - Arbitrary subscriber-defined object.
+         */
+        this.raiseEvent( 'canvas-scroll', {
+            tracker: event.eventSource,
+            position: event.position,
+            scroll: event.scroll,
+            shift: event.shift,
+            originalEvent: event.originalEvent
+        });
+        if (gestureSettings && gestureSettings.scrollToZoom) {
+            //cancels event
+            return false;
         }
     }
-    /**
-     * Raised when a scroll event occurs on the {@link OpenSeadragon.Viewer#canvas} element (mouse wheel).
-     *
-     * @event canvas-scroll
-     * @memberof OpenSeadragon.Viewer
-     * @type {object}
-     * @property {OpenSeadragon.Viewer} eventSource - A reference to the Viewer which raised this event.
-     * @property {OpenSeadragon.MouseTracker} tracker - A reference to the MouseTracker which originated this event.
-     * @property {OpenSeadragon.Point} position - The position of the event relative to the tracked element.
-     * @property {Number} scroll - The scroll delta for the event.
-     * @property {Boolean} shift - True if the shift key was pressed during this event.
-     * @property {Object} originalEvent - The original DOM event.
-     * @property {?Object} userData - Arbitrary subscriber-defined object.
-     */
-    this.raiseEvent( 'canvas-scroll', {
-        tracker: event.eventSource,
-        position: event.position,
-        scroll: event.scroll,
-        shift: event.shift,
-        originalEvent: event.originalEvent
-    });
-
-    if (gestureSettings && gestureSettings.scrollToZoom) {
-        //cancels event
-        return false;
+    else {
+        return false;   // We are swallowing this event
     }
 }
 
@@ -11581,7 +11608,6 @@ function configureFromXML( tileSource, xmlDoc ){
                 if (rectNode === undefined) {
                     rectNode = dispRectNode.getElementsByTagNameNS(ns, "Rect" )[ 0 ];
                 }
-
 
                 displayRects.push({
                     Rect: {
@@ -14952,6 +14978,7 @@ $.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
         context.save();
 
         context.globalAlpha = this.opacity;
+        context.globalCompositeOperation = this.compositeOperation;
 
         //if we are supposed to be rendering fully opaque rectangle,
         //ie its done fading or fading is turned off, and if we are drawing
@@ -15703,14 +15730,14 @@ $.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
      * @param {Float} opacity The opacity of the blending.
      * @returns {undefined}
      */
-    blendSketch: function(opacity) {
+    blendSketch: function(opacity, compositeOperation) {
         if (!this.useCanvas || !this.sketchCanvas) {
             return;
         }
 
         this.context.save();
         this.context.globalAlpha = opacity;
-        this.context.globalCompositeOperation = "lighter"; 
+        this.context.globalCompositeOperation = compositeOperation;
         this.context.drawImage(this.sketchCanvas, 0, 0);
         this.context.restore();
     },
@@ -15961,10 +15988,7 @@ $.Viewport = function( options ) {
 
     }, options );
 
-    this._containerInnerSize = new $.Point(
-        Math.max(1, this.containerSize.x - (this._margins.left + this._margins.right)),
-        Math.max(1, this.containerSize.y - (this._margins.top + this._margins.bottom))
-    );
+    this._updateContainerInnerSize();
 
     this.centerSpringX = new $.Spring({
         initial: 0,
@@ -16162,6 +16186,34 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
             this.containerSize.x,
             this.containerSize.y
         );
+    },
+
+    /**
+     * @function
+     * The margins push the "home" region in from the sides by the specified amounts.
+     * @returns {Object} Properties (Numbers, in screen coordinates): left, top, right, bottom.
+     */
+    getMargins: function() {
+        return $.extend({}, this._margins); // Make a copy so we are not returning our original
+    },
+
+    /**
+     * @function
+     * The margins push the "home" region in from the sides by the specified amounts.
+     * @param {Object} margins - Properties (Numbers, in screen coordinates): left, top, right, bottom.
+     */
+    setMargins: function(margins) {
+        $.console.assert($.type(margins) === 'object', '[Viewport.setMargins] margins must be an object');
+
+        this._margins = $.extend({
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0
+        }, margins);
+
+        this._updateContainerInnerSize();
+        this.viewer.forceRedraw();
     },
 
     /**
@@ -16680,10 +16732,7 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
         this.containerSize.x = newContainerSize.x;
         this.containerSize.y = newContainerSize.y;
 
-        this._containerInnerSize = new $.Point(
-            Math.max(1, newContainerSize.x - (this._margins.left + this._margins.right)),
-            Math.max(1, newContainerSize.y - (this._margins.top + this._margins.bottom))
-        );
+        this._updateContainerInnerSize();
 
         if ( maintain ) {
             // TODO: widthDeltaFactor will always be 1; probably not what's intended
@@ -16711,6 +16760,14 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
         }
 
         return this.fitBounds( newBounds, true );
+    },
+
+    // private
+    _updateContainerInnerSize: function() {
+        this._containerInnerSize = new $.Point(
+            Math.max(1, this.containerSize.x - (this._margins.left + this._margins.right)),
+            Math.max(1, this.containerSize.y - (this._margins.top + this._margins.bottom))
+        );
     },
 
     /**
@@ -17163,6 +17220,7 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
  * @param {Boolean} [options.alwaysBlend] - See {@link OpenSeadragon.Options}.
  * @param {Number} [options.minPixelRatio] - See {@link OpenSeadragon.Options}.
  * @param {Number} [options.opacity=1] - Opacity the tiled image should be drawn at.
+ * @param {String} [options.compositeOperation='source-over'] - How a tiled source image are drawn onto an existing image.
  * @param {Boolean} [options.debugMode] - See {@link OpenSeadragon.Options}.
  * @param {String|CanvasGradient|CanvasPattern|Function} [options.placeholderFillStyle] - See {@link OpenSeadragon.Options}.
  * @param {String|Boolean} [options.crossOriginPolicy] - See {@link OpenSeadragon.Options}.
@@ -17228,8 +17286,7 @@ $.TiledImage = function( options ) {
         lastResetTime:  0,     // Last time for which the tiledImage was reset.
         _midDraw:       false, // Is the tiledImage currently updating the viewport?
         _needsDraw:     true,  // Does the tiledImage need to update the viewport again?
-        _hasOpaqueTile: false,  // Do we have even one fully opaque tile? 
-
+        _hasOpaqueTile: false,  // Do we have even one fully opaque tile?
         //configurable settings
         springStiffness:      $.DEFAULT_SETTINGS.springStiffness,
         animationTime:        $.DEFAULT_SETTINGS.animationTime,
@@ -17243,7 +17300,8 @@ $.TiledImage = function( options ) {
         debugMode:            $.DEFAULT_SETTINGS.debugMode,
         crossOriginPolicy:    $.DEFAULT_SETTINGS.crossOriginPolicy,
         placeholderFillStyle: $.DEFAULT_SETTINGS.placeholderFillStyle,
-        opacity:              $.DEFAULT_SETTINGS.opacity
+        opacity:              $.DEFAULT_SETTINGS.opacity,
+        compositeOperation:   $.DEFAULT_SETTINGS.compositeOperation
 
     }, options );
 
@@ -17600,6 +17658,7 @@ $.extend($.TiledImage.prototype, $.EventSource.prototype, /** @lends OpenSeadrag
 
             this._xSpring.resetTo(position.x);
             this._ySpring.resetTo(position.y);
+            this._needsDraw = true;
         } else {
             if (sameTarget) {
                 return;
@@ -17607,6 +17666,7 @@ $.extend($.TiledImage.prototype, $.EventSource.prototype, /** @lends OpenSeadrag
 
             this._xSpring.springTo(position.x);
             this._ySpring.springTo(position.y);
+            this._needsDraw = true;
         }
 
         if (!sameTarget) {
@@ -17679,6 +17739,21 @@ $.extend($.TiledImage.prototype, $.EventSource.prototype, /** @lends OpenSeadrag
         this._needsDraw = true;
     },
 
+    /**
+     * @returns {String} The TiledImage's current compositeOperation.
+     */
+    getCompositeOperation: function() {
+        return this.compositeOperation;
+    },
+
+    /**
+     * @param {String} compositeOperation the tiled image should be drawn with this globalCompositeOperation.
+     */
+    setCompositeOperation: function(compositeOperation) {
+        this.compositeOperation = compositeOperation;
+        this._needsDraw = true;
+    },
+
     // private
     _setScale: function(scale, immediately) {
         var sameTarget = (this._scaleSpring.target.value === scale);
@@ -17689,6 +17764,7 @@ $.extend($.TiledImage.prototype, $.EventSource.prototype, /** @lends OpenSeadrag
 
             this._scaleSpring.resetTo(scale);
             this._updateForScale();
+            this._needsDraw = true;
         } else {
             if (sameTarget) {
                 return;
@@ -17696,6 +17772,7 @@ $.extend($.TiledImage.prototype, $.EventSource.prototype, /** @lends OpenSeadrag
 
             this._scaleSpring.springTo(scale);
             this._updateForScale();
+            this._needsDraw = true;
         }
 
         if (!sameTarget) {
@@ -18395,7 +18472,8 @@ function drawTiles( tiledImage, lastDrawn ) {
         drawDebugInfo( tiledImage, lastDrawn );
         return;
     }
-    var useSketch = tiledImage.opacity < 1;
+    var useSketch = (tiledImage.compositeOperation == 'source-over') ? (tiledImage.opacity < 1):true;
+
     if ( useSketch ) {
         tiledImage._drawer._clear( true );
     }
@@ -18454,7 +18532,7 @@ function drawTiles( tiledImage, lastDrawn ) {
     }
 
     if ( useSketch ) {
-        tiledImage._drawer.blendSketch( tiledImage.opacity );
+        tiledImage._drawer.blendSketch( tiledImage.opacity, tiledImage.compositeOperation );
     }
     drawDebugInfo( tiledImage, lastDrawn );
 }
@@ -19180,5 +19258,3 @@ $.extend( $.World.prototype, $.EventSource.prototype, /** @lends OpenSeadragon.W
 });
 
 }( OpenSeadragon ));
-
-
