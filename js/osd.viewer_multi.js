@@ -215,6 +215,7 @@ function _addURLLayer(url, i) {
                        return t;
                    }},
                    defaultZoomLevel: _realMin,
+                   compositeOperation: 'lighter',
                    opacity: op
                    };
      myViewer.addTiledImage( options );

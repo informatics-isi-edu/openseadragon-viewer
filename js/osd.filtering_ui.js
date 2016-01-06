@@ -43,13 +43,10 @@ function presetHue(rgb,name) {
 
 function presetOpacity(alpha,i) {
   if(alpha != null) { 
-    var tmp=Math.round(alpha*10)/10; // NEED TO FIX !!
-    if(tmp == 1) 
-      return 0.9;
-    return tmp;
+    return alpha;
   }
-  // no alpha just some resonable value
-  return 0.9;
+  // no alpha 
+  return 1;
 }
 
 function _RGBTohex(rgb) {
@@ -276,11 +273,7 @@ function toggleItem(itemID, itemLabel) {
     item.setOpacity(0);
     } else {
       op=_getOpacityByID(itemID);
-      if(op == 1) { // FIX THIS at openseadragon!!
-        item.setOpacity(0.9);
-        } else {
-          item.setOpacity(op);
-      }
+      item.setOpacity(op);
   }
 }
 namehttp://tiku.io/questions/1014477/javascript-convert-grayscale-to-color-given-hue
