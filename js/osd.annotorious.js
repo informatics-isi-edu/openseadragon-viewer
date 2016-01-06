@@ -6,7 +6,6 @@ window.addEventListener('message', function(event) {
             case 'annotationsList':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
-                    annotation = annotation.data;
                     var annotationObj = {
                         "type": "openseadragon_dzi",
                         "id": null,
