@@ -33,6 +33,26 @@ window.addEventListener('message', function(event) {
                 });
                 readAll(annotationsToLoad);
                 break;
+            case 'highlightAnnotation':
+                var annotationObj = {
+                    "src": "dzi://openseadragon/something",
+                    "text": data.comments,
+                    "shapes": [
+                        {
+                            "type": "rect",
+                            "geometry": {
+                                "x": data.coords[0],
+                                "y": data.coords[1],
+                                "width": data.coords[2],
+                                "height": data.coords[3]
+                            },
+                            "style": {}
+                        }
+                    ],
+                    "context": data.context_uri
+                };
+                centerAnnoByHash(getHash(annotationObj));
+                break;
             default:
                 console.log('Invalid message type. No action performed.');
         }
