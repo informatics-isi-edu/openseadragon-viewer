@@ -54,7 +54,7 @@ window.addEventListener('message', function(event) {
                 centerAnnoByHash(getHash(annotationObj));
                 break;
             case 'drawNewAnnotation':
-                annotate();
+                myAnno.activateSelector();
                 break;
             default:
                 console.log('Invalid message type. No action performed.');
@@ -201,16 +201,6 @@ encoded = encodeURIComponent( parm )
    //    printDebug(json);
    // }
    return json;
-}
-
-function annotate() {
-  var button = document.getElementById('map-annotate-button');
-  button.style.color = '#777';
-
-  myAnno.activateSelector(function() {
-    // Reset button style
-    button.style.color = '#fff';
-  });
 }
 
 // only shape supported is rect, this is to create an annotation
