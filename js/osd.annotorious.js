@@ -53,6 +53,9 @@ window.addEventListener('message', function(event) {
                 };
                 centerAnnoByHash(getHash(annotationObj));
                 break;
+            case 'drawNewAnnotation':
+                annotate();
+                break;
             default:
                 console.log('Invalid message type. No action performed.');
         }
