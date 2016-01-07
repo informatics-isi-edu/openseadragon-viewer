@@ -1,5 +1,69 @@
+// An event listener to capture messages from Chaise
+window.addEventListener('message', function(event) {
+    if (event.origin === window.location.origin) {
+        var messageType = event.data.messageType;
+        var data = event.data.content;
+        switch (messageType) {
+            case 'annotationsList':
+                var annotationsToLoad = {"annoList":[]};
+                data.map(function formatAnnotationObj(annotation) {
+                    var annotationObj = {
+                        "type": "openseadragon_dzi",
+                        "id": null,
+                        "event": "INFO",
+                        "data": {
+                            "src": "dzi://openseadragon/something",
+                            "text": annotation.comments,
+                            "shapes": [
+                                {
+                                    "type": "rect",
+                                    "geometry": {
+                                        "x": annotation.coords[0],
+                                        "y": annotation.coords[1],
+                                        "width": annotation.coords[2],
+                                        "height": annotation.coords[3]
+                                    },
+                                    "style": {}
+                                }
+                            ],
+                            "context": annotation.context_uri
+                        }
+                    };
+                    annotationsToLoad.annoList.push(annotationObj);
+                });
+                readAll(annotationsToLoad);
+                break;
+            case 'highlightAnnotation':
+                var annotationObj = {
+                    "src": "dzi://openseadragon/something",
+                    "text": data.comments,
+                    "shapes": [
+                        {
+                            "type": "rect",
+                            "geometry": {
+                                "x": data.coords[0],
+                                "y": data.coords[1],
+                                "width": data.coords[2],
+                                "height": data.coords[3]
+                            },
+                            "style": {}
+                        }
+                    ],
+                    "context": data.context_uri
+                };
+                centerAnnoByHash(getHash(annotationObj));
+                break;
+            default:
+                console.log('Invalid message type. No action performed.');
+        }
+    } else {
+        console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
+    }
+});
 
 /* functions related to annotorious */
+var myAnnoReady = false;
+window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
 
 var myAnno=null;
 
@@ -57,7 +121,7 @@ function annoExist(item) {
 function annoRetrieve(i) {
   var p=myAnno.getAnnotations();
   var len = p.length;
-  if (i>=0 && i <len) 
+  if (i>=0 && i <len)
     return p[i];
   return null;
 }
@@ -89,6 +153,7 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
+    window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
@@ -102,6 +167,8 @@ function annoSetup(_anno,_viewer) {
     updateAnnotationList();
   });
   myAnno=_anno;
+  myAnnoReady = true;
+  window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
 }
 
 /*
@@ -127,9 +194,9 @@ function annoLog(item, eventType) {
 /* if data has url embedded in there. need to escape with
 encoded = encodeURIComponent( parm )
 */
-   if( debug ) {
-      printDebug(json);
-   }
+   // if( debug ) {
+   //    printDebug(json);
+   // }
    return json;
 }
 
@@ -144,7 +211,7 @@ function annotate() {
 }
 
 // only shape supported is rect, this is to create an annotation
-// item by hand 
+// item by hand
 function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
 {
   var myAnnotation = {
@@ -174,7 +241,7 @@ function updateAnnotationList() {
     _addAnnoOption(getHash(annotations[i]));
     var formattedAnnotation =
       '<a href="#"><div class="panel panel-default">' +
-        '<div class="panel-body" id=' + getHash(annotations[i]) +' ' + 
+        '<div class="panel-body" id=' + getHash(annotations[i]) +' ' +
                     'onclick=centerAnnoByHash('+ getHash(annotations[i]) +')'+
 '>' +
                     annotations[i].text +
@@ -186,7 +253,7 @@ function updateAnnotationList() {
 
 function _clearAnnoOptions() {
   var alist = document.getElementById('anno-list');
-  if(alist == null) 
+  if(alist == null)
     return;
   while (alist.length > 0) {
       alist.remove(alist.length - 1);
@@ -282,7 +349,7 @@ function centerAnnoByHash(i)
      var my=(h/10);
      var ctxt=item.context;
      var src=item.src;
-    
+
      goPositionByBounds(x-mx,y-my,w+(2*mx),h+(2*my));
      annoHighlightAnnotation(item);
 // add a tiny annotation here..
@@ -312,8 +379,7 @@ function readAll(blob) {
       for(var i=0; i< len; i++) {
          var p=alist[i];
          // extract item
-         var t=JSON.parse(p);
-         tt= t["data"];
+         tt= p["data"];
          annoAdd(tt);
       }
       updateAnnotationList();
@@ -332,4 +398,3 @@ function makeDummy() {
     0.3020050125313283
   );
 }
-
