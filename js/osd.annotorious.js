@@ -82,7 +82,7 @@ window.addEventListener('message', function(event) {
                     "context": data.context_uri
                 };
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
-                annotation.text = annotationObj.text;
+                annotation = annotationObj;
                 break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', event);
