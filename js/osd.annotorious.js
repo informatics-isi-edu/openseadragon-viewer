@@ -184,6 +184,8 @@ function annoSetup(_anno,_viewer) {
   if (enableChaise) {
       myAnnoReady = true;
       window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+      // Hide the annotate feather button
+      document.getElementById('map-annotate-button').style.display = 'none';
   }
 }
 
