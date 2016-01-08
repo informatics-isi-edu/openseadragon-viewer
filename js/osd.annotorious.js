@@ -20,7 +20,7 @@ window.addEventListener('message', function(event) {
                         "event": "INFO",
                         "data": {
                             "src": "dzi://openseadragon/something",
-                            "text": annotation.comments,
+                            "text": annotation.comments.comment,
                             "shapes": [
                                 {
                                     "type": "rect",
@@ -43,7 +43,7 @@ window.addEventListener('message', function(event) {
             case 'highlightAnnotation':
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.comments,
+                    "text": data.comments.comment,
                     "shapes": [
                         {
                             "type": "rect",
