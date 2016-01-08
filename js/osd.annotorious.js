@@ -63,6 +63,27 @@ window.addEventListener('message', function(event) {
             case 'drawNewAnnotation':
                 myAnno.activateSelector();
                 break;
+            case 'saveAnnotation':
+                var annotationObj = {
+                    "src": "dzi://openseadragon/something",
+                    "text": data.comments.comment,
+                    "shapes": [
+                        {
+                            "type": "rect",
+                            "geometry": {
+                                "x": data.coords[0],
+                                "y": data.coords[1],
+                                "width": data.coords[2],
+                                "height": data.coords[3]
+                            },
+                            "style": {}
+                        }
+                    ],
+                    "context": data.context_uri
+                };
+                var annotation = annoRetrieveByHash(getHash(annotationObj));
+                annotation.text = annotationObj.text;
+                break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', event);
         }
