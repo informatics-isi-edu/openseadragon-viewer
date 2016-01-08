@@ -1,5 +1,9 @@
 // A flag to track whether OpenSeadragon/Annotorious is being used with Chaise
+// If this app is inside another window (i.e. Chaise), enable Chaise.
 var enableChaise = false;
+if (window.self !== window.top) {
+    enableChaise = true;
+}
 
 // An event listener to capture messages from Chaise
 window.addEventListener('message', function(event) {
@@ -7,9 +11,6 @@ window.addEventListener('message', function(event) {
         var messageType = event.data.messageType;
         var data = event.data.content;
         switch (messageType) {
-            case 'enableChaise':
-                enableChaise = true;
-                break;
             case 'annotationsList':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
