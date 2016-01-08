@@ -18471,7 +18471,7 @@ function drawTiles( tiledImage, lastDrawn ) {
         drawDebugInfo( tiledImage, lastDrawn );
         return;
     }
-    var useSketch = (tiledImage.compositeOperation == 'source-over') ? (tiledImage.opacity < 1):true;
+    var useSketch = tiledImage.opacity < 1 || tiledImage.compositeOperation !== 'source-over';
 
     if ( useSketch ) {
         tiledImage._drawer._clear( true );

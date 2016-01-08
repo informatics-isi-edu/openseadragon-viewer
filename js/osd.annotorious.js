@@ -1,69 +1,7 @@
-// An event listener to capture messages from Chaise
-window.addEventListener('message', function(event) {
-    if (event.origin === window.location.origin) {
-        var messageType = event.data.messageType;
-        var data = event.data.content;
-        switch (messageType) {
-            case 'annotationsList':
-                var annotationsToLoad = {"annoList":[]};
-                data.map(function formatAnnotationObj(annotation) {
-                    var annotationObj = {
-                        "type": "openseadragon_dzi",
-                        "id": null,
-                        "event": "INFO",
-                        "data": {
-                            "src": "dzi://openseadragon/something",
-                            "text": annotation.comments,
-                            "shapes": [
-                                {
-                                    "type": "rect",
-                                    "geometry": {
-                                        "x": annotation.coords[0],
-                                        "y": annotation.coords[1],
-                                        "width": annotation.coords[2],
-                                        "height": annotation.coords[3]
-                                    },
-                                    "style": {}
-                                }
-                            ],
-                            "context": annotation.context_uri
-                        }
-                    };
-                    annotationsToLoad.annoList.push(annotationObj);
-                });
-                readAll(annotationsToLoad);
-                break;
-            case 'highlightAnnotation':
-                var annotationObj = {
-                    "src": "dzi://openseadragon/something",
-                    "text": data.comments,
-                    "shapes": [
-                        {
-                            "type": "rect",
-                            "geometry": {
-                                "x": data.coords[0],
-                                "y": data.coords[1],
-                                "width": data.coords[2],
-                                "height": data.coords[3]
-                            },
-                            "style": {}
-                        }
-                    ],
-                    "context": data.context_uri
-                };
-                centerAnnoByHash(getHash(annotationObj));
-                break;
-            default:
-                console.log('Invalid message type. No action performed.');
-        }
-    } else {
-        console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
-    }
-});
 
 /* functions related to annotorious */
 var myAnnoReady = false;
-window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+_postOutgoingEvent('myAnnoReady', myAnnoReady);
 
 var myAnno=null;
 
@@ -146,6 +84,14 @@ function annoAdd(item) {
 
 function annoHighlightAnnotation(item) {
   myAnno.highlightAnnotation(item);
+  _postOutgoingEvent('onHighlighted', 
+                        annoLog(item,INFO_EVENT_TYPE));
+}
+
+function annoUnHighlightAnnotation(item) {
+  myAnno.XXX(item);
+  _postOutgoingEvent('onUnHighlighted', 
+                        annoLog(item,INFO_EVENT_TYPE));
 }
 
 function annoSetup(_anno,_viewer) {
@@ -153,22 +99,24 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
-    window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
+    _postOutgoingEvent('onAnnotationCreated', json);
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
     var json=annoLog(item,REMOVE_EVENT_TYPE);
+    _postOutgoingEvent('onAnnotationRemoved', json);
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationUpdated", function(target) {
     var item=target;
     var json=annoLog(item,UPDATE_EVENT_TYPE);
+    _postOutgoingEvent('onAnnotaitonUpdated', json);
     updateAnnotationList();
   });
   myAnno=_anno;
   myAnnoReady = true;
-  window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+  _postOutgoingEvent('myAnnoReady', myAnnoReady);
 }
 
 /*
@@ -389,7 +337,7 @@ function readAll(blob) {
 // making a test annotation
 function makeDummy() {
   annoMakeAnno(
-    "dzi://openseadragon/something",
+    "dzi://openseadragon",
     "http://localhost/tiletiff/index.html?url=http://localhost/tiletiff/data/wide.dzi",
     "123",
     0.6491228070175439,
