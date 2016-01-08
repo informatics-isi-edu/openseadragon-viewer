@@ -203,6 +203,17 @@ encoded = encodeURIComponent( parm )
    return json;
 }
 
+
+function annotate() {
+  var button = document.getElementById('map-annotate-button');
+  button.style.color = '#777';
+
+  myAnno.activateSelector(function() {
+    // Reset button style
+    button.style.color = '#fff';
+  });
+}
+
 // only shape supported is rect, this is to create an annotation
 // item by hand
 function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
