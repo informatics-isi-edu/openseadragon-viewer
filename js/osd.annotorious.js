@@ -1,9 +1,15 @@
+// A flag to track whether OpenSeadragon/Annotorious is being used with Chaise
+var enableChaise = false;
+
 // An event listener to capture messages from Chaise
 window.addEventListener('message', function(event) {
     if (event.origin === window.location.origin) {
         var messageType = event.data.messageType;
         var data = event.data.content;
         switch (messageType) {
+            case 'enableChaise':
+                enableChaise = true;
+                break;
             case 'annotationsList':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
@@ -57,7 +63,7 @@ window.addEventListener('message', function(event) {
                 myAnno.activateSelector();
                 break;
             default:
-                console.log('Invalid message type. No action performed.');
+                console.log('Invalid message type. No action performed. Received message event: ', event);
         }
     } else {
         console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
@@ -65,8 +71,10 @@ window.addEventListener('message', function(event) {
 });
 
 /* functions related to annotorious */
-var myAnnoReady = false;
-window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+if (enableChaise) {
+    var myAnnoReady = false;
+    window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+}
 
 var myAnno=null;
 
@@ -156,7 +164,9 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
-    window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
+    if (enableChaise) {
+        window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
+    }
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
@@ -170,8 +180,10 @@ function annoSetup(_anno,_viewer) {
     updateAnnotationList();
   });
   myAnno=_anno;
-  myAnnoReady = true;
-  window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+  if (enableChaise) {
+      myAnnoReady = true;
+      window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+  }
 }
 
 /*
