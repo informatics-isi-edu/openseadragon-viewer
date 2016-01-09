@@ -84,6 +84,28 @@ window.addEventListener('message', function(event) {
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
                 annotation = annotationObj;
                 break;
+            case 'deleteAnnotation':
+                var annotationObj = {
+                    "src": "dzi://openseadragon/something",
+                    "text": data.comments.comment,
+                    "shapes": [
+                        {
+                            "type": "rect",
+                            "geometry": {
+                                "x": data.coords[0],
+                                "y": data.coords[1],
+                                "width": data.coords[2],
+                                "height": data.coords[3]
+                            },
+                            "style": {}
+                        }
+                    ],
+                    "context": data.context_uri
+                };
+                var annotation = annoRetrieveByHash(getHash(annotationObj));
+                myAnno.removeAnnotation(annotation);
+                console.log(myAnno.getAnnotations());
+                break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', event);
         }
@@ -205,8 +227,14 @@ function annoSetup(_anno,_viewer) {
   if (enableChaise) {
       myAnnoReady = true;
       window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+
       // Hide the annotate feather button
       document.getElementById('map-annotate-button').style.display = 'none';
+
+      // Hide the annotation editor aka the black box
+      // TODO: Jessie: Uncomment this when done with creating annotations in the panel
+      // var styleSheet = document.styleSheets[document.styleSheets.length-1];
+      // styleSheet.insertRule('.annotorious-editor { display:none }');
   }
 }
 
