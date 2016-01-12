@@ -192,23 +192,23 @@
   </div>
 </div>
 <script>
-  $(document).ready(function() {
-    $('.channel').hide();
-    $('.channel').eq(0).show();
-    var numChannels = $('.channel').length;
-    if (numChannels < 2) {
-      $('#channels-list').hide();
-    }
-    $('#channels-list').change(function() {
-      var channel = $('#channels-list').find('option:selected').val();
-      $('.channel').hide();
-      $('#'+channel).show();
-    });
-    $('#annotations-list').on('click', 'a', function(e) {
-      e.preventDefault();
-      anno.highlightAnnotation($(this).attr('name'));
-    });
-  });
+  // $(document).ready(function() {
+  //   $('.channel').hide();
+  //   $('.channel').eq(0).show();
+  //   var numChannels = $('.channel').length;
+  //   if (numChannels < 2) {
+  //     $('#channels-list').hide();
+  //   }
+  //   $('#channels-list').change(function() {
+  //     var channel = $('#channels-list').find('option:selected').val();
+  //     $('.channel').hide();
+  //     $('#'+channel).show();
+  //   });
+  //   $('#annotations-list').on('click', 'a', function(e) {
+  //     e.preventDefault();
+  //     anno.highlightAnnotation($(this).attr('name'));
+  //   });
+  // });
 </script>
 </body>
 </html>

@@ -1,5 +1,4 @@
 // A flag to track whether OpenSeadragon/Annotorious is being used with Chaise
-// If this app is inside another window (i.e. Chaise), enable Chaise.
 var enableChaise = false;
 if (window.self !== window.top) {
     enableChaise = true;
@@ -11,7 +10,7 @@ window.addEventListener('message', function(event) {
         var messageType = event.data.messageType;
         var data = event.data.content;
         switch (messageType) {
-            case 'annotationsList':
+            case 'loadAnnotations':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
                     var annotationObj = {
@@ -20,7 +19,7 @@ window.addEventListener('message', function(event) {
                         "event": "INFO",
                         "data": {
                             "src": "dzi://openseadragon/something",
-                            "text": annotation.comments,
+                            "text": annotation.description,
                             "shapes": [
                                 {
                                     "type": "rect",
@@ -43,7 +42,7 @@ window.addEventListener('message', function(event) {
             case 'highlightAnnotation':
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.comments,
+                    "text": data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -60,6 +59,84 @@ window.addEventListener('message', function(event) {
                 };
                 centerAnnoByHash(getHash(annotationObj));
                 break;
+            case 'drawAnnotation':
+                myAnno.activateSelector();
+                break;
+            case 'createAnnotation':
+                cancelEditor();
+                var annotationObj = {
+                    "type": "openseadragon_dzi",
+                    "id": null,
+                    "event": "INFO",
+                    "data": {
+                        "src": "dzi://openseadragon/something",
+                        "text": data.description,
+                        "shapes": [
+                            {
+                                "type": "rect",
+                                "geometry": {
+                                    "x": data.coords[0],
+                                    "y": data.coords[1],
+                                    "width": data.coords[2],
+                                    "height": data.coords[3]
+                                },
+                                "style": {}
+                            }
+                        ],
+                        "context": data.context_uri
+                    }
+                };
+                annoAdd(annotationObj.data);
+                break;
+            case 'cancelAnnotationCreation':
+                cancelEditor();
+                break;
+            case 'updateAnnotation':
+                var annotationObj = {
+                    "src": "dzi://openseadragon/something",
+                    "text": data.description,
+                    "shapes": [
+                        {
+                            "type": "rect",
+                            "geometry": {
+                                "x": data.coords[0],
+                                "y": data.coords[1],
+                                "width": data.coords[2],
+                                "height": data.coords[3]
+                            },
+                            "style": {}
+                        }
+                    ],
+                    "context": data.context_uri
+                };
+                var annotation = annoRetrieveByHash(getHash(annotationObj));
+                // TODO: Jessie: Ask Mei about her fn to update annotations
+                // For some reason, if you set annotation = annotationObj, Annotorious won't update the annotation with the new text on the UI
+                // But annotation.text = annotationObj.text will do it.
+                // Maybe Annotorious has a listener for changes to just the text field of annotations.
+                annotation.text = annotationObj.text;
+                break;
+            case 'deleteAnnotation':
+                var annotationObj = {
+                    "src": "dzi://openseadragon/something",
+                    "text": data.description,
+                    "shapes": [
+                        {
+                            "type": "rect",
+                            "geometry": {
+                                "x": data.coords[0],
+                                "y": data.coords[1],
+                                "width": data.coords[2],
+                                "height": data.coords[3]
+                            },
+                            "style": {}
+                        }
+                    ],
+                    "context": data.context_uri
+                };
+                var annotation = annoRetrieveByHash(getHash(annotationObj));
+                myAnno.removeAnnotation(annotation);
+                break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', event);
         }
@@ -70,8 +147,8 @@ window.addEventListener('message', function(event) {
 
 /* functions related to annotorious */
 if (enableChaise) {
-    var myAnnoReady = false;
-    window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+    // Before myAnno has been set up, tell Chaise that Annotorious isn't ready yet
+    window.top.postMessage({messageType: 'annotoriousReady', content: false}, window.location.origin);
 }
 
 var myAnno=null;
@@ -162,9 +239,6 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
-    if (enableChaise) {
-        window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
-    }
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
@@ -177,10 +251,24 @@ function annoSetup(_anno,_viewer) {
     var json=annoLog(item,UPDATE_EVENT_TYPE);
     updateAnnotationList();
   });
+  if (enableChaise) {
+      // This event fires when user has finished drawing the rectangle during the process of creating an annotation
+      // Chaise uses this event to capture rectangle coordinates
+      _anno.addHandler("onSelectionCompleted", function(target) {
+          // Transform the target object into a simpler object for use in Window.postMessage()
+          var event = JSON.parse(JSON.stringify(target));
+          window.top.postMessage({messageType: 'annotationDrawn', content: event}, window.location.origin);
+      });
+  }
   myAnno=_anno;
   if (enableChaise) {
-      myAnnoReady = true;
-      window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+      // Now that myAnno has been set up, tell Chaise that Annotorious is ready
+      window.top.postMessage({messageType: 'annotoriousReady', content: true}, window.location.origin);
+      // Hide the annotate feather button
+      document.getElementById('map-annotate-button').style.display = 'none';
+      // Hide the annotation editor aka the black box. Editing will occur in Chaise.
+      var styleSheet = document.styleSheets[document.styleSheets.length-1];
+      styleSheet.insertRule('.annotorious-editor { display:none }', 0);
   }
 }
 
@@ -212,6 +300,7 @@ encoded = encodeURIComponent( parm )
    // }
    return json;
 }
+
 
 function annotate() {
   var button = document.getElementById('map-annotate-button');
@@ -410,4 +499,11 @@ function makeDummy() {
     0.032581453634085156,
     0.3020050125313283
   );
+}
+
+// Simulate a click on Annotorious editor's Cancel button to stop selection
+function cancelEditor() {
+    if (enableChaise) {
+        document.getElementsByClassName('annotorious-editor-button-cancel')[0].click();
+    }
 }
