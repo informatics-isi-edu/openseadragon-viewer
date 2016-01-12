@@ -20,7 +20,7 @@ window.addEventListener('message', function(event) {
                         "event": "INFO",
                         "data": {
                             "src": "dzi://openseadragon/something",
-                            "text": annotation.comments.comment,
+                            "text": annotation.description,
                             "shapes": [
                                 {
                                     "type": "rect",
@@ -43,7 +43,7 @@ window.addEventListener('message', function(event) {
             case 'highlightAnnotation':
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.comments.comment,
+                    "text": data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -93,7 +93,7 @@ window.addEventListener('message', function(event) {
             case 'updateAnnotation':
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.comments.comment,
+                    "text": data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -114,7 +114,7 @@ window.addEventListener('message', function(event) {
             case 'deleteAnnotation':
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.comments.comment,
+                    "text": data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -131,7 +131,6 @@ window.addEventListener('message', function(event) {
                 };
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
                 myAnno.removeAnnotation(annotation);
-                console.log(myAnno.getAnnotations());
                 break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', event);
