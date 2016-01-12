@@ -11,7 +11,7 @@ window.addEventListener('message', function(event) {
         var messageType = event.data.messageType;
         var data = event.data.content;
         switch (messageType) {
-            case 'annotationsList':
+            case 'loadAnnotations':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
                     var annotationObj = {
@@ -142,8 +142,8 @@ window.addEventListener('message', function(event) {
 
 /* functions related to annotorious */
 if (enableChaise) {
-    var myAnnoReady = false;
-    window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+    // Before myAnno has been set up, tell Chaise that Annotorious isn't ready yet
+    window.top.postMessage({messageType: 'annotoriousReady', content: false}, window.location.origin);
 }
 
 var myAnno=null;
@@ -257,13 +257,13 @@ function annoSetup(_anno,_viewer) {
   }
   myAnno=_anno;
   if (enableChaise) {
-      myAnnoReady = true;
-      window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
+      // Now that myAnno has been set up, tell Chaise that Annotorious is ready
+      window.top.postMessage({messageType: 'annotoriousReady', content: true}, window.location.origin);
       // Hide the annotate feather button
       document.getElementById('map-annotate-button').style.display = 'none';
       // Hide the annotation editor aka the black box. Editing will occur in Chaise.
       var styleSheet = document.styleSheets[document.styleSheets.length-1];
-      styleSheet.insertRule('.annotorious-editor { display:none }');
+      styleSheet.insertRule('.annotorious-editor { display:none }', 0);
   }
 }
 
