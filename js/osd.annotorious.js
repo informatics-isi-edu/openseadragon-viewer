@@ -1,6 +1,5 @@
 // A flag to track whether OpenSeadragon/Annotorious is being used with Chaise
 var enableChaise = false;
-// If this app is inside another window (i.e. Chaise), enable Chaise.
 if (window.self !== window.top) {
     enableChaise = true;
 }
