@@ -92,6 +92,9 @@ function annoAdd(item) {
   myAnno.addAnnotation(item);
 }
 
+function annoUnHighlightAnnotation(item) {
+  myAnno.highlightAnnotation();
+}
 function annoHighlightAnnotation(item) {
   myAnno.highlightAnnotation(item);
 }
@@ -129,6 +132,7 @@ function annoSetup(_anno,_viewer) {
   myAnno=_anno;
   myAnnoReady = true;
   updateAnnotationState('myAnnoReady', myAnnoReady);
+  setupAnnoUI();  
 }
 
 /*
@@ -205,13 +209,14 @@ function updateAnnotations() {
     var oneItem = '<a href="#" class="list-group-item" id='+
            getHash(annotations[i]) +' ' +
            'onmouseover=highlightAnnoByHash('+getHash(annotations[i]) +') '+
+           'onmouseout=highlightAnnoByHash() '+
            'onclick=centerAnnoByHash('+getHash(annotations[i]) +') '+
            '>' + annotations[i].text +
            '</a>';
     outItem += oneItem;
   }
   list.innerHTML += outItem;
-window.console.log(list.innerHTML);
+//window.console.log(list.innerHTML);
 }
 
 function _clearAnnoOptions() {
@@ -299,7 +304,7 @@ function centerAnnoByHash(i)
 {
   var h=i;
   if(h == null) {
-     h = $('#anno-list').find('option:selected').val();
+     return;
   }
   var item = annoRetrieveByHash(h);
   if(item) {
@@ -331,7 +336,8 @@ function highlightAnnoByHash(i)
 {
   var h=i;
   if(h == null) {
-     h = $('#anno-list').find('option:selected').val();
+     annoHighlightAnnotation();
+     return;
   }
   var item = annoRetrieveByHash(h);
   if(item) {

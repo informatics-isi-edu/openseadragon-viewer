@@ -38,6 +38,22 @@
 
 <link href="css/osd_sidebar.css" rel="stylesheet">
 <script type='text/javascript' src='js/osd.sidebar.js'></script>
+<style>
+
+#annotorious-popup-buttons {
+   color:green;
+   opacity:0.1;
+}
+#annotorious-popup-button-edit {
+   color:green;
+   opacity:0.1;
+}
+#annotorious-popup-button-delete {
+   color:green;
+   opacity:0.1;
+}
+
+</style>
 </head>
 
 <body>
@@ -69,10 +85,10 @@
   </div></li>
 </ul>
 
-    <div id="anno-ctrl-button" style="display:;">
+    <div id="anno-ctrl-button" style="display:none;">
         <button id="osd-anno-control-button" class="btn btn-default" onclick="annoCtrlClick()"><a id="anno-toggle" class="glyphicon glyphicon-eye-open" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
     </div>
-    <div id="ctrl-button" style="display:;">
+    <div id="ctrl-button" style="display:none;">
         <button id="osd-control-button" class="btn btn-default" onclick="ctrlClick()"/>
              <a id="nav-toggle" href="#"><span></span></a>
         </button>
