@@ -64,8 +64,7 @@ window.addEventListener('message', function(event) {
                 myAnno.activateSelector();
                 break;
             case 'createAnnotation':
-                // Simulate a click on Annotorious editor's Cancel button to stop selection.
-                document.getElementsByClassName('annotorious-editor-button-cancel')[0].click();
+                cancelEditor();
                 var annotationObj = {
                     "type": "openseadragon_dzi",
                     "id": null,
@@ -89,6 +88,9 @@ window.addEventListener('message', function(event) {
                     }
                 };
                 annoAdd(annotationObj.data);
+                break;
+            case 'cancelAnnotationCreation':
+                cancelEditor();
                 break;
             case 'updateAnnotation':
                 var annotationObj = {
@@ -498,4 +500,11 @@ function makeDummy() {
     0.032581453634085156,
     0.3020050125313283
   );
+}
+
+// Simulate a click on Annotorious editor's Cancel button to stop selection
+function cancelEditor() {
+    if (enableChaise) {
+        document.getElementsByClassName('annotorious-editor-button-cancel')[0].click();
+    }
 }
