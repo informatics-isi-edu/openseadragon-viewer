@@ -60,10 +60,37 @@ window.addEventListener('message', function(event) {
                 };
                 centerAnnoByHash(getHash(annotationObj));
                 break;
-            case 'drawNewAnnotation':
+            case 'drawAnnotation':
                 myAnno.activateSelector();
                 break;
-            case 'saveAnnotation':
+            case 'createAnnotation':
+                // Simulate a click on Annotorious editor's Cancel button to stop selection.
+                document.getElementsByClassName('annotorious-editor-button-cancel')[0].click();
+                var annotationObj = {
+                    "type": "openseadragon_dzi",
+                    "id": null,
+                    "event": "INFO",
+                    "data": {
+                        "src": "dzi://openseadragon/something",
+                        "text": data.description,
+                        "shapes": [
+                            {
+                                "type": "rect",
+                                "geometry": {
+                                    "x": data.coords[0],
+                                    "y": data.coords[1],
+                                    "width": data.coords[2],
+                                    "height": data.coords[3]
+                                },
+                                "style": {}
+                            }
+                        ],
+                        "context": data.context_uri
+                    }
+                };
+                annoAdd(annotationObj.data);
+                break;
+            case 'updateAnnotation':
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
                     "text": data.comments.comment,
@@ -208,9 +235,6 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
-    if (enableChaise) {
-        window.top.postMessage({messageType: 'onAnnotationCreated', content: json}, window.location.origin);
-    }
     updateAnnotationList();
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
@@ -223,18 +247,24 @@ function annoSetup(_anno,_viewer) {
     var json=annoLog(item,UPDATE_EVENT_TYPE);
     updateAnnotationList();
   });
+  if (enableChaise) {
+      // This event fires when user has finished drawing the rectangle during the process of creating an annotation
+      // Chaise uses this event to capture rectangle coordinates
+      _anno.addHandler("onSelectionCompleted", function(target) {
+          // Transform the target object into a simpler object for use in Window.postMessage()
+          var event = JSON.parse(JSON.stringify(target));
+          window.top.postMessage({messageType: 'annotationDrawn', content: event}, window.location.origin);
+      });
+  }
   myAnno=_anno;
   if (enableChaise) {
       myAnnoReady = true;
       window.top.postMessage({messageType: 'myAnnoReady', content: myAnnoReady}, window.location.origin);
-
       // Hide the annotate feather button
       document.getElementById('map-annotate-button').style.display = 'none';
-
-      // Hide the annotation editor aka the black box
-      // TODO: Jessie: Uncomment this when done with creating annotations in the panel
-      // var styleSheet = document.styleSheets[document.styleSheets.length-1];
-      // styleSheet.insertRule('.annotorious-editor { display:none }');
+      // Hide the annotation editor aka the black box. Editing will occur in Chaise.
+      var styleSheet = document.styleSheets[document.styleSheets.length-1];
+      styleSheet.insertRule('.annotorious-editor { display:none }');
   }
 }
 
