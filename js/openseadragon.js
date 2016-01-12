@@ -1,6 +1,6 @@
 //! OpenSeadragon 2.0.0
-//! Built on 2016-01-06
-//! Git commit: v2.0.0-152-ea833a7
+//! Built on 2016-01-07
+//! Git commit: v2.0.0-152-ea833a7-dirty
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -215,7 +215,7 @@
   * @property {String} [compositeOperation='source-over']
   *     Valid values are 'source-atop', 'source-in', 'source-out',
   *     'destination-over', 'destination-atop', 'destination-in',
-  *     'destination-out', 'lighter', 'copy' or 'xor'.<br>
+  *     'destination-out', 'lighter', 'copy' or 'xor'
   *
   * @property {String|CanvasGradient|CanvasPattern|Function} [placeholderFillStyle=null]
   *     Draws a colored rectangle behind the tile if it is not loaded yet.
@@ -7902,7 +7902,7 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
      * (portions of the image outside of this area will not be visible). Only works on
      * browsers that support the HTML5 canvas.
      * @param {Number} [options.opacity] Opacity the tiled image should be drawn at by default.
-     * @param {String} [options.compositeOperation] How a tiled source image are drawn onto an existing image.
+     * @param {String} [options.compositeOperation] How the image is composited onto other images.
      * @param {Function} [options.success] A function that gets called when the image is
      * successfully added. It's passed the event object which contains a single property:
      * "item", the resulting TiledImage.
@@ -14978,7 +14978,6 @@ $.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
         context.save();
 
         context.globalAlpha = this.opacity;
-        context.globalCompositeOperation = this.compositeOperation;
 
         //if we are supposed to be rendering fully opaque rectangle,
         //ie its done fading or fading is turned off, and if we are drawing
@@ -17220,7 +17219,7 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
  * @param {Boolean} [options.alwaysBlend] - See {@link OpenSeadragon.Options}.
  * @param {Number} [options.minPixelRatio] - See {@link OpenSeadragon.Options}.
  * @param {Number} [options.opacity=1] - Opacity the tiled image should be drawn at.
- * @param {String} [options.compositeOperation='source-over'] - How a tiled source image are drawn onto an existing image.
+ * @param {String} [options.compositeOperation='source-over'] - How the image is composited onto other images; see compositeOperation in {@link OpenSeadragon.Options} for possible values.
  * @param {Boolean} [options.debugMode] - See {@link OpenSeadragon.Options}.
  * @param {String|CanvasGradient|CanvasPattern|Function} [options.placeholderFillStyle] - See {@link OpenSeadragon.Options}.
  * @param {String|Boolean} [options.crossOriginPolicy] - See {@link OpenSeadragon.Options}.
