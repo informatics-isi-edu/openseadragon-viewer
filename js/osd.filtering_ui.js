@@ -15,6 +15,26 @@ var blueColors = ['DAPI']
 //propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'rgb': '0.1 0.3 0.2' } );
 var propertyList = [];
 
+function isActive(elm) {
+  if(elm.classList.contains("active")) {
+    return 1;
+    } else {
+      return 0; 
+  }
+}
+
+function ctrlClick()
+{
+window.console.log("making a control click...");
+  var nav = document.getElementById('nav-toggle');
+  nav.classList.toggle( "active" );
+  if(isActive(nav)) {
+    sidebar_control_slideOut();
+    } else {
+      sidebar_control_slideIn();
+  }
+}
+
 // preset
 function presetContrast(i) {
   return 0;
@@ -109,7 +129,7 @@ function setupItemSliders(idx) {
 }
 
 window.onload = function() {
-  if (propertyList.length < 2) {
+  if (propertyList && propertyList.length < 2) {
       jQuery('#itemList').prepend('<h5>'+propertyList[0].name+'</h5>');
   }
   var dropdown = document.getElementById('channels-list');
@@ -137,17 +157,17 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-  _nn+='<div id="'+name+'" class="row channel"><div class="col-md-12 item"><div class="data"><label for="'+_name+'" >Visible?</label> <input type="checkbox" class="mychkbox pull-right" id="'+_name+'" checked="" onClick="toggleItem('+i+','+'\''+_name+'\');" /></div>';
+  _nn+='<div id="'+name+'" class="row channel"><div class="col-md-12 item"><div class="data" style="font-size:small;letter-spacing:1px;"><label for="'+_name+'" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div>';
   _nn+='<div class="row filtercontrol">';
-  _nn+='<div class="col-md-12 filter-slider"><div class="caption">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
-  _nn+='<div class="col-md-12 filter-slider"><div class="caption">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="right" id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
+  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
+  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
 if(hue >= 0) {
-  _nn+='<div class="col-md-12 filter-slider"><div class="caption">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
+  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
   } else { // this is a combo or unknown type --> rgb
 }
   _nn+='</div></div></div>';
   jQuery('#itemList').append(_nn);
-//window.console.log(_nn);
+window.console.log(_nn);
 }
 
 // this is called when any of the hue/contrast slider got touched

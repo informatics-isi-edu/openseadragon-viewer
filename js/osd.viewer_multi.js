@@ -149,6 +149,8 @@ jQuery(document).ready(function() {
          _addFilters();
        }
      });
+// XXX
+     jQuery('#kontrol .menu').removeClass('menuDisabled');
    }
 });
 

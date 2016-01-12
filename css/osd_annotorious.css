@@ -1,8 +1,23 @@
 /*
-  from annotorious demo
+  from annotorious demo 
 */
 
-#map-annotate-button {
+#osd-anno-control-button {
+    background-repeat: no-repeat;
+    background-color: #ccc;
+    position:absolute;
+    opacity: 0.7;
+    bottom:5px;
+    right:95px;
+    border-radius: initial;
+    border-width: 2px;
+    border-style: none outset outset;
+    width:14px;
+    height:14px;
+    padding:15px 16px;
+}
+
+#osd-annotate-button {
     background-image: url(../images/feather_rest.png);
     background-color: #ccc;
     background-repeat: no-repeat;
@@ -15,9 +30,25 @@
     padding:14px 16px;
 }
 
-#map-annotate-button:hover {
+#osd-annotate-button:hover {
     background-image: url(../images/feather_hover.png);
 }
-#map-annotate-button:active {
+#osd-annotate-button:active {
     background-image: url(../images/feather_pressed.png);
 }
+
+.panel-body {
+   background-color: green;
+   margin-left: 10px;
+   max-height: 10;
+   overflow-y: scroll;
+}
+
+#annotations-list {
+   width: 85%;
+   margin-top: 5px;
+   margin-bottom: 5px;
+   overflow: hidden;
+   font-size: 12px;
+}
+

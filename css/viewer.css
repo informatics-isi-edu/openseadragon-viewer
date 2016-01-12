@@ -87,22 +87,7 @@ p { padding: 0 1.5em; }
     margin-bottom: 0;
 }
 .download { float: right; }
-.navigation{
-    border-left: 1px dotted #999;
-    float: right;
-    width: 200px;
-    clear: both;
-    margin: 20px;
-}
-.navigation ul{
-    margin: 0 0 0 25px;
-    padding: 10px;
-    list-style: square;
-    
-}
-.navigation ul li{
-    margin-bottom: 5px;
-}
+
 .viewer{
     clear: both;
 }

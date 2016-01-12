@@ -1,14 +1,24 @@
 
 /* functions related to annotorious */
 var myAnnoReady = false;
-_postOutgoingEvent('myAnnoReady', myAnnoReady);
-
 var myAnno=null;
 
 var CREATE_EVENT_TYPE='CREATE';
 var UPDATE_EVENT_TYPE='UPDATE';
 var REMOVE_EVENT_TYPE='REMOVE';
 var INFO_EVENT_TYPE='INFO';
+
+function annoCtrlClick()
+{
+window.console.log("making a anno control click...");
+  var atog = document.getElementById('anno-toggle');
+  atog.classList.toggle( "active" );
+  if(isActive(atog)) {
+    sidebar_anno_slideOut();
+    } else {
+      sidebar_anno_slideIn();
+  }
+}
 
 /*
   http://stackoverflow.com/questions/7616461/
@@ -84,14 +94,6 @@ function annoAdd(item) {
 
 function annoHighlightAnnotation(item) {
   myAnno.highlightAnnotation(item);
-  _postOutgoingEvent('onHighlighted', 
-                        annoLog(item,INFO_EVENT_TYPE));
-}
-
-function annoUnHighlightAnnotation(item) {
-  myAnno.XXX(item);
-  _postOutgoingEvent('onUnHighlighted', 
-                        annoLog(item,INFO_EVENT_TYPE));
 }
 
 function annoSetup(_anno,_viewer) {
@@ -99,24 +101,34 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
     var json=annoLog(item,CREATE_EVENT_TYPE);
-    _postOutgoingEvent('onAnnotationCreated', json);
-    updateAnnotationList();
+    updateAnnotationList('onAnnotationCreated', json);
   });
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
     var json=annoLog(item,REMOVE_EVENT_TYPE);
-    _postOutgoingEvent('onAnnotationRemoved', json);
-    updateAnnotationList();
+    updateAnnotationList('onAnnotationRemoved', json);
   });
   _anno.addHandler("onAnnotationUpdated", function(target) {
     var item=target;
     var json=annoLog(item,UPDATE_EVENT_TYPE);
-    _postOutgoingEvent('onAnnotaitonUpdated', json);
-    updateAnnotationList();
+    updateAnnotationList('onAnnotaitonUpdated', json);
+  });
+// the annotation would have gotten highlighted
+  _anno.addHandler("onMouseOverAnnotation", function(target) {
+    var item=target;
+    var json=annoLog(item,INFO_EVENT_TYPE);
+    updateAnnotationList('onHighlighted', json);
+    window.console.log("highlight annotation..."+getHash(item));
+  });
+  _anno.addHandler("onMouseOutOfAnnotation", function(target) {
+    var item=target;
+    var json=annoLog(item,INFO_EVENT_TYPE);
+    updateAnnotationList('onUnHighlighted', json);
+    window.console.log("un-highlight annotation..."+getHash(item));
   });
   myAnno=_anno;
   myAnnoReady = true;
-  _postOutgoingEvent('myAnnoReady', myAnnoReady);
+  updateAnnotationState('myAnnoReady', myAnnoReady);
 }
 
 /*
@@ -149,7 +161,7 @@ encoded = encodeURIComponent( parm )
 }
 
 function annotate() {
-  var button = document.getElementById('map-annotate-button');
+  var button = document.getElementById('osd-annotate-button');
   button.style.color = '#777';
 
   myAnno.activateSelector(function() {
@@ -178,25 +190,28 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
 
 /* functions related to annotorious ui and backend linkup  */
 
-function updateAnnotationList() {
+function updateAnnotations() {
   var annotations = myAnno.getAnnotations();
   var list = document.getElementById('annotations-list');
   if(list == null)
     return;
   _clearAnnoOptions();
   list.innerHTML = '';
+  var outItem = '<div class="panel panel-default">' +
+                       '<div class="list-group">';
+
   for (var i = 0; i < annotations.length; i++) {
     _addAnnoOption(getHash(annotations[i]));
-    var formattedAnnotation =
-      '<a href="#"><div class="panel panel-default">' +
-        '<div class="panel-body" id=' + getHash(annotations[i]) +' ' +
-                    'onclick=centerAnnoByHash('+ getHash(annotations[i]) +')'+
-'>' +
-                    annotations[i].text +
-        '</div>' +
-      '</div></a>';
-    list.innerHTML += formattedAnnotation;
+    var oneItem = '<a href="#" class="list-group-item" id='+
+           getHash(annotations[i]) +' ' +
+           'onmouseover=highlightAnnoByHash('+getHash(annotations[i]) +') '+
+           'onclick=centerAnnoByHash('+getHash(annotations[i]) +') '+
+           '>' + annotations[i].text +
+           '</a>';
+    outItem += oneItem;
   }
+  list.innerHTML += outItem;
+window.console.log(list.innerHTML);
 }
 
 function _clearAnnoOptions() {
@@ -228,19 +243,19 @@ function annoBtnExit() {
 function annoBtnFadeOut() {
 //window.console.log("-->calling fadeOut..");
 
-  var $button = $("#map-annotate-button");
+  var $button = $("#osd-annotate-button");
 
-  if ($button.is(':hover')) {
+//  if ($button.is(':hover')) {
 //window.console.log("..don't fade..");
-  } else {
+//  } else {
 //XXX    $button.fadeOut(2000);
 //window.console.log("..fading for sure..");
-  }
+//  }
 
 }
 
 function annoBtnFadeIn(){
-  var $button = $("#map-annotate-button");
+  var $button = $("#osd-annotate-button");
 //XXX  $button.fadeIn("fast");
 }
 
@@ -309,6 +324,18 @@ function centerAnnoByHash(i)
   annoAdd(ncenter);
   annoHighlightAnnotation(ncenter);
 */
+  }
+}
+
+function highlightAnnoByHash(i)
+{
+  var h=i;
+  if(h == null) {
+     h = $('#anno-list').find('option:selected').val();
+  }
+  var item = annoRetrieveByHash(h);
+  if(item) {
+     annoHighlightAnnotation(item);
   }
 }
 
