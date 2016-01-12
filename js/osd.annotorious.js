@@ -1,6 +1,6 @@
 // A flag to track whether OpenSeadragon/Annotorious is being used with Chaise
-// If this app is inside another window (i.e. Chaise), enable Chaise.
 var enableChaise = false;
+// If this app is inside another window (i.e. Chaise), enable Chaise.
 if (window.self !== window.top) {
     enableChaise = true;
 }
@@ -109,7 +109,11 @@ window.addEventListener('message', function(event) {
                     "context": data.context_uri
                 };
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
-                annotation = annotationObj;
+                // TODO: Jessie: Ask Mei about her fn to update annotations
+                // For some reason, if you set annotation = annotationObj, Annotorious won't update the annotation with the new text on the UI
+                // But annotation.text = annotationObj.text will do it.
+                // Maybe Annotorious has a listener for changes to just the text field of annotations.
+                annotation.text = annotationObj.text;
                 break;
             case 'deleteAnnotation':
                 var annotationObj = {
