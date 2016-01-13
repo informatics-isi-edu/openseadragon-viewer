@@ -40,19 +40,6 @@
 <script type='text/javascript' src='js/osd.sidebar.js'></script>
 <style>
 
-#annotorious-popup-buttons {
-   color:green;
-   opacity:0.1;
-}
-#annotorious-popup-button-edit {
-   color:green;
-   opacity:0.1;
-}
-#annotorious-popup-button-delete {
-   color:green;
-   opacity:0.1;
-}
-
 </style>
 </head>
 
@@ -75,16 +62,15 @@
 <!-- for annotation listing control -->
   <li id='annotations' class='navigationLi' style='display:none;'><div id='annoMenu'  class='menu'>
     <div id='annotationTabs' class='row'>
-<!--
-    <div id='annotationTabs' class='tabbox idTabs'>
--->
       <div id='annotationLabel' class='menuLabel' style='margin:30px;'>Annotation(s)</div>
         <div id="annotations-list"></div>
 
     </div>
+<!--
+    <div style="margin-left:10px" >TEST:<input id='item-id' type="text" name="item-id" value='hash id' onclick="callDirect()" style="margin:10px;"></div>
+-->
   </div></li>
 </ul>
-
     <div id="anno-ctrl-button" style="display:none;">
         <button id="osd-anno-control-button" class="btn btn-default" onclick="annoCtrlClick()"><a id="anno-toggle" class="glyphicon glyphicon-eye-open" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
     </div>
@@ -112,10 +98,6 @@
       $('.channel').hide();
       $('#'+channel).show();
     });
-    $('#annotations-list').on('click', 'a', function(e) {
-      e.preventDefault();
-      anno.highlightAnnotation($(this).attr('name'));
-    });
   });
 
 function channelChange()
@@ -125,13 +107,6 @@ function channelChange()
    $('#'+channel).show();
 }
 
-function annotationClick() {
-   anno.highlightAnnotation($(this).attr('name'));
-}
-
-function testme() {
-window.console.log("XXX in testme..");
-}
 </script>
 </body>
 </html>

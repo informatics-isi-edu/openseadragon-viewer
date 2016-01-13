@@ -35732,8 +35732,6 @@ annotorious.mediatypes.openseadragon.Viewer.prototype.getAnnotations = function(
 annotorious.mediatypes.openseadragon.Viewer.prototype.highlightAnnotation = function(opt_annotation) {
  var that = this;
  if (opt_annotation) {
-/* XXX MEI */
-   window.console.log("XXXX highlight annotaiton.. ");
    goog.array.forEach(this._overlays, function(overlay) {
      if (overlay.annotation == opt_annotation) {
        if (that._currentlyHighlightedOverlay &&

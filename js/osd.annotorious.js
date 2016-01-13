@@ -1,4 +1,3 @@
-
 /* functions related to annotorious */
 var myAnnoReady = false;
 var myAnno=null;
@@ -92,10 +91,13 @@ function annoAdd(item) {
   myAnno.addAnnotation(item);
 }
 
+// item is discarded
 function annoUnHighlightAnnotation(item) {
+//window.console.log('-- calling UN - annoHighlightAnnotation');
   myAnno.highlightAnnotation();
 }
 function annoHighlightAnnotation(item) {
+//window.console.log('-- calling annoHighlightAnnotation');
   myAnno.highlightAnnotation(item);
 }
 
@@ -119,16 +121,25 @@ function annoSetup(_anno,_viewer) {
 // the annotation would have gotten highlighted
   _anno.addHandler("onMouseOverAnnotation", function(target) {
     var item=target;
+    window.console.log("highlight annotation handler..."+getHash(item));
     var json=annoLog(item,INFO_EVENT_TYPE);
+    window.console.log("highlight annotation handler..."+getHash(item));
     updateAnnotationList('onHighlighted', json);
-    window.console.log("highlight annotation..."+getHash(item));
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
+    window.console.log("un-highlight annotation handler..."+getHash(item));
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onUnHighlighted', json);
-    window.console.log("un-highlight annotation..."+getHash(item));
   });
+/* XXX
+  _anno.addHandler("onSelectionCompleted", function(target) {
+    var item=target;
+    // this is not a complete annotation item..
+    var json = JSON.parse(JSON.stringify(item));
+    updateAnnotationList('annotationDrawn', json);
+  });
+*/
   myAnno=_anno;
   myAnnoReady = true;
   updateAnnotationState('myAnnoReady', myAnnoReady);
@@ -163,6 +174,7 @@ encoded = encodeURIComponent( parm )
    // }
    return json;
 }
+
 
 function annotate() {
   var button = document.getElementById('osd-annotate-button');
@@ -208,16 +220,22 @@ function updateAnnotations() {
     _addAnnoOption(getHash(annotations[i]));
     var oneItem = '<a href="#" class="list-group-item" id='+
            getHash(annotations[i]) +' ' +
-           'onmouseover=highlightAnnoByHash('+getHash(annotations[i]) +') '+
-           'onmouseout=highlightAnnoByHash() '+
-           'onclick=centerAnnoByHash('+getHash(annotations[i]) +') '+
-           '>' + annotations[i].text +
+           'onclick=highlightAnnoByHash('+getHash(annotations[i]) +') '+ 
+           'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +') '+ 
+           '>' + getHash(annotations[i]) + ':' + annotations[i].text +
            '</a>';
     outItem += oneItem;
   }
   list.innerHTML += outItem;
 //window.console.log(list.innerHTML);
 }
+
+function callDirect() {
+  var v=document.getElementById('item-id').value;
+  var i=parseInt(v,10);
+  highlightAnnoByHash(i);
+}
+
 
 function _clearAnnoOptions() {
   var alist = document.getElementById('anno-list');
@@ -378,4 +396,11 @@ function makeDummy() {
     0.032581453634085156,
     0.3020050125313283
   );
+}
+
+// Simulate a click on Annotorious editor's Cancel button to stop selection
+function cancelEditor() {
+    if (enableChaise) {
+        document.getElementsByClassName('annotorious-editor-button-cancel')[0].click();
+    }
 }

@@ -465,3 +465,4 @@ function extractInfo(str) {
             'channelname':_channelname, 'channelalpha':_channelalpha,
             'channelrgb':_channelrgb,'dir':_dir, 'format':_format };
 }
+
