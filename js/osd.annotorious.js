@@ -14,8 +14,12 @@ window.console.log("making a anno control click...");
   atog.classList.toggle( "active" );
   if(isActive(atog)) {
     sidebar_anno_slideOut();
+    $('#anno-toggle').removeClass('glyphicon-eye-open');
+    $('#anno-toggle').addClass('glyphicon-eye-close');
     } else {
       sidebar_anno_slideIn();
+      $('#anno-toggle').addClass('glyphicon-eye-open');
+      $('#anno-toggle').removeClass('glyphicon-eye-close');
   }
 }
 
@@ -142,7 +146,7 @@ function annoSetup(_anno,_viewer) {
 */
   myAnno=_anno;
   myAnnoReady = true;
-  updateAnnotationState('myAnnoReady', myAnnoReady);
+  updateAnnotationState('annotoriousReady', myAnnoReady);
   setupAnnoUI();  
 }
 
