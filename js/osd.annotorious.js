@@ -88,11 +88,20 @@ function annoRetrieveByHash(h) {
   return null;
 }
 
+function annoChk()
+{
+  var p=myAnno.getAnnotations();
+  var len=p.length;
+  window.console.log("Currently.."+len+" annotations..");
+}
+
 function annoAdd(item) {
+  annoChk();
   if( annoExist(item) ) {
     return;
   }
   myAnno.addAnnotation(item);
+  annoChk();
 }
 
 // item is discarded
@@ -136,14 +145,12 @@ function annoSetup(_anno,_viewer) {
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onUnHighlighted', json);
   });
-/* XXX
   _anno.addHandler("onSelectionCompleted", function(target) {
     var item=target;
     // this is not a complete annotation item..
     var json = JSON.parse(JSON.stringify(item));
     updateAnnotationList('annotationDrawn', json);
   });
-*/
   myAnno=_anno;
   myAnnoReady = true;
   updateAnnotationState('annotoriousReady', myAnnoReady);
@@ -379,13 +386,19 @@ function readAll(blob) {
       var alist=blob['annoList'];
       var len=alist.length;
       var tt;
+      var t;
       for(var i=0; i< len; i++) {
          var p=alist[i];
-         // extract item
-         tt= p["data"];
+         if(typeof p !== "object") {
+           t=JSON.parse(p);
+           } else {
+             t=p;
+         }
+         tt= t["data"];
          annoAdd(tt);
       }
    }
+   updateAnnotations();
 }
 
 // making a test annotation
