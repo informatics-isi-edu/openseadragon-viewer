@@ -385,7 +385,6 @@ function readAll(blob) {
          tt= p["data"];
          annoAdd(tt);
       }
-      updateAnnotationList();
    }
 }
 
