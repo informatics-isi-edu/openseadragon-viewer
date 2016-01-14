@@ -16,7 +16,7 @@ function setupAnnoUI() {
       bElm.style.display = '';
       bElm = document.getElementById('anno-ctrl-button');
       bElm.style.display = '';
-      bElm = document.getElementById('osd-annotate-button');
+      bElm = document.getElementById('anno-button');
       bElm.style.display = '';
       } else {
         // Hide the annotation editor aka the black box. Editing will occur in Chaise.
