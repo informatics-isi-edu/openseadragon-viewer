@@ -416,7 +416,7 @@ function makeDummy() {
 
 // Simulate a click on Annotorious editor's Cancel button to stop selection
 function cancelEditor() {
-    if (enableChaise) {
+    if (enableEmbedded) {
         document.getElementsByClassName('annotorious-editor-button-cancel')[0].click();
     }
 }

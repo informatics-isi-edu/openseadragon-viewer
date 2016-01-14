@@ -71,7 +71,7 @@ window.addEventListener('message', function(event) {
                         "id": null,
                         "event": "INFO",
                         "data": {
-                            "src": "dzi://openseadragon",
+                            "src": "dzi://openseadragon/something",
                             "text": annotation.description,
                             "shapes": [
                                 {
@@ -94,7 +94,7 @@ window.addEventListener('message', function(event) {
                 break;
             case 'highlightAnnotation':
                 var annotationObj = {
-                    "src": "dzi://openseadragon",
+                    "src": "dzi://openseadragon/something",
                     "text": data.description,
                     "shapes": [
                         {
@@ -117,7 +117,7 @@ window.addEventListener('message', function(event) {
                 break;
             case 'highlightAnnotation':
                 var annotationObj = {
-                    "src": "dzi://openseadragon",
+                    "src": "dzi://openseadragon/something",
                     "text": data.comments,
                     "shapes": [
                         {
@@ -194,7 +194,7 @@ window.addEventListener('message', function(event) {
                 break;
             case 'deleteAnnotation':
                 var annotationObj = {
-                    "src": "dzi://openseadragon",
+                    "src": "dzi://openseadragon/something",
                     "text": data.description,
                     "shapes": [
                         {
