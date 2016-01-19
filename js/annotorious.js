@@ -24309,7 +24309,7 @@ goog.ui.Component.EventType = {
    * Dispatched after the component becomes visible.
    * NOTE(user): For goog.ui.Container, this actually fires before containers
    * are shown.  Use goog.ui.Container.EventType.AFTER_SHOW if you want an event
-   * that fires after a goog.ui.Container is shown.
+   * that fires after a goog.ui.Container is 9hown.
    */
   SHOW: 'show',
 

@@ -9,7 +9,6 @@ var INFO_EVENT_TYPE='INFO';
 
 function annoCtrlClick()
 {
-window.console.log("making a anno control click...");
   var atog = document.getElementById('anno-toggle');
   atog.classList.toggle( "active" );
   if(isActive(atog)) {
@@ -92,7 +91,6 @@ function annoChk()
 {
   var p=myAnno.getAnnotations();
   var len=p.length;
-  window.console.log("Currently.."+len+" annotations..");
 }
 
 function annoAdd(item) {
@@ -132,16 +130,16 @@ function annoSetup(_anno,_viewer) {
     updateAnnotationList('onAnnotaitonUpdated', json);
   });
 // the annotation would have gotten highlighted
-  _anno.addHandler("onMouseOverAnnotation", function(target) {
+//  _anno.addHandler("onMouseOverAnnotation", function(target) {
+  _anno.addHandler("onMouseOverItem", function(target) {
     var item=target;
-    window.console.log("highlight annotation handler..."+getHash(item));
+window.console.log("highlight annotation handler..."+getHash(item));
     var json=annoLog(item,INFO_EVENT_TYPE);
-    window.console.log("highlight annotation handler..."+getHash(item));
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
-    window.console.log("un-highlight annotation handler..."+getHash(item));
+window.console.log("un-highlight annotation handler..."+getHash(item));
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onUnHighlighted', json);
   });
@@ -233,7 +231,7 @@ function updateAnnotations() {
            getHash(annotations[i]) +' ' +
            'onclick=highlightAnnoByHash('+getHash(annotations[i]) +') '+ 
            'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +') '+ 
-           '>' + getHash(annotations[i]) + ':' + annotations[i].text +
+           '>' + annotations[i].text +
            '</a>';
     outItem += oneItem;
   }
@@ -404,7 +402,7 @@ function readAll(blob) {
 // making a test annotation
 function makeDummy() {
   annoMakeAnno(
-    "dzi://openseadragon",
+    "dzi://openseadragon/something",
     "http://localhost/tiletiff/index.html?url=http://localhost/tiletiff/data/wide.dzi",
     "123",
     0.6491228070175439,

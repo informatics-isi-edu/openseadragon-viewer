@@ -9,6 +9,10 @@ if (window.self !== window.top) {
     enableEmbedded = true;
 }
 
+/* from annotorious.js
+annotorious.templates.popup = function(opt_data) {
+  return '<div class="annotorious-popup top-left" style="position:absolute;z-index:1"><div class="annotorious-popup-buttons" ><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a></div><span class="annotorious-popup-text"></span></div>';
+*/
 function setupAnnoUI() {
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
@@ -19,17 +23,19 @@ function setupAnnoUI() {
       bElm = document.getElementById('anno-button');
       bElm.style.display = '';
       } else {
-        // Hide the annotation editor aka the black box. Editing will occur in Chaise.
+        // Hide the annotation editor aka the black box. 
+        // Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
+        styleSheet.insertRule('.annotorious-popup-buttons { visibility:hidden }', 0);
   }
 }
+
 
 /*********************************************************/
 // post outgoing message events to Chaise, 
 /*********************************************************/
 function updateAnnotationList(mType, cData) {
-window.console.log("in update annotation list.."+mType);
     if (enableEmbedded) {
         window.top.postMessage({messageType: mType, content: cData}, window.location.origin);
     } else {

@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <html>
 <head>
-<title> 2D+ test mviewer </title>
+<title> 2D+ mviewer </title>
 
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
@@ -38,206 +38,54 @@
 <link href="css/osd_sidebar.css" rel="stylesheet">
 <script type='text/javascript' src='js/osd.sidebar.js'></script>
 <style>
-      h3.page-header {
-          border-top: none;
-          margin-top: 0;
-      }
 
-      #content {
-          width: 100vh;
-          height: 100vh;
-          background-color: white;
-      }
-
-      #viewer {
-          position: fixed;
-          left: 0;
-          width: 80%;
-          height: 100vh;
-          margin-bottom: 0;
-      }
-
-      #annotations {
-          color: black;
-          position: fixed;
-          right: 0;
-          bottom: 0;
-          width: 20%;
-          height: 50%;
-          background-color: #fff;
-          overflow-y: scroll;
-          -webkit-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          -moz-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          border-top: 1px solid #ccc;
-      }
-
-      #buttons {
-          color: black;
-          position: fixed;
-          right: 0;
-          bottom:50%;
-          width: 20%;
-          height: 8%;
-          background-color: grey;
-          -webkit-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          -moz-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-      }
-
-      #control {
-          position: fixed;
-          right: 0;
-          width: 20%;
-          height: 42%;
-          background-color: white;
-          overflow-y: scroll;
-          -webkit-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          -moz-box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-          box-shadow: -1px 0px 10px 0px rgba(0,0,0,0.1);
-      }
-
-      #selections {
-        margin-top: 20px;
-      }
-
-      #itemList {
-          color: black;
-      }
-
-      #itemList .item {
-        margin: 5px;
-        overflow: hidden;
-        font-size: 12px;
-      }
-
-      #channels-list {
-        width: 100%;
-        margin-bottom: 10px;
-      }
-
-      .filtercontrol {
-          padding-bottom: 4px;
-      }
-
-      .filtercontrol .filter-slider {
-          display: inline-block;
-          *display: inline;
-          zoom: 1;
-          vertical-align: top;
-          font-size: 12px;
-          margin: 10px 0;
-     }
-
-     .slider {
-       margin-top: 4px;
-     }
-
-     .caption {
-       font-weight: 700;
-     }
-
-     .h-slider {
-     background: -webkit-linear-gradient(left, hsla(0, 100%, 50%, 1),
-      hsla(10, 100%, 50%, 1),hsla(20, 100%, 50%, 1),hsla(30, 100%, 50%, 1),
-      hsla(40, 100%, 50%, 1),hsla(50, 100%, 50%, 1),hsla(60, 100%, 50%, 1),
-      hsla(70, 100%, 50%, 1),hsla(80, 100%, 50%, 1),hsla(90, 100%, 50%, 1),
-      hsla(100, 100%, 50%, 1),hsla(110, 100%, 50%, 1),hsla(120, 100%, 50%, 1),
-      hsla(130, 100%, 50%, 1),hsla(140, 100%, 50%, 1),hsla(150, 100%, 50%, 1),
-      hsla(160, 100%, 50%, 1),hsla(170, 100%, 50%, 1),hsla(180, 100%, 50%, 1),
-      hsla(190, 100%, 50%, 1),hsla(200, 100%, 50%, 1),hsla(210, 100%, 50%, 1),
-      hsla(220, 100%, 50%, 1),hsla(230, 100%, 50%, 1),hsla(240, 100%, 50%, 1),
-      hsla(250, 100%, 50%, 1),hsla(260, 100%, 50%, 1),hsla(270, 100%, 50%, 1),
-      hsla(280, 100%, 50%, 1),hsla(290, 100%, 50%, 1),hsla(300, 100%, 50%, 1),
-      hsla(310, 100%, 50%, 1),hsla(320, 100%, 50%, 1),hsla(330, 100%, 50%, 1),
-      hsla(340, 100%, 50%, 1),hsla(350, 100%, 50%, 1),hsla(360, 100%, 50%, 1));
-     background: -moz-linear-gradient(left, hsla(0, 100%, 50%, 1),
-      hsla(10, 100%, 50%, 1),hsla(20, 100%, 50%, 1),hsla(30, 100%, 50%, 1),
-      hsla(40, 100%, 50%, 1),hsla(50, 100%, 50%, 1),hsla(60, 100%, 50%, 1),
-      hsla(70, 100%, 50%, 1),hsla(80, 100%, 50%, 1),hsla(90, 100%, 50%, 1),
-      hsla(100, 100%, 50%, 1),hsla(110, 100%, 50%, 1),hsla(120, 100%, 50%, 1),
-      hsla(130, 100%, 50%, 1),hsla(140, 100%, 50%, 1),hsla(150, 100%, 50%, 1),
-      hsla(160, 100%, 50%, 1),hsla(170, 100%, 50%, 1),hsla(180, 100%, 50%, 1),
-      hsla(190, 100%, 50%, 1),hsla(200, 100%, 50%, 1),hsla(210, 100%, 50%, 1),
-      hsla(220, 100%, 50%, 1),hsla(230, 100%, 50%, 1),hsla(240, 100%, 50%, 1),
-      hsla(250, 100%, 50%, 1),hsla(260, 100%, 50%, 1),hsla(270, 100%, 50%, 1),
-      hsla(280, 100%, 50%, 1),hsla(290, 100%, 50%, 1),hsla(300, 100%, 50%, 1),
-      hsla(310, 100%, 50%, 1),hsla(320, 100%, 50%, 1),hsla(330, 100%, 50%, 1),
-      hsla(340, 100%, 50%, 1),hsla(350, 100%, 50%, 1),hsla(360, 100%, 50%, 1));
-     }
- </style>
-
+</style>
 </head>
 
 <body>
-  <!-- The viewer -->
-
+<!-- The viewer -->
 <div class="content">
   <div id="viewer">
     <div id="openseadragon" class="openseadragon" style="background-color:white;border:none"></div>
-  </div>
-  <div id="control">
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <h3 class="page-header">Channel(s)</h3>
+
+<ul class='navigation'>
+<!-- for filtering control --> 
+  <li id='control' class='navigationLi' style='display:none;'><div id='controlMenu' class='menu'>
+    <div id='controlTabs' class='tabbox idTabs'>
+      <div id='controlLabel' class='menuLabel' style='margin:10px;'>Channel(s)</div>
+      <div id='itemList' style='width:100%;' class='row'>
+          <select id="channels-list" name="channels-list"></select>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <div id='itemList' class="row">
-            <select id="channels-list" name="channels-list"></select>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <div id="selections" class="row text-center">
-          <input id="filtersBtn" class="btn btn-primary btn-sm" type="button" value="Remove Color Filters" onclick="toggleFilters()"/>
-          <!-- <input id="collectionRowBtn" type="button" value="toRow" onclick="toggleCollectionMode();"/> -->
-        </div>
-      </div>
-    </div>
-  </div>
-  <div id="buttons">
-    <div class="row" style="margin-left:6px" >
-<!--
-    <input value="saveAnno" type="button" onclick='saveAnno("data_anno_test_list.json")'/>
-    <input value="load http://localhost/data/anno_list.json" type="button" onclick='loadAnno("http://localhost/data/anno_list.json")'/>
--->
-    <input value="load -> anno_list.json" type="button" onclick='loadAnno("https://dev.rebuildingakidney.org/~mei/anno_list.json")'/>
-    </div>
-    <div class="row" style="margin-left:6px" >
-       <input value="center" type="button" onclick='centerAnnoByHash(null)'/>
-       <select id="anno-list" name="anno-list"></select>
-    </div>
-    <input id="map-annotate-button" type="button" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"/>
-    </div>
-  </div>
-  <div id="annotations">
-      <div class="col-md-10 col-md-offset-1">
-        <h3 class="page-header">Annotations</h3>
+  </div></li>
+<!-- for annotation listing control -->
+  <li id='annotations' class='navigationLi' style='display:none;'><div id='annoMenu'  class='menu'>
+    <div id='annotationTabs' class='row'>
+      <div id='annotationLabel' class='menuLabel' style='margin:30px;'>Annotation(s)</div>
         <div id="annotations-list"></div>
-      </div>
     </div>
-  </div>
+
+<div><input value="saveAnno" type="button" onclick='saveAnno("data_anno_test_list.json")'/></div>
+<div> <input value="load -> j_list.json" type="button" onclick='loadAnno("http://localhost/data/j_list.json")'/> </div>
+<!--
+<div style="margin-left:10px" >TEST:<input id='item-id' type="text" name="item-id" value='hash id' onclick="callDirect()" style="margin:10px;"></div>
+-->
+  </div></li>
+</ul>
+    <div id="anno-ctrl-button" style="display:none;">
+        <button id="osd-anno-control-button" class="btn btn-default" onclick="annoCtrlClick()"><a id="anno-toggle" class="glyphicon glyphicon-eye-open" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
+    </div>
+    <div id="ctrl-button" style="display:none;">
+        <button id="osd-control-button" class="btn btn-default" onclick="ctrlClick()"/>
+             <a id="nav-toggle" href="#"><span></span></a>
+        </button>
+    </div>
+    <div id="anno-button" style="display:none;">
+      <input id="osd-annotate-button" type="button" onmouseover="annoBtnEnter()" 
+                           onmouseout="annoBtnExit()" onclick="annotate()"/>
+    </div>
+  </div> <!-- viewer -->
 </div>
-<script>
-  $(document).ready(function() {
-    $('.channel').hide();
-    $('.channel').eq(0).show();
-    var numChannels = $('.channel').length;
-    if (numChannels < 2) {
-      $('#channels-list').hide();
-    }
-    $('#channels-list').change(function() {
-      var channel = $('#channels-list').find('option:selected').val();
-      $('.channel').hide();
-      $('#'+channel).show();
-    });
-    $('#annotations-list').on('click', 'a', function(e) {
-      e.preventDefault();
-    });
-  });
 </script>
 </body>
 </html>

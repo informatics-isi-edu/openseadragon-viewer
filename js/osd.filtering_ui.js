@@ -25,7 +25,6 @@ function isActive(elm) {
 
 function ctrlClick()
 {
-window.console.log("making a control click...");
   var nav = document.getElementById('nav-toggle');
   nav.classList.toggle( "active" );
   if(isActive(nav)) {
@@ -139,6 +138,18 @@ window.onload = function() {
     setupItemSliders(i);
   }
   dropdown.innerHTML = channels;
+
+  $('.channel').hide();
+  $('.channel').eq(0).show();
+  var numChannels = $('.channel').length;
+  if (numChannels < 2) {
+    $('#channels-list').hide();
+  }
+  $('#channels-list').change(function() {
+    var channel = $('#channels-list').find('option:selected').val();
+    $('.channel').hide();
+    $('#'+channel).show();
+  });
 }
 
 // squeeze out all spaces in name
@@ -167,7 +178,7 @@ if(hue >= 0) {
 }
   _nn+='</div></div></div>';
   jQuery('#itemList').append(_nn);
-window.console.log(_nn);
+// window.console.log(_nn);
 }
 
 // this is called when any of the hue/contrast slider got touched

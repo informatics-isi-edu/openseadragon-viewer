@@ -1,6 +1,6 @@
 //! openseadragon 2.1.0
-//! Built on 2016-01-14
-//! Git commit: v2.0.0-235-3cfe8ec-dirty
+//! Built on 2016-01-19
+//! Git commit: v2.0.0-240-efc9098-dirty
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -212,8 +212,8 @@
   * @property {Number} [opacity=1]
   *     Default opacity of the tiled images (1=opaque, 0=transparent)
   *
-  * @property {String} [compositeOperation='source-over']
-  *     Valid values are 'source-atop', 'source-in', 'source-out',
+  * @property {String} [compositeOperation=null]
+  *     Valid values are 'source-over', 'source-atop', 'source-in', 'source-out',
   *     'destination-over', 'destination-atop', 'destination-in',
   *     'destination-out', 'lighter', 'copy' or 'xor'
   *
@@ -1078,7 +1078,7 @@ if (typeof define === 'function' && define.amd) {
 
             // APPEARANCE
             opacity:                    1,
-            compositeOperation:         'source-over',
+            compositeOperation:         null,
             placeholderFillStyle:       null,
 
             //REFERENCE STRIP SETTINGS
@@ -14897,7 +14897,7 @@ $.extend( $.DisplayRect.prototype, $.Rect.prototype );
  * @param {Number} options.springStiffness - Spring stiffness. Must be greater than zero.
  * The closer to zero, the closer to linear animation.
  * @param {Number} options.animationTime - Animation duration per spring, in seconds.
- * Must be greater than zero.
+ * Must be zero or greater.
  * @param {Number} [options.initial=0] - Initial value of spring.
  * @param {Boolean} [options.exponential=false] - Whether this spring represents
  * an exponential scale (such as zoom) and should be animated accordingly. Note that
@@ -14935,8 +14935,8 @@ $.Spring = function( options ) {
     $.console.assert(typeof options.springStiffness === "number" && options.springStiffness !== 0,
         "[OpenSeadragon.Spring] options.springStiffness must be a non-zero number");
 
-    $.console.assert(typeof options.animationTime === "number" && options.animationTime !== 0,
-        "[OpenSeadragon.Spring] options.animationTime must be a non-zero number");
+    $.console.assert(typeof options.animationTime === "number" && options.animationTime >= 0,
+        "[OpenSeadragon.Spring] options.animationTime must be a number greater than or equal to 0");
 
     if (options.exponential) {
         this._exponential = true;
@@ -16362,7 +16362,8 @@ $.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
      * @param {Float} opacity The opacity of the blending.
      * @param {Float} [scale=1] The scale at which tiles were drawn on the sketch. Default is 1.
      *   Use scale to draw at a lower scale and then enlarge onto the main canvas.
-     * @param OpenSeadragon.Point} [translate] A translation vector that was used to draw the tiles
+     * @param {OpenSeadragon.Point} [translate] A translation vector that was used to draw the tiles
+     * @param {String} [compositeOperation] - How the image is composited onto other images; see compositeOperation in {@link OpenSeadragon.Options} for possible values.
      * @returns {undefined}
      */
     blendSketch: function(opacity, scale, translate, compositeOperation) {
@@ -16376,7 +16377,9 @@ $.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
 
         this.context.save();
         this.context.globalAlpha = opacity;
-        this.context.globalCompositeOperation = compositeOperation;
+        if (compositeOperation !== undefined) {
+            this.context.globalCompositeOperation = compositeOperation;
+        }
         this.context.drawImage(
             this.sketchCanvas,
             position.x,
@@ -17929,7 +17932,7 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
  * @param {Number} [options.minPixelRatio] - See {@link OpenSeadragon.Options}.
  * @param {Number} [options.smoothTileEdgesMinZoom] - See {@link OpenSeadragon.Options}.
  * @param {Number} [options.opacity=1] - Opacity the tiled image should be drawn at.
- * @param {String} [options.compositeOperation='source-over'] - How the image is composited onto other images; see compositeOperation in {@link OpenSeadragon.Options} for possible values.
+ * @param {String} [options.compositeOperation] - How the image is composited onto other images; see compositeOperation in {@link OpenSeadragon.Options} for possible values.
  * @param {Boolean} [options.debugMode] - See {@link OpenSeadragon.Options}.
  * @param {String|CanvasGradient|CanvasPattern|Function} [options.placeholderFillStyle] - See {@link OpenSeadragon.Options}.
  * @param {String|Boolean} [options.crossOriginPolicy] - See {@link OpenSeadragon.Options}.
