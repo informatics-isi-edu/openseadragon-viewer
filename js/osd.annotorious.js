@@ -238,7 +238,7 @@ function updateAnnotations() {
 //window.console.log(list.innerHTML);
 }
 
-function callDirect(num,c) {
+function colorAnnoListItem(num,c) {
   var id=num.toString();
   var v=document.getElementById(id);
   if(v) {

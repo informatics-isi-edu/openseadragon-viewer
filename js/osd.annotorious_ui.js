@@ -43,14 +43,14 @@ function updateAnnotationList(mType, cData) {
             var t=JSON.parse(cData);
             var item=t.data
             var h=getHash(item);
-            callDirect(h,1);
+            colorAnnoListItem(h,1);
             return;
         }
         if(mType == 'onUnHighlighted') {
             var t=JSON.parse(cData);
             var item=t.data
             var h=getHash(item);
-            callDirect(h,0);
+            colorAnnoListItem(h,0);
             return;
         }
         if(mType == 'annotationDrawn') {
