@@ -33824,7 +33824,7 @@ annotorious.mediatypes.image.Viewer.prototype.getAnnotationsAt = function(px, py
  */
 annotorious.mediatypes.image.Viewer.prototype._onMouseMove = function(event) {
   var topAnnotation = this.topAnnotationAt(event.offsetX, event.offsetY);
-    
+
   // TODO remove code duplication
 
   var self = this;
@@ -35549,8 +35549,11 @@ goog.require('goog.events.MouseWheelHandler');
  * @constructor
  */
 annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
+
   /** @private **/
   this._osdViewer = osdViewer;
+
+  this._annotator = annotator;
   
   /** @private **/  
   this._map_bounds = goog.style.getBounds(osdViewer.element);
@@ -35575,11 +35578,20 @@ annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
       self._place_popup();
   });
     
+/** MEI **/
+  annotator.addHandler(annotorious.events.EventType.POPUP_SHOWN, function(target) {
+    if (self._currentlyHighlightedOverlay !== undefined && self._currentlyHighlightedOverlay != false){
+      self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OVER_ANNOTATION, self._currentlyHighlightedOverlay.annotation);
+    }
+  });
+
   annotator.addHandler(annotorious.events.EventType.BEFORE_POPUP_HIDE, function() {
-    if (self._lastHoveredOverlay == self._currentlyHighlightedOverlay)
+    if (self._lastHoveredOverlay === self._currentlyHighlightedOverlay) {
       self._popup.clearHideTimer();
-    else
+    } else {
+      self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OUT_OF_ANNOTATION, self._currentlyHighlightedOverlay.annotation);
       self._updateHighlight(self._lastHoveredOverlay, self._currentlyHighlightedOverlay);
+    }
   });
 }
 
@@ -35642,6 +35654,7 @@ annotorious.mediatypes.openseadragon.Viewer.prototype._show_popup = function(ann
 annotorious.mediatypes.openseadragon.Viewer.prototype._updateHighlight = function(new_highlight, previous_highlight) {
   if (new_highlight) {
     goog.style.setStyle(new_highlight.inner, 'border-color', '#fff000');
+    goog.style.setStyle(new_highlight.inner, 'border-width', '2px');
     this._currentlyHighlightedOverlay = new_highlight;
     this._show_popup(new_highlight.annotation);
   } else {
@@ -35650,6 +35663,7 @@ annotorious.mediatypes.openseadragon.Viewer.prototype._updateHighlight = functio
 
   if (previous_highlight) {
     goog.style.setStyle(previous_highlight.inner, 'border-color', '#fff');
+    goog.style.setStyle(previous_highlight.inner, 'border-width', '1px');
   }
 }
 

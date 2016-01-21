@@ -218,7 +218,7 @@ function _addURLLayer(url, i) {
                    }},
                    defaultZoomLevel: _realMin,
                    compositeOperation: 'lighter',
-                   opacity: op
+                   opacity: op 
                    };
      myViewer.addTiledImage( options );
      addItemListEntry(_name,i,_dir,hue,contrast,op);

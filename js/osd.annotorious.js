@@ -130,16 +130,15 @@ function annoSetup(_anno,_viewer) {
     updateAnnotationList('onAnnotaitonUpdated', json);
   });
 // the annotation would have gotten highlighted
-//  _anno.addHandler("onMouseOverAnnotation", function(target) {
-  _anno.addHandler("onMouseOverItem", function(target) {
+  _anno.addHandler("onMouseOverAnnotation", function(target) {
     var item=target;
-window.console.log("highlight annotation handler..."+getHash(item));
+//window.console.log("XX highlight annotation handler..."+(item.text));
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
-window.console.log("un-highlight annotation handler..."+getHash(item));
+//window.console.log("AAAA un-highlight annotation handler..."+(item.text));
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onUnHighlighted', json);
   });
@@ -228,7 +227,7 @@ function updateAnnotations() {
   for (var i = 0; i < annotations.length; i++) {
     _addAnnoOption(getHash(annotations[i]));
     var oneItem = '<a href="#" class="list-group-item" id='+
-           getHash(annotations[i]) +' ' +
+           getHash(annotations[i]) + ' style="color:black" '+
            'onclick=highlightAnnoByHash('+getHash(annotations[i]) +') '+ 
            'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +') '+ 
            '>' + annotations[i].text +
@@ -239,10 +238,16 @@ function updateAnnotations() {
 //window.console.log(list.innerHTML);
 }
 
-function callDirect() {
-  var v=document.getElementById('item-id').value;
-  var i=parseInt(v,10);
-  highlightAnnoByHash(i);
+function callDirect(num,c) {
+  var id=num.toString();
+  var v=document.getElementById(id);
+  if(v) {
+  if(c) {
+    v.style.color = 'red';
+    } else {
+      v.style.color = 'black';
+  }
+  }
 }
 
 

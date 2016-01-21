@@ -1,6 +1,6 @@
 //! openseadragon 2.1.0
-//! Built on 2016-01-19
-//! Git commit: v2.0.0-240-efc9098-dirty
+//! Built on 2016-01-20
+//! Git commit: v2.0.0-245-69cce57
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -16363,7 +16363,7 @@ $.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
      * @param {Float} [scale=1] The scale at which tiles were drawn on the sketch. Default is 1.
      *   Use scale to draw at a lower scale and then enlarge onto the main canvas.
      * @param {OpenSeadragon.Point} [translate] A translation vector that was used to draw the tiles
-     * @param {String} [compositeOperation] - How the image is composited onto other images; see compositeOperation in {@link OpenSeadragon.Options} for possible values.
+     * @param {String} [options.compositeOperation] - How the image is composited onto other images; see compositeOperation in {@link OpenSeadragon.Options} for possible values.
      * @returns {undefined}
      */
     blendSketch: function(opacity, scale, translate, compositeOperation) {
@@ -16377,7 +16377,7 @@ $.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
 
         this.context.save();
         this.context.globalAlpha = opacity;
-        if (compositeOperation !== undefined) {
+        if (compositeOperation) {
             this.context.globalCompositeOperation = compositeOperation;
         }
         this.context.drawImage(
@@ -19195,7 +19195,9 @@ function drawTiles( tiledImage, lastDrawn ) {
         drawDebugInfo( tiledImage, lastDrawn );
         return;
     }
-    var useSketch = tiledImage.opacity < 1 || tiledImage.compositeOperation !== 'source-over';
+    var useSketch = tiledImage.opacity < 1 ||
+          (tiledImage.compositeOperation && tiledImage.compositeOperation !== 'source-over');
+
     var sketchScale;
     var sketchTranslate;
 
