@@ -1,7 +1,7 @@
 
 /* event/message linkup with chaise */
 
-// A flag to track whether OpenSeadragon/Annotorious is 
+// A flag to track whether OpenSeadragon/Annotorious is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
 var enableEmbedded = false;
@@ -23,7 +23,7 @@ function setupAnnoUI() {
       bElm = document.getElementById('anno-button');
       bElm.style.display = '';
       } else {
-        // Hide the annotation editor aka the black box. 
+        // Hide the annotation editor aka the black box.
         // Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
@@ -33,7 +33,7 @@ function setupAnnoUI() {
 
 
 /*********************************************************/
-// post outgoing message events to Chaise, 
+// post outgoing message events to Chaise,
 /*********************************************************/
 function updateAnnotationList(mType, cData) {
     if (enableEmbedded) {
@@ -78,6 +78,7 @@ window.addEventListener('message', function(event) {
             case 'loadAnnotations':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
+                    annotation = annotation.data
                     var annotationObj = {
                         "type": "openseadragon_dzi",
                         "id": null,
@@ -232,5 +233,3 @@ window.addEventListener('message', function(event) {
         console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
     }
 });
-
-
