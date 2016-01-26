@@ -1,6 +1,6 @@
 //! openseadragon 2.1.0
-//! Built on 2016-01-20
-//! Git commit: v2.0.0-245-69cce57
+//! Built on 2016-01-26
+//! Git commit: v2.0.0-255-a1b7a54
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -2923,7 +2923,8 @@ $.EventSource = function() {
     this.events = {};
 };
 
-$.EventSource.prototype = /** @lends OpenSeadragon.EventSource.prototype */{
+/** @lends OpenSeadragon.EventSource.prototype */
+$.EventSource.prototype = {
 
     // TODO: Add a method 'one' which automatically unbinds a listener after the first triggered event that matches.
 
@@ -3300,7 +3301,8 @@ $.EventSource.prototype = /** @lends OpenSeadragon.EventSource.prototype */{
         }
     };
 
-    $.MouseTracker.prototype = /** @lends OpenSeadragon.MouseTracker.prototype */{
+    /** @lends OpenSeadragon.MouseTracker.prototype */
+    $.MouseTracker.prototype = {
 
         /**
          * Clean up any events or objects created by the tracker.
@@ -4152,7 +4154,9 @@ $.EventSource.prototype = /** @lends OpenSeadragon.EventSource.prototype */{
          */
         this.captureCount = 0;
     };
-    $.MouseTracker.GesturePointList.prototype = /** @lends OpenSeadragon.MouseTracker.GesturePointList.prototype */{
+
+    /** @lends OpenSeadragon.MouseTracker.GesturePointList.prototype */
+    $.MouseTracker.GesturePointList.prototype = {
         /**
          * @function
          * @returns {Number} Number of gesture points in the list.
@@ -6480,7 +6484,8 @@ $.Control = function ( element, options, container ) {
     }
 };
 
-$.Control.prototype = /** @lends OpenSeadragon.Control.prototype */{
+/** @lends OpenSeadragon.Control.prototype */
+$.Control.prototype = {
 
     /**
      * Removes the control from the container.
@@ -6617,7 +6622,8 @@ $.Control.prototype = /** @lends OpenSeadragon.Control.prototype */{
         this.container.appendChild( this.controls.bottomleft );
     };
 
-    $.ControlDock.prototype = /** @lends OpenSeadragon.ControlDock.prototype */{
+    /** @lends OpenSeadragon.ControlDock.prototype */
+    $.ControlDock.prototype = {
 
         /**
          * @function
@@ -10622,7 +10628,8 @@ $.Point = function( x, y ) {
     this.y = typeof ( y ) == "number" ? y : 0;
 };
 
-$.Point.prototype = /** @lends OpenSeadragon.Point.prototype */{
+/** @lends OpenSeadragon.Point.prototype */
+$.Point.prototype = {
     /**
      * @function
      * @returns {OpenSeadragon.Point} a duplicate of this Point
@@ -11029,8 +11036,8 @@ $.TileSource = function( width, height, tileSize, tileOverlap, minLevel, maxLeve
 
 };
 
-
-$.TileSource.prototype = /** @lends OpenSeadragon.TileSource.prototype */{
+/** @lends OpenSeadragon.TileSource.prototype */
+$.TileSource.prototype = {
 
     getTileSize: function( level ) {
         $.console.error(
@@ -12776,7 +12783,7 @@ function filterFiles( files ){
         if( file.height &&
             file.width &&
             file.url && (
-                file.url.toLowerCase().match(/^.*\.(png|jpg|jpeg|gif)$/) || (
+                file.url.toLowerCase().match(/^.*\.(png|jpg|jpeg|gif)(?:\?.*)?$/) || (
                     file.mimetype &&
                     file.mimetype.toLowerCase().match(/^.*\/(png|jpg|jpeg|gif)$/)
                 )
@@ -13796,7 +13803,8 @@ $.ButtonGroup = function( options ) {
     });
 };
 
-$.ButtonGroup.prototype = /** @lends OpenSeadragon.ButtonGroup.prototype */{
+/** @lends OpenSeadragon.ButtonGroup.prototype */
+$.ButtonGroup.prototype = {
 
     /**
      * TODO: Figure out why this is used on the public API and if a more useful
@@ -13934,7 +13942,8 @@ $.Rect = function(x, y, width, height, degrees) {
     }
 };
 
-$.Rect.prototype = /** @lends OpenSeadragon.Rect.prototype */{
+/** @lends OpenSeadragon.Rect.prototype */
+$.Rect.prototype = {
     /**
      * @function
      * @returns {OpenSeadragon.Rect} a duplicate of this Rect
@@ -14142,7 +14151,7 @@ $.Rect.prototype = /** @lends OpenSeadragon.Rect.prototype */{
     /**
      * Retrieves the smallest horizontal (degrees=0) rectangle which contains
      * this rectangle.
-     * @returns {OpenSeadrayon.Rect}
+     * @returns {OpenSeadragon.Rect}
      */
     getBoundingBox: function() {
         if (this.degrees === 0) {
@@ -14990,7 +14999,8 @@ $.Spring = function( options ) {
     }
 };
 
-$.Spring.prototype = /** @lends OpenSeadragon.Spring.prototype */{
+/** @lends OpenSeadragon.Spring.prototype */
+$.Spring.prototype = {
 
     /**
      * @function
@@ -15214,7 +15224,8 @@ $.ImageLoader = function( options ) {
 
 };
 
-$.ImageLoader.prototype = /** @lends OpenSeadragon.ImageLoader.prototype */{
+/** @lends OpenSeadragon.ImageLoader.prototype */
+$.ImageLoader.prototype = {
 
     /**
      * Add an unloaded image to the loader queue.
@@ -15467,7 +15478,8 @@ $.Tile = function(level, x, y, bounds, exists, url, context2D) {
     this.lastTouchTime  = 0;
 };
 
-$.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
+/** @lends OpenSeadragon.Tile.prototype */
+$.Tile.prototype = {
 
     /**
      * Provides a string representation of this tiles level and (x,y)
@@ -15807,7 +15819,8 @@ $.Tile.prototype = /** @lends OpenSeadragon.Tile.prototype */{
             true : options.checkResize;
     };
 
-    $.Overlay.prototype = /** @lends OpenSeadragon.Overlay.prototype */{
+    /** @lends OpenSeadragon.Overlay.prototype */
+    $.Overlay.prototype = {
 
         /**
          * @function
@@ -16125,7 +16138,8 @@ $.Drawer = function( options ) {
     this.container.appendChild( this.canvas );
 };
 
-$.Drawer.prototype = /** @lends OpenSeadragon.Drawer.prototype */{
+/** @lends OpenSeadragon.Drawer.prototype */
+$.Drawer.prototype = {
     // deprecated
     addOverlay: function( element, location, placement, onDraw ) {
         $.console.error("drawer.addOverlay is deprecated. Use viewer.addOverlay instead.");
@@ -16673,7 +16687,8 @@ $.Viewport = function( options ) {
     this.update();
 };
 
-$.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
+/** @lends OpenSeadragon.Viewport.prototype */
+$.Viewport.prototype = {
     /**
      * Updates the viewport's home bounds and constraints for the given content size.
      * @function
@@ -17605,15 +17620,15 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
      * OpenSeadragon.Point
      * Note: not accurate with multi-image; use TiledImage.viewportToImageCoordinates instead.
      * @function
-     * @param {OpenSeadragon.Point} viewerX the point in viewport coordinate system.
-     * @param {Number} viewerX X coordinate in viewport coordinate system.
-     * @param {Number} viewerY Y coordinate in viewport coordinate system.
+     * @param {(OpenSeadragon.Point|Number)} viewerX either a point or the X
+     * coordinate in viewport coordinate system.
+     * @param {Number} [viewerY] Y coordinate in viewport coordinate system.
      * @return {OpenSeadragon.Point} a point representing the coordinates in the image.
      */
-    viewportToImageCoordinates: function( viewerX, viewerY ) {
-        if ( arguments.length == 1 ) {
+    viewportToImageCoordinates: function(viewerX, viewerY) {
+        if (viewerX instanceof $.Point) {
             //they passed a point instead of individual components
-            return this.viewportToImageCoordinates( viewerX.x, viewerX.y );
+            return this.viewportToImageCoordinates(viewerX.x, viewerX.y);
         }
 
         if (this.viewer && this.viewer.world.getItemCount() > 1) {
@@ -17636,15 +17651,15 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
      * OpenSeadragon.Point
      * Note: not accurate with multi-image; use TiledImage.imageToViewportCoordinates instead.
      * @function
-     * @param {OpenSeadragon.Point} imageX the point in image coordinate system.
-     * @param {Number} imageX X coordinate in image coordinate system.
-     * @param {Number} imageY Y coordinate in image coordinate system.
+     * @param {(OpenSeadragon.Point | Number)} imageX the point or the
+     * X coordinate in image coordinate system.
+     * @param {Number} [imageY] Y coordinate in image coordinate system.
      * @return {OpenSeadragon.Point} a point representing the coordinates in the viewport.
      */
-    imageToViewportCoordinates: function( imageX, imageY ) {
-        if ( arguments.length == 1 ) {
+    imageToViewportCoordinates: function(imageX, imageY) {
+        if (imageX instanceof $.Point) {
             //they passed a point instead of individual components
-            return this.imageToViewportCoordinates( imageX.x, imageX.y );
+            return this.imageToViewportCoordinates(imageX.x, imageX.y);
         }
 
         if (this.viewer && this.viewer.world.getItemCount() > 1) {
@@ -17664,13 +17679,12 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
      * OpenSeadragon.Rect
      * Note: not accurate with multi-image; use TiledImage.imageToViewportRectangle instead.
      * @function
-     * @param {OpenSeadragon.Rect} imageX the rectangle in image coordinate system.
-     * @param {Number} imageX the X coordinate of the top left corner of the rectangle
+     * @param {(OpenSeadragon.Rect | Number)} imageX the rectangle or the X
+     * coordinate of the top left corner of the rectangle in image coordinate system.
+     * @param {Number} [imageY] the Y coordinate of the top left corner of the rectangle
      * in image coordinate system.
-     * @param {Number} imageY the Y coordinate of the top left corner of the rectangle
-     * in image coordinate system.
-     * @param {Number} pixelWidth the width in pixel of the rectangle.
-     * @param {Number} pixelHeight the height in pixel of the rectangle.
+     * @param {Number} [pixelWidth] the width in pixel of the rectangle.
+     * @param {Number} [pixelHeight] the height in pixel of the rectangle.
      */
     imageToViewportRectangle: function(imageX, imageY, pixelWidth, pixelHeight) {
         var rect = imageX;
@@ -17697,13 +17711,13 @@ $.Viewport.prototype = /** @lends OpenSeadragon.Viewport.prototype */{
      * OpenSeadragon.Rect
      * Note: not accurate with multi-image; use TiledImage.viewportToImageRectangle instead.
      * @function
-     * @param {OpenSeadragon.Rect} viewerX the rectangle in viewport coordinate system.
-     * @param {Number} viewerX the X coordinate of the top left corner of the rectangle
+     * @param {(OpenSeadragon.Rect | Number)} viewerX either a rectangle or
+     * the X coordinate of the top left corner of the rectangle in viewport
+     * coordinate system.
+     * @param {Number} [viewerY] the Y coordinate of the top left corner of the rectangle
      * in viewport coordinate system.
-     * @param {Number} imageY the Y coordinate of the top left corner of the rectangle
-     * in viewport coordinate system.
-     * @param {Number} pointWidth the width of the rectangle in viewport coordinate system.
-     * @param {Number} pointHeight the height of the rectangle in viewport coordinate system.
+     * @param {Number} [pointWidth] the width of the rectangle in viewport coordinate system.
+     * @param {Number} [pointHeight] the height of the rectangle in viewport coordinate system.
      */
     viewportToImageRectangle: function(viewerX, viewerY, pointWidth, pointHeight) {
         var rect = viewerX;
@@ -18043,7 +18057,7 @@ $.TiledImage = function( options ) {
       /**
        * This event is fired just before the tile is drawn giving the application a chance to alter the image.
        *
-       * NOTE: This event is only fired when the drawer is using a <canvas>.
+       * NOTE: This event is only fired when the drawer is using a &lt;canvas&gt;.
        *
        * @event tile-drawing
        * @memberof OpenSeadragon.Viewer
@@ -19433,7 +19447,8 @@ $.TileCache = function( options ) {
     this._imagesLoadedCount = 0;
 };
 
-$.TileCache.prototype = /** @lends OpenSeadragon.TileCache.prototype */{
+/** @lends OpenSeadragon.TileCache.prototype */
+$.TileCache.prototype = {
     /**
      * @returns {Number} The total number of tiles that have been loaded by
      * this TileCache.
