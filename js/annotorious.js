@@ -24309,7 +24309,7 @@ goog.ui.Component.EventType = {
    * Dispatched after the component becomes visible.
    * NOTE(user): For goog.ui.Container, this actually fires before containers
    * are shown.  Use goog.ui.Container.EventType.AFTER_SHOW if you want an event
-   * that fires after a goog.ui.Container is 9hown.
+   * that fires after a goog.ui.Container is shown.
    */
   SHOW: 'show',
 
@@ -33824,7 +33824,7 @@ annotorious.mediatypes.image.Viewer.prototype.getAnnotationsAt = function(px, py
  */
 annotorious.mediatypes.image.Viewer.prototype._onMouseMove = function(event) {
   var topAnnotation = this.topAnnotationAt(event.offsetX, event.offsetY);
-
+    
   // TODO remove code duplication
 
   var self = this;
@@ -35549,10 +35549,10 @@ goog.require('goog.events.MouseWheelHandler');
  * @constructor
  */
 annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
-
   /** @private **/
   this._osdViewer = osdViewer;
 
+  /** @private **/
   this._annotator = annotator;
   
   /** @private **/  
@@ -35577,16 +35577,15 @@ annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
     if (self._currentlyHighlightedOverlay)
       self._place_popup();
   });
-    
-/** MEI **/
+
   annotator.addHandler(annotorious.events.EventType.POPUP_SHOWN, function(target) {
-    if (self._currentlyHighlightedOverlay !== undefined && self._currentlyHighlightedOverlay != false){
+    if (self._currentlyHighlightedOverlay !== undefined && self._currentlyHighlightedOverlay != false) {
       self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OVER_ANNOTATION, self._currentlyHighlightedOverlay.annotation);
     }
   });
-
+    
   annotator.addHandler(annotorious.events.EventType.BEFORE_POPUP_HIDE, function() {
-    if (self._lastHoveredOverlay === self._currentlyHighlightedOverlay) {
+    if (self._lastHoveredOverlay == self._currentlyHighlightedOverlay) {
       self._popup.clearHideTimer();
     } else {
       self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OUT_OF_ANNOTATION, self._currentlyHighlightedOverlay.annotation);
@@ -35654,7 +35653,6 @@ annotorious.mediatypes.openseadragon.Viewer.prototype._show_popup = function(ann
 annotorious.mediatypes.openseadragon.Viewer.prototype._updateHighlight = function(new_highlight, previous_highlight) {
   if (new_highlight) {
     goog.style.setStyle(new_highlight.inner, 'border-color', '#fff000');
-    goog.style.setStyle(new_highlight.inner, 'border-width', '2px');
     this._currentlyHighlightedOverlay = new_highlight;
     this._show_popup(new_highlight.annotation);
   } else {
@@ -35663,7 +35661,6 @@ annotorious.mediatypes.openseadragon.Viewer.prototype._updateHighlight = functio
 
   if (previous_highlight) {
     goog.style.setStyle(previous_highlight.inner, 'border-color', '#fff');
-    goog.style.setStyle(previous_highlight.inner, 'border-width', '1px');
   }
 }
 
