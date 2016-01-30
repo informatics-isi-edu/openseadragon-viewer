@@ -78,7 +78,7 @@ window.addEventListener('message', function(event) {
             case 'loadAnnotations':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
-                    annotation = annotation.data
+                    annotation = annotation.data;
                     var annotationObj = {
                         "type": "openseadragon_dzi",
                         "id": null,
@@ -199,10 +199,6 @@ window.addEventListener('message', function(event) {
                     "context": data.context_uri
                 };
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
-                // TODO: Jessie: Ask Mei about her fn to update annotations
-                // For some reason, if you set annotation = annotationObj, Annotorious won't update the annotation with the new text on the UI
-                // But annotation.text = annotationObj.text will do it.
-                // Maybe Annotorious has a listener for changes to just the text field of annotations.
                 annotation.text = annotationObj.text;
                 break;
             case 'deleteAnnotation':
