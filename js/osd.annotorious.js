@@ -132,13 +132,11 @@ function annoSetup(_anno,_viewer) {
 // the annotation would have gotten highlighted
   _anno.addHandler("onMouseOverAnnotation", function(target) {
     var item=target;
-//window.console.log("XX highlight annotation handler..."+(item.text));
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
-//window.console.log("AAAA un-highlight annotation handler..."+(item.text));
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onUnHighlighted', json);
   });
