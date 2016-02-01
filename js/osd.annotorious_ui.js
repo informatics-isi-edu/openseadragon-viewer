@@ -123,7 +123,7 @@ window.addEventListener('message', function(event) {
                     ],
                     "context": data.context_uri
                 };
-                centerAnnoByHash(getHash(annotationObj));
+                highlightAnnoByHash(getHash(annotationObj));
                 break;
             case 'unHighlightAnnotation':
                 annoUnHighlightAnnotation(null);
