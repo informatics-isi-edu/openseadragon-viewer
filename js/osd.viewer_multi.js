@@ -466,3 +466,11 @@ function extractInfo(str) {
             'channelrgb':_channelrgb,'dir':_dir, 'format':_format };
 }
 
+function jpgClick() {
+   var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+	
+   var dload = document.getElementById('jpg-toggle');
+   dload.href = img;  
+   dload.download = 'osd_dump.jpg';
+   dload.click();
+}

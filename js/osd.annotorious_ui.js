@@ -17,11 +17,18 @@ function setupAnnoUI() {
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
       var bElm = document.getElementById('ctrl-button');
-      bElm.style.display = '';
+      if(bElm)
+        bElm.style.display = '';
+      bElm = document.getElementById('jpg-ctrl-button');
+      if(bElm) {
+        bElm.style.display = '';
+      }
       bElm = document.getElementById('anno-ctrl-button');
-      bElm.style.display = '';
+      if(bElm)
+        bElm.style.display = '';
       bElm = document.getElementById('anno-button');
-      bElm.style.display = '';
+      if(bElm)
+        bElm.style.display = '';
       } else {
         // Hide the annotation editor aka the black box. 
         // Editing will occur in Chaise.
