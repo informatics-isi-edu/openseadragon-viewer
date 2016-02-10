@@ -120,37 +120,43 @@ jQuery(document).ready(function() {
     }
 
     // add handlers
-      myViewer.addHandler('update-viewport', function(target) {
-          if(startState) {
-            goPosition(logX,logY,logZoom);
-            startState=false;
-            } else {
-              savePosition();
-          }
-      });
-      myViewer.addHandler('canvas-enter', function(target) {
-        /* make it visible */
-        if (typeof annoBtnFadeIn === "function") {
-          annoBtnFadeIn();
+    myViewer.addHandler('update-viewport', function(target) {
+        if(startState) {
+          goPosition(logX,logY,logZoom);
+          startState=false;
+          } else {
+            savePosition();
         }
-      });
+    });
+    myViewer.addHandler('canvas-enter', function(target) {
+      /* make it visible */
+      if (typeof annoBtnFadeIn === "function") {
+        annoBtnFadeIn();
+      }
+    });
 
-      myViewer.addHandler('canvas-exit', function(target) {
-        /* make it invisible */
-        if (typeof annoBtnFadeOut === "function") {
-          annoBtnFadeOut();
-        }
-      });
+    myViewer.addHandler('canvas-exit', function(target) {
+      /* make it invisible */
+      if (typeof annoBtnFadeOut === "function") {
+        annoBtnFadeOut();
+      }
+    });
 
-     myViewer.world.addHandler('add-item', function(target) {
+    $('#downloadAction').on('click', function(target) {
+      window.console.log("downloadAction activated..");
+    });
+
+    $('#printAction').on('click', function(target) {
+      window.console.log("printAction activated..");
+    });
+
+    myViewer.world.addHandler('add-item', function(target) {
 // when propertyList matches with total cnt..
        if( propertyList.length == myViewer.world.getItemCount()) {
          showFilters=true;
          _addFilters();
        }
      });
-// XXX
-     jQuery('#kontrol .menu').removeClass('menuDisabled');
    }
 });
 
@@ -466,11 +472,17 @@ function extractInfo(str) {
             'channelrgb':_channelrgb,'dir':_dir, 'format':_format };
 }
 
-function jpgClick() {
+function jpgClick(fname) {
    var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
-	
-   var dload = document.getElementById('jpg-toggle');
+   var dload = document.createElement('a');
    dload.href = img;  
-   dload.download = 'osd_dump.jpg';
+   if(fname !== null) {
+      dload.download = fname;
+      } else {
+        dload.download = 'osd_dump.jpg';
+   }
+   dload.style.display = 'none';
+   document.body.appendChild(dload);
    dload.click();
+   delete dload;
 }
