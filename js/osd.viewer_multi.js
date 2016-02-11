@@ -476,10 +476,13 @@ function jpgClick(fname) {
    var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
    var dload = document.createElement('a');
    dload.href = img;  
-   if(fname !== null) {
-      dload.download = fname;
-      } else {
-        dload.download = 'osd_dump.jpg';
+   if(fname != null) {
+     dload.download = fname;
+     } else {
+       var f = new Date().getTime();
+       var ff= f.toString();
+       fname="osd_"+ff+".jpg";
+       dload.download = fname;
    }
    dload.style.display = 'none';
    document.body.appendChild(dload);
