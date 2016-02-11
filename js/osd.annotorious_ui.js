@@ -83,7 +83,7 @@ window.addEventListener('message', function(event) {
         var data = event.data.content;
         switch (messageType) {
             case 'downloadView':
-                jpgClick(data.outfile);
+                jpgClick(data);
                 break;
             case 'loadAnnotations':
                 var annotationsToLoad = {"annoList":[]};
