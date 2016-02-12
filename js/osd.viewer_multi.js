@@ -477,7 +477,7 @@ function jpgClick(fname) {
    var dload = document.createElement('a');
    dload.href = img;
    if(fname != null) {
-     dload.download = fname;
+     dload.download = fname + ".jpg";
      } else {
        var f = new Date().getTime();
        var ff= f.toString();
