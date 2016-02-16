@@ -227,7 +227,7 @@ function _addURLLayer(url, i) {
                    }},
                    defaultZoomLevel: _realMin,
                    compositeOperation: 'lighter',
-                   opacity: op 
+                   opacity: op
                    };
      myViewer.addTiledImage( options );
      addItemListEntry(_name,i,_dir,hue,contrast,op);
@@ -476,9 +476,9 @@ function extractInfo(str) {
 function jpgClick(fname) {
    var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
    var dload = document.createElement('a');
-   dload.href = img;  
+   dload.href = img;
    if(fname != null) {
-     dload.download = fname;
+     dload.download = fname + ".jpg";
      } else {
        var f = new Date().getTime();
        var ff= f.toString();
