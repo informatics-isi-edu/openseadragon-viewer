@@ -99,8 +99,11 @@ jQuery(document).ready(function() {
     myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-//                   debugMode: "true",
-                   showNavigator: "true",
+//                   debugMode: true,
+                   showNavigator: true,
+                   showZoomControl: false,
+                   showHomeControl: false,
+                   showFullPageControl: false,
                    constrainDuringPan: true,
                    visibilityRatio:     1,
 
@@ -378,8 +381,6 @@ function goPositionByBounds(_X,_Y,_width,_height) {
 }
 
 // should be a very small html file
-
-// should be a very small html file
 function ckExist(url) {
   var http = new XMLHttpRequest();
   http.onload = function () {
@@ -489,3 +490,38 @@ function jpgClick(fname) {
    dload.click();
    delete dload;
 }
+
+function zoomInClick() {
+  var c=myViewer.zoomPerClick / 1.0;
+  myViewer.viewport.zoomBy(c);
+  myViewer.viewport.applyConstraints();
+}
+
+function zoomOutClick() {
+  var c=1/myViewer.zoomPerClick;
+  myViewer.viewport.zoomBy(c);
+  myViewer.viewport.applyConstraints();
+}
+
+function homeClick() {
+  myViewer.viewport.goHome();
+  myViewer.viewport.applyConstraints();
+}
+
+function fullPageClick() {
+    if ( myViewer.isFullPage() && !$.isFullScreen() ) {
+        // Is fullPage but not fullScreen
+        myViewer.setFullPage( false );
+    } else {
+        myViewer.setFullScreen( !myViewer.isFullPage() );
+    }
+    // correct for no mouseout event on change
+    if ( myViewer.buttons ) {
+        myViewer.buttons.emulateExit();
+    }
+    myViewer.fullPageButton.element.focus();
+    if ( myViewer.viewport ) {
+        myViewer.viewport.applyConstraints();
+    }
+}
+

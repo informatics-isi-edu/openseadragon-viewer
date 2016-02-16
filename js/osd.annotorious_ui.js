@@ -16,17 +16,7 @@ annotorious.templates.popup = function(opt_data) {
 function setupAnnoUI() {
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
-      var bElm = document.getElementById('ctrl-button');
-      if(bElm)
-        bElm.style.display = '';
-      bElm = document.getElementById('jpg-ctrl-button');
-      if(bElm) {
-        bElm.style.display = '';
-      }
-      bElm = document.getElementById('anno-ctrl-button');
-      if(bElm)
-        bElm.style.display = '';
-      bElm = document.getElementById('anno-button');
+      var bElm = document.getElementById('osd-control-panel');
       if(bElm)
         bElm.style.display = '';
       } else {
@@ -82,6 +72,18 @@ window.addEventListener('message', function(event) {
         var messageType = event.data.messageType;
         var data = event.data.content;
         switch (messageType) {
+            case 'zoomInView':
+                zoomInClick();
+                break;
+            case 'zoomOutView':
+                zoomOutClick();
+                break;
+            case 'homeView':
+                homeClick();
+                break;
+            case 'fullPageView':
+                fullPageClick();
+                break;
             case 'downloadView':
                 jpgClick(data+".jpg");
                 break;

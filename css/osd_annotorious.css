@@ -2,13 +2,12 @@
   from annotorious demo 
 */
 
-#jpg-control-button {
+.osd-control-btn {
     background-repeat: no-repeat;
     background-color: #ccc;
     position:absolute;
     opacity: 0.7;
     bottom:5px;
-    right:140px;
     border-radius: initial;
     border-width: 2px;
     border-style: none outset outset;
@@ -17,19 +16,26 @@
     padding:15px 16px;
 }
 
+#osd-zoomin-control-button {
+    right:320px;
+}
+
+#osd-zoomout-control-button {
+    right:275px;
+}
+#osd-home-control-button {
+    right:230px;
+}
+#osd-fullpage-control-button {
+    right:185px;
+}
+
+#osd-jpg-control-button {
+    right:140px;
+}
+
 #osd-anno-control-button {
-    background-repeat: no-repeat;
-    background-color: #ccc;
-    position:absolute;
-    opacity: 0.7;
-    bottom:5px;
     right:95px;
-    border-radius: initial;
-    border-width: 2px;
-    border-style: none outset outset;
-    width:14px;
-    height:14px;
-    padding:15px 16px;
 }
 
 #osd-annotate-button {
