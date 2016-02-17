@@ -44,6 +44,8 @@ var startState=false;
 
 // to track if this is the first state change
 var isFirst=true;
+// to track special annotation
+var isSpecialAnnotation=false;
 
 jQuery(document).ready(function() {
 
@@ -123,13 +125,15 @@ jQuery(document).ready(function() {
     }
 
     // add handlers
-    myViewer.addHandler('update-viewport', function(target) {
-        if(startState) {
-          goPosition(logX,logY,logZoom);
-          startState=false;
-          } else {
-            savePosition();
-        }
+    myViewer.addHandler('open', function(target) {
+      if(startState) {
+        goPosition(logX,logY,logZoom);
+        startSate=false;
+      }
+    });
+
+    myViewer.addHandler('viewport-change', function(target) {
+      savePosition();
     });
     myViewer.addHandler('canvas-enter', function(target) {
       /* make it visible */
@@ -143,6 +147,17 @@ jQuery(document).ready(function() {
       if (typeof annoBtnFadeOut === "function") {
         annoBtnFadeOut();
       }
+    });
+
+    myViewer.addHandler('add-overlay', function(target) {
+       var anno_div=target.element;
+       if(isSpecialAnnotation)
+         goog.style.setStyle(anno_div, 'border', '2px solid green');
+       //var _rec=target.location;
+       //var _p=_rec.getTopLeft();
+       //var str1=_rec.toString();
+       //var str2=_p.toString();
+       //window.console.log("add-overlay got called ->"+str1+" "+str2);
     });
 
     $('#downloadAction').on('click', function(target) {
@@ -315,7 +330,6 @@ function snapGo() {
 }
 
 function savePosition() {
-
   if(myViewer === null) {
      alertify.error("viewer is not setup yet..");
      return;
@@ -325,6 +339,17 @@ function savePosition() {
   logY=viewportCenter.y;
   logZoom = myViewer.viewport.getZoom(true);
   return updateTitle(logX,logY,logZoom);
+}
+
+function chkPosition() {
+  if(myViewer === null) {
+     alertify.error("viewer is not setup yet..");
+     return;
+  }
+  var viewportCenter = myViewer.viewport.getCenter('true');
+  var tmpX=viewportCenter.x;
+  var tmpY=viewportCenter.y;
+  var tmpZoom = myViewer.viewport.getZoom(true);
 }
 
 function checkIt() {
@@ -371,8 +396,12 @@ function checkIt() {
 function goPosition(_X,_Y,_Zoom) {
   var _center=new OpenSeadragon.Point(_X,_Y);
   myViewer.viewport.panTo(_center,'true');
-  myViewer.viewport.zoomTo(_Zoom);
-  myViewer.viewport.applyConstraints();
+  if(_Zoom === null) {
+    myViewer.viewport.zoomTo(logZoom);
+    } else {
+      myViewer.viewport.zoomTo(_Zoom);
+  }
+//  myViewer.viewport.applyConstraints();
 }
 
 function goPositionByBounds(_X,_Y,_width,_height) {
@@ -525,3 +554,9 @@ function fullPageClick() {
     }
 }
 
+function markSpecial() { isSpecialAnnotation=true; }
+function unmarkSpecial() { isSpecialAnnotation=false; }
+
+function specialClick() {
+   isSpecialAnnotation = !isSpecialAnnotation;
+}

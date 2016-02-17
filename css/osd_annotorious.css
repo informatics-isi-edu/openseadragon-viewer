@@ -16,6 +16,10 @@
     padding:15px 16px;
 }
 
+#osd-special-control-button {
+    right:365px;
+}
+
 #osd-zoomin-control-button {
     right:320px;
 }

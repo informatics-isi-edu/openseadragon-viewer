@@ -94,12 +94,13 @@ function annoChk()
 }
 
 function annoAdd(item) {
-  annoChk();
+//  annoChk();
   if( annoExist(item) ) {
     return;
   }
+window.console.log("making a call to annoAdd..");
   myAnno.addAnnotation(item);
-  annoChk();
+//  annoChk();
 }
 
 // item is discarded
@@ -227,7 +228,7 @@ function updateAnnotations() {
     var oneItem = '<a href="#" class="list-group-item" id='+
            getHash(annotations[i]) + ' style="color:black" '+
            'onclick=highlightAnnoByHash('+getHash(annotations[i]) +') '+
-           'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +') '+
+           'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +',true) '+
            '>' + annotations[i].text +
            '</a>';
     outItem += oneItem;
@@ -330,7 +331,8 @@ function loadAnno(fname)
 }
 
 // center i-th annotation in the middle
-function centerAnnoByHash(i)
+// and zoom in
+function centerAnnoByHash(i,zoomIt)
 {
   var h=i;
   if(h == null) {
@@ -348,8 +350,13 @@ function centerAnnoByHash(i)
      var ctxt=item.context;
      var src=item.src;
 
-     goPositionByBounds(x-mx,y-my,w+(2*mx),h+(2*my));
+     if(zoomIt) {
+       goPositionByBounds(x-mx,y-my,w+(2*mx),h+(2*my));
+       } else {
+         goPosition(x+(w/2),y+(h/2),null);
+     }
      annoHighlightAnnotation(item);
+
 // add a tiny annotation here..
 /*
   var viewportCenter = myViewer.viewport.getCenter('true');

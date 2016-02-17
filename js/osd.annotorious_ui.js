@@ -135,7 +135,7 @@ window.addEventListener('message', function(event) {
                     ],
                     "context": data.context_uri
                 };
-                centerAnnoByHash(getHash(annotationObj));
+                centerAnnoByHash(getHash(annotationObj),true);
                 break;
             case 'highlightAnnotation':
                 var annotationObj = {
@@ -182,6 +182,12 @@ window.addEventListener('message', function(event) {
                 break;
             case 'drawAnnotation':
                 myAnno.activateSelector();
+                break;
+            case 'setSpecialAnnotation':
+                markSpecial();
+                break;
+            case 'unsetSpecialAnnotation':
+                unmarkSpecial();
                 break;
             case 'createAnnotation':
                 cancelEditor();
