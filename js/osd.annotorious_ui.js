@@ -87,6 +87,8 @@ window.addEventListener('message', function(event) {
             case 'downloadView':
                 jpgClick(data+".jpg");
                 break;
+            case 'loadSpecialAnnotations':
+                markSpecial(); // let if fall through 
             case 'loadAnnotations':
                 var annotationsToLoad = {"annoList":[]};
                 data.map(function formatAnnotationObj(annotation) {
@@ -116,6 +118,7 @@ window.addEventListener('message', function(event) {
                     annotationsToLoad.annoList.push(annotationObj);
                 });
                 readAll(annotationsToLoad);
+                unmarkSpecial(); 
                 break;
             case 'centerAnnotation':
                 var annotationObj = {
@@ -183,12 +186,8 @@ window.addEventListener('message', function(event) {
             case 'drawAnnotation':
                 myAnno.activateSelector();
                 break;
-            case 'setSpecialAnnotation':
-                markSpecial();
-                break;
-            case 'unsetSpecialAnnotation':
-                unmarkSpecial();
-                break;
+            case 'createSpecialAnnotation':
+                markSpecial(); // let it falls through
             case 'createAnnotation':
                 cancelEditor();
                 var annotationObj = {
@@ -214,6 +213,7 @@ window.addEventListener('message', function(event) {
                     }
                 };
                 annoAdd(annotationObj.data);
+                unmarkSpecial();
                 break;
             case 'cancelAnnotationCreation':
                 cancelEditor();

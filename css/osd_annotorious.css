@@ -2,6 +2,10 @@
   from annotorious demo 
 */
 
+.special-annotation {
+    border: 3px solid orange;
+}
+
 .osd-control-btn {
     background-repeat: no-repeat;
     background-color: #ccc;

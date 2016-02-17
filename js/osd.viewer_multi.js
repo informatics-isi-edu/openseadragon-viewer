@@ -152,7 +152,7 @@ jQuery(document).ready(function() {
     myViewer.addHandler('add-overlay', function(target) {
        var anno_div=target.element;
        if(isSpecialAnnotation)
-         goog.style.setStyle(anno_div, 'border', '2px solid green');
+         anno_div.classList.add("special-annotation");
        //var _rec=target.location;
        //var _p=_rec.getTopLeft();
        //var str1=_rec.toString();
@@ -557,6 +557,14 @@ function fullPageClick() {
 function markSpecial() { isSpecialAnnotation=true; }
 function unmarkSpecial() { isSpecialAnnotation=false; }
 
+// reuse the calls to be like annotorious_ui's
 function specialClick() {
-   isSpecialAnnotation = !isSpecialAnnotation;
+   var stog = document.getElementById('special-toggle');
+   if(isSpecialAnnotation) {
+      unmarkSpecial();
+      stog.style.color='black';
+      } else {
+        markSpecial();
+        stog.style.color='green';
+   }
 }
