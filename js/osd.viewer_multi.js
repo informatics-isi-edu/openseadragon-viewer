@@ -153,11 +153,17 @@ jQuery(document).ready(function() {
        var anno_div=target.element;
        if(isSpecialAnnotation)
          anno_div.classList.add("special-annotation");
-       //var _rec=target.location;
-       //var _p=_rec.getTopLeft();
-       //var str1=_rec.toString();
-       //var str2=_p.toString();
-       //window.console.log("add-overlay got called ->"+str1+" "+str2);
+       var _rec=target.location;
+
+       var _tl=_rec.getTopLeft();
+       var _tr=_rec.getTopRight();
+       var _br=_rec.getBottomRight();
+       var _bl=_rec.getBottomLeft();
+window.console.log("NEW add-overlay got called rec->"+_rec.toString());
+window.console.log("   top left->"+_tl.toString());
+window.console.log("   top right->"+_tr.toString());
+window.console.log("   bottom left->"+_bl.toString());
+window.console.log("   bottom right->"+_br.toString());
     });
 
     $('#downloadAction').on('click', function(target) {
@@ -401,7 +407,6 @@ function goPosition(_X,_Y,_Zoom) {
     } else {
       myViewer.viewport.zoomTo(_Zoom);
   }
-//  myViewer.viewport.applyConstraints();
 }
 
 function goPositionByBounds(_X,_Y,_width,_height) {
@@ -567,4 +572,19 @@ function specialClick() {
         markSpecial();
         stog.style.color='green';
    }
+}
+
+var isTest=false;
+// dump some info
+function testClick() {
+  isTest = !isTest;
+  var vCenter = myViewer.viewport.getCenter(true);
+  var tmpX=vCenter.x;
+  var tmpY=vCenter.y;
+  var tmpZ = myViewer.viewport.getZoom(true);
+  window.console.log("testClick, viewport center:("+tmpX+", "+tmpY+") Z"+tmpZ);
+  var vBounds=myViewer.viewport.getBounds(true);
+  window.console.log("           bounds:"+vBounds.toString());
+
+  annoChk();
 }

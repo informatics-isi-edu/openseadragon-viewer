@@ -45,6 +45,14 @@ function getHash(item) {
    return txt.hashCode();
 }
 
+function printAnno(item) {
+  var x=item.shapes[0].geometry.x;
+  var y=item.shapes[0].geometry.y;
+  var w=item.shapes[0].geometry.width;
+  var h=item.shapes[0].geometry.height;
+window.console.log("printAnno, x,y,w,h "+x+" "+y+" "+w+" "+h);
+}
+
 // dump a listed of annotation wrapped in logInfo
 function annoDump() {
   var p=myAnno.getAnnotations();
@@ -91,25 +99,23 @@ function annoChk()
 {
   var p=myAnno.getAnnotations();
   var len=p.length;
+  for (var i = 0; i < len; i++) {
+    printAnno(p[i]);
+  }
 }
 
 function annoAdd(item) {
-//  annoChk();
   if( annoExist(item) ) {
     return;
   }
-window.console.log("making a call to annoAdd..");
   myAnno.addAnnotation(item);
-//  annoChk();
 }
 
 // item is discarded
 function annoUnHighlightAnnotation(item) {
-//window.console.log('-- calling UN - annoHighlightAnnotation');
   myAnno.highlightAnnotation();
 }
 function annoHighlightAnnotation(item) {
-//window.console.log('-- calling annoHighlightAnnotation');
   myAnno.highlightAnnotation(item);
 }
 
@@ -227,8 +233,8 @@ function updateAnnotations() {
     _addAnnoOption(getHash(annotations[i]));
     var oneItem = '<a href="#" class="list-group-item" id='+
            getHash(annotations[i]) + ' style="color:black" '+
+//           'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +',true) '+
            'onclick=highlightAnnoByHash('+getHash(annotations[i]) +') '+
-           'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +',true) '+
            '>' + annotations[i].text +
            '</a>';
     outItem += oneItem;
@@ -331,9 +337,10 @@ function loadAnno(fname)
 }
 
 // center i-th annotation in the middle
-// and zoom in
+// and zoom in and highlight it
 function centerAnnoByHash(i,zoomIt)
 {
+window.console.log("centerAnnoByHash..");
   var h=i;
   if(h == null) {
      return;
@@ -356,30 +363,55 @@ function centerAnnoByHash(i,zoomIt)
          goPosition(x+(w/2),y+(h/2),null);
      }
      annoHighlightAnnotation(item);
-
-// add a tiny annotation here..
-/*
-  var viewportCenter = myViewer.viewport.getCenter('true');
-  var nx= viewportCenter.x;
-  var ny=viewportCenter.y;
-  var ncenter= annoMakeAnno(src,ctxt,"new center",nx,ny,w,h);
-  annoAdd(ncenter);
-  annoHighlightAnnotation(ncenter);
-*/
   }
 }
 
 function highlightAnnoByHash(i)
 {
+window.console.log("in highlightAnnoByHash..");
   var h=i;
   if(h == null) {
      annoHighlightAnnotation();
      return;
   }
   var item = annoRetrieveByHash(h);
+window.console.log("in highlightAnnoByHash 2.. =>"+item.text);
   if(item) {
+     resizeViewport(item);
      annoHighlightAnnotation(item);
   }
+}
+
+// resize viewport if needed to include the
+// anno item
+function resizeViewport(item) {
+ var viewerRect=myViewer.viewport.getBounds(true);
+//window.console.log("resizeViewport.. original view rect"+viewerRect.toString());
+ var _x=item.shapes[0].geometry.x;
+ var _y=item.shapes[0].geometry.y;
+ var _w=item.shapes[0].geometry.width;
+ var _h=item.shapes[0].geometry.height;
+ var annoRect=new OpenSeadragon.Rect(_x, _y, _w, _h);
+//window.console.log("resizeViewport.. anno rect"+annoRect.toString());
+ var newRect=viewerRect.union(annoRect);
+//window.console.log("resizeViewport.. union rect"+newRect.toString());
+ var ostr=viewerRect.toString();
+ var nstr=newRect.toString();
+// var eq=viewerRect.equals(newRect);
+ var eq = (ostr === nstr);
+ if(eq) {
+   // no need to resize
+//window.console.log("no need to resize the viewport..");
+   } else {
+//window.console.log("need to resize the viewport..");
+    var _nx=newRect.x;
+    var _ny=newRect.y;
+    var _nw=newRect.width+(_w/2);
+    var _nh=newRect.height+(_h/2);
+    var nnRect  = new OpenSeadragon.Rect(_nx, _ny, _nw, _nh);
+    myViewer.viewport.fitBounds(nnRect,true);
+//window.console.log("done to resize the viewport..");
+ }
 }
 
 function destroyClickedElement(event)

@@ -3,7 +3,7 @@
 */
 
 .special-annotation {
-    border: 3px solid orange;
+    border: 3px solid green;
 }
 
 .osd-control-btn {
@@ -18,6 +18,10 @@
     width:14px;
     height:14px;
     padding:15px 16px;
+}
+
+#osd-test-control-button {
+    right:415px;
 }
 
 #osd-special-control-button {

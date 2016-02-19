@@ -163,26 +163,6 @@ window.addEventListener('message', function(event) {
             case 'unHighlightAnnotation':
                 annoUnHighlightAnnotation(null);
                 break;
-            case 'highlightAnnotation':
-                var annotationObj = {
-                    "src": "dzi://openseadragon/something",
-                    "text": data.comments,
-                    "shapes": [
-                        {
-                            "type": "rect",
-                            "geometry": {
-                                "x": data.coords[0],
-                                "y": data.coords[1],
-                                "width": data.coords[2],
-                                "height": data.coords[3]
-                            },
-                            "style": {}
-                        }
-                    ],
-                    "context": data.context_uri
-                };
-                annoHighlightAnnotation(annotationObj);
-                break;
             case 'drawAnnotation':
                 myAnno.activateSelector();
                 break;
