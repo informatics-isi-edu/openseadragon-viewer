@@ -22,6 +22,27 @@ function annoCtrlClick()
   }
 }
 
+// reuse the calls to be like annotorious_ui's
+var isFocus=false;
+function focusClick() {
+   isFocus = !isFocus;
+   var ftog = document.getElementById('focus-toggle');
+   if(isFocus) {
+      ftog.style.color='red';
+      } else {
+        ftog.style.color='black';
+   }
+}
+
+function annoClick(h)
+{
+  if(isFocus) {
+    centerAnnoByHash(h,true);
+    } else {
+      highlightAnnoByHash(h);
+  }
+}
+
 /*
   http://stackoverflow.com/questions/7616461/
         generate-a-hash-from-string-in-javascript-jquery
@@ -233,8 +254,7 @@ function updateAnnotations() {
     _addAnnoOption(getHash(annotations[i]));
     var oneItem = '<a href="#" class="list-group-item" id='+
            getHash(annotations[i]) + ' style="color:black" '+
-//           'ondblclick=centerAnnoByHash('+getHash(annotations[i]) +',true) '+
-           'onclick=highlightAnnoByHash('+getHash(annotations[i]) +') '+
+           'onclick=annoClick('+getHash(annotations[i]) +') '+
            '>' + annotations[i].text +
            '</a>';
     outItem += oneItem;
@@ -340,7 +360,6 @@ function loadAnno(fname)
 // and zoom in and highlight it
 function centerAnnoByHash(i,zoomIt)
 {
-window.console.log("centerAnnoByHash..");
   var h=i;
   if(h == null) {
      return;
@@ -368,14 +387,12 @@ window.console.log("centerAnnoByHash..");
 
 function highlightAnnoByHash(i)
 {
-window.console.log("in highlightAnnoByHash..");
   var h=i;
   if(h == null) {
      annoHighlightAnnotation();
      return;
   }
   var item = annoRetrieveByHash(h);
-window.console.log("in highlightAnnoByHash 2.. =>"+item.text);
   if(item) {
      resizeViewport(item);
      annoHighlightAnnotation(item);
@@ -397,7 +414,7 @@ function resizeViewport(item) {
 //window.console.log("resizeViewport.. union rect"+newRect.toString());
  var ostr=viewerRect.toString();
  var nstr=newRect.toString();
-// var eq=viewerRect.equals(newRect);
+// var eq=viewerRect.equals(newRect); -- precision problem
  var eq = (ostr === nstr);
  if(eq) {
    // no need to resize

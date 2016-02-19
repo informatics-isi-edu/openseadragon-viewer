@@ -553,6 +553,10 @@ function fullPageClick() {
     if ( myViewer.buttons ) {
         myViewer.buttons.emulateExit();
     }
+    if(myViewer.fullPageButton === undefined) { 
+window.console.log("BAD BAD BAD...");
+       return;
+    }
     myViewer.fullPageButton.element.focus();
     if ( myViewer.viewport ) {
         myViewer.viewport.applyConstraints();
@@ -574,10 +578,8 @@ function specialClick() {
    }
 }
 
-var isTest=false;
 // dump some info
 function testClick() {
-  isTest = !isTest;
   var vCenter = myViewer.viewport.getCenter(true);
   var tmpX=vCenter.x;
   var tmpY=vCenter.y;

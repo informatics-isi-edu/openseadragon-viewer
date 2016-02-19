@@ -20,8 +20,12 @@
     padding:15px 16px;
 }
 
+#osd-focus-control-button {
+    right:140px;
+}
+
 #osd-test-control-button {
-    right:415px;
+    right:460px;
 }
 
 #osd-special-control-button {
@@ -43,7 +47,7 @@
 }
 
 #osd-jpg-control-button {
-    right:140px;
+    right:415px;
 }
 
 #osd-anno-control-button {
