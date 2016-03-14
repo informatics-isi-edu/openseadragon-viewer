@@ -111,6 +111,21 @@ jQuery(document).ready(function() {
 
              });
 
+    myViewer.scalebar({
+            type: OpenSeadragon.ScalebarType.MICROSCOPY,
+            pixelsPerMeter: 0,
+            minWidth: "75px",
+            location: OpenSeadragon.ScalebarLocation.TOP_LEFT,
+            xOffset: 5,
+            yOffset: 10,
+            stayInsideImage: true,
+            color: "rgb(153, 0, 0)",
+            fontColor: "rgb(153, 0, 0)",
+            backgroundColor: "rgba(255, 255, 255, 0.0)",
+            fontSize: "small",
+            barThickness: 2
+    });
+
     if (typeof annoSetup === "function") {
         annoSetup(anno,myViewer);
     }
@@ -153,8 +168,8 @@ jQuery(document).ready(function() {
        var anno_div=target.element;
        if(isSpecialAnnotation)
          anno_div.classList.add("special-annotation");
+/*
        var _rec=target.location;
-
        var _tl=_rec.getTopLeft();
        var _tr=_rec.getTopRight();
        var _br=_rec.getBottomRight();
@@ -164,6 +179,7 @@ window.console.log("   top left->"+_tl.toString());
 window.console.log("   top right->"+_tr.toString());
 window.console.log("   bottom left->"+_bl.toString());
 window.console.log("   bottom right->"+_br.toString());
+*/
     });
 
     $('#downloadAction').on('click', function(target) {
@@ -205,6 +221,7 @@ function _addURLLayer(url, i) {
     var _overlap=r['overlap'];
     var _dir=r['dir'];
     var _format=r['format'];
+    var _meterscaleinpixels=r['meterscaleinpixels'];
     var _realMin=_minLevel;
 //this is needed because there is no level 0
     if(_minLevel != 0)
@@ -254,6 +271,7 @@ function _addURLLayer(url, i) {
      addItemListEntry(_name,i,_dir,hue,contrast,op);
      var cname = _name.replace(/ +/g, "");
      propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast} );
+     resetScaleBar(_meterscaleinpixels);
    }
 }
 
@@ -495,6 +513,12 @@ function extractInfo(str) {
   if(_dir == null)
      alertify.error("Error: DZI image must have a data directory name");
 
+  var _msip=imageElem[0].getAttribute("meterScaleInPixels");
+  if(_msip != null)
+     _msip=parseFloat(_msip);
+     else _msip=0;
+ 
+
   if(_h == null || _w == null || _tw == null || _th == null ||
         _scale == null || _min == null || _max == null ||
               _channelname==null ||_dir == null )
@@ -504,7 +528,8 @@ function extractInfo(str) {
             'tileheight':_th,'levelscale':_scale,
             'minlevel':_min,'maxlevel':_max, 'overlap':_overlap,
             'channelname':_channelname, 'channelalpha':_channelalpha,
-            'channelrgb':_channelrgb,'dir':_dir, 'format':_format };
+            'channelrgb':_channelrgb,'dir':_dir, 'format':_format,
+            'meterscaleinpixels':_msip};
 }
 
 function jpgClick(fname) {
@@ -553,6 +578,10 @@ function fullPageClick() {
     if ( myViewer.buttons ) {
         myViewer.buttons.emulateExit();
     }
+    if(myViewer.fullPageButton === undefined) { 
+window.console.log("BAD BAD BAD...");
+       return;
+    }
     myViewer.fullPageButton.element.focus();
     if ( myViewer.viewport ) {
         myViewer.viewport.applyConstraints();
@@ -574,10 +603,8 @@ function specialClick() {
    }
 }
 
-var isTest=false;
 // dump some info
 function testClick() {
-  isTest = !isTest;
   var vCenter = myViewer.viewport.getCenter(true);
   var tmpX=vCenter.x;
   var tmpY=vCenter.y;
@@ -587,4 +614,11 @@ function testClick() {
   window.console.log("           bounds:"+vBounds.toString());
 
   annoChk();
+}
+
+function resetScaleBar(value)
+{
+  var options = {};
+  options['pixelsPerMeter'] = value;
+  myViewer.scalebar(options);
 }
