@@ -175,7 +175,7 @@ if (!COMPILED) {
  *     Ideally, this function would not declare any arguments and would simply
  *     reference arguments[0], but that yields a WRONG_ARGUMENT_COUNT warning
  *     at the call sites of goog.isExistingGlobalVariable_() from the Closure
- *     Compiler when type-checking is enabled. 
+ *     Compiler when type-checking is enabled.
  * @return {boolean}
  * @private
  */
@@ -18902,7 +18902,7 @@ goog.require('goog.fx.Dragger');
 annotorious.dom.getOffset = function(el) {
   var _x = 0;
   var _y = 0;
-  
+
   while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
     _x += el.offsetLeft - el.scrollLeft;
     _y += el.offsetTop - el.scrollTop;
@@ -18934,7 +18934,7 @@ annotorious.dom.isInViewport = function(el) {
     left < (window.pageXOffset + window.innerWidth) &&
     (top + height) > window.pageYOffset &&
     (left + width) > window.pageXOffset
-  ); 
+  );
 }
 
 /**
@@ -18944,7 +18944,7 @@ annotorious.dom.isInViewport = function(el) {
 annotorious.dom.addOnLoadHandler = function(fn) {
   if (window.addEventListener)
     window.addEventListener('load', fn, false);
-  else if (window.attachEvent) 
+  else if (window.attachEvent)
     window.attachEvent('onload', fn);
 }
 
@@ -18962,11 +18962,11 @@ annotorious.dom.makeHResizable = function(div, opt_callback) {
   goog.style.setStyle(handle, 'height', '100%');
   goog.style.setStyle(handle, 'cursor', 'e-resize');
   goog.dom.appendChild(div, handle);
-  
+
   var div_border = goog.style.getBorderBox(div);
   var width_limit = goog.style.getBounds(div).width - div_border.right - div_border.left;
 
-  var dragger = new goog.fx.Dragger(handle);  
+  var dragger = new goog.fx.Dragger(handle);
   dragger.setLimits(new goog.math.Rect(width_limit, 0, 800, 0));
   dragger.defaultAction = function(x) {
     goog.style.setStyle(div, 'width', x + 'px');
@@ -19010,10 +19010,10 @@ annotorious.events.EventBroker = function() {
  * @param {Function} handler the handler function to add
  */
 annotorious.events.EventBroker.prototype.addHandler = function(type, handler) {
-  if (!this._handlers[type]) 
+  if (!this._handlers[type])
     this._handlers[type] = [];
 
-  this._handlers[type].push(handler);  
+  this._handlers[type].push(handler);
 }
 
 /**
@@ -19024,15 +19024,15 @@ annotorious.events.EventBroker.prototype.addHandler = function(type, handler) {
 annotorious.events.EventBroker.prototype.removeHandler = function(type, handler) {
   var handlers = this._handlers[type];
   if (handlers)
-    goog.array.remove(handlers, handler);  
+    goog.array.remove(handlers, handler);
 }
 
 /**
  * Fires an event, triggering execution of all registered handlers.
  * Event handlers may optionally return a boolean value to indicate whether
- * further steps following the event should be canceled (e.g. in case of 
+ * further steps following the event should be canceled (e.g. in case of
  * annotation removal). If there is no return value (or the return value is
- * 'true'), no action will be taken by Annotorious. 
+ * 'true'), no action will be taken by Annotorious.
  * @param {annotorious.events.EventType} type the event type
  * @param {Object=} opt_event the event object
  * @return {boolean} the 'cancel event' flag
@@ -19046,7 +19046,7 @@ annotorious.events.EventBroker.prototype.fireEvent = function(type, opt_event, o
       if (goog.isDef(retVal) && !retVal)
         cancelEvent = true;
     });
-  }    
+  }
 
   return cancelEvent;
 }
@@ -19067,41 +19067,41 @@ annotorious.events.EventType = {
    */
   MOUSE_OUT_OF_ANNOTATABLE_ITEM: 'onMouseOutOfItem',
 
-  /** 
+  /**
    * The mouse entered an annotation
-   */ 
+   */
   MOUSE_OVER_ANNOTATION: 'onMouseOverAnnotation',
 
-  /** 
+  /**
    * The mouse moved out of an annotation
-   */ 
+   */
   MOUSE_OUT_OF_ANNOTATION: 'onMouseOutOfAnnotation',
 
   /**
    * A new selection was started
    */
   SELECTION_STARTED: 'onSelectionStarted',
-  
+
   /**
    * The current selection was canceled
    */
   SELECTION_CANCELED: 'onSelectionCanceled',
-  
-  /** 
+
+  /**
    * The current selection was completed
    */
   SELECTION_COMPLETED: 'onSelectionCompleted',
-  
-  /** 
+
+  /**
    * The current selection was changed
    */
   SELECTION_CHANGED: 'onSelectionChanged',
-  
+
   /**
    * The annotation editor was opened.  Pass the annotation object if it exists.
    */
   EDITOR_SHOWN: 'onEditorShown',
-  
+
   /**
    * The annotation popop was opened.  Pass the annotation object.
    */
@@ -19126,7 +19126,7 @@ annotorious.events.EventType = {
    * An annotation was created
    */
   ANNOTATION_CREATED: 'onAnnotationCreated',
-  
+
   /**
    * An existing annotation was updated
    */
@@ -19136,7 +19136,7 @@ annotorious.events.EventType = {
    * The annotation was clicked.  Pass the annotation object.
    */
   ANNOTATION_CLICKED: 'onAnnotationClicked'
-  
+
 };
 // Copyright 2007 The Closure Library Authors. All Rights Reserved.
 //
@@ -20656,11 +20656,11 @@ annotorious.shape.geom.Polygon.computeArea = function(points) {
 
     var j = points.length - 1;
     for (var i=0; i<points.length; i++) {
-      area += (points[j].x + points[i].x) * (points[j].y -points[i].y); 
-      j = i; 
+      area += (points[j].x + points[i].x) * (points[j].y -points[i].y);
+      j = i;
     }
 
-    return area / 2;  
+    return area / 2;
 }
 
 /**
@@ -20691,7 +20691,7 @@ annotorious.shape.geom.Polygon.computeCentroid = function(points) {
   }
 
   f = annotorious.shape.geom.Polygon.computeArea(points) * 6;
-  return new annotorious.shape.geom.Point(Math.abs(x/f), Math.abs(y/f)); 
+  return new annotorious.shape.geom.Point(Math.abs(x/f), Math.abs(y/f));
 }
 
 /**
@@ -20711,25 +20711,25 @@ annotorious.shape.geom.Polygon._expandTriangle = function(points, delta) {
     var sign_delta = signum(delta);
     var sign_x = signum(axis.x) * sign_delta;
     var sign_y = signum(axis.y) * sign_delta;
-  
+
     var dy = Math.sqrt(Math.pow(delta, 2) / (1 + Math.pow((axis.x / axis.y), 2)));
     var dx = (axis.x / axis.y) * dy;
     return { x: px.x + Math.abs(dx) * sign_x, y: px.y + Math.abs(dy) * sign_y };
   }
-  
+
   var centroid = annotorious.shape.geom.Polygon.computeCentroid(points);
   var expanded = [];
-    
+
   for (var i=0; i<points.length; i++) {
     var sign = (annotorious.shape.geom.Polygon.isClockwise(points)) ? -1 : 1;
     expanded.push(shiftAlongAxis(points[i], centroid, sign * delta));
   }
-    
+
   return expanded;
 }
 
 /**
- * A simple polygon expansion algorithm that generates a series of triangles from 
+ * A simple polygon expansion algorithm that generates a series of triangles from
  * the polygon, and then subsequently applies the _expandTriangle method.
  * @param {Array.<annotorious.shape.geom.Point>} points the points
  * @param {number} delta the distance by which to expand
@@ -20737,13 +20737,13 @@ annotorious.shape.geom.Polygon._expandTriangle = function(points, delta) {
  */
 annotorious.shape.geom.Polygon.expandPolygon = function(points, delta) {
   var sign = (annotorious.shape.geom.Polygon.isClockwise(points)) ? -1 : 1;
-  
+
   if (points.length < 4)
     return annotorious.shape.geom.Polygon._expandTriangle(points, sign * delta);
-  
+
   var prev = points.length - 1;
   var next = 1;
-  
+
   var expanded = [];
   for (var current = 0; current<points.length; current++) {
     var expTriangle = annotorious.shape.geom.Polygon._expandTriangle([ points[prev], points[current], points[next] ], sign * delta);
@@ -20753,7 +20753,7 @@ annotorious.shape.geom.Polygon.expandPolygon = function(points, delta) {
     if (next > points.length - 1)
       next = 0;
   }
-  
+
   return expanded;
 }
 goog.provide('annotorious.shape.geom.Rectangle');
@@ -20851,7 +20851,7 @@ annotorious.shape.intersects = function(shape, px, py) {
 
     if (py > shape.geometry.y + shape.geometry.height)
       return false;
-    
+
     return true;
   } else if (shape.type == annotorious.shape.ShapeType.POLYGON) {
     var points = shape.geometry.points;
@@ -20859,7 +20859,7 @@ annotorious.shape.intersects = function(shape, px, py) {
 
     var j = points.length - 1;
     for (var i=0; i<points.length; i++) {
-      if ((points[i].y > py) != (points[j].y > py) && 
+      if ((points[i].y > py) != (points[j].y > py) &&
           (px < (points[j].x - points[i].x) * (py - points[i].y) / (points[j].y-points[i].y) + points[i].x)) {
         inside = !inside;
       }
@@ -20868,7 +20868,7 @@ annotorious.shape.intersects = function(shape, px, py) {
 
     return inside;
   }
-    
+
   return false;
 }
 
@@ -20915,13 +20915,13 @@ annotorious.shape.getBoundingRect = function(shape) {
       if (points[i].y < top)
         top = points[i].y;
     }
-    
-    return new annotorious.shape.Shape(annotorious.shape.ShapeType.RECTANGLE, 
+
+    return new annotorious.shape.Shape(annotorious.shape.ShapeType.RECTANGLE,
       new annotorious.shape.geom.Rectangle(left, top, right - left, bottom - top),
       false, shape.style
     );
   }
-  
+
   return undefined;
 }
 
@@ -20937,14 +20937,14 @@ annotorious.shape.getCentroid = function(shape) {
   } else if (shape.type == annotorious.shape.ShapeType.POLYGON) {
     return annotorious.shape.geom.Polygon.computeCentroid( shape.geometry.points);
   }
-  
+
   return undefined;
 }
 
 /**
  * Expands a shape by a specified delta.
  * @param {annotorious.shape.Shape} shape the shape
- * @param {number} delta the delta 
+ * @param {number} delta the delta
  */
 annotorious.shape.expand = function(shape, delta) {
   // TODO for the sake of completeness: implement for RECTANGLE
@@ -20955,7 +20955,7 @@ annotorious.shape.expand = function(shape, delta) {
 
 /**
  * Transforms a shape from a source coordinate system to a destination coordinate
- * system. The transformation is calculated using the transformationFn parameter, 
+ * system. The transformation is calculated using the transformationFn parameter,
  * which must be a function(xy) that transforms a single XY coordinate.
  * @param {annotorious.shape.Shape} shape the shape to transform
  * @param {Function} transformationFn the transformation function
@@ -21037,25 +21037,25 @@ annotorious.mediatypes.Module = function() { }
 annotorious.mediatypes.Module.prototype._initFields = function(opt_preload_fn) {
   /** @private **/
   this._annotators = new goog.structs.Map();
-  
+
   /** @private **/
   this._eventHandlers = [];
 
   /** @private **/
-  this._plugins = []; 
+  this._plugins = [];
 
   /** @private **/
   this._itemsToLoad = [];
-  
+
   /** @private **/
   this._bufferedForAdding = [];
-  
+
   /** @private **/
   this._bufferedForRemoval = [];
 
   /** @private **/
   this._cachedGlobalSettings = { hide_selection_widget: false, hide_annotations: false };
-  
+
   /** @private **/
   this._cachedItemSettings = new goog.structs.Map();
 
@@ -21089,7 +21089,7 @@ annotorious.mediatypes.Module.prototype._initAnnotator = function(item) {
   var self = this,
       item_src = this.getItemURL(item);
 
-  // Guard condition: don't make items annotatable if they already are  
+  // Guard condition: don't make items annotatable if they already are
   if (this._annotators.get(item_src))
     return;
 
@@ -21108,7 +21108,7 @@ annotorious.mediatypes.Module.prototype._initAnnotator = function(item) {
   goog.array.forEach(this._plugins, function(plugin) {
     self._initPlugin(plugin, annotator);
   });
-            
+
   // Cross-check with annotation add/remove buffers
   goog.array.forEach(this._bufferedForAdding, function(annotation) {
     if (annotation.src == item_src) {
@@ -21116,7 +21116,7 @@ annotorious.mediatypes.Module.prototype._initAnnotator = function(item) {
       addedAnnotations.push(annotation);
     }
   });
-      
+
   goog.array.forEach(this._bufferedForRemoval, function(annotation) {
     if (annotation.src == item_src) {
       annotator.removeAnnotation(annotation);
@@ -21128,7 +21128,7 @@ annotorious.mediatypes.Module.prototype._initAnnotator = function(item) {
   goog.array.forEach(addedAnnotations, function(annotation) {
     goog.array.remove(self._bufferedForAdding, annotation);
   });
-  
+
   goog.array.forEach(removedAnnotations, function(annotation) {
     goog.array.remove(self._bufferedForRemoval, annotation);
   });
@@ -21152,7 +21152,7 @@ annotorious.mediatypes.Module.prototype._initAnnotator = function(item) {
   }
   if (this._cachedProperties)
     annotator.setProperties(this._cachedProperties);
-  
+
   // Update _annotators and _itemsToLoad lists
   this._annotators.set(item_src, annotator);
   goog.array.remove(this._itemsToLoad, item);
@@ -21188,7 +21188,7 @@ annotorious.mediatypes.Module.prototype._setAnnotationVisibility = function(opt_
       // Item URL is provided, and item is loaded - set directly
       if (visibility)
         annotator.showAnnotations();
-      else 
+      else
         annotator.hideAnnotations();
     } else {
       // Item URL is provided, but item not yet loaded - cache for later
@@ -21223,7 +21223,7 @@ annotorious.mediatypes.Module.prototype._setSelectionWidgetVisibility = function
       // Item URL is provided, and item is loaded - set directly
       if (visibility)
         annotator.showSelectionWidget();
-      else 
+      else
         annotator.hideSelectionWidget();
     } else {
       // Item URL is provided, but item not yet loaded - cache for later
@@ -21234,7 +21234,7 @@ annotorious.mediatypes.Module.prototype._setSelectionWidgetVisibility = function
     goog.array.forEach(this._annotators.getValues(), function(annotator) {
       if (visibility)
         annotator.showSelectionWidget();
-      else 
+      else
         annotator.hideSelectionWidget();
     });
 
@@ -21250,7 +21250,7 @@ annotorious.mediatypes.Module.prototype._setSelectionWidgetVisibility = function
 
 /**
  * 'Manually' actives the selector, bypassing the selection widget. The function can take
- * a callback function as parameter, which will be called when the selector is deactivated 
+ * a callback function as parameter, which will be called when the selector is deactivated
  * again.
  * @param {string | Function} opt_item_url_or_callback the URL of the item, or a callback function
  * @param {Function} opt_callback a callback function (if the first parameter was a URL)
@@ -21315,7 +21315,7 @@ annotorious.mediatypes.Module.prototype.addAnnotation = function(annotation, opt
 annotorious.mediatypes.Module.prototype.addHandler = function(type, handler) {
   goog.array.forEach(this._annotators.getValues(), function(annotator, idx, array) {
     annotator.addHandler(type, handler);
-  }); 
+  });
   this._eventHandlers.push({ type: type, handler: handler });
 }
 
@@ -21335,7 +21335,7 @@ annotorious.mediatypes.Module.prototype.addPlugin = function(plugin) {
  * Tests if this module is in charge of managing the item with the specified URL.
  * @param {string} item_url the URL of the item
  * @return {boolean} true if this module is in charge of the media
- */ 
+ */
 annotorious.mediatypes.Module.prototype.annotatesItem = function(item_url) {
   if (this._annotators.containsKey(item_url)) {
     return true;
@@ -21344,7 +21344,7 @@ annotorious.mediatypes.Module.prototype.annotatesItem = function(item_url) {
     var item = goog.array.find(this._itemsToLoad, function(item) {
       return self.getItemURL(item) == item_url;
     });
-    
+
     return goog.isDefAndNotNull(item);
   }
 }
@@ -21363,7 +21363,7 @@ annotorious.mediatypes.Module.prototype.destroy = function(opt_item_url) {
   } else {
     goog.array.forEach(this._annotators.getValues(), function(annotator) {
       annotator.destroy();
-    }); 
+    });
     this._annotators.clear();
   }
 }
@@ -21453,7 +21453,7 @@ annotorious.mediatypes.Module.prototype.highlightAnnotation = function(annotatio
       var annotator = this._annotators.get(annotation.src);
       if (annotator)
         annotator.highlightAnnotation(annotation);
-    }  
+    }
   } else {
     goog.array.forEach(this._annotators.getValues(), function(annotator) {
       annotator.highlightAnnotation();
@@ -21464,12 +21464,12 @@ annotorious.mediatypes.Module.prototype.highlightAnnotation = function(annotatio
 /**
  * Lifecycle method: called by Annotorious on module initialization.
  */
-annotorious.mediatypes.Module.prototype.init = function() {    
+annotorious.mediatypes.Module.prototype.init = function() {
   if (this._preLoad)
-    goog.array.extend(this._itemsToLoad, this._preLoad()); 
+    goog.array.extend(this._itemsToLoad, this._preLoad());
 
   this._lazyLoad();
-  
+
   var self = this;
   var key = goog.events.listen(window, goog.events.EventType.SCROLL, function() {
     if (self._itemsToLoad.length > 0)
@@ -21538,7 +21538,7 @@ annotorious.mediatypes.Module.prototype.showAnnotations = function(opt_item_url)
 /**
  * Shows the selection widget, thus enabling users to create new annotations.
  * The selection widget can be made visible on a specific item or all.
- * @param {string} opt_item_url the URL of the item on which to show the selection widget 
+ * @param {string} opt_item_url the URL of the item on which to show the selection widget
  */
 annotorious.mediatypes.Module.prototype.showSelectionWidget = function(opt_item_url) {
   this._setSelectionWidgetVisibility(opt_item_url, true);
@@ -33065,13 +33065,13 @@ goog.require('annotorious.templates');
  */
 annotorious.Editor = function(annotator) {
   this.element = goog.soy.renderAsElement(annotorious.templates.editform);
-  
+
   /** @private **/
   this._annotator = annotator;
 
   /** @private **/
   this._item = annotator.getItem();
-  
+
   /** @private **/
   this._original_annotation;
 
@@ -33109,10 +33109,10 @@ annotorious.Editor = function(annotator) {
     if (self._original_annotation)
       annotator.fireEvent(annotorious.events.EventType.ANNOTATION_UPDATED, annotation, annotator.getItem());
     else
-      annotator.fireEvent(annotorious.events.EventType.ANNOTATION_CREATED, annotation, annotator.getItem());      
+      annotator.fireEvent(annotorious.events.EventType.ANNOTATION_CREATED, annotation, annotator.getItem());
     self.close();
   });
- 
+
   goog.style.showElement(this.element, false);
   goog.dom.appendChild(annotator.element, this.element);
   this._textarea.decorate(goog.dom.query('.annotorious-editor-text', this.element)[0]);
@@ -33127,7 +33127,7 @@ annotorious.Editor = function(annotator) {
  */
 annotorious.Editor.prototype.addField = function(field) {
   var fieldEl = goog.dom.createDom('div', 'annotorious-editor-field');
-  
+
   if (goog.isString(field))  {
     fieldEl.innerHTML = field;
   } else if (goog.isFunction(field)) {
@@ -33142,7 +33142,7 @@ annotorious.Editor.prototype.addField = function(field) {
 /**
  * Opens the edit form with an annotation.
  * @param {annotorious.Annotation=} opt_annotation the annotation to edit (or undefined)
- * @param {Object=} opt_event the event, if any 
+ * @param {Object=} opt_event the event, if any
  */
 annotorious.Editor.prototype.open = function(opt_annotation, opt_event) {
   this._original_annotation = opt_annotation;
@@ -33153,7 +33153,7 @@ annotorious.Editor.prototype.open = function(opt_annotation, opt_event) {
 
   goog.style.showElement(this.element, true);
   this._textarea.getElement().focus();
-  
+
   // Update extra fields (if any)
   goog.array.forEach(this._extraFields, function(field) {
     var f = field.fn(opt_annotation);
@@ -33195,8 +33195,8 @@ annotorious.Editor.prototype.getAnnotation = function() {
   if (this._current_annotation) {
     this._current_annotation.text = sanitized;
   } else {
-    this._current_annotation = 
-      new annotorious.Annotation(this._item.src, sanitized, this._annotator.getActiveSelector().getShape());  
+    this._current_annotation =
+      new annotorious.Annotation(this._item.src, sanitized, this._annotator.getActiveSelector().getShape());
   }
 
   return this._current_annotation;
@@ -33212,7 +33212,7 @@ goog.require('goog.events');
 goog.require('goog.soy');
 goog.require('goog.style');
 
-/** 
+/**
  * The 'hint' GUI element.
  * @param {Object} annotator the annotator
  * @param {Element} parent the parent DOM element
@@ -33341,8 +33341,8 @@ annotorious.Popup = function(annotator) {
   this.element = goog.soy.renderAsElement(annotorious.templates.popup);
 
   /** @private **/
-  this._annotator = annotator;  
-    
+  this._annotator = annotator;
+
   /** @private **/
   this._currentAnnotation;
 
@@ -33351,10 +33351,10 @@ annotorious.Popup = function(annotator) {
 
   /** @private **/
   this._buttons = goog.dom.query('.annotorious-popup-buttons', this.element)[0];
-  
+
   /** @private **/
   this._popupHideTimer;
-  
+
   /** @private **/
   this._buttonHideTimer;
 
@@ -33367,7 +33367,7 @@ annotorious.Popup = function(annotator) {
   var btnEdit = goog.dom.query('.annotorious-popup-button-edit', this._buttons)[0];
   var btnDelete = goog.dom.query('.annotorious-popup-button-delete', this._buttons)[0];
 
-  var self = this;  
+  var self = this;
   goog.events.listen(btnEdit, goog.events.EventType.MOUSEOVER, function(event) {
     goog.dom.classes.add(btnEdit, 'annotorious-popup-button-active');
   });
@@ -33379,13 +33379,13 @@ annotorious.Popup = function(annotator) {
   goog.events.listen(btnEdit, goog.events.EventType.CLICK, function(event) {
     goog.style.setOpacity(self.element, 0);
     goog.style.setStyle(self.element, 'pointer-events', 'none');
-    annotator.editAnnotation(self._currentAnnotation); 
+    annotator.editAnnotation(self._currentAnnotation);
   });
 
   goog.events.listen(btnDelete, goog.events.EventType.MOUSEOVER, function(event) {
     goog.dom.classes.add(btnDelete, 'annotorious-popup-button-active');
   });
-  
+
   goog.events.listen(btnDelete, goog.events.EventType.MOUSEOUT, function() {
     goog.dom.classes.remove(btnDelete, 'annotorious-popup-button-active');
   });
@@ -33400,14 +33400,14 @@ annotorious.Popup = function(annotator) {
     }
   });
 
-  if (annotorious.events.ui.hasMouse) {  
+  if (annotorious.events.ui.hasMouse) {
     goog.events.listen(this.element, goog.events.EventType.MOUSEOVER, function(event) {
       window.clearTimeout(self._buttonHideTimer);
       if (goog.style.getStyle(self._buttons, 'opacity') < 0.9)
         goog.style.setOpacity(self._buttons, 0.9);
       self.clearHideTimer();
     });
-  
+
     goog.events.listen(this.element, goog.events.EventType.MOUSEOUT, function(event) {
       goog.style.setOpacity(self._buttons, 0);
       self.startHideTimer();
@@ -33417,7 +33417,7 @@ annotorious.Popup = function(annotator) {
       self.startHideTimer();
     });
   }
-    
+
   goog.style.setOpacity(this._buttons, 0);
   goog.style.setOpacity(this.element, 0);
   goog.style.setStyle(this.element, 'pointer-events', 'none');
@@ -33432,7 +33432,7 @@ annotorious.Popup = function(annotator) {
  */
 annotorious.Popup.prototype.addField = function(field) {
   var fieldEl = goog.dom.createDom('div', 'annotorious-popup-field');
-  
+
   if (goog.isString(field))  {
     fieldEl.innerHTML = field;
   } else if (goog.isFunction(field)) {
@@ -33490,7 +33490,7 @@ annotorious.Popup.prototype.show = function(annotation, xy) {
 
   if (this._buttonHideTimer)
     window.clearTimeout(this._buttonHideTimer);
-      
+
   goog.style.setOpacity(this._buttons, 0.9);
 
   if (annotorious.events.ui.hasMouse) {
@@ -33499,7 +33499,7 @@ annotorious.Popup.prototype.show = function(annotation, xy) {
       goog.style.setOpacity(self._buttons, 0);
     }, 1000);
   }
-  
+
   goog.style.setOpacity(this.element, 0.9);
   goog.style.setStyle(this.element, 'pointer-events', 'auto');
   this._annotator.fireEvent(annotorious.events.EventType.POPUP_SHOWN, this._currentAnnotation);
@@ -33519,16 +33519,13 @@ annotorious.Popup.prototype.setPosition = function(xy) {
  */
 annotorious.Popup.prototype.setAnnotation = function(annotation) {
   this._currentAnnotation = annotation;
-  if (annotation.text)
-    this._text.innerHTML = annotation.text.replace(/\n/g, '<br/>');
-  else
-    this._text.innerHTML = '<span class="annotorious-popup-empty">No comment</span>';
+  this._text.innerHTML = annotation.text.replace(/\n/g, '<br/>');
 
   if (('editable' in annotation) && annotation.editable == false)
     goog.style.showElement(this._buttons, false);
   else
     goog.style.showElement(this._buttons, true);
-  
+
   // Update extra fields (if any)
   goog.array.forEach(this._extraFields, function(field) {
     var f = field.fn(annotation);
@@ -33556,7 +33553,7 @@ annotorious.mediatypes.Annotator.prototype.addAnnotation = function(annotation, 
 }
 
 annotorious.mediatypes.Annotator.prototype.addHandler = function(type, handler) {
-  this._eventBroker.addHandler(type, handler);  
+  this._eventBroker.addHandler(type, handler);
 }
 
 annotorious.mediatypes.Annotator.prototype.fireEvent = function(type, event, opt_extra) {
@@ -33582,14 +33579,14 @@ annotorious.mediatypes.Annotator.prototype.removeHandler = function(type, handle
 annotorious.mediatypes.Annotator.prototype.stopSelection = function(original_annotation) {
   if (annotorious.events.ui.hasMouse)
     goog.style.showElement(this._editCanvas, false);
-    
+
   if (this._stop_selection_callback) {
     this._stop_selection_callback();
     delete this._stop_selection_callback;
   }
 
   this._currentSelector.stopSelection();
-   
+
   // If this was an edit of an annotation (rather than creation of a new one) re-add to viewer!
   if (original_annotation)
     this._viewer.addAnnotation(original_annotation);
@@ -33603,7 +33600,7 @@ annotorious.mediatypes.Annotator.prototype._attachListener = function(activeCanv
     var coords = annotorious.events.ui.sanitizeCoordinates(event, activeCanvas);
     self._viewer.highlightAnnotation(false);
 		if (self._selectionEnabled) {
-      goog.style.showElement(self._editCanvas, true);      
+      goog.style.showElement(self._editCanvas, true);
       self._currentSelector.startSelection(coords.x, coords.y);
 		} else {
 			var annotations = self._viewer.getAnnotationsAt(coords.x, coords.y);
@@ -33615,16 +33612,16 @@ annotorious.mediatypes.Annotator.prototype._attachListener = function(activeCanv
 goog.provide('annotorious.mediatypes.image.Viewer');
 
 /**
- * The image viewer - the central entity that manages annotations 
+ * The image viewer - the central entity that manages annotations
  * displayed for one image.
- * @param {Element} canvas the canvas element 
+ * @param {Element} canvas the canvas element
  * @param {annotorious.mediatypes.image.ImageAnnotator} annotator reference to the annotator
  * @constructor
  */
 annotorious.mediatypes.image.Viewer = function(canvas, annotator) {
   /** @private **/
   this._canvas = canvas;
-  
+
   /** @private **/
   this._annotator = annotator;
 
@@ -33649,7 +33646,7 @@ annotorious.mediatypes.image.Viewer = function(canvas, annotator) {
   /** @private **/
   this._keepHighlighted = false;
 
-  var self = this; 
+  var self = this;
   goog.events.listen(this._canvas, annotorious.events.ui.EventType.MOVE, function(event) {
     if (self._eventsEnabled) {
       self._onMouseMove(event);
@@ -33673,18 +33670,18 @@ annotorious.mediatypes.image.Viewer = function(canvas, annotator) {
     if (!self._eventsEnabled && self._cachedMouseEvent) {
       var mouseX = self._cachedMouseEvent.offsetX;
       var mouseY = self._cachedMouseEvent.offsetY;
-            
+
       var previousAnnotation = self._currentAnnotation;
       self._currentAnnotation = self.topAnnotationAt(mouseX, mouseY);
-      
+
       self._eventsEnabled = true;
-          
+
       if (previousAnnotation != self._currentAnnotation) {
         // Annotation under mouse has changed in the mean time - redraw
         self.redraw();
         self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OUT_OF_ANNOTATION,
           { annotation: previousAnnotation, mouseEvent: self._cachedMouseEvent });
-  
+
         self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OVER_ANNOTATION,
           { annotation: self._currentAnnotation, mouseEvent: self._cachedMouseEvent });
       } else {
@@ -33694,7 +33691,7 @@ annotorious.mediatypes.image.Viewer = function(canvas, annotator) {
         }
       }
     } else {
-      // Popup is hiding and mouse events are enabled? Must be because 
+      // Popup is hiding and mouse events are enabled? Must be because
       // the mouse is outside the annotatable media! Redraw.
       self.redraw();
     }
@@ -33711,21 +33708,21 @@ annotorious.mediatypes.image.Viewer.prototype.addAnnotation = function(annotatio
   if (opt_replace) {
     if (opt_replace == this._currentAnnotation)
       delete this._currentAnnotation;
-   
+
       goog.array.remove(this._annotations, opt_replace);
       delete this._shapes[annotorious.shape.hashCode(opt_replace.shapes[0])];
   }
 
   this._annotations.push(annotation);
-  
+
   // The viewer always operates in pixel coordinates for efficiency reasons
   var shape = annotation.shapes[0];
   if (shape.units == annotorious.shape.Units.PIXEL) {
-    this._shapes[annotorious.shape.hashCode(annotation.shapes[0])] = shape;     
+    this._shapes[annotorious.shape.hashCode(annotation.shapes[0])] = shape;
   } else {
     var self = this;
     var viewportShape = annotorious.shape.transform(shape, function(xy) {
-      return self._annotator.fromItemCoordinates(xy); 
+      return self._annotator.fromItemCoordinates(xy);
     });
     this._shapes[annotorious.shape.hashCode(annotation.shapes[0])] = viewportShape;
   }
@@ -33740,7 +33737,7 @@ annotorious.mediatypes.image.Viewer.prototype.addAnnotation = function(annotatio
 annotorious.mediatypes.image.Viewer.prototype.removeAnnotation = function(annotation) {
   if (annotation == this._currentAnnotation)
     delete this._currentAnnotation;
-   
+
   goog.array.remove(this._annotations, annotation);
   delete this._shapes[annotorious.shape.hashCode(annotation.shapes[0])];
   this.redraw();
@@ -33751,7 +33748,7 @@ annotorious.mediatypes.image.Viewer.prototype.removeAnnotation = function(annota
  * @return {Array.<annotorious.Annotation>} the annotations
  */
 annotorious.mediatypes.image.Viewer.prototype.getAnnotations = function() {
-  return goog.array.clone(this._annotations) 
+  return goog.array.clone(this._annotations)
 }
 
 /**
@@ -33815,7 +33812,7 @@ annotorious.mediatypes.image.Viewer.prototype.getAnnotationsAt = function(px, py
     var shape_b = self._shapes[annotorious.shape.hashCode(b.shapes[0])];
     return  annotorious.shape.getSize(shape_a) - annotorious.shape.getSize(shape_b);
   });
-  
+
   return intersectedAnnotations;
 }
 
@@ -33824,7 +33821,7 @@ annotorious.mediatypes.image.Viewer.prototype.getAnnotationsAt = function(px, py
  */
 annotorious.mediatypes.image.Viewer.prototype._onMouseMove = function(event) {
   var topAnnotation = this.topAnnotationAt(event.offsetX, event.offsetY);
-    
+
   // TODO remove code duplication
 
   var self = this;
@@ -33836,7 +33833,7 @@ annotorious.mediatypes.image.Viewer.prototype._onMouseMove = function(event) {
       this._currentAnnotation = topAnnotation;
       this.redraw();
       this._annotator.fireEvent(annotorious.events.EventType.MOUSE_OVER_ANNOTATION,
-        { annotation: this._currentAnnotation, mouseEvent: event });   
+        { annotation: this._currentAnnotation, mouseEvent: event });
     } else if (this._currentAnnotation != topAnnotation) {
       // Mouse changed from one annotation to another one
       this._eventsEnabled = false;
@@ -33844,7 +33841,7 @@ annotorious.mediatypes.image.Viewer.prototype._onMouseMove = function(event) {
     }
   } else if (!this._keepHighlighted) {
     if (this._currentAnnotation) {
-      // Mouse moved out of an annotation, into empty space  
+      // Mouse moved out of an annotation, into empty space
       this._eventsEnabled = false;
       this._annotator.popup.startHideTimer();
     }
@@ -33859,7 +33856,7 @@ annotorious.mediatypes.image.Viewer.prototype._onMouseMove = function(event) {
 annotorious.mediatypes.image.Viewer.prototype._draw = function(shape, highlight) {
   var selector = goog.array.find(this._annotator.getAvailableSelectors(), function(selector) {
     return selector.getSupportedShapeType() == shape.type;
-  });  
+  });
 
   if (selector)
     selector.drawShape(this._g2d, shape, highlight);
@@ -33878,7 +33875,7 @@ annotorious.mediatypes.image.Viewer.prototype.redraw = function() {
 	if (annotation != self._currentAnnotation)
       self._draw(self._shapes[annotorious.shape.hashCode(annotation.shapes[0])]);
   });
-   
+
   if (this._currentAnnotation) {
     var shape = this._shapes[annotorious.shape.hashCode(this._currentAnnotation.shapes[0])];
     this._draw(shape, true);
@@ -33926,11 +33923,11 @@ annotorious.events.ui.EventType = {
 annotorious.events.ui.sanitizeCoordinates = function(event, parent) {
   var points = false;
   var offset = annotorious.dom.getOffset;
-  
+
   // Dirty hack - Google Maps?
   event.offsetX = (event.offsetX) ? event.offsetX : false;
   event.offsetY = (event.offsetY) ? event.offsetY : false;
-  
+
   if ((!event.offsetX || !event.offsetY) && event.event_.changedTouches) {
     points = {
       x: event.event_.changedTouches[0].clientX - offset(parent).left,
@@ -33942,7 +33939,7 @@ annotorious.events.ui.sanitizeCoordinates = function(event, parent) {
       y: event.offsetY
     };
   }
-  
+
   return points;
 };
 goog.provide('annotorious.plugins.selection.RectDragSelector');
@@ -33968,16 +33965,16 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
 
   /** @private **/
   this._STROKE = '#ffffff';
-  
+
   /** @private **/
   this._FILL = false;
-  
+
   /** @private **/
   this._HI_OUTLINE = '#000000';
 
   /** @private **/
   this._HI_STROKE = '#fff000';
-  
+
   /** @private **/
   this._HI_FILL = false;
 
@@ -33992,20 +33989,20 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
 
   /** @private **/
   this._HI_STROKE_WIDTH = 1.2;
-	
+
   /** @private **/
   this._canvas = canvas;
-  
+
   /** @private **/
   this._annotator = annotator;
 
   /** @private **/
   this._g2d = canvas.getContext('2d');
   this._g2d.lineWidth = 1;
- 
+
   /** @private **/
   this._anchor;
-  
+
   /** @private **/
   this._opposite;
 
@@ -34024,16 +34021,16 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
  * @private
  */
 annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = function(startPoint) {
-  var self = this;  
+  var self = this;
   var canvas = this._canvas;
-  
+
   this._mouseMoveListener = goog.events.listen(this._canvas, annotorious.events.ui.EventType.MOVE, function(event) {
     var points = annotorious.events.ui.sanitizeCoordinates(event, canvas);
     if (self._enabled) {
       self._opposite = { x: points.x, y: points.y };
 
       self._g2d.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       var width = self._opposite.x - self._anchor.x;
       var height = self._opposite.y - self._anchor.y;
 
@@ -34054,12 +34051,12 @@ annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = func
     var points = annotorious.events.ui.sanitizeCoordinates(event, canvas);
     var shape = self.getShape();
     event = (event.event_) ? event.event_ : event;
-    
+
     self._enabled = false;
     if (shape) {
       self._detachListeners();
       self._annotator.fireEvent(annotorious.events.EventType.SELECTION_COMPLETED,
-        { mouseEvent: event, shape: shape, viewportBounds: self.getViewportBounds() }); 
+        { mouseEvent: event, shape: shape, viewportBounds: self.getViewportBounds() });
     } else {
       self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED);
 
@@ -34109,13 +34106,13 @@ annotorious.plugins.selection.RectDragSelector.prototype.getSupportedShapeType =
 /**
  * Sets the properties on this selector.
  */
-annotorious.plugins.selection.RectDragSelector.prototype.setProperties = function(props) {  
+annotorious.plugins.selection.RectDragSelector.prototype.setProperties = function(props) {
   if (props.hasOwnProperty('outline'))
     this._OUTLINE = props['outline'];
 
   if (props.hasOwnProperty('stroke'))
     this._STROKE = props['stroke'];
- 
+
   if (props.hasOwnProperty('fill'))
     this._FILL = props['fill'];
 
@@ -34156,7 +34153,7 @@ annotorious.plugins.selection.RectDragSelector.prototype.startSelection = functi
   this._anchor = new annotorious.shape.geom.Point(x, y);
   this._annotator.fireEvent(annotorious.events.EventType.SELECTION_STARTED, {
     offsetX: x, offsetY: y});
-  
+
   goog.style.setStyle(document.body, '-webkit-user-select', 'none');
 }
 
@@ -34175,14 +34172,14 @@ annotorious.plugins.selection.RectDragSelector.prototype.stopSelection = functio
  * @return {annotorious.shape.Shape | undefined} the shape
  */
 annotorious.plugins.selection.RectDragSelector.prototype.getShape = function() {
-  if (this._opposite && 
-     (Math.abs(this._opposite.x - this._anchor.x) > 3) && 
+  if (this._opposite &&
+     (Math.abs(this._opposite.x - this._anchor.x) > 3) &&
      (Math.abs(this._opposite.y - this._anchor.y) > 3)) {
-       
+
     var viewportBounds = this.getViewportBounds();
     // var item_anchor = this._annotator.toItemCoordinates({x: viewportBounds.left, y: viewportBounds.top});
     // var item_opposite = this._annotator.toItemCoordinates({x: viewportBounds.right, y: viewportBounds.bottom});
- 
+
     /*
     var rect = new annotorious.shape.geom.Rectangle(
       item_anchor.x,
@@ -34214,18 +34211,18 @@ annotorious.plugins.selection.RectDragSelector.prototype.getViewportBounds = fun
     left = this._anchor.x;
   } else {
     right = this._anchor.x;
-    left = this._opposite.x;    
+    left = this._opposite.x;
   }
-  
+
   var top, bottom;
   if (this._opposite.y > this._anchor.y) {
     top = this._anchor.y;
     bottom = this._opposite.y;
   } else {
     top = this._opposite.y;
-    bottom = this._anchor.y;    
+    bottom = this._anchor.y;
   }
-  
+
   return {top: top, right: right, bottom: bottom, left: left};
 }
 
@@ -34239,7 +34236,7 @@ annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2
   var geom, stroke, fill, outline, outline_width, stroke_width;
 
   if (!shape.style) shape.style = {};
-  
+
   if (shape.type == annotorious.shape.ShapeType.RECTANGLE) {
     if (highlight) {
       fill = shape.style.hi_fill || this._HI_FILL;
@@ -34263,9 +34260,9 @@ annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2
         g2d.lineWidth = outline_width;
         g2d.strokeStyle = outline;
         g2d.strokeRect(
-          geom.x + outline_width/2, 
-          geom.y + outline_width/2, 
-          geom.width - outline_width, 
+          geom.x + outline_width/2,
+          geom.y + outline_width/2,
+          geom.width - outline_width,
           geom.height - outline_width
         );
     }
@@ -34276,22 +34273,22 @@ annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2
       g2d.lineWidth = stroke_width;
       g2d.strokeStyle = stroke;
       g2d.strokeRect(
-        geom.x + outline_width + stroke_width/2, 
-        geom.y + outline_width + stroke_width/2, 
-        geom.width - outline_width*2 - stroke_width, 
+        geom.x + outline_width + stroke_width/2,
+        geom.y + outline_width + stroke_width/2,
+        geom.width - outline_width*2 - stroke_width,
         geom.height - outline_width*2 - stroke_width
       );
     }
 
-    // Fill   
+    // Fill
     if (fill) {
       g2d.lineJoin = "miter";
       g2d.lineWidth = stroke_width;
       g2d.fillStyle = fill;
       g2d.fillRect(
-        geom.x + outline_width + stroke_width/2, 
-        geom.y + outline_width + stroke_width/2, 
-        geom.width - outline_width*2 - stroke_width, 
+        geom.x + outline_width + stroke_width/2,
+        geom.y + outline_width + stroke_width/2,
+        geom.width - outline_width*2 - stroke_width,
         geom.height - outline_width*2 - stroke_width
       );
     }
@@ -34351,10 +34348,10 @@ annotorious.mediatypes.image.ImageAnnotator = function(item, opt_popup) {
   annotorious.mediatypes.Annotator.call();
 
   var hint;
-  
+
   /** The container DOM element (DIV) for the annotation layer **/
   this.element;
-  
+
   /** The editor for this annotator (public for use by plugins) **/
   this.editor;
 
@@ -34366,22 +34363,22 @@ annotorious.mediatypes.image.ImageAnnotator = function(item, opt_popup) {
 
   /** @private **/
   this._original_bufferspace = { padding: item.style.padding, margin: item.style.margin }
-  
+
   /** @private **/
   this._viewer;
-  
+
   /** @private **/
   this._editCanvas;
-  
+
   /** @private **/
   this._hint;
-  
+
   /** @private **/
   this._eventBroker = new annotorious.events.EventBroker();
 
   /** @private **/
   this._selectors = [];
-  
+
   /** @private **/
   this._currentSelector;
 
@@ -34396,18 +34393,18 @@ annotorious.mediatypes.image.ImageAnnotator = function(item, opt_popup) {
   goog.dom.replaceNode(this.element, item);
   goog.dom.appendChild(this.element, item);
 
-  var img_bounds = goog.style.getBounds(item);  
+  var img_bounds = goog.style.getBounds(item);
   this._viewCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas,
     { width:img_bounds.width, height:img_bounds.height });
   if (annotorious.events.ui.hasMouse)
     goog.dom.classes.add(this._viewCanvas, 'annotorious-item-unfocus');
-  goog.dom.appendChild(this.element, this._viewCanvas);   
+  goog.dom.appendChild(this.element, this._viewCanvas);
 
-  this._editCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas, 
+  this._editCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas,
     { width:img_bounds.width, height:img_bounds.height });
 
   if (annotorious.events.ui.hasMouse)
-    goog.style.showElement(this._editCanvas, false); 
+    goog.style.showElement(this._editCanvas, false);
   goog.dom.appendChild(this.element, this._editCanvas);
 
   if (opt_popup)
@@ -34416,14 +34413,14 @@ annotorious.mediatypes.image.ImageAnnotator = function(item, opt_popup) {
     this.popup = new annotorious.Popup(this);
 
   var default_selector = new annotorious.plugins.selection.RectDragSelector();
-  default_selector.init(this, this._editCanvas); 
+  default_selector.init(this, this._editCanvas);
   this._selectors.push(default_selector);
   this._currentSelector = default_selector;
 
   this.editor = new annotorious.Editor(this);
-  this._viewer = new annotorious.mediatypes.image.Viewer(this._viewCanvas, this); 
+  this._viewer = new annotorious.mediatypes.image.Viewer(this._viewCanvas, this);
   this._hint = new annotorious.Hint(this, this.element);
-  
+
   var self = this;
 
   if (annotorious.events.ui.hasMouse) {
@@ -34434,7 +34431,7 @@ annotorious.mediatypes.image.ImageAnnotator = function(item, opt_popup) {
         goog.dom.classes.addRemove(self._viewCanvas, 'annotorious-item-unfocus', 'annotorious-item-focus');
       }
     });
-  
+
     goog.events.listen(this.element, annotorious.events.ui.EventType.OUT, function(event) {
       var relatedTarget = event.relatedTarget;
       if (!relatedTarget || !goog.dom.contains(self.element, relatedTarget)) {
@@ -34453,7 +34450,7 @@ annotorious.mediatypes.image.ImageAnnotator = function(item, opt_popup) {
                                                             bounds.bottom + 4 + self._image.offsetTop));
     self.editor.open(false, event);
   });
-  
+
   this._eventBroker.addHandler(annotorious.events.EventType.SELECTION_CANCELED, function() {
     if (annotorious.events.ui.hasMouse)
       goog.style.showElement(self._editCanvas, false);
@@ -34468,14 +34465,14 @@ goog.inherits(annotorious.mediatypes.image.ImageAnnotator, annotorious.mediatype
  */
 annotorious.mediatypes.image.ImageAnnotator.prototype._transferStyles = function(image, annotationLayer) {
   var transferMargin = function(direction, value) {
-    goog.style.setStyle(annotationLayer, 'margin-' + direction, value + 'px'); 
+    goog.style.setStyle(annotationLayer, 'margin-' + direction, value + 'px');
     goog.style.setStyle(image, 'margin-' + direction, 0);
     goog.style.setStyle(image, 'padding-' + direction, 0);
   }
 
   var margin = goog.style.getMarginBox(image);
   var padding = goog.style.getPaddingBox(image);
-  
+
   if (margin.top != 0 || padding.top != 0)
     transferMargin('top', margin.top + padding.top);
 
@@ -34484,7 +34481,7 @@ annotorious.mediatypes.image.ImageAnnotator.prototype._transferStyles = function
 
   if (margin.bottom != 0 || padding.bottom != 0)
     transferMargin('bottom', margin.bottom + padding.bottom);
- 
+
   if (margin.left != 0 || padding.left != 0)
     transferMargin('left', margin.left + padding.left);
 }
@@ -34498,7 +34495,7 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.activateSelector = functio
  * Adds a selector
  */
 annotorious.mediatypes.image.ImageAnnotator.prototype.addSelector = function(selector) {
-  selector.init(this, this._editCanvas); 
+  selector.init(this, this._editCanvas);
   this._selectors.push(selector);
 }
 
@@ -34519,34 +34516,34 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.destroy = function() {
 annotorious.mediatypes.image.ImageAnnotator.prototype.editAnnotation = function(annotation) {
   // Step 1 - remove from viewer
   this._viewer.removeAnnotation(annotation);
-  
+
   // Step 2 - find a suitable selector for the shape
   var selector = goog.array.find(this._selectors, function(selector) {
     return selector.getSupportedShapeType() == annotation.shapes[0].type;
   });
-  
+
   // Step 3 - open annotation in editor
   if (selector) {
     goog.style.showElement(this._editCanvas, true);
     this._viewer.highlightAnnotation(false);
-    
+
     // TODO make editable - not just draw (selector implementation required)
     var g2d = this._editCanvas.getContext('2d');
     var shape = annotation.shapes[0];
-    
+
     var self = this;
     var viewportShape = (shape.units == 'pixel') ? shape : annotorious.shape.transform(shape, function(xy) { return self.fromItemCoordinates(xy); }) ;
     selector.drawShape(g2d, viewportShape);
   }
-  
+
   var bounds = annotorious.shape.getBoundingRect(annotation.shapes[0]).geometry;
   var anchor = (annotation.shapes[0].units == 'pixel') ?
     new annotorious.shape.geom.Point(bounds.x, bounds.y + bounds.height) :
-    this.fromItemCoordinates(new annotorious.shape.geom.Point(bounds.x, bounds.y + bounds.height));   
-  
+    this.fromItemCoordinates(new annotorious.shape.geom.Point(bounds.x, bounds.y + bounds.height));
+
   this.editor.setPosition(new annotorious.shape.geom.Point(anchor.x + this._image.offsetLeft,
                                                            anchor.y + 4 + this._image.offsetTop));
-  this.editor.open(annotation);  
+  this.editor.open(annotation);
 }
 
 /**
@@ -34602,14 +34599,14 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.getAvailableSelectors = fu
  * Returns the image that this annotator is responsible for.
  * @returns {Object} the image
  */
-annotorious.mediatypes.image.ImageAnnotator.prototype.getItem = function() { 
+annotorious.mediatypes.image.ImageAnnotator.prototype.getItem = function() {
   return { src: annotorious.mediatypes.image.ImageAnnotator.getItemURL(this._image), element: this._image };
 }
 
 /**
  * Helper function that returns the 'URL' of the image. Normally, this will be the
- * 'src' attribute of the <img> tag. But to provide more flexiblity, it is possible to 
- * override this value using the 'data-original' attribute. Only if this attribute 
+ * 'src' attribute of the <img> tag. But to provide more flexiblity, it is possible to
+ * override this value using the 'data-original' attribute. Only if this attribute
  * does not exist, the real 'src' will be returned.
  * @param {Element} item the image DOM element
  * @return {string} the URL
@@ -34650,7 +34647,7 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.setCurrentSelector = funct
   });
 
   if (!this._currentSelector)
-    console.log('WARNING: selector "' + selector + '" not available'); 
+    console.log('WARNING: selector "' + selector + '" not available');
 }
 
 /**
@@ -34676,7 +34673,7 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.showAnnotations = function
  * Shows the selection widget, thus enabling users to create new annotations.
  */
 annotorious.mediatypes.image.ImageAnnotator.prototype.showSelectionWidget = function() {
-  this._selectionEnabled = true;  
+  this._selectionEnabled = true;
   if (!this._hint)
     this._hint = new annotorious.Hint(this, this.element);
 }
@@ -34690,7 +34687,7 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.stopSelection = function(o
      goog.style.showElement(this._editCanvas, false);
 
    this._currentSelector.stopSelection();
-   
+
    // If this was an edit of an annotation (rather than creation of a new one) re-add to viewer!
    if (opt_original_annotation)
      this._viewer.addAnnotation(opt_original_annotation);
@@ -34703,9 +34700,9 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.stopSelection = function(o
  * @returns the corresponding viewport coordinate
  */
 annotorious.mediatypes.image.ImageAnnotator.prototype.toItemCoordinates = function(xy_wh) {
-  var imgSize = goog.style.getSize(this._image);  
+  var imgSize = goog.style.getSize(this._image);
   if (xy_wh.width) {
-    return { x: xy_wh.x / imgSize.width, y: xy_wh.y / imgSize.height, width: xy_wh.width / imgSize.width, height: xy_wh.height /imgSize.height }; 
+    return { x: xy_wh.x / imgSize.width, y: xy_wh.y / imgSize.height, width: xy_wh.width / imgSize.width, height: xy_wh.height /imgSize.height };
   } else {
     return { x: xy_wh.x / imgSize.width, y: xy_wh.y / imgSize.height };
   }
@@ -34728,14 +34725,14 @@ goog.require('annotorious.mediatypes.image.ImageAnnotator');
  * @constructor
  * @extends annotorious.mediatypes.Module
  */
-annotorious.mediatypes.image.ImageModule = function() { 
+annotorious.mediatypes.image.ImageModule = function() {
   annotorious.mediatypes.Module.call();
   this._initFields(function() {
     return goog.dom.query('img.annotatable', document);
   });
 }
 goog.inherits(annotorious.mediatypes.image.ImageModule, annotorious.mediatypes.Module);
-  
+
 /** @inheritDoc **/
 annotorious.mediatypes.image.ImageModule.prototype.getItemURL = function(item) {
   return annotorious.mediatypes.image.ImageAnnotator.getItemURL(item);
@@ -35076,13 +35073,13 @@ annotorious.mediatypes.openlayers.Viewer = function(map, annotator) {
   /** @private **/
   this._map = map;
 
-  /** @private **/  
+  /** @private **/
   this._map_bounds = goog.style.getBounds(annotator.element);
-      
+
   /** @private **/
   this._popup = annotator.popup;
   goog.style.setStyle(this._popup.element, 'z-index', 99000);
-  
+
   /** @private **/
   this._overlays = [];
 
@@ -35095,7 +35092,7 @@ annotorious.mediatypes.openlayers.Viewer = function(map, annotator) {
   /** @private **/
   this._boxesLayer = new OpenLayers.Layer.Boxes('Annotorious'); // TODO make configurable
   this._map.addLayer(this._boxesLayer);
-  
+
   var self = this;
   this._map.events.register('move', this._map, function() {
     if (self._currentlyHighlightedOverlay)
@@ -35122,9 +35119,9 @@ annotorious.mediatypes.openlayers.Viewer.prototype._place_popup = function() {
   var annotation_div = this._currentlyHighlightedOverlay.marker.div;
   var annotation_dim = goog.style.getBounds(annotation_div);
   var annotation_pos = goog.style.getRelativePosition(annotation_div, this._map.div);
-  var annotation_bounds = { top: annotation_pos.y, 
-                            left: annotation_pos.x, 
-                            width: annotation_dim.width, 
+  var annotation_bounds = { top: annotation_pos.y,
+                            left: annotation_pos.x,
+                            width: annotation_dim.width,
                             height: annotation_dim.height };
 
   // Popup width & height
@@ -35144,11 +35141,11 @@ annotorious.mediatypes.openlayers.Viewer.prototype._place_popup = function() {
 
   if (popup_pos.x + popup_bounds.width > this._map_bounds.width)
     popup_pos.x = this._map_bounds.width - popup_bounds.width;
-     
+
   if (popup_pos.y + popup_bounds.height > this._map_bounds.height)
     popup_pos.y = this._map_bounds.height - popup_bounds.height;
 
-  this._popup.setPosition(popup_pos);    
+  this._popup.setPosition(popup_pos);
 }
 
 /**
@@ -35191,7 +35188,7 @@ annotorious.mediatypes.openlayers.Viewer.prototype.addAnnotation = function(anno
     new OpenLayers.Marker.Box(new OpenLayers.Bounds(geometry.x, geometry.y, geometry.x + geometry.width, geometry.y + geometry.height));
   goog.dom.classes.add(marker.div, 'annotorious-ol-boxmarker-outer');
   goog.style.setStyle(marker.div, 'border', null);
-  
+
   var inner = goog.dom.createDom('div', 'annotorious-ol-boxmarker-inner');
   goog.style.setSize(inner, '100%', '100%');
   goog.dom.appendChild(marker.div, inner);
@@ -35205,12 +35202,12 @@ annotorious.mediatypes.openlayers.Viewer.prototype.addAnnotation = function(anno
 
     self._lastHoveredOverlay = overlay;
   });
-  
+
   goog.events.listen(inner, goog.events.EventType.MOUSEOUT, function(event) {
     delete self._lastHoveredOverlay;
     self._popup.startHideTimer();
   });
-  
+
   this._overlays.push(overlay);
 
   goog.array.sort(this._overlays, function(a, b) {
@@ -35218,7 +35215,7 @@ annotorious.mediatypes.openlayers.Viewer.prototype.addAnnotation = function(anno
     var shapeB = b.annotation.shapes[0];
     return annotorious.shape.getSize(shapeB) - annotorious.shape.getSize(shapeA);
   });
- 
+
   var zIndex = 10000;
   goog.array.forEach(this._overlays, function(overlay) {
     goog.style.setStyle(overlay.marker.div, 'z-index', zIndex);
@@ -35235,7 +35232,7 @@ annotorious.mediatypes.openlayers.Viewer.prototype.addAnnotation = function(anno
 annotorious.mediatypes.openlayers.Viewer.prototype.removeAnnotation = function(annotation) {
   var overlay = goog.array.find(this._overlays, function(overlay) {
     return overlay.annotation == annotation;
-  }); 
+  });
 
   if (overlay) {
     goog.array.remove(this._overlays, overlay);
@@ -35263,7 +35260,7 @@ annotorious.mediatypes.openlayers.Viewer.prototype.highlightAnnotation = functio
     // TODO
   } else {
     this._popup.startHideTimer();
-  }  
+  }
 }
 goog.provide('annotorious.mediatypes.openlayers.OpenLayersAnnotator');
 
@@ -35279,29 +35276,29 @@ goog.require('annotorious.mediatypes.openlayers.Viewer');
  */
 annotorious.mediatypes.openlayers.OpenLayersAnnotator = function(map) {
   annotorious.mediatypes.Annotator.call();
-  
+
   /** @private **/
   this._map = map;
-  
+
   /** @private **/
   this.element = map.div;
-  
+
   // We need to constrain the dimension of the canvas by the size of the map.
   // Therefore the map enclosing DIV needs to have position 'absolute' or
   // 'relative' set!
   var pos = goog.style.getStyle(this.element, 'position');
   if (pos != 'absolute' && pos != 'relative')
     goog.style.setStyle(this.element, 'position', 'relative');
-  
+
   /** @private **/
   this._eventBroker = new annotorious.events.EventBroker();
-  
+
   /** @private **/
   this._secondaryHint = goog.soy.renderAsElement(annotorious.templates.openlayers.secondaryHint, {msg: 'Click and Drag'});
   goog.style.setStyle(this._secondaryHint, 'z-index', 9998);
-  goog.style.setOpacity(this._secondaryHint, 0); 
+  goog.style.setOpacity(this._secondaryHint, 0);
   goog.dom.appendChild(this.element, this._secondaryHint);
-  
+
   /** @private **/
   this.popup = new annotorious.Popup(this);
 
@@ -35309,15 +35306,15 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator = function(map) {
   this._viewer = new annotorious.mediatypes.openlayers.Viewer(map, this);
 
   /** @private **/
-  this._editCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas, 
+  this._editCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas,
     { width:'0', height:'0' });
   goog.style.showElement(this._editCanvas, false);
   goog.style.setStyle(this._editCanvas, 'position', 'absolute');
   goog.style.setStyle(this._editCanvas, 'top', '0px');
   goog.style.setStyle(this._editCanvas, 'z-index', 9999);
 
-  goog.dom.appendChild(this.element, this._editCanvas);  
-  
+  goog.dom.appendChild(this.element, this._editCanvas);
+
   var self = this,
       updateCanvasSize = function() {
         var width = parseInt(goog.style.getComputedStyle(self.element, 'width'), 10),
@@ -35327,13 +35324,13 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator = function(map) {
         self._editCanvas.width = width;
         self._editCanvas.height = height;
       };
-  
+
   updateCanvasSize();
 
   /** @private **/
   this._currentSelector = new annotorious.plugins.selection.RectDragSelector();
-  this._currentSelector.init(this, this._editCanvas); 
-    
+  this._currentSelector.init(this, this._editCanvas);
+
   /** @private **/
   this._stop_selection_callback = undefined;
 
@@ -35343,37 +35340,37 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator = function(map) {
 
   if (window.addEventListener)
     window.addEventListener('resize', updateCanvasSize, false);
-  else if (window.attachEvent) 
-    window.attachEvent('onresize', updateCanvasSize);  
+  else if (window.attachEvent)
+    window.attachEvent('onresize', updateCanvasSize);
 
   goog.events.listen(this.element, goog.events.EventType.MOUSEOVER, function(event) {
     var relatedTarget = event.relatedTarget;
     if (!relatedTarget || !goog.dom.contains(self.element, relatedTarget))
       self._eventBroker.fireEvent(annotorious.events.EventType.MOUSE_OVER_ANNOTATABLE_ITEM);
   });
-  
+
   goog.events.listen(this.element, goog.events.EventType.MOUSEOUT, function(event) {
     var relatedTarget = event.relatedTarget;
     if (!relatedTarget || !goog.dom.contains(self.element, relatedTarget))
       self._eventBroker.fireEvent(annotorious.events.EventType.MOUSE_OUT_OF_ANNOTATABLE_ITEM);
   });
-  
+
   goog.events.listen(this._editCanvas, goog.events.EventType.MOUSEDOWN, function(event) {
     var offset = goog.style.getClientPosition(self.element);
     self._currentSelector.startSelection(event.clientX - offset.x, event.clientY - offset.y);
   });
-  
+
   this._eventBroker.addHandler(annotorious.events.EventType.SELECTION_COMPLETED, function(event) {
     goog.style.setStyle(self._editCanvas, 'pointer-events', 'none');
 
     var bounds = event.viewportBounds;
     self.editor.setPosition(new annotorious.shape.geom.Point(bounds.left /* + self.element.offsetLeft */,
                                                              bounds.bottom + 4 /* + self.element.offsetTop */));
-    self.editor.open();    
+    self.editor.open();
   });
 
   this._eventBroker.addHandler(annotorious.events.EventType.SELECTION_CANCELED, function(event) {
-    self.stopSelection();    
+    self.stopSelection();
   });
 }
 goog.inherits(annotorious.mediatypes.openlayers.OpenLayersAnnotator, annotorious.mediatypes.Annotator);
@@ -35391,7 +35388,7 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.activateSelector
 
   var self = this;
   goog.style.showElement(this._editCanvas, true);
-  goog.style.setOpacity(this._secondaryHint, 0.8); 
+  goog.style.setOpacity(this._secondaryHint, 0.8);
   window.setTimeout(function() {
     goog.style.setOpacity(self._secondaryHint, 0);
   }, 2000);
@@ -35402,8 +35399,8 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.activateSelector
 
 annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.destroy = function() {
   this._viewer.destroy();
-  goog.dom.removeNode(this._secondaryHint);  
-  goog.dom.removeNode(this._editCanvas);  
+  goog.dom.removeNode(this._secondaryHint);
+  goog.dom.removeNode(this._editCanvas);
 }
 
 /**
@@ -35425,7 +35422,7 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.editAnnotation =
   if (selector) {
     goog.style.showElement(this._editCanvas, true);
     this._viewer.highlightAnnotation(undefined);
-    
+
     // TODO make editable - not just draw (selector implementation required)
     var g2d = this._editCanvas.getContext('2d');
     var shape = annotation.shapes[0];
@@ -35435,7 +35432,7 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.editAnnotation =
 
     var viewportBounds = annotorious.shape.getBoundingRect(viewportShape).geometry;
     this.editor.setPosition(new annotorious.shape.geom.Point(viewportBounds.x, viewportBounds.y + viewportBounds.height));
-    this.editor.open(annotation);   
+    this.editor.open(annotation);
   }
 }
 
@@ -35445,9 +35442,9 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.editAnnotation =
 annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.fromItemCoordinates = function(itemCoords) {
   var pxCoords = this._map.getViewPortPxFromLonLat(new OpenLayers.LonLat(itemCoords.x, itemCoords.y));
   var pxOpposite = (itemCoords.width) ?
-    this._map.getViewPortPxFromLonLat(new OpenLayers.LonLat(itemCoords.x + itemCoords.width, itemCoords.y + itemCoords.height)) : 
+    this._map.getViewPortPxFromLonLat(new OpenLayers.LonLat(itemCoords.x + itemCoords.width, itemCoords.y + itemCoords.height)) :
     false;
-    
+
   if (pxOpposite) {
     return { x: pxCoords.x, y: pxOpposite.y, width: pxOpposite.x - pxCoords.x + 2, height: pxCoords.y - pxOpposite.y + 2};
   } else {
@@ -35490,13 +35487,13 @@ annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.setActiveSelecto
 annotorious.mediatypes.openlayers.OpenLayersAnnotator.prototype.toItemCoordinates = function(xy) {
   var itemCoords = this._map.getLonLatFromPixel(new OpenLayers.Pixel(xy.x, xy.y));
   var opposite = (xy.width) ? new OpenLayers.Pixel(xy.x + xy.width - 2, xy.y + xy.height - 2) : false;
-  
+
   if (opposite) {
   	var itemOpposite = this._map.getLonLatFromPixel(opposite);
-	  var foo = { x: itemCoords.lon, y: itemOpposite.lat, 
+	  var foo = { x: itemCoords.lon, y: itemOpposite.lat,
 	           width: itemOpposite.lon - itemCoords.lon,
 	           height: itemCoords.lat - itemOpposite.lat };
-             
+
     console.log(foo);
     return foo;
   } else {
@@ -35514,7 +35511,7 @@ goog.require('annotorious.mediatypes.openlayers.OpenLayersAnnotator');
  * @constructor
  * @extends annotorious.mediatypes.Module
  */
-annotorious.mediatypes.openlayers.OpenLayersModule = function() { 
+annotorious.mediatypes.openlayers.OpenLayersModule = function() {
   annotorious.mediatypes.Module.call();
   this._initFields();
 }
@@ -35534,7 +35531,7 @@ annotorious.mediatypes.openlayers.OpenLayersModule.prototype.newAnnotator = func
 /** @inheritDoc **/
 annotorious.mediatypes.openlayers.OpenLayersModule.prototype.supports = function(item) {
   return (item instanceof OpenLayers.Map);
-} 
+}
 
 
 
@@ -35554,14 +35551,14 @@ annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
 
   /** @private **/
   this._annotator = annotator;
-  
-  /** @private **/  
+
+  /** @private **/
   this._map_bounds = goog.style.getBounds(osdViewer.element);
-  
+
   /** @private **/
   this._popup = annotator.popup;
   goog.style.setStyle(this._popup.element, 'z-index', 99000);
-  
+
   /** @private **/
   this._overlays = [];
 
@@ -35570,7 +35567,7 @@ annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
 
   /** @private **/
   this._lastHoveredOverlay;
-  
+
   var self = this;
 
   this._osdViewer.addHandler('animation', function() {
@@ -35583,7 +35580,7 @@ annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
       self._annotator.fireEvent(annotorious.events.EventType.MOUSE_OVER_ANNOTATION, self._currentlyHighlightedOverlay.annotation);
     }
   });
-    
+
   annotator.addHandler(annotorious.events.EventType.BEFORE_POPUP_HIDE, function() {
     if (self._lastHoveredOverlay == self._currentlyHighlightedOverlay) {
       self._popup.clearHideTimer();
@@ -35599,14 +35596,14 @@ annotorious.mediatypes.openseadragon.Viewer = function(osdViewer, annotator) {
  */
 annotorious.mediatypes.openseadragon.Viewer.prototype._place_popup = function() {
   var viewportEl = this._osdViewer['element'];
-  
+
   // Compute correct annotation bounds, relative to map
   var annotation_div = this._currentlyHighlightedOverlay.outer;
   var annotation_dim = goog.style.getBounds(annotation_div);
   var annotation_pos = goog.style.getRelativePosition(annotation_div, viewportEl);
-  var annotation_bounds = { top: annotation_pos.y, 
-                            left: annotation_pos.x, 
-                            width: annotation_dim.width, 
+  var annotation_bounds = { top: annotation_pos.y,
+                            left: annotation_pos.x,
+                            width: annotation_dim.width,
                             height: annotation_dim.height };
 
   // Popup width & height
@@ -35614,13 +35611,13 @@ annotorious.mediatypes.openseadragon.Viewer.prototype._place_popup = function() 
   var popup_pos = { x: annotation_bounds.left, y: annotation_bounds.top + annotation_bounds.height + 12 };
   goog.dom.classes.addRemove(this._popup.element, 'top-right', 'top-left');
 
-  // Don't fix position in full-page mode    
+  // Don't fix position in full-page mode
   if (!this._osdViewer.isFullPage()) {
     if (annotation_bounds.left + popup_bounds.width > this._map_bounds.width) {
       goog.dom.classes.addRemove(this._popup.element, 'top-left', 'top-right');
       popup_pos.x = (annotation_bounds.left + annotation_bounds.width) - popup_bounds.width;
     } else {
-      
+
     }
 
     if (popup_pos.x < 0)
@@ -35628,12 +35625,12 @@ annotorious.mediatypes.openseadragon.Viewer.prototype._place_popup = function() 
 
     if (popup_pos.x + popup_bounds.width > this._map_bounds.width)
       popup_pos.x = this._map_bounds.width - popup_bounds.width;
-     
+
     if (popup_pos.y + popup_bounds.height > this._map_bounds.height)
       popup_pos.y = this._map_bounds.height - popup_bounds.height;
   }
-  
-  this._popup.setPosition(popup_pos);    
+
+  this._popup.setPosition(popup_pos);
 }
 
 /**
@@ -35674,11 +35671,11 @@ annotorious.mediatypes.openseadragon.Viewer.prototype.addAnnotation = function(a
   var inner = goog.dom.createDom('div', 'annotorious-ol-boxmarker-inner');
   goog.style.setSize(inner, '100%', '100%');
   goog.dom.appendChild(outer, inner);
-  
+
   var rect = new OpenSeadragon.Rect(geometry.x, geometry.y, geometry.width, geometry.height);
-  
+
   var overlay = {annotation: annotation, outer: outer, inner: inner};
-  
+
   var self = this;
   goog.events.listen(inner, goog.events.EventType.MOUSEOVER, function(event) {
     if (!self._currentlyHighlightedOverlay)
@@ -35686,20 +35683,20 @@ annotorious.mediatypes.openseadragon.Viewer.prototype.addAnnotation = function(a
 
     self._lastHoveredOverlay = overlay;
   });
-  
+
   goog.events.listen(inner, goog.events.EventType.MOUSEOUT, function(event) {
     delete self._lastHoveredOverlay;
     self._popup.startHideTimer();
   });
-  
+
   this._overlays.push(overlay);
-  
+
   goog.array.sort(this._overlays, function(a, b) {
     var shapeA = a.annotation.shapes[0];
     var shapeB = b.annotation.shapes[0];
     return annotorious.shape.getSize(shapeB) - annotorious.shape.getSize(shapeA);
   });
- 
+
   var zIndex = 1;
   goog.array.forEach(this._overlays, function(overlay) {
     goog.style.setStyle(overlay.outer, 'z-index', zIndex);
@@ -35729,9 +35726,9 @@ annotorious.mediatypes.openseadragon.Viewer.prototype.removeAnnotation = functio
  * @return {Array.<annotorious.Annotation>} the annotations
  */
 annotorious.mediatypes.openseadragon.Viewer.prototype.getAnnotations = function() {
-  return goog.array.map(this._overlays, function(overlay) {  
+  return goog.array.map(this._overlays, function(overlay) {
 	  console.log(overlay);
-	  return overlay.annotation; 
+	  return overlay.annotation;
   });
 }
 
@@ -35773,45 +35770,45 @@ goog.require('annotorious.mediatypes.openseadragon.Viewer');
 /**
  * The OpenSeadragonAnnotator is responsible for handling annotation functionality
  * on one OpenSeadragon imagein the page.
- * 
+ *
  * FIXME there is lots of code duplication in here - refactor into a common annotator base class,
  * shared across image & OpenSeadragon
- * 
+ *
  * @param {Object} osdViewer the OpenSeadragon viewer
  * @constructor
  */
 annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator = function(osdViewer) {
   annotorious.mediatypes.Annotator.call();
-  
+
   /** @private **/
   this.element = osdViewer.element;
   // Hacky: Normalize the z-index of openseadragon-container
   goog.style.setStyle(goog.dom.getElementByClass("openseadragon-container"), 'z-index', 0);
-  
+
   /** The editor for this annotator (public for use by plugins) **/
   this.editor;
-  
-  /** @private **/   
-  this._osdViewer = osdViewer; 
-    
+
+  /** @private **/
+  this._osdViewer = osdViewer;
+
   /** @private **/
   this._eventBroker = new annotorious.events.EventBroker();
-  
+
   /** @private **/
   this._selectors = [];
-  
+
   /** @private **/
   this._currentSelector;
-  
+
   /** @private **/
   this._selectionEnabled = true;
-  
+
   /** @private **/
   this._secondaryHint = goog.soy.renderAsElement(annotorious.templates.openlayers.secondaryHint, {msg: 'Click and Drag'});
   //goog.style.setStyle(this._secondaryHint, 'z-index', 9998);
-  goog.style.setOpacity(this._secondaryHint, 0); 
+  goog.style.setOpacity(this._secondaryHint, 0);
   goog.dom.appendChild(this.element, this._secondaryHint);
-  
+
   /** @private **/
   this.popup = new annotorious.Popup(this);
 
@@ -35819,12 +35816,12 @@ annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator = function(osdViewer
   this._viewer = new annotorious.mediatypes.openseadragon.Viewer(osdViewer, this);
 
   /** @private **/
-  this._editCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas, 
+  this._editCanvas = goog.soy.renderAsElement(annotorious.templates.image.canvas,
     { width:'0', height:'0' });
   goog.style.showElement(this._editCanvas, false);
 
-  goog.dom.appendChild(this.element, this._editCanvas); 
-  
+  goog.dom.appendChild(this.element, this._editCanvas);
+
   var self = this,
       updateCanvasSize = function() {
         var width = parseInt(goog.style.getComputedStyle(self.element, 'width'), 10),
@@ -35834,32 +35831,32 @@ annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator = function(osdViewer
         self._editCanvas.width = width;
         self._editCanvas.height = height;
       };
-      
+
   updateCanvasSize();
-  
+
   var default_selector = new annotorious.plugins.selection.RectDragSelector();
-  default_selector.init(this, this._editCanvas); 
+  default_selector.init(this, this._editCanvas);
   this._selectors.push(default_selector);
   this._currentSelector = default_selector;
-  
+
   this.editor = new annotorious.Editor(this);
-  
+
   /** Note - this code is duplicate across image, OpenLayers and OpenSeadragon & really needs to go into its own class **/
   this._attachListener(this._editCanvas);
-  
+
   this._eventBroker.addHandler(annotorious.events.EventType.SELECTION_COMPLETED, function(event) {
     //goog.style.setStyle(self._editCanvas, 'pointer-events', 'none');
 
     var bounds = event.viewportBounds;
     self.editor.setPosition(new annotorious.shape.geom.Point(bounds.left, bounds.bottom + 4));
-    self.editor.open();    
+    self.editor.open();
   });
 
   this._eventBroker.addHandler(annotorious.events.EventType.SELECTION_CANCELED, function(event) {
-    self.stopSelection();    
+    self.stopSelection();
   });
-  
-  /** End of possible dupplicated code **/ 
+
+  /** End of possible dupplicated code **/
 }
 goog.inherits(annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator, annotorious.mediatypes.Annotator);
 
@@ -35881,7 +35878,7 @@ annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.activateSe
 
   var self = this;
   goog.style.showElement(this._editCanvas, true);
-  goog.style.setOpacity(this._secondaryHint, 0.8); 
+  goog.style.setOpacity(this._secondaryHint, 0.8);
   window.setTimeout(function() {
     goog.style.setOpacity(self._secondaryHint, 0);
   }, 2000);
@@ -35902,7 +35899,7 @@ annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.editAnnota
   if (selector) {
     goog.style.showElement(this._editCanvas, true);
     this._viewer.highlightAnnotation(undefined);
-    
+
     // TODO make editable - not just draw (selector implementation required)
     var g2d = this._editCanvas.getContext('2d');
     var shape = annotation.shapes[0];
@@ -35911,25 +35908,25 @@ annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.editAnnota
 
     var viewportBounds = annotorious.shape.getBoundingRect(viewportShape).geometry;
     this.editor.setPosition(new annotorious.shape.geom.Point(viewportBounds.x, viewportBounds.y + viewportBounds.height + 4));
-    this.editor.open(annotation);   
+    this.editor.open(annotation);
   }
 }
 
 annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.fromItemCoordinates = function(itemCoords) {
-  var offset = annotorious.dom.getOffset(this.element); 
+  var offset = annotorious.dom.getOffset(this.element);
   offset.top += window.pageYOffset;
   offset.left += window.pageXOffset;
-  
+
   var viewportPoint = new OpenSeadragon.Point(itemCoords.x, itemCoords.y);
-  var viewportOpposite = (itemCoords.width) ? new OpenSeadragon.Point(itemCoords.x + itemCoords.width, itemCoords.y + itemCoords.height) : false; 
-  var windowPoint = this._osdViewer.viewport.viewportToWindowCoordinates(viewportPoint); 
- 
+  var viewportOpposite = (itemCoords.width) ? new OpenSeadragon.Point(itemCoords.x + itemCoords.width, itemCoords.y + itemCoords.height) : false;
+  var windowPoint = this._osdViewer.viewport.viewportToWindowCoordinates(viewportPoint);
+
   if (viewportOpposite) {
     var windowOpposite = this._osdViewer.viewport.viewportToWindowCoordinates(viewportOpposite);
-    return { x: windowPoint.x - offset.left, y: windowPoint.y - offset.top, width: windowOpposite.x - windowPoint.x + 2, height: windowOpposite.y - windowPoint.y + 2 };    
+    return { x: windowPoint.x - offset.left, y: windowPoint.y - offset.top, width: windowOpposite.x - windowPoint.x + 2, height: windowOpposite.y - windowPoint.y + 2 };
   } else {
     return windowPoint;
-  }  
+  }
 }
 
 annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.getAnnotations = function() {
@@ -35960,18 +35957,18 @@ annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.getActiveS
 
 
 annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator.prototype.toItemCoordinates = function(xy) {
-  var offset = annotorious.dom.getOffset(this.element); 
+  var offset = annotorious.dom.getOffset(this.element);
   offset.top += window.pageYOffset;
   offset.left += window.pageXOffset;
-  
+
   var viewportPoint = new OpenSeadragon.Point(xy.x + offset.left, xy.y + offset.top);
   var viewportOpposite = (xy.width) ? new OpenSeadragon.Point(xy.x + offset.left + xy.width - 2, xy.y + offset.top + xy.height - 2) : false;
-  var viewElementPoint = this._osdViewer.viewport.windowToViewportCoordinates(viewportPoint); 
-  
+  var viewElementPoint = this._osdViewer.viewport.windowToViewportCoordinates(viewportPoint);
+
   if (viewportOpposite) {
     var viewElementOpposite = this._osdViewer.viewport.windowToViewportCoordinates(viewportOpposite);
-    return { x: viewElementPoint.x, y: viewElementPoint.y, 
-             width: viewElementOpposite.x - viewElementPoint.x, 
+    return { x: viewElementPoint.x, y: viewElementPoint.y,
+             width: viewElementOpposite.x - viewElementPoint.x,
              height: viewElementOpposite.y - viewElementPoint.y };
   } else {
     return viewElementPoint;
@@ -35988,7 +35985,7 @@ goog.require('annotorious.mediatypes.openseadragon.OpenSeadragonAnnotator');
  * @constructor
  * @extends annotorious.mediatypes.Module
  */
-annotorious.mediatypes.openseadragon.OpenSeadragonModule = function() { 
+annotorious.mediatypes.openseadragon.OpenSeadragonModule = function() {
   annotorious.mediatypes.Module.call();
   this._initFields();
 }
@@ -36010,15 +36007,15 @@ annotorious.mediatypes.openseadragon.OpenSeadragonModule.prototype.supports = fu
   // A hack to identify whether we're dealing with an OpenSeadragon viewer - any better ideas?
   if (!item.id)
     return false;
-    
+
   if (item.id.indexOf('openseadragon') != 0)
     return false;
-    
+
   if(!item.hasOwnProperty('drawer'))
     return false;
-    
+
   return true;
-} 
+}
 
 
 
@@ -36037,22 +36034,22 @@ goog.require('annotorious.mediatypes.openseadragon.OpenSeadragonModule');
  * The main entrypoint to the application. The Annotorious class is instantiated exactly once,
  * and added to the global window object as 'window.anno'. It exposes the external JavaScript API
  * and internally manages the 'modules'. (Each module is responsible for one particular media
- * type - image, OpenLayers, etc.)  
+ * type - image, OpenLayers, etc.)
  * @constructor
  */
 annotorious.Annotorious = function() {
   /** @private **/
   this._isInitialized = false;
-  
+
   /** @private **/
   this._modules = [ new annotorious.mediatypes.image.ImageModule() ];
-  
+
   if (window['OpenLayers'])
     this._modules.push(new annotorious.mediatypes.openlayers.OpenLayersModule());
-    
+
   if (window['OpenSeadragon'])
     this._modules.push(new annotorious.mediatypes.openseadragon.OpenSeadragonModule());
-  
+
   /** @private **/
   this._plugins = [];
 
@@ -36063,7 +36060,7 @@ annotorious.Annotorious = function() {
 annotorious.Annotorious.prototype._init = function() {
   if (this._isInitialized)
     return;
-  
+
   var self = this;
   goog.array.forEach(this._modules, function(module) {
     module.init();
@@ -36072,19 +36069,19 @@ annotorious.Annotorious.prototype._init = function() {
   goog.array.forEach(this._plugins, function(plugin) {
     if (plugin.initPlugin)
       plugin.initPlugin(self);
-        
+
     goog.array.forEach(self._modules, function(module) {
       module.addPlugin(plugin);
     });
   });
-  
+
   this._isInitialized = true;
 }
 
 /**
  * Returns the module that is in charge of handling the item with the specified
  * URL or null, if no responsible module is found.
- * @param {string} item_src the URL of the annotatable item 
+ * @param {string} item_src the URL of the annotatable item
  * @return {Object | null}
  * @private
  */
@@ -36098,7 +36095,7 @@ annotorious.Annotorious.prototype._getModuleForItemSrc = function(item_src) {
  * 'Manually' actives the selector, bypassing the selection widget. Note: this also
  * works when the selection widget is hidden. Primary use case for this is for developers
  * who want to build their own selector widgets or 'Create Annotation' buttons.
- * The selector can be activated on a specific item or globally, on all items (which 
+ * The selector can be activated on a specific item or globally, on all items (which
  * serves mainly as a shortcut for pages where there is only one annotatable item).
  * The function can take a callback function as parameter, which will be called when the
  * selector is deactivated again.
@@ -36132,9 +36129,9 @@ annotorious.Annotorious.prototype.activateSelector = function(opt_item_url_or_ca
  * @param {annotorious.Annotation} annotation the annotation
  * @param {annotorious.Annotation} opt_replace optionally, an existing annotation to replace
  */
-annotorious.Annotorious.prototype.addAnnotation = function(annotation, opt_replace) {  
+annotorious.Annotorious.prototype.addAnnotation = function(annotation, opt_replace) {
   annotation.src = annotorious.dom.toAbsoluteURL(annotation.src);
-  var module = this._getModuleForItemSrc(annotation.src); 
+  var module = this._getModuleForItemSrc(annotation.src);
   if (module)
     module.addAnnotation(annotation, opt_replace);
 }
@@ -36163,13 +36160,13 @@ annotorious.Annotorious.prototype.addPlugin = function(plugin_name, opt_config_o
       // Document loaded -- init immediately
       if (plugin.initPlugin)
         plugin.initPlugin(this);
-        
+
       goog.array.forEach(this._modules, function(module) {
         module.addPlugin(plugin);
-      });      
+      });
     } else {
       // Document not loaded yet -- defer init
-      this._plugins.push(plugin);  
+      this._plugins.push(plugin);
     }
   } catch (error) {
     console.log('Could not load plugin: ' + plugin_name);
@@ -36192,11 +36189,11 @@ annotorious.Annotorious.prototype.destroy = function(opt_item_url) {
     goog.array.forEach(this._modules, function(module) {
       module.destroy();
     });
-  }  
+  }
 }
 
 /**
- * Returns the name of the selector that is currently activated on a 
+ * Returns the name of the selector that is currently activated on a
  * particular item.
  * @param {string} item_url the URL of the item to query for the active selector
  */
@@ -36314,7 +36311,7 @@ annotorious.Annotorious.prototype.highlightAnnotation = function(annotation) {
 annotorious.Annotorious.prototype.makeAnnotatable = function(item) {
   // Be sure to init if the load handler hasn't already taken care of it
   this._init();
-  
+
   var module = goog.array.find(this._modules, function(module) {
     return module.supports(item);
   });
@@ -36336,7 +36333,7 @@ annotorious.Annotorious.prototype.removeAll = function(opt_item_url) {
   // to modules and annotators!
   var self = this;
   goog.array.forEach(this.getAnnotations(opt_item_url), function(annotation) {
-    self.removeAnnotation(annotation);    
+    self.removeAnnotation(annotation);
   });
 }
 
@@ -36371,25 +36368,25 @@ annotorious.Annotorious.prototype.reset = function(annotation) {
 annotorious.Annotorious.prototype.setActiveSelector = function(item_url, selector) {
   var module = this._getModuleForItemSrc(item_url);
   if (module)
-    module.setActiveSelector(item_url, selector);  
+    module.setActiveSelector(item_url, selector);
 }
- 
+
 /**
  * Sets system-wide properties. The 'props' object is a key/value hash and
  * supports the following properties:
  *
- * outline: outline color for annotation and selection shapes 
+ * outline: outline color for annotation and selection shapes
  * stroke: stroke color for annotation and selection shapes
  * fill: fill color for annotation and selection shapes
  * hi_stroke: stroke color for highlighted annotation shapes
  * hi_fill: fill color for highlighted annotation shapes
- * 
+ *
  * @param {Object} props the properties object
  */
 annotorious.Annotorious.prototype.setProperties = function(props) {
   goog.array.forEach(this._modules, function(module) {
     module.setProperties(props);
-  });  
+  });
 }
 
 /**
@@ -36420,14 +36417,14 @@ annotorious.Annotorious.prototype.showAnnotations = function(opt_item_url) {
     goog.array.forEach(this._modules, function(module) {
       module.showAnnotations();
     });
-  } 
+  }
 }
 
 /**
  * Shows the selection widget, thus enabling users to create new annotations.
  * The selection widget can be made visible on a specific item or globally, on all
  * annotatable items on the page.
- * @param {string | undefined} opt_item_url the URL of the item on which to show the selection widget 
+ * @param {string | undefined} opt_item_url the URL of the item on which to show the selection widget
  */
 annotorious.Annotorious.prototype.showSelectionWidget = function(opt_item_url) {
   if (opt_item_url) {
@@ -36469,7 +36466,7 @@ if (!window['annotorious'])
 
 if (!window['annotorious']['plugin'])
   window['annotorious']['plugin'] = {}
-  
+
 /** Geometry API exports **/
 if (!window['annotorious']['geometry']) {
   window['annotorious']['geometry'] = {};
@@ -36479,4 +36476,3 @@ if (!window['annotorious']['geometry']) {
 
 /** @deprecated **/
 annotorious.Annotorious.prototype['setSelectionEnabled'] = annotorious.Annotorious.prototype.setSelectionEnabled;
-
