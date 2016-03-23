@@ -131,6 +131,7 @@ window.onload = function() {
   if (propertyList && propertyList.length < 2) {
       jQuery('#itemList').prepend('<h5>'+propertyList[0].name+'</h5>');
   }
+
   var dropdown = document.getElementById('channels-list');
   var channels = '';
   for (var i = 0; i < propertyList.length; i++) {

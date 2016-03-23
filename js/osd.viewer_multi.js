@@ -532,23 +532,127 @@ function extractInfo(str) {
             'meterscaleinpixels':_msip};
 }
 
+
 function jpgClick(fname) {
-   var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
-   var dload = document.createElement('a');
-   dload.href = img;
-   if(fname != null) {
-     dload.download = fname + ".jpg";
-     } else {
-       var f = new Date().getTime();
-       var ff= f.toString();
-       fname="osd_"+ff+".jpg";
-       dload.download = fname;
+   var dname=fname;
+   if(fname == null) {
+     var f = new Date().getTime();
+     var ff= f.toString();
+     dname="osd_"+ff+".jpg";
    }
-   dload.style.display = 'none';
-   document.body.appendChild(dload);
-   dload.click();
-   delete dload;
+   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+   var isChrome = !!window.chrome && !!window.chrome.webstore;
+
+   if( ! isSafari ) { // this only works for firefox and chrome
+     var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+     var dload = document.createElement('a');
+     dload.href = img;
+     dload.download = dname;
+     dload.innerHTML = "Download Image File";
+     dload.style.display = 'none';
+     dload.onclick=destroyClickedElement;
+     if( isChrome ) {
+       dload.click();
+       } else {
+         document.body.appendChild(dload);
+         dload.click();
+         delete dload;
+     }
+     } else {
+       var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+       rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+       document.location.href = rawImg;
+   }
 }
+  
+
+//<button type="btnDownload" rel="myimage">Download</button>
+//$("a").attr("href", "http://www.asp.net")
+//document.getElementById('css').href = 'css2.css';
+//This works for Safari but the filename is unknown all the time
+// Safari "unknown"
+// Chrome "download"
+// Firefox "gibberish"
+function jpgClickX(fname) {
+   var dname=fname;
+   if(fname == null) {
+     var f = new Date().getTime();
+     var ff= f.toString();
+     dname="osd_"+ff+".jpg";
+   }
+   try {
+       var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+       rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+       document.location.href = rawImg;
+   }
+   catch (err) {
+       alert("Sorry, can't download");
+   }
+}
+
+function jpgClickXX(fname) {
+   var dname=fname;
+   if(fname == null) {
+     var f = new Date().getTime();
+     var ff= f.toString();
+     dname="osd_"+ff+".jpg";
+   }
+
+/*
+   var blob = new Blob( [ "A,B\nC,D" ], { type: "text/csv" } );
+   var link = document.createElement('link');
+   link.rel = 'stylesheet';
+   link.href = window.URL.createObjectURL(blob);
+   document.body.appendChild(link);
+*/
+
+   var aImg = document.createElement('img');
+   aImg.addEventListener("click", function (e) {
+     window.console.log("clcking it");
+     document.location.href = aImg;
+     e.preventDefault(); // prevent navigation to "#"
+   }, false);
+   var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+   var blob = dataUriToBlob(rawImg);
+   downloadDataURI({ filename: 'something.jpg',  data: blob });
+   aImg.name = dname;
+//data:text/plain;charset=UTF-8;base64,aGEgw6Agw6kgw7g=
+//window.open('data:text/plain;charset=utf-8,' + encodeURI(rawImg));
+   var objURL=window.URL.createObjectURL(blob);
+//window.open(objURL);
+   aImg.src = objURL;
+   document.body.appendChild(aImg);
+/*
+   var evt = document.createEvent("HTMLEvents");
+   evt.initEvent("click");
+   aImg.dispatchEvent(evt);
+*/
+   aImg.click();
+}
+
+function dataUriToBlob(dataURI) {
+  // serialize the base64/URLEncoded data
+  var byteString;
+  if (dataURI.split(',')[0].indexOf('base64') >= 0) {
+    byteString = atob(dataURI.split(',')[1]);
+    } else {
+      byteString = unescape(dataURI.split(',')[1]);
+  }
+
+  // parse the mime type
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+  // construct a Blob of the image data
+  var array = [];
+  for(var i = 0; i < byteString.length; i++) {
+    array.push(byteString.charCodeAt(i));
+  }
+  return new Blob(
+    [new Uint8Array(array)],
+    {type: mimeString}
+  );
+}
+
 
 function zoomInClick() {
   var c=myViewer.zoomPerClick / 1.0;
