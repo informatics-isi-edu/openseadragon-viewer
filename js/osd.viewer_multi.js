@@ -120,8 +120,8 @@ jQuery(document).ready(function() {
             yOffset: 10,
             stayInsideImage: true,
             color: "rgb(153, 0, 0)",
-            fontColor: "rgb(153, 0, 0)",
-            backgroundColor: "rgba(255, 255, 255, 0.0)",
+            fontColor: "rgb(255, 255, 255)",
+            backgroundColor: "rgba(238, 238, 238, 0.2)",
             fontSize: "small",
             barThickness: 2
     });
