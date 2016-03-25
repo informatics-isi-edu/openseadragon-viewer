@@ -121,7 +121,7 @@ jQuery(document).ready(function() {
             stayInsideImage: true,
             color: "rgb(153, 0, 0)",
             fontColor: "rgb(0, 0, 0)",
-            backgroundColor: "rgba(51, 51, 51, 0.3)",
+            backgroundColor: "rgba(204, 204, 204, 0.7)",
             fontSize: "small",
             barThickness: 2
     });
