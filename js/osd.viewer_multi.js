@@ -533,6 +533,8 @@ function extractInfo(str) {
 }
 
 
+//http://www.quirksmode.org/js/detect.html
+//http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser/9851769
 function jpgClick(fname) {
    var dname=fname;
    if(fname == null) {
@@ -542,8 +544,9 @@ function jpgClick(fname) {
    }
    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
    var isChrome = !!window.chrome && !!window.chrome.webstore;
+   var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
-   if( ! isSafari ) { // this only works for firefox and chrome
+   if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
      var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
      var dload = document.createElement('a');
      dload.href = img;
@@ -553,83 +556,25 @@ function jpgClick(fname) {
      dload.onclick=destroyClickedElement;
      if( isChrome ) {
        dload.click();
+       delete dload;
        } else {
          document.body.appendChild(dload);
          dload.click();
          delete dload;
      }
      } else {
-       var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
-       rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
-       document.location.href = rawImg;
+       if(isSafari) {
+         var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+         rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+         document.location.href = rawImg;
+         } else { // IE
+            var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+            var blob = dataUriToBlob(rawImg);
+            window.navigator.msSaveBlob(blob, dname);
+       }
    }
 }
   
-
-//<button type="btnDownload" rel="myimage">Download</button>
-//$("a").attr("href", "http://www.asp.net")
-//document.getElementById('css').href = 'css2.css';
-//This works for Safari but the filename is unknown all the time
-// Safari "unknown"
-// Chrome "download"
-// Firefox "gibberish"
-function jpgClickX(fname) {
-   var dname=fname;
-   if(fname == null) {
-     var f = new Date().getTime();
-     var ff= f.toString();
-     dname="osd_"+ff+".jpg";
-   }
-   try {
-       var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
-       rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
-       document.location.href = rawImg;
-   }
-   catch (err) {
-       alert("Sorry, can't download");
-   }
-}
-
-function jpgClickXX(fname) {
-   var dname=fname;
-   if(fname == null) {
-     var f = new Date().getTime();
-     var ff= f.toString();
-     dname="osd_"+ff+".jpg";
-   }
-
-/*
-   var blob = new Blob( [ "A,B\nC,D" ], { type: "text/csv" } );
-   var link = document.createElement('link');
-   link.rel = 'stylesheet';
-   link.href = window.URL.createObjectURL(blob);
-   document.body.appendChild(link);
-*/
-
-   var aImg = document.createElement('img');
-   aImg.addEventListener("click", function (e) {
-     window.console.log("clcking it");
-     document.location.href = aImg;
-     e.preventDefault(); // prevent navigation to "#"
-   }, false);
-   var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
-   var blob = dataUriToBlob(rawImg);
-   downloadDataURI({ filename: 'something.jpg',  data: blob });
-   aImg.name = dname;
-//data:text/plain;charset=UTF-8;base64,aGEgw6Agw6kgw7g=
-//window.open('data:text/plain;charset=utf-8,' + encodeURI(rawImg));
-   var objURL=window.URL.createObjectURL(blob);
-//window.open(objURL);
-   aImg.src = objURL;
-   document.body.appendChild(aImg);
-/*
-   var evt = document.createEvent("HTMLEvents");
-   evt.initEvent("click");
-   aImg.dispatchEvent(evt);
-*/
-   aImg.click();
-}
-
 function dataUriToBlob(dataURI) {
   // serialize the base64/URLEncoded data
   var byteString;
