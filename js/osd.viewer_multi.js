@@ -112,7 +112,8 @@ jQuery(document).ready(function() {
              });
 
     myViewer.scalebar({
-            type: OpenSeadragon.ScalebarType.MICROSCOPY,
+//            type: OpenSeadragon.ScalebarType.MICROSCOPY,
+            type: OpenSeadragon.ScalebarType.MAP,
             pixelsPerMeter: 0,
             minWidth: "75px",
             location: OpenSeadragon.ScalebarLocation.TOP_LEFT,
@@ -533,9 +534,52 @@ function extractInfo(str) {
 }
 
 
+
+function jpgClick(fname) {
+   var dname=fname;
+   if(fname == null) {
+     var f = new Date().getTime();
+     var ff= f.toString();
+     dname="osd_"+ff+".jpg";
+   }
+   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+   var isChrome = !!window.chrome && !!window.chrome.webstore;
+   var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+   if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
+     var canvas=myViewer.scalebarInstance.injectIntoImageCanvas();
+     var img = canvas.toDataURL("image/jpeg",1);
+     var dload = document.createElement('a');
+     dload.href = img;
+     dload.download = dname;
+     dload.innerHTML = "Download Image File";
+     dload.style.display = 'none';
+     dload.onclick=destroyClickedElement;
+     if( isChrome ) {
+       dload.click();
+       delete dload;
+       } else {
+         document.body.appendChild(dload);
+         dload.click();
+         delete dload;
+     }
+     } else {
+       if(isSafari) {
+         var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+         rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+         document.location.href = rawImg;
+         } else { // IE
+            var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+            var blob = dataUriToBlob(rawImg);
+            window.navigator.msSaveBlob(blob, dname);
+       }
+   }
+}
+  
+
 //http://www.quirksmode.org/js/detect.html
 //http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser/9851769
-function jpgClick(fname) {
+function jpgClickNoScale(fname) {
    var dname=fname;
    if(fname == null) {
      var f = new Date().getTime();
