@@ -272,7 +272,7 @@ function _addURLLayer(url, i) {
      addItemListEntry(_name,i,_dir,hue,contrast,op);
      var cname = _name.replace(/ +/g, "");
      propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast} );
-     resetScaleBar(_meterscaleinpixels);
+     resetScalebar(_meterscaleinpixels);
    }
 }
 
@@ -546,11 +546,16 @@ function jpgClick(fname) {
    var isChrome = !!window.chrome && !!window.chrome.webstore;
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
+   var rawImg;
+   if( hasScalebar() ) { 
+      var canvas=myViewer.scalebarInstance.injectIntoImageCanvas();
+      rawImg = canvas.toDataURL("image/jpeg",1);
+      } else {
+        rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+   }
    if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
-     var canvas=myViewer.scalebarInstance.injectIntoImageCanvas();
-     var img = canvas.toDataURL("image/jpeg",1);
      var dload = document.createElement('a');
-     dload.href = img;
+     dload.href = rawImg;
      dload.download = dname;
      dload.innerHTML = "Download Image File";
      dload.style.display = 'none';
@@ -565,11 +570,9 @@ function jpgClick(fname) {
      }
      } else {
        if(isSafari) {
-         var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
          rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
          document.location.href = rawImg;
          } else { // IE
-            var rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
             var blob = dataUriToBlob(rawImg);
             window.navigator.msSaveBlob(blob, dname);
        }
@@ -709,9 +712,19 @@ function testClick() {
   annoChk();
 }
 
-function resetScaleBar(value)
+function resetScalebar(value)
 {
   var options = {};
   options['pixelsPerMeter'] = value;
   myViewer.scalebar(options);
+}
+
+function hasScalebar() 
+{
+  var _pixelsPerMeter=myViewer.scalebarInstance.pixelsPerMeter;
+  if(_pixelsPerMeter != 0) {
+    return true; 
+    } else {
+      return false; 
+  }
 }
