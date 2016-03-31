@@ -116,7 +116,7 @@ jQuery(document).ready(function() {
             type: OpenSeadragon.ScalebarType.MAP,
             pixelsPerMeter: 0,
             minWidth: "75px",
-            location: OpenSeadragon.ScalebarLocation.TOP_LEFT,
+            location: OpenSeadragon.ScalebarLocation.BOTTOM_LEFT,
             xOffset: 5,
             yOffset: 10,
             stayInsideImage: true,
@@ -124,7 +124,7 @@ jQuery(document).ready(function() {
             fontColor: "rgb(0, 0, 0)",
             backgroundColor: "rgba(204, 204, 204, 0.7)",
             fontSize: "small",
-            barThickness: 2
+            barThickness: 3 
     });
 
     if (typeof annoSetup === "function") {
@@ -548,12 +548,13 @@ function jpgClick(fname) {
 
    var rawImg;
    if( hasScalebar() ) { 
-      var canvas=myViewer.scalebarInstance.injectIntoImageCanvas();
+      var canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
       rawImg = canvas.toDataURL("image/jpeg",1);
       } else {
         rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
    }
-   if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
+//   if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
+   if( ! isIE ) { // this only works for firefox and chrome
      var dload = document.createElement('a');
      dload.href = rawImg;
      dload.download = dname;
