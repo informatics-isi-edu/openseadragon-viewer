@@ -116,7 +116,7 @@ jQuery(document).ready(function() {
             type: OpenSeadragon.ScalebarType.MAP,
             pixelsPerMeter: 0,
             minWidth: "75px",
-            location: OpenSeadragon.ScalebarLocation.BOTTOM_LEFT,
+            location: OpenSeadragon.ScalebarLocation.TOP_LEFT,
             xOffset: 5,
             yOffset: 10,
             stayInsideImage: true,
