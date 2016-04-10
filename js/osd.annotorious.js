@@ -144,6 +144,8 @@ function annoSetup(_anno,_viewer) {
   _anno.makeAnnotatable(_viewer);
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
+window.console.log("--->calling onAnnotationCreated...");
+    saveAnnoDiv.id='anno_'+getHash(item);
     var json=annoLog(item,CREATE_EVENT_TYPE);
     updateAnnotationList('onAnnotationCreated', json);
   });

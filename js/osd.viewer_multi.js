@@ -38,6 +38,8 @@ var logZoom=null;
 var logHeader=null;
 var logURL=[];
 
+var saveAnnoDiv=null;
+
 // this is to work around that the initial load of the viewport
 // always goes to the initial view first
 var startState=false;
@@ -46,6 +48,8 @@ var startState=false;
 var isFirst=true;
 // to track special annotation
 var isSpecialAnnotation=false;
+// to track arrow annotation
+var isArrowAnnotation=false;
 
 jQuery(document).ready(function() {
 
@@ -165,10 +169,54 @@ jQuery(document).ready(function() {
       }
     });
 
+    // only overlay that is being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
        var anno_div=target.element;
-       if(isSpecialAnnotation)
+//       var anno_location=target.location;
+//       var anno_width=anno_location.width;
+//       var anno_height=anno_location.height;
+window.console.log("--> calling add-overly from openseadragon..");
+         saveAnnoDiv=anno_div;
+
+       if(isSpecialAnnotation) {
          anno_div.classList.add("special-annotation");
+       }
+       if(isArrowAnnotation) {
+         anno_div.classList.add("arrow-annotation"); // boxmarker-outer
+         var inner_node = anno_div.childNodes[0];
+         inner_node.classList.add("arrow-annotation"); // boxmarker-inner
+         var arrow_node = document.createElement('span');
+         arrow_node.style.position = 'absolute';
+//         arrow_node.style.top = '0px';
+         arrow_node.style.top = '100%';
+         arrow_node.style.left = '100%';
+         arrow_node.classList.add("glyphicon");
+         arrow_node.classList.add("glyphicon-tag");
+         arrow_node.style.color = 'red';
+         anno_div.appendChild(arrow_node);
+       }
+
+// MEI
+/*
+var observer = new MutationObserver(function(mutations) {
+window.console.log('Attributes changed!');
+mutations.forEach(function(mutation) {
+if(mutation.type == 'attributes') {
+window.console.log(mutation.type);
+window.console.log(mutation.attributeName);
+window.console.log(mutation.oldValue);
+window.console.log(mutation.target);
+}
+});    
+});
+var observerConfig = {
+attributes: true, 
+childList: true, 
+characterData: true 
+};
+observer.observe(anno_div, observerConfig);
+*/
+
 /*
        var _rec=target.location;
        var _tl=_rec.getTopLeft();
@@ -534,26 +582,26 @@ function extractInfo(str) {
 }
 
 
-
 function jpgClick(fname) {
    var dname=fname;
-   if(fname == null) {
+   if(dname == null) {
      var f = new Date().getTime();
      var ff= f.toString();
      dname="osd_"+ff+".jpg";
    }
+
    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
    var isChrome = !!window.chrome && !!window.chrome.webstore;
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
    var rawImg;
    if( hasScalebar() ) { 
-      var canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
+      var canvas=myViewer.scalebarInstance.injectIntoImageCanvas();
       rawImg = canvas.toDataURL("image/jpeg",1);
       } else {
         rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
    }
-//   if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
+
    if( ! isIE ) { // this only works for firefox and chrome
      var dload = document.createElement('a');
      dload.href = rawImg;
@@ -578,6 +626,52 @@ function jpgClick(fname) {
             window.navigator.msSaveBlob(blob, dname);
        }
    }
+}
+
+function jpgClick0(fname) {
+   var dname=fname;
+   if(dname == null) {
+     var f = new Date().getTime();
+     var ff= f.toString();
+     dname="osd_"+ff+".jpg";
+   }
+
+   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+   var isChrome = !!window.chrome && !!window.chrome.webstore;
+   var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+//http://stackoverflow.com/questions/10932670/how-do-i-draw-the-content-of-div-on-html5-canvas-using-jquery
+   html2canvas(document.body, {
+       onrendered: function(canvas) {
+       var rawImg = canvas.toDataURL("image/jpeg",1);
+//       window.open(img);
+
+       if( ! isIE ) { // this only works for firefox and chrome
+         var dload = document.createElement('a');
+         dload.href = rawImg;
+         dload.download = dname;
+         dload.innerHTML = "Download Image File";
+         dload.style.display = 'none';
+         dload.onclick=destroyClickedElement;
+         if( isChrome ) {
+           dload.click();
+           delete dload;
+           } else {
+             document.body.appendChild(dload);
+             dload.click();
+             delete dload;
+         }
+         } else {
+           if(isSafari) {
+             rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+             document.location.href = rawImg;
+             } else { // IE
+                var blob = dataUriToBlob(rawImg);
+                window.navigator.msSaveBlob(blob, dname);
+           }
+       }
+       }
+   });
 }
   
 
@@ -685,6 +779,8 @@ window.console.log("BAD BAD BAD...");
     }
 }
 
+function markArrow() { isArrowAnnotation=true; }
+function unmarkArrow() { isArrowAnnotation=false; }
 function markSpecial() { isSpecialAnnotation=true; }
 function unmarkSpecial() { isSpecialAnnotation=false; }
 
@@ -697,6 +793,17 @@ function specialClick() {
       } else {
         markSpecial();
         stog.style.color='green';
+   }
+}
+
+function arrowClick() {
+   var atog = document.getElementById('arrow-toggle');
+   if(isArrowAnnotation) {
+      unmarkArrow();
+      atog.style.color='black';
+      } else {
+        markArrow();
+        atog.style.color='red';
    }
 }
 

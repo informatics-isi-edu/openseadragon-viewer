@@ -64,6 +64,64 @@ function updateAnnotationState(mType, cState) {
     }
 }
 
+function event_loadAnnotations(messageType, data) {
+    var annotationsToLoad = {"annoList":[]};
+    data.map(function formatAnnotationObj(annotation) {
+        annotation = annotation.data;
+        var annotationObj = {
+            "type": "openseadragon_dzi",
+            "id": null,
+            "event": "INFO",
+            "data": {
+                "src": "dzi://openseadragon/something",
+                "text": annotation.description,
+                "shapes": [
+                    {
+                "type": "rect",
+                "geometry": {
+                    "x": annotation.coords[0],
+                    "y": annotation.coords[1],
+                    "width": annotation.coords[2],
+                    "height": annotation.coords[3]
+                },
+                "style": {}
+                    }
+                ],
+                "context": annotation.context_uri
+            }
+        };
+        annotationsToLoad.annoList.push(annotationObj);
+    });
+    readAll(annotationsToLoad);
+}
+
+function event_createAnnotation(messageType, data) {
+    cancelEditor();
+    var annotationObj = {
+        "type": "openseadragon_dzi",
+        "id": null,
+        "event": "INFO",
+        "data": {
+            "src": "dzi://openseadragon/something",
+            "text": data.description,
+            "shapes": [
+                {
+                    "type": "rect",
+                    "geometry": {
+                        "x": data.coords[0],
+                        "y": data.coords[1],
+                        "width": data.coords[2],
+                        "height": data.coords[3]
+                    },
+                    "style": {}
+                }
+            ],
+            "context": data.context_uri
+        }
+    };
+    annoAdd(annotationObj.data);
+}
+
 /*********************************************************/
 // An event listener to capture incoming messages from Chaise
 /*********************************************************/
@@ -87,38 +145,18 @@ window.addEventListener('message', function(event) {
             case 'downloadView':
                 jpgClick(data+".jpg");
                 break;
+            case 'loadArrowAnnotations':
+                markArrow(); 
+                event_loadAnnotations(messageType, data);
+                unmarkArrow(); 
+                break;
             case 'loadSpecialAnnotations':
-                markSpecial(); // let if fall through 
-            case 'loadAnnotations':
-                var annotationsToLoad = {"annoList":[]};
-                data.map(function formatAnnotationObj(annotation) {
-                    annotation = annotation.data;
-                    var annotationObj = {
-                        "type": "openseadragon_dzi",
-                        "id": null,
-                        "event": "INFO",
-                        "data": {
-                            "src": "dzi://openseadragon/something",
-                            "text": annotation.description,
-                            "shapes": [
-                                {
-                                    "type": "rect",
-                                    "geometry": {
-                                        "x": annotation.coords[0],
-                                        "y": annotation.coords[1],
-                                        "width": annotation.coords[2],
-                                        "height": annotation.coords[3]
-                                    },
-                                    "style": {}
-                                }
-                            ],
-                            "context": annotation.context_uri
-                        }
-                    };
-                    annotationsToLoad.annoList.push(annotationObj);
-                });
-                readAll(annotationsToLoad);
+                markSpecial(); 
+                event_loadAnnotations(messageType, data);
                 unmarkSpecial(); 
+                break;
+            case 'loadAnnotations':
+                event_loadAnnotations(messageType, data);
                 break;
             case 'centerAnnotation':
                 var annotationObj = {
@@ -166,34 +204,18 @@ window.addEventListener('message', function(event) {
             case 'drawAnnotation':
                 myAnno.activateSelector();
                 break;
+            case 'createArrowAnnotation':
+                markArrow(); 
+                event_createAnnotation(messageType, data);
+                unmarkArrow();
+                break;
             case 'createSpecialAnnotation':
-                markSpecial(); // let it falls through
-            case 'createAnnotation':
-                cancelEditor();
-                var annotationObj = {
-                    "type": "openseadragon_dzi",
-                    "id": null,
-                    "event": "INFO",
-                    "data": {
-                        "src": "dzi://openseadragon/something",
-                        "text": data.description,
-                        "shapes": [
-                            {
-                                "type": "rect",
-                                "geometry": {
-                                    "x": data.coords[0],
-                                    "y": data.coords[1],
-                                    "width": data.coords[2],
-                                    "height": data.coords[3]
-                                },
-                                "style": {}
-                            }
-                        ],
-                        "context": data.context_uri
-                    }
-                };
-                annoAdd(annotationObj.data);
+                markSpecial(); 
+                event_createAnnotation(messageType, data);
                 unmarkSpecial();
+                break;
+            case 'createAnnotation':
+                event_createAnnotation(messageType, data);
                 break;
             case 'cancelAnnotationCreation':
                 cancelEditor();

@@ -373,10 +373,10 @@
             return canvas;
         },
         /**
-         * Get a copy of the current OpenSeadragon canvas with the scalebar.
-         * @returns {Element} A canvas containing a copy of the current OpenSeadragon canvas with the scalebar
+         * Inject scalebar into a canvas with viewport image.
+         * @returns {Element} A canvas containing the scalebar representation
          */
-        getImageWithScalebarAsCanvas: function() {
+        injectIntoImageCanvas: function() {
             var imgCanvas = this.viewer.drawer.canvas;
             var newCanvas = document.createElement("canvas");
             newCanvas.width = imgCanvas.width;

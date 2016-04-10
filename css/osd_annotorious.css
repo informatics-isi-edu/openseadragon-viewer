@@ -2,6 +2,10 @@
   from annotorious demo 
 */
 
+.arrow-annotation {
+    border: 0px solid black;
+}
+
 .special-annotation {
     border: 3px solid green;
 }
@@ -22,6 +26,10 @@
 
 #osd-focus-control-button {
     right:140px;
+}
+
+#osd-arrow-control-button {
+    right:505px;
 }
 
 #osd-test-control-button {
