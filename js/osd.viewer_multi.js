@@ -640,10 +640,8 @@ function jpgAllClick(fname) {
    var isChrome = !!window.chrome && !!window.chrome.webstore;
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
-   var styleSheet = document.styleSheets[document.styleSheets.length-1];
    if(!enableEmbedded) { // only when it is a standalone viewer
-     styleSheet.insertRule('.annotorious-editor { display:none }', 0);
-     styleSheet.insertRule('.annotorious-popup-buttons { visibility:hidden }', 0);
+     $('.annotorious-popup').css('display','none');
    }
 //http://stackoverflow.com/questions/10932670/how-do-i-draw-the-content-of-div-on-html5-canvas-using-jquery
    html2canvas(document.body, {
@@ -678,8 +676,7 @@ function jpgAllClick(fname) {
        }
    });
    if(!enableEmbedded) { // only when it is a standalone viewer
-     styleSheet.removeRule('.annotorious-editor { display:none }', 0);
-     styleSheet.removeRule('.annotorious-popup-buttons { visibility:hidden }', 0);
+     $('.annotorious-popup').css('display','');
    }
 }
   
