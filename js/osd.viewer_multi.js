@@ -172,10 +172,12 @@ jQuery(document).ready(function() {
     // only overlay that is being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
        var anno_div=target.element;
-//       var anno_location=target.location;
+       var anno_location=target.location;
 //       var anno_width=anno_location.width;
 //       var anno_height=anno_location.height;
-//window.console.log("--> calling add-overly from openseadragon..");
+       var anno_x=anno_location.x;
+       var anno_y=anno_location.y;
+window.console.log("--> calling add-overly from openseadragon..x",anno_x," y",anno_y);
          saveAnnoDiv=anno_div;
 
        if(isSpecialAnnotation) {

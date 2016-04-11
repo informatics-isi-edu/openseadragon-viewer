@@ -7,6 +7,11 @@ var UPDATE_EVENT_TYPE='UPDATE';
 var REMOVE_EVENT_TYPE='REMOVE';
 var INFO_EVENT_TYPE='INFO';
 
+function makeAnnoID(item) {
+  var id='anno_'+getHash(item);
+  return id;
+}
+
 function annoCtrlClick()
 {
   var atog = document.getElementById('anno-toggle');
@@ -74,6 +79,37 @@ function printAnno(item) {
 window.console.log("printAnno, x,y,w,h "+x+" "+y+" "+w+" "+h);
 }
 
+// check to see if the item is in view, 
+//  viewer,
+//       0,0    w,0
+//       0,h    w,h
+//  anno,
+//      left,top    left+Aw,top
+//      left,top+Ah left+Aw,top+Ah 
+//  outside,
+//    top < 0  || top+Ah > h
+//    left+Aw > w || left < 0
+function annoInView(item) {
+  var id=makeAnnoID(item);
+  var viewer = document.getElementsByClassName('canvas');
+  var viewer_width=parseInt(viewer.width);
+  var viewer_height=parseInt(viewer.height);
+  var anno = document.getElementById(id);
+  if(anno) {
+    var anno_width= parseInt(anno.style.width);
+    var anno_height= parseInt(anno.style.width);
+    var anno_top= parseInt(anno.style.top);
+    var anno_left= parseInt(anno.style.left);
+    if( anno_top < 0 || anno_top+anno_height > viewer_height ||
+        anno_left+anno_width > viewer_width || anno_left < 0)
+       return -1; 
+    return id;
+    } else {
+      alertify.error("Error: non-exisiting annoId, ",id);
+  }
+  return -1;
+}
+
 // dump a listed of annotation wrapped in logInfo
 function annoDump() {
   var p=myAnno.getAnnotations();
@@ -122,6 +158,12 @@ function annoChk()
   var len=p.length;
   for (var i = 0; i < len; i++) {
     printAnno(p[i]);
+    var id=annoInView(p[i]);
+    if(id != -1) {
+       window.console.log("this anno IS in view ",id); 
+       } else {
+         window.console.log("this anno IS NOT in view"); 
+    }
   }
 }
 
@@ -145,7 +187,7 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
 //window.console.log("--->calling onAnnotationCreated...");
-    saveAnnoDiv.id='anno_'+getHash(item);
+    saveAnnoDiv.id=makeAnnoID(item);
     var json=annoLog(item,CREATE_EVENT_TYPE);
     updateAnnotationList('onAnnotationCreated', json);
   });
