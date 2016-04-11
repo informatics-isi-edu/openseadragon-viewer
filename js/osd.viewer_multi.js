@@ -596,7 +596,7 @@ function jpgClick(fname) {
 
    var rawImg;
    if( hasScalebar() ) { 
-      var canvas=myViewer.scalebarInstance.injectIntoImageCanvas();
+      var canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
       rawImg = canvas.toDataURL("image/jpeg",1);
       } else {
         rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
