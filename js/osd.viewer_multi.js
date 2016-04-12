@@ -154,6 +154,11 @@ jQuery(document).ready(function() {
 
     myViewer.addHandler('viewport-change', function(target) {
       savePosition();
+/*
+      var aSet=annoSetInView();
+      var vlist=aSet.annoList;
+      window.console.log("IN viewport-change..",vlist.length);
+*/
     });
     myViewer.addHandler('canvas-enter', function(target) {
       /* make it visible */
@@ -190,8 +195,8 @@ window.console.log("--> calling add-overly from openseadragon..x",anno_x," y",an
          var arrow_node = document.createElement('span');
          arrow_node.style.position = 'absolute';
 //         arrow_node.style.top = '0px';
-         arrow_node.style.top = '100%';
-         arrow_node.style.left = '100%';
+         arrow_node.style.top = '75%';
+         arrow_node.style.left = '75%';
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");
          arrow_node.style.color = 'red';
@@ -610,11 +615,11 @@ function jpgClick(fname) {
      dload.download = dname;
      dload.innerHTML = "Download Image File";
      dload.style.display = 'none';
-     dload.onclick=destroyClickedElement;
      if( isChrome ) {
        dload.click();
        delete dload;
        } else {
+         dload.onclick=destroyClickedElement;
          document.body.appendChild(dload);
          dload.click();
          delete dload;
@@ -657,11 +662,11 @@ function jpgAllClick(fname) {
          dload.download = dname;
          dload.innerHTML = "Download Image File";
          dload.style.display = 'none';
-         dload.onclick=destroyClickedElement;
          if( isChrome ) {
            dload.click();
            delete dload;
            } else {
+             dload.onclick=destroyClickedElement;
              document.body.appendChild(dload);
              dload.click();
              delete dload;

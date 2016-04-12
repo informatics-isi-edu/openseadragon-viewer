@@ -87,21 +87,36 @@ window.console.log("printAnno, x,y,w,h "+x+" "+y+" "+w+" "+h);
 //      left,top    left+Aw,top
 //      left,top+Ah left+Aw,top+Ah 
 //  outside,
-//    top < 0  || top+Ah > h
-//    left+Aw > w || left < 0
+//    top+Ah < 0  || top>h
+//    left > w || left+Aw < 0
+
 function annoInView(item) {
   var id=makeAnnoID(item);
-  var viewer = document.getElementsByClassName('canvas');
-  var viewer_width=parseInt(viewer.width);
+// pick the first one..
+  var viewer = document.getElementsByTagName('canvas');
+  var viewer_width=parseInt(viewer[0].width);
+  var viewer_height=parseInt(viewer[0].height);
   var viewer_height=parseInt(viewer.height);
   var anno = document.getElementById(id);
   if(anno) {
     var anno_width= parseInt(anno.style.width);
-    var anno_height= parseInt(anno.style.width);
+    var anno_height= parseInt(anno.style.height);
     var anno_top= parseInt(anno.style.top);
     var anno_left= parseInt(anno.style.left);
-    if( anno_top < 0 || anno_top+anno_height > viewer_height ||
-        anno_left+anno_width > viewer_width || anno_left < 0)
+
+window.console.log("anno_top ->",anno_top);
+window.console.log("anno_left ->",anno_left);
+window.console.log("anno_width ->",anno_width);
+window.console.log("anno_height ->",anno_height);
+window.console.log("viewer_width ->",viewer_width);
+window.console.log("viewer_height ->",viewer_height)
+window.console.log(anno_top+anno_height < 0);
+window.console.log(anno_top > viewer_height);
+window.console.log(anno_left+anno_width < 0);
+window.console.log(anno_left > viewer_width);
+
+    if( anno_top+anno_height < 0 || anno_top > viewer_height || 
+        anno_left+anno_width < 0 || anno_left > viewer_width)
        return -1; 
     return id;
     } else {
@@ -150,6 +165,28 @@ function annoRetrieveByHash(h) {
     }
   }
   return null;
+}
+
+function annoSetInView()
+{
+  var annotationsToLoad = {"annoList":[]};
+  var p=myAnno.getAnnotations();
+  var len=p.length;
+  for (var i = 0; i < len; i++) {
+    var id=annoInView(p[i]);
+    if(id != -1) {
+       var annotationObj = {
+            "type": "openseadragon_dzi",
+            "id": null,
+            "event": "INFO",
+            "data": p[i]};
+       annotationsToLoad.annoList.push(annotationObj);
+       window.console.log("this anno IS in view ",id); 
+       } else {
+         window.console.log("this anno IS NOT in view"); 
+    }
+  }
+  return annotationsToLoad;
 }
 
 function annoChk()
