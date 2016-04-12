@@ -708,8 +708,8 @@ function jpgClickNoScale(fname) {
      dload.download = dname;
      dload.innerHTML = "Download Image File";
      dload.style.display = 'none';
-     dload.onclick=destroyClickedElement;
      if( isChrome ) {
+       dload.onclick=destroyClickedElement;
        dload.click();
        delete dload;
        } else {
