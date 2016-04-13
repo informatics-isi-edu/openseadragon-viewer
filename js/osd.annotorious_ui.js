@@ -68,7 +68,7 @@ function event_loadAnnotations(messageType, data) {
     var annotationsToLoad = {"annoList":[]};
     data.map(function formatAnnotationObj(annotation) {
         annotation = annotation.data;
-        var heading = 'Section';
+        var heading;
         if (annotation.anatomy) {
             heading = capitalizeFirstLetter(annotation.anatomy);
         }
@@ -101,7 +101,7 @@ function event_loadAnnotations(messageType, data) {
 
 function event_createAnnotation(messageType, data) {
     cancelEditor();
-    var heading = 'Section';
+    var heading;
     if (data.anatomy) {
         heading = capitalizeFirstLetter(data.anatomy);
     }
@@ -167,7 +167,7 @@ window.addEventListener('message', function(event) {
                 event_loadAnnotations(messageType, data);
                 break;
             case 'centerAnnotation':
-                var heading = 'Section';
+                var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
                 }
@@ -191,7 +191,7 @@ window.addEventListener('message', function(event) {
                 centerAnnoByHash(getHash(annotationObj),true);
                 break;
             case 'highlightAnnotation':
-                var heading = 'Section';
+                var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
                 }
@@ -221,6 +221,7 @@ window.addEventListener('message', function(event) {
                 myAnno.activateSelector();
                 break;
             case 'createArrowAnnotation':
+                console.log(messageType, data);
                 markArrow();
                 event_createAnnotation(messageType, data);
                 unmarkArrow();
@@ -237,7 +238,7 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
-                var heading = 'Section';
+                var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
                 }
@@ -262,7 +263,7 @@ window.addEventListener('message', function(event) {
                 annotation.text = annotationObj.text;
                 break;
             case 'deleteAnnotation':
-                var heading = 'Section';
+                var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
                 }
