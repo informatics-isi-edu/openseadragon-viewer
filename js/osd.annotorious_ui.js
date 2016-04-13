@@ -74,7 +74,7 @@ function event_loadAnnotations(messageType, data) {
             "event": "INFO",
             "data": {
                 "src": "dzi://openseadragon/something",
-                "text": annotation.description,
+                "text": annotation.anatomy + "<br>" + annotation.description,
                 "shapes": [
                     {
                 "type": "rect",
@@ -146,14 +146,14 @@ window.addEventListener('message', function(event) {
                 jpgClick(data+".jpg");
                 break;
             case 'loadArrowAnnotations':
-                markArrow(); 
+                markArrow();
                 event_loadAnnotations(messageType, data);
-                unmarkArrow(); 
+                unmarkArrow();
                 break;
             case 'loadSpecialAnnotations':
-                markSpecial(); 
+                markSpecial();
                 event_loadAnnotations(messageType, data);
-                unmarkSpecial(); 
+                unmarkSpecial();
                 break;
             case 'loadAnnotations':
                 event_loadAnnotations(messageType, data);
@@ -205,12 +205,12 @@ window.addEventListener('message', function(event) {
                 myAnno.activateSelector();
                 break;
             case 'createArrowAnnotation':
-                markArrow(); 
+                markArrow();
                 event_createAnnotation(messageType, data);
                 unmarkArrow();
                 break;
             case 'createSpecialAnnotation':
-                markSpecial(); 
+                markSpecial();
                 event_createAnnotation(messageType, data);
                 unmarkSpecial();
                 break;
