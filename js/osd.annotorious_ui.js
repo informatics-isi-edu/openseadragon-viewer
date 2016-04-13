@@ -20,8 +20,7 @@ function setupAnnoUI() {
       if(bElm)
         bElm.style.display = '';
       } else {
-        // Hide the annotation editor aka the black box.
-        // Editing will occur in Chaise.
+        // Hide the annotation editor aka the black box. Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
         styleSheet.insertRule('.annotorious-popup-buttons { visibility:hidden }', 0);
@@ -71,6 +70,8 @@ function event_loadAnnotations(messageType, data) {
         var heading;
         if (annotation.anatomy) {
             heading = capitalizeFirstLetter(annotation.anatomy);
+        } else {
+            heading = '';
         }
         var annotationObj = {
             "type": "openseadragon_dzi",
@@ -104,6 +105,8 @@ function event_createAnnotation(messageType, data) {
     var heading;
     if (data.anatomy) {
         heading = capitalizeFirstLetter(data.anatomy);
+    } else {
+        heading = '';
     }
     var annotationObj = {
         "type": "openseadragon_dzi",
@@ -170,6 +173,8 @@ window.addEventListener('message', function(event) {
                 var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
+                } else {
+                    heading = '';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -194,6 +199,8 @@ window.addEventListener('message', function(event) {
                 var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
+                } else {
+                    heading = '';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -241,6 +248,8 @@ window.addEventListener('message', function(event) {
                 var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
+                } else {
+                    heading = '';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -266,6 +275,8 @@ window.addEventListener('message', function(event) {
                 var heading;
                 if (data.anatomy) {
                     heading = capitalizeFirstLetter(data.anatomy);
+                } else {
+                    heading = '';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
