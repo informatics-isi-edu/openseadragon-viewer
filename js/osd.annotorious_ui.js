@@ -68,13 +68,17 @@ function event_loadAnnotations(messageType, data) {
     var annotationsToLoad = {"annoList":[]};
     data.map(function formatAnnotationObj(annotation) {
         annotation = annotation.data;
+        var heading = 'Section';
+        if (annotation.anatomy) {
+            heading = annotation.anatomy;
+        }
         var annotationObj = {
             "type": "openseadragon_dzi",
             "id": null,
             "event": "INFO",
             "data": {
                 "src": "dzi://openseadragon/something",
-                "text": annotation.anatomy + "<br>" + annotation.description,
+                "text": "<strong>" + heading + "</strong><br>" + annotation.description,
                 "shapes": [
                     {
                 "type": "rect",
@@ -97,13 +101,17 @@ function event_loadAnnotations(messageType, data) {
 
 function event_createAnnotation(messageType, data) {
     cancelEditor();
+    var heading = 'Section';
+    if (data.anatomy) {
+        heading = data.anatomy;
+    }
     var annotationObj = {
         "type": "openseadragon_dzi",
         "id": null,
         "event": "INFO",
         "data": {
             "src": "dzi://openseadragon/something",
-            "text": data.description,
+            "text": "<strong>" + heading + "</strong><br>" + data.description,
             "shapes": [
                 {
                     "type": "rect",
@@ -159,9 +167,13 @@ window.addEventListener('message', function(event) {
                 event_loadAnnotations(messageType, data);
                 break;
             case 'centerAnnotation':
+                var heading = 'Section';
+                if (data.anatomy) {
+                    heading = data.anatomy;
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -179,9 +191,13 @@ window.addEventListener('message', function(event) {
                 centerAnnoByHash(getHash(annotationObj),true);
                 break;
             case 'highlightAnnotation':
+                var heading = 'Section';
+                if (data.anatomy) {
+                    heading = data.anatomy;
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -221,9 +237,13 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
+                var heading = 'Section';
+                if (data.anatomy) {
+                    heading = data.anatomy;
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -242,9 +262,13 @@ window.addEventListener('message', function(event) {
                 annotation.text = annotationObj.text;
                 break;
             case 'deleteAnnotation':
+                var heading = 'Section';
+                if (data.anatomy) {
+                    heading = data.anatomy;
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
