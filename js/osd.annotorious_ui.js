@@ -135,7 +135,7 @@ function event_createAnnotation(messageType, data) {
     cancelEditor();
     var heading = '';
     if (data.anatomy) {
-        heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+        heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
     }
 
     var style = {};
