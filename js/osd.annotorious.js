@@ -151,12 +151,13 @@ function annoDump() {
   var len=p.length;
   var alist=[];
   for(var i=0; i < len; i++) {
-      var item=p[i];
+/*
       if(isArrowAnnotation) {
         var style=p[i].shapes[0].style;
         if(style['color']==null)
            p[i].shapes[0].style = { "color":"green" };
       }
+*/
       alist.push(annoLog(p[i],INFO_EVENT_TYPE));
   }
   var tmp = { "annoList" : alist };
@@ -264,7 +265,15 @@ function annoAdd(item) {
   var style=item.shapes[0].style;
   if(style.length != 0) { // { color:'red', 'border':'green' }
     var b=style['color'];
-    if(TEST_MODE && b != null) { markArrow(); }
+    if(TEST_MODE) {
+      if(b != null) { 
+        markArrow();
+        } else {
+          if(isArrowAnnotation)
+            item.shapes[0].style= { 'color':saveArrowColor };
+      }
+    }
+
     if(isArrowAnnotation) {
       if(b) 
         saveArrowColor=b;

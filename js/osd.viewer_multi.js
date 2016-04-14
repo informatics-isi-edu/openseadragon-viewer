@@ -810,7 +810,10 @@ function arrowClick() {
       atog.style.color='black';
       } else {
         markArrow();
-        atog.style.color='red';
+        var clist= [ 'red', 'green', 'blue', 'yellow'];
+        var i=Math.floor((Math.random() * 3) + 1); 
+        saveArrowColor=clist[i-1];
+        atog.style.color=saveArrowColor;
    }
 }
 
