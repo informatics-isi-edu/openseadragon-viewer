@@ -28,8 +28,7 @@ function setupAnnoUI() {
       if(bElm)
         bElm.style.display = '';
       } else {
-        // Hide the annotation editor aka the black box.
-        // Editing will occur in Chaise.
+        // Hide the annotation editor aka the black box. Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
         styleSheet.insertRule('.annotorious-popup-button-edit { visibility:hidden }', 0);
@@ -94,13 +93,17 @@ function event_loadAnnotations(messageType, data) {
     var annotationsToLoad = {"annoList":[]};
     data.map(function formatAnnotationObj(annotation) {
         annotation = annotation.data;
+        var heading = '';
+        if (annotation.anatomy) {
+            heading = capitalizeFirstLetter(annotation.anatomy);
+        }
         var annotationObj = {
             "type": "openseadragon_dzi",
             "id": null,
             "event": "INFO",
             "data": {
                 "src": "dzi://openseadragon/something",
-                "text": annotation.description,
+                "text": "<strong>" + heading + "</strong><br>" + annotation.description,
                 "shapes": [
                     {
                 "type": "rect",
@@ -126,13 +129,17 @@ function event_loadAnnotations(messageType, data) {
 
 function event_createAnnotation(messageType, data) {
     cancelEditor();
+    var heading = '';
+    if (data.anatomy) {
+        heading = capitalizeFirstLetter(data.anatomy);
+    }
     var annotationObj = {
         "type": "openseadragon_dzi",
         "id": null,
         "event": "INFO",
         "data": {
             "src": "dzi://openseadragon/something",
-            "text": data.description,
+            "text": "<strong>" + heading + "</strong><br>" + data.description,
             "shapes": [
                 {
                     "type": "rect",
@@ -178,22 +185,26 @@ window.addEventListener('message', function(event) {
                 jpgClick(data+".jpg");
                 break;
             case 'loadArrowAnnotations':
-                markArrow(); 
+                markArrow();
                 event_loadAnnotations(messageType, data);
-                unmarkArrow(); 
+                unmarkArrow();
                 break;
             case 'loadSpecialAnnotations':
-                markSpecial(); 
+                markSpecial();
                 event_loadAnnotations(messageType, data);
-                unmarkSpecial(); 
+                unmarkSpecial();
                 break;
             case 'loadAnnotations':
                 event_loadAnnotations(messageType, data);
                 break;
             case 'centerAnnotation':
+                var heading = '';
+                if (data.anatomy) {
+                    heading = capitalizeFirstLetter(data.anatomy);
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -211,9 +222,13 @@ window.addEventListener('message', function(event) {
                 centerAnnoByHash(getHash(annotationObj),true);
                 break;
             case 'highlightAnnotation':
+                var heading = '';
+                if (data.anatomy) {
+                    heading = capitalizeFirstLetter(data.anatomy);
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -237,12 +252,13 @@ window.addEventListener('message', function(event) {
                 myAnno.activateSelector();
                 break;
             case 'createArrowAnnotation':
-                markArrow(); 
+                console.log(messageType, data);
+                markArrow();
                 event_createAnnotation(messageType, data);
                 unmarkArrow();
                 break;
             case 'createSpecialAnnotation':
-                markSpecial(); 
+                markSpecial();
                 event_createAnnotation(messageType, data);
                 unmarkSpecial();
                 break;
@@ -253,9 +269,13 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
+                var heading = '';
+                if (data.anatomy) {
+                    heading = capitalizeFirstLetter(data.anatomy);
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -274,9 +294,13 @@ window.addEventListener('message', function(event) {
                 annotation.text = annotationObj.text;
                 break;
             case 'deleteAnnotation':
+                var heading = '';
+                if (data.anatomy) {
+                    heading = capitalizeFirstLetter(data.anatomy);
+                }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": data.description,
+                    "text": "<strong>" + heading + "</strong><br>" + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -301,3 +325,14 @@ window.addEventListener('message', function(event) {
         console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
     }
 });
+
+/*********************************************************/
+// Utilities
+/*********************************************************/
+
+function capitalizeFirstLetter(string) {
+    if (typeof string === 'string') {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    return string;
+}
