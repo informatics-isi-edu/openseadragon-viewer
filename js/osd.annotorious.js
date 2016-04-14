@@ -9,7 +9,15 @@ var REMOVE_EVENT_TYPE='REMOVE';
 var CLICK_EVENT_TYPE='CLICK';
 var INFO_EVENT_TYPE='INFO';
 
+// this is for saveAnno and loadAnno buttons that
+// do localhost dump and loading -- in standalone mode
+// Arrow Annotations, when item.shape[0].style= {'color':'green'}
+//                       or [ISRD_ARROW] in item.text
+// Special Annotaiton, when [ISRD_SPECIAL] in item.text
+// all other are regular annotation
 var TEST_MODE=false;
+var TEST_SPECIAL_MARKER="[ISRD_SPECIAL]";
+var TEST_ARROW_MARKER="[ISRD_ARROW]";
 
 function makeAnnoID(item) {
   var id='anno_'+getHash(item);
@@ -151,13 +159,6 @@ function annoDump() {
   var len=p.length;
   var alist=[];
   for(var i=0; i < len; i++) {
-/*
-      if(isArrowAnnotation) {
-        var style=p[i].shapes[0].style;
-        if(style['color']==null)
-           p[i].shapes[0].style = { "color":"green" };
-      }
-*/
       alist.push(annoLog(p[i],INFO_EVENT_TYPE));
   }
   var tmp = { "annoList" : alist };
@@ -266,14 +267,17 @@ function annoAdd(item) {
   if(style.length != 0) { // { color:'red', 'border':'green' }
     var b=style['color'];
     if(TEST_MODE) {
-      if(b != null) { 
+      var t=item.text;
+      var special=t.includes(TEST_SPECIAL_MARKER);
+      var arrow=t.includes(TEST_ARROW_MARKER);
+      if(arrow) { 
         markArrow();
-        } else {
-          if(isArrowAnnotation)
-            item.shapes[0].style= { 'color':saveArrowColor };
+        if(b == null)
+          item.shapes[0].style= { 'color':saveArrowColor };
       }
+      if(special)
+        markSpecial();
     }
-
     if(isArrowAnnotation) {
       if(b) 
         saveArrowColor=b;
@@ -281,7 +285,7 @@ function annoAdd(item) {
     }
   }
   myAnno.addAnnotation(item);
-  if(TEST_MODE && isArrowAnnotation) { unmarkArrow(); }
+  if(TEST_MODE) { unmarkArrow(); unmarkSpecial(); }
 }
 
 // item is discarded
@@ -315,8 +319,13 @@ function annoSetup(_anno,_viewer) {
 //window.console.log("--->calling onAnnotationCreated...");
     saveAnnoDiv.id=makeAnnoID(item);
     if(isArrowAnnotation) {
-        item.shapes[0].style = { "color":saveArrowColor };
+      item.shapes[0].style = { "color":saveArrowColor };
+      target.text=item.text+TEST_ARROW_MARKER;
     }
+// hum.. will this interfer 
+    if(isSpecialAnnotation)
+      target.text=item.text+TEST_SPECIAL_MARKER;
+
     var json=annoLog(item,CREATE_EVENT_TYPE);
     updateAnnotationList('onAnnotationCreated', json);
   });
