@@ -17,6 +17,10 @@
     border: 0px solid black;
 }
 
+.arrow-annotation-outer:hover {
+    border: 1px solid red;
+}
+
 .arrow-annotation-inner {
     border: 0px solid black;
 }
