@@ -2,7 +2,22 @@
   from annotorious demo 
 */
 
-.arrow-annotation {
+.annotorious-popup-button-click:hover {
+  background-color:transparent;
+  background:url(annotorious/feather_icon.png) no-repeat;
+  outline:none;
+}
+
+.annotorious-popup-button-click {
+  background:url(annotorious/feather_icon.png) no-repeat;
+  outline:none;
+}
+
+.arrow-annotation-outer {
+    border: 0px solid black;
+}
+
+.arrow-annotation-inner {
     border: 0px solid black;
 }
 
@@ -24,30 +39,30 @@
     padding:15px 16px;
 }
 
-#osd-focus-control-button {
-    right:140px;
+#osd-saveAnno-button {
+    right:660px;
 }
-
+#osd-loadAnno-button {
+    right:605px;
+}
 #osd-jpgAll-control-button {
     right:555px;
 }
-
 #osd-arrow-control-button {
     right:505px;
 }
-
 #osd-test-control-button {
     right:460px;
 }
-
+#osd-jpg-control-button {
+    right:415px;
+}
 #osd-special-control-button {
     right:365px;
 }
-
 #osd-zoomin-control-button {
     right:320px;
 }
-
 #osd-zoomout-control-button {
     right:275px;
 }
@@ -57,11 +72,9 @@
 #osd-fullpage-control-button {
     right:185px;
 }
-
-#osd-jpg-control-button {
-    right:415px;
+#osd-focus-control-button {
+    right:140px;
 }
-
 #osd-anno-control-button {
     right:95px;
 }

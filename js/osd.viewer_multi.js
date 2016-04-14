@@ -50,6 +50,7 @@ var isFirst=true;
 var isSpecialAnnotation=false;
 // to track arrow annotation
 var isArrowAnnotation=false;
+var saveArrowColor="red";
 
 jQuery(document).ready(function() {
 
@@ -173,33 +174,26 @@ jQuery(document).ready(function() {
         annoBtnFadeOut();
       }
     });
-
     // only overlay that is being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
        var anno_div=target.element;
-       var anno_location=target.location;
-//       var anno_width=anno_location.width;
-//       var anno_height=anno_location.height;
-       var anno_x=anno_location.x;
-       var anno_y=anno_location.y;
-window.console.log("--> calling add-overly from openseadragon..x",anno_x," y",anno_y);
-         saveAnnoDiv=anno_div;
+         saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
 
        if(isSpecialAnnotation) {
          anno_div.classList.add("special-annotation");
        }
        if(isArrowAnnotation) {
-         anno_div.classList.add("arrow-annotation"); // boxmarker-outer
+         anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
          var inner_node = anno_div.childNodes[0];
-         inner_node.classList.add("arrow-annotation"); // boxmarker-inner
-         var arrow_node = document.createElement('span');
+         inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
+         var arrow_node = document.createElement('span-inner');
          arrow_node.style.position = 'absolute';
 //         arrow_node.style.top = '0px';
          arrow_node.style.top = '75%';
          arrow_node.style.left = '75%';
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");
-         arrow_node.style.color = 'red';
+         arrow_node.style.color = saveArrowColor;
          anno_div.appendChild(arrow_node);
        }
 

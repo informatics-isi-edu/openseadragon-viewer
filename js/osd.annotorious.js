@@ -1,14 +1,22 @@
 /* functions related to annotorious */
 var myAnnoReady = false;
 var myAnno=null;
+var saveCurrentHighlightAnnotation=null;
 
 var CREATE_EVENT_TYPE='CREATE';
 var UPDATE_EVENT_TYPE='UPDATE';
 var REMOVE_EVENT_TYPE='REMOVE';
+var CLICK_EVENT_TYPE='CLICK';
 var INFO_EVENT_TYPE='INFO';
 
 function makeAnnoID(item) {
   var id='anno_'+getHash(item);
+  return id;
+}
+
+function makeAnnoListID(item) {
+//  var id='alist_'+getHash(item);
+  var id=getHash(item);
   return id;
 }
 
@@ -81,22 +89,17 @@ window.console.log("printAnno, x,y,w,h "+x+" "+y+" "+w+" "+h);
 
 // check to see if the item is in view, 
 //  viewer,
-//       0,0    w,0
-//       0,h    w,h
+//       bx,by     bx+bw,by
+//       bx,by+bh  bx+bw,by+bh
 //  anno,
 //      left,top    left+Aw,top
 //      left,top+Ah left+Aw,top+Ah 
 //  outside,
-//    top+Ah < 0  || top>h
-//    left > w || left+Aw < 0
+//    top+Ah < by  || top>by+bh
+//    left > bx+bw || left+Aw <bx 
 
-function annoInView(item) {
+function annoInBounds(item,bounding_x,bounding_y,bounding_width,bounding_height) {
   var id=makeAnnoID(item);
-// pick the first one..
-  var viewer = document.getElementsByTagName('canvas');
-  var viewer_width=parseInt(viewer[0].width);
-  var viewer_height=parseInt(viewer[0].height);
-  var viewer_height=parseInt(viewer.height);
   var anno = document.getElementById(id);
   if(anno) {
     var anno_width= parseInt(anno.style.width);
@@ -104,23 +107,38 @@ function annoInView(item) {
     var anno_top= parseInt(anno.style.top);
     var anno_left= parseInt(anno.style.left);
 
-window.console.log("anno_top ->",anno_top);
-window.console.log("anno_left ->",anno_left);
-window.console.log("anno_width ->",anno_width);
-window.console.log("anno_height ->",anno_height);
-window.console.log("viewer_width ->",viewer_width);
-window.console.log("viewer_height ->",viewer_height)
-window.console.log(anno_top+anno_height < 0);
-window.console.log(anno_top > viewer_height);
-window.console.log(anno_left+anno_width < 0);
-window.console.log(anno_left > viewer_width);
-
-    if( anno_top+anno_height < 0 || anno_top > viewer_height || 
-        anno_left+anno_width < 0 || anno_left > viewer_width)
+    if( anno_top+anno_height < bounding_y || anno_top > bounding_y+bounding_height || 
+        anno_left >  bounding_x+bounding_width || anno_left+anno_width < bounding_x)
        return -1; 
     return id;
     } else {
       alertify.error("Error: non-exisiting annoId, ",id);
+  }
+  return -1;
+}
+
+function annoInViewer(item) {
+// pick the first one..
+  var viewer = document.getElementsByTagName('canvas');
+  var viewer_width=parseInt(viewer[0].width);
+  var viewer_height=parseInt(viewer[0].height);
+  return annoInBounds(item, 0, 0, viewer_width, viewer_height);
+}
+
+function annoInAnno(item,bounding_anno) {
+  var b_id=makeAnnoID(bounding_anno);
+  var i_id=makeAnnoID(item);
+  if(i_id == b_id)
+    return i_id;
+  var b_anno = document.getElementById(b_id);
+  if(b_anno) {
+    var b_width= parseInt(b_anno.style.width);
+    var b_height= parseInt(b_anno.style.height);
+    var b_top= parseInt(b_anno.style.top);
+    var b_left= parseInt(b_anno.style.left);
+    return annoInBounds(item, b_left, b_top, b_width, b_height);
+    } else {
+      alertify.error("Error: non-exisiting annoId, ",b_id);
   }
   return -1;
 }
@@ -131,6 +149,10 @@ function annoDump() {
   var len=p.length;
   var alist=[];
   for(var i=0; i < len; i++) {
+      var item=p[i];
+      if(isArrowAnnotation) {
+        p[i].shapes[0].style = { "color":"green" };
+      }
       alist.push(annoLog(p[i],INFO_EVENT_TYPE));
   }
   var tmp = { "annoList" : alist };
@@ -166,14 +188,39 @@ function annoRetrieveByHash(h) {
   }
   return null;
 }
+// collect a list of annotaitons falling withing a big
+// annotation's boundary
+function annoSetInAnno(bounding_anno) {
+window.console.log("bounding anno is ", makeAnnoID(bounding_anno));
+  var annotationsToLoad = {"annoList":[]};
+  var p=myAnno.getAnnotations();
+  var len=p.length;
+  for (var i = 0; i < len; i++) {
+    var id=annoInAnno(p[i],bounding_anno);
+    if(id != -1) {
+       var annotationObj = {
+            "type": "openseadragon_dzi",
+            "id": null,
+            "event": "INFO",
+            "data": p[i]};
+       annotationsToLoad.annoList.push(annotationObj);
+       window.console.log("this anno IS in view ",id); 
+       } else {
+         window.console.log("this anno IS NOT in view", makeAnnoID(p[i]));
+    }
+  }
+  return annotationsToLoad;
+}
 
-function annoSetInView()
+// collect a list of annotation falling within the viewer's
+// boundary
+function annoSetInViewer()
 {
   var annotationsToLoad = {"annoList":[]};
   var p=myAnno.getAnnotations();
   var len=p.length;
   for (var i = 0; i < len; i++) {
-    var id=annoInView(p[i]);
+    var id=annoInViewer(p[i]);
     if(id != -1) {
        var annotationObj = {
             "type": "openseadragon_dzi",
@@ -195,7 +242,7 @@ function annoChk()
   var len=p.length;
   for (var i = 0; i < len; i++) {
     printAnno(p[i]);
-    var id=annoInView(p[i]);
+    var id=annoInViewer(p[i]);
     if(id != -1) {
        window.console.log("this anno IS in view ",id); 
        } else {
@@ -208,15 +255,42 @@ function annoAdd(item) {
   if( annoExist(item) ) {
     return;
   }
+  // special handling when item's style is not empty
+  //
+  var style=item.shapes[0].style;
+  if(style.length != 0) { // { color:'red', 'border':'green' }
+    var b=style['color'];
+    if(isArrowAnnotation) {
+      if(b) 
+        saveArrowColor=b;
+        else saveArrowColor='red';
+    }
+  }
   myAnno.addAnnotation(item);
 }
 
 // item is discarded
 function annoUnHighlightAnnotation(item) {
   myAnno.highlightAnnotation();
+  if(saveCurrentHighlightAnnotation==item) {
+    window.console.log("current unhighlight is ..",getHash(item));
+    saveCurrentHighlightAnnotation=null;
+  }
 }
 function annoHighlightAnnotation(item) {
   myAnno.highlightAnnotation(item);
+  saveCurrentHighlightAnnotation=item;
+  window.console.log("current highlight is ..",getHash(item));
+}
+
+function annoClickAnnotation() {
+  saveCurrentHighlightAnnotation=null;
+  if(saveCurrentHighlightAnnotation) {
+    var item=saveCurrentHighlightAnnotaiton;
+    var json=annoLog(item,INFO_EVENT_TYPE);
+    updateAnnotationList('onClickAnnotation', json);
+  }
+window.console.log("here in annoClickAnnotation");
 }
 
 function annoSetup(_anno,_viewer) {
@@ -242,11 +316,17 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onMouseOverAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
+    saveCurrentHighlightAnnotation=item;
+    window.console.log("by mouse, current highlight is ..",getHash(item));
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
+    window.console.log("by mouse, current unhighlight is ..",getHash(item));
+    if(saveCurrentHighlightAnnotation == item) {
+      saveCurrentHighlightAnnotation=null;
+    }
     updateAnnotationList('onUnHighlighted', json);
   });
   _anno.addHandler("onSelectionCompleted", function(target) {
@@ -334,7 +414,7 @@ function updateAnnotations() {
   for (var i = 0; i < annotations.length; i++) {
     _addAnnoOption(getHash(annotations[i]));
     var oneItem = '<a href="#" class="list-group-item" id='+
-           getHash(annotations[i]) + ' style="color:black" '+
+           makeAnnoListID(annotations[i]) + ' style="color:black" '+
            'onclick=annoClick('+getHash(annotations[i]) +') '+
            '>' + annotations[i].text +
            '</a>';
@@ -344,15 +424,15 @@ function updateAnnotations() {
 //window.console.log(list.innerHTML);
 }
 
-function colorAnnoListItem(num,c) {
-  var id=num.toString();
+function colorAnnoListItem(item,c) {
+  var id=makeAnnoListID(item)
   var v=document.getElementById(id);
   if(v) {
-  if(c) {
-    v.style.color = 'red';
-    } else {
-      v.style.color = 'black';
-  }
+    if(c) {
+      v.style.color = 'red';
+      } else {
+        v.style.color = 'black';
+    }
   }
 }
 
@@ -434,6 +514,8 @@ function loadAnno(fname)
 {
   var tmp=ckExist(fname);
 //  window.console.log("got "+tmp);
+//  markArrow(); --> this is to test the arrowAnnotation
+//  style can have  color:green options
   readAll(JSON.parse(tmp));
 }
 
@@ -463,6 +545,11 @@ function centerAnnoByHash(i,zoomIt)
          goPosition(x+(w/2),y+(h/2),null);
      }
      annoHighlightAnnotation(item);
+     // collect up a list of annotations within and send it back
+     // to chaise
+     var alist=annoSetInAnno(item);
+     var json = JSON.stringify(alist);
+     updateAnnotationList('onInViewAnnotations', json);
   }
 }
 

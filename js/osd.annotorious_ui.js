@@ -9,11 +9,19 @@ if (window.self !== window.top) {
     enableEmbedded = true;
 }
 
-/* from annotorious.js
+/* from annotorious.js 
 annotorious.templates.popup = function(opt_data) {
-  return '<div class="annotorious-popup top-left" style="position:absolute;z-index:1"><div class="annotorious-popup-buttons" ><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a></div><span class="annotorious-popup-text"></span></div>';
+  return '<div class="annotorious-popup top-left" style="position:absolute;z-index:1"><div class="annotorious-popup-buttons" ><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a></div><span class="annotorious-popup-text"></span></div>'; }
 */
+
 function setupAnnoUI() {
+  var popup_div = document.getElementsByClassName('annotorious-popup-buttons');
+  if(popup_div) {
+    popup_div[0].innerHTML='';
+    var buttons ='<div class="annotorious-popup-buttons" style="width:80px;"><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a><a class="annotorious-popup-button annotorious-popup-button-click" title="Click" onclick="annoClickAnnotation(null)">CLICK</a></div>';
+     popup_div[0].innerHTML=buttons;
+  }
+
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
       var bElm = document.getElementById('osd-control-panel');
@@ -24,7 +32,8 @@ function setupAnnoUI() {
         // Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
-        styleSheet.insertRule('.annotorious-popup-buttons { visibility:hidden }', 0);
+        styleSheet.insertRule('.annotorious-popup-button-edit { visibility:hidden }', 0);
+        styleSheet.insertRule('.annotorious-popup-button-delete { visibility:hidden }', 0);
   }
 }
 
@@ -39,26 +48,43 @@ function updateAnnotationList(mType, cData) {
         if(mType == 'onHighlighted') {
             var t=JSON.parse(cData);
             var item=t.data
-            var h=getHash(item);
-            colorAnnoListItem(h,1);
+            colorAnnoListItem(item,1);
             return;
         }
         if(mType == 'onUnHighlighted') {
             var t=JSON.parse(cData);
             var item=t.data
-            var h=getHash(item);
-            colorAnnoListItem(h,0);
+            colorAnnoListItem(item,0);
+            return;
+        }
+        if(mType == 'onClickAnnotation') {
+            /* ignore this, for Chaise only */
             return;
         }
         if(mType == 'annotationDrawn') {
-            /* ignore this, specific for Chaise only */
+            /* ignore this, for Chaise only */
             return;
         }
+        if(mType == 'onInViewAnnotations') {
+            /* ignore this, for Chaise only */
+window.console.log("IN HERE...");
+            return;
+        }
+        // other ones affects the annotation_list entry
+        //'onAnnotationCreated',
+        //'onAnnotationRemoved',
+        //'onAnnotationUpdated'
         updateAnnotations();
     }
 }
 
 function updateAnnotationState(mType, cState) {
+    if (enableEmbedded) {
+        window.top.postMessage({messageType: mType, content: cState}, window.location.origin);
+    }
+}
+
+function uploadAnnotationList(mType, cState) {
     if (enableEmbedded) {
         window.top.postMessage({messageType: mType, content: cState}, window.location.origin);
     }
@@ -90,6 +116,9 @@ function event_loadAnnotations(messageType, data) {
                 "context": annotation.context_uri
             }
         };
+        if(annotation.style) {
+            annotationObj.data.shapes.style=annotation.style;
+        }
         annotationsToLoad.annoList.push(annotationObj);
     });
     readAll(annotationsToLoad);
@@ -119,6 +148,9 @@ function event_createAnnotation(messageType, data) {
             "context": data.context_uri
         }
     };
+    if(data.style) {
+        annotationObj.data.shapes[0].style=data.style;
+    }
     annoAdd(annotationObj.data);
 }
 
