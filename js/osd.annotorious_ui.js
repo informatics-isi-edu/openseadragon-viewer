@@ -98,8 +98,8 @@ function event_loadAnnotations(messageType, data) {
             heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
         }
         var style = {};
-        if (data.config.color) {
-            style = {"color": data.config.color};
+        if (annotation.config.color) {
+            style = {"color": annotation.config.color};
         }
         var annotationObj = {
             "type": "openseadragon_dzi",
