@@ -9,6 +9,8 @@ var REMOVE_EVENT_TYPE='REMOVE';
 var CLICK_EVENT_TYPE='CLICK';
 var INFO_EVENT_TYPE='INFO';
 
+var TEST_MODE=false;
+
 function makeAnnoID(item) {
   var id='anno_'+getHash(item);
   return id;
@@ -151,7 +153,9 @@ function annoDump() {
   for(var i=0; i < len; i++) {
       var item=p[i];
       if(isArrowAnnotation) {
-        p[i].shapes[0].style = { "color":"green" };
+        var style=p[i].shapes[0].style;
+        if(style['color']==null)
+           p[i].shapes[0].style = { "color":"green" };
       }
       alist.push(annoLog(p[i],INFO_EVENT_TYPE));
   }
@@ -260,6 +264,7 @@ function annoAdd(item) {
   var style=item.shapes[0].style;
   if(style.length != 0) { // { color:'red', 'border':'green' }
     var b=style['color'];
+    if(TEST_MODE && b != null) { markArrow(); }
     if(isArrowAnnotation) {
       if(b) 
         saveArrowColor=b;
@@ -267,6 +272,7 @@ function annoAdd(item) {
     }
   }
   myAnno.addAnnotation(item);
+  if(TEST_MODE && isArrowAnnotation) { unmarkArrow(); }
 }
 
 // item is discarded
@@ -299,6 +305,9 @@ function annoSetup(_anno,_viewer) {
     var item=target;
 //window.console.log("--->calling onAnnotationCreated...");
     saveAnnoDiv.id=makeAnnoID(item);
+    if(isArrowAnnotation) {
+        item.shapes[0].style = { "color":saveArrowColor };
+    }
     var json=annoLog(item,CREATE_EVENT_TYPE);
     updateAnnotationList('onAnnotationCreated', json);
   });
@@ -484,6 +493,7 @@ function annoBtnFadeIn(){
 
 function saveAnno(fname)
 {
+  TEST_MODE=true;
   var tmp = annoDump();
   var textToWrite = JSON.stringify(tmp);
   var textFileAsBlob = new Blob([textToWrite], {type:'text/json'});
@@ -512,10 +522,9 @@ function saveAnno(fname)
 // load annotation from a json file
 function loadAnno(fname)
 {
+  TEST_MODE=true;
   var tmp=ckExist(fname);
 //  window.console.log("got "+tmp);
-//  markArrow(); --> this is to test the arrowAnnotation
-//  style can have  color:green options
   readAll(JSON.parse(tmp));
 }
 
