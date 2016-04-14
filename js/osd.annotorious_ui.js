@@ -9,7 +9,7 @@ if (window.self !== window.top) {
     enableEmbedded = true;
 }
 
-/* from annotorious.js 
+/* from annotorious.js
 annotorious.templates.popup = function(opt_data) {
   return '<div class="annotorious-popup top-left" style="position:absolute;z-index:1"><div class="annotorious-popup-buttons" ><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a></div><span class="annotorious-popup-text"></span></div>'; }
 */
@@ -95,7 +95,11 @@ function event_loadAnnotations(messageType, data) {
         annotation = annotation.data;
         var heading = '';
         if (annotation.anatomy) {
-            heading = capitalizeFirstLetter(annotation.anatomy);
+            heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+        }
+        var style = {};
+        if (annotation.config.color) {
+            style = {"color": annotation.config.color};
         }
         var annotationObj = {
             "type": "openseadragon_dzi",
@@ -103,7 +107,7 @@ function event_loadAnnotations(messageType, data) {
             "event": "INFO",
             "data": {
                 "src": "dzi://openseadragon/something",
-                "text": "<strong>" + heading + "</strong><br>" + annotation.description,
+                "text": heading + annotation.description,
                 "shapes": [
                     {
                 "type": "rect",
@@ -113,7 +117,7 @@ function event_loadAnnotations(messageType, data) {
                     "width": annotation.coords[2],
                     "height": annotation.coords[3]
                 },
-                "style": {}
+                "style": style
                     }
                 ],
                 "context": annotation.context_uri
@@ -131,7 +135,12 @@ function event_createAnnotation(messageType, data) {
     cancelEditor();
     var heading = '';
     if (data.anatomy) {
-        heading = capitalizeFirstLetter(data.anatomy);
+        heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
+    }
+
+    var style = {};
+    if (data.config.color) {
+        style = {"color": data.config.color};
     }
     var annotationObj = {
         "type": "openseadragon_dzi",
@@ -139,7 +148,7 @@ function event_createAnnotation(messageType, data) {
         "event": "INFO",
         "data": {
             "src": "dzi://openseadragon/something",
-            "text": "<strong>" + heading + "</strong><br>" + data.description,
+            "text": heading + data.description,
             "shapes": [
                 {
                     "type": "rect",
@@ -149,7 +158,7 @@ function event_createAnnotation(messageType, data) {
                         "width": data.coords[2],
                         "height": data.coords[3]
                     },
-                    "style": {}
+                    "style": style
                 }
             ],
             "context": data.context_uri
@@ -200,11 +209,15 @@ window.addEventListener('message', function(event) {
             case 'centerAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = capitalizeFirstLetter(data.anatomy);
+                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                }
+                var style = {};
+                if (data.config.color) {
+                    style = {"color": data.config.color};
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": "<strong>" + heading + "</strong><br>" + data.description,
+                    "text": heading + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -214,7 +227,7 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": {}
+                            "style": style
                         }
                     ],
                     "context": data.context_uri
@@ -224,11 +237,15 @@ window.addEventListener('message', function(event) {
             case 'highlightAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = capitalizeFirstLetter(data.anatomy);
+                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                }
+                var style = {};
+                if (data.config.color) {
+                    style = {"color": data.config.color};
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": "<strong>" + heading + "</strong><br>" + data.description,
+                    "text": heading + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -238,7 +255,7 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": {}
+                            "style": style
                         }
                     ],
                     "context": data.context_uri
@@ -252,7 +269,6 @@ window.addEventListener('message', function(event) {
                 myAnno.activateSelector();
                 break;
             case 'createArrowAnnotation':
-                console.log(messageType, data);
                 markArrow();
                 event_createAnnotation(messageType, data);
                 unmarkArrow();
@@ -271,11 +287,15 @@ window.addEventListener('message', function(event) {
             case 'updateAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = capitalizeFirstLetter(data.anatomy);
+                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                }
+                var style = {};
+                if (data.config.color) {
+                    style = {"color": data.config.color};
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": "<strong>" + heading + "</strong><br>" + data.description,
+                    "text": heading + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -285,7 +305,7 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": {}
+                            "style": style
                         }
                     ],
                     "context": data.context_uri
@@ -296,11 +316,15 @@ window.addEventListener('message', function(event) {
             case 'deleteAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = capitalizeFirstLetter(data.anatomy);
+                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                }
+                var style = {};
+                if (data.config.color) {
+                    style = {"color": data.config.color};
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
-                    "text": "<strong>" + heading + "</strong><br>" + data.description,
+                    "text": heading + data.description,
                     "shapes": [
                         {
                             "type": "rect",
@@ -310,7 +334,7 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": {}
+                            "style": style
                         }
                     ],
                     "context": data.context_uri
