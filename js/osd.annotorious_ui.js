@@ -301,11 +301,11 @@ window.addEventListener('message', function(event) {
                     ],
                     "context": data.context_uri
                 };
-                if (data.config) {
-                    annotationObj.shapes[0].style = data.config;
-                }
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
                 annotation.text = annotationObj.text;
+                if (data.config) {
+                    annotation.shapes[0].style = data.config;
+                }
                 break;
             case 'deleteAnnotation':
                 var heading = '';
