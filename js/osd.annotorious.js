@@ -266,7 +266,7 @@ function annoAdd(item) {
   if(isArrowAnnotation) { // if this is from chaise
     // in case it is not set, set it
     if(!atype) {
-      target.shapes[0].style['type']=TEST_ARROW_MARKER;
+      item.shapes[0].style['type']=TEST_ARROW_MARKER;
       } else {
         if(!atype.includes(TEST_ARROW_MARKER))
           item.shapes[0].style['type']+=TEST_ARROW_MARKER;
@@ -279,7 +279,7 @@ function annoAdd(item) {
   if(isSpecialAnnotation) { // if this is from chaise
     // in case it is not set, set it
     if(!atype) {
-      target.shapes[0].style['type']=TEST_SPECIAL_MARKER;
+      item.shapes[0].style['type']=TEST_SPECIAL_MARKER;
       } else {
         if(!atype.includes(TEST_SPECIAL_MARKER))
           item.shapes[0].style['type']+=TEST_SPECIAL_MARKER;
