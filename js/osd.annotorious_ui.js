@@ -97,9 +97,9 @@ function event_loadAnnotations(messageType, data) {
         if (annotation.anatomy) {
             heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
         }
-        var style = {};
+        var _style = {};
         if (annotation.config.color) {
-            style = {"color": annotation.config.color};
+            _style = {"color": annotation.config.color};
         }
         var annotationObj = {
             "type": "openseadragon_dzi",
@@ -117,10 +117,10 @@ function event_loadAnnotations(messageType, data) {
                     "width": annotation.coords[2],
                     "height": annotation.coords[3]
                 },
-                "style": style
+                "style": _style
                     }
                 ],
-                "context": annotation.context_uri
+                "context": annotation.context_uri 
             }
         };
         if(annotation.style) {

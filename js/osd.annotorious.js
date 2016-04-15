@@ -258,34 +258,33 @@ function annoChk()
 }
 
 function annoAdd(item) {
-  if( annoExist(item) ) {
+  if( annoExist(item) )
     return;
-  }
-  // special handling when item's style is not empty
-  //
+
   var style=item.shapes[0].style;
-  if(style.length != 0) { // { color:'red', 'border':'green' }
-    var b=style['color'];
-    if(TEST_MODE) {
-      var t=item.text;
-      var special=t.includes(TEST_SPECIAL_MARKER);
-      var arrow=t.includes(TEST_ARROW_MARKER);
-      if(arrow) { 
-        markArrow();
-        if(b == null)
-          item.shapes[0].style= { 'color':saveArrowColor };
-      }
-      if(special)
-        markSpecial();
+  var atype=style['type'];
+  if(atype && atype.includes(TEST_ARROW_MARKER)) 
+    markArrow();
+  if(atype && atype.includes(TEST_SPECIAL_MARKER))
+    markSpecial();
+
+  if(isArrowAnnotation) {
+    saveArrowColor='red';
+    var style=item.shapes[0].style;
+    var b=null;
+    if(style.length != 0) { // { color:'red', 'border':'green' }
+      b=style['color'];
     }
-    if(isArrowAnnotation) {
-      if(b) 
+    if(b == null)
+      item.shapes[0].style['color']=saveArrowColor;
+      else
         saveArrowColor=b;
-        else saveArrowColor='red';
-    }
   }
   myAnno.addAnnotation(item);
-  if(TEST_MODE) { unmarkArrow(); unmarkSpecial(); }
+  if(isArrowAnnotation)
+    unmarkArrow();
+  if(isSpecialAnnotation)
+    unmarkSpecial();
 }
 
 // item is discarded
@@ -319,11 +318,19 @@ function annoSetup(_anno,_viewer) {
     saveAnnoDiv.id=makeAnnoID(item);
     if(isArrowAnnotation) {
       item.shapes[0].style = { "color":saveArrowColor };
-      target.text=item.text+TEST_ARROW_MARKER;
     }
-// hum.. will this interfer 
-    if(isSpecialAnnotation)
-      target.text=item.text+TEST_SPECIAL_MARKER;
+    if(isArrowAnnotation) {
+      if(target.shapes[0].style['type'])
+        target.shapes[0].style['type']+=TEST_ARROW_MARKER;
+        else
+          target.shapes[0].style['type']=TEST_ARROW_MARKER;
+    }
+    if(isSpecialAnnotation) {
+      if(target.shapes[0].style['type'])
+        target.shapes[0].style['type']+=TEST_SPECIAL_MARKER;
+        else
+          target.shapes[0].style['type']=TEST_SPECIAL_MARKER;
+    }
 
     var json=annoLog(item,CREATE_EVENT_TYPE);
     updateAnnotationList('onAnnotationCreated', json);
