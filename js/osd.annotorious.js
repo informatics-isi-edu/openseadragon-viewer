@@ -97,16 +97,16 @@ function printAnno(item) {
 window.console.log("printAnno, x,y,w,h "+x+" "+y+" "+w+" "+h);
 }
 
-// check to see if the item is in view, 
+// check to see if the item is in view,
 //  viewer,
 //       bx,by     bx+bw,by
 //       bx,by+bh  bx+bw,by+bh
 //  anno,
 //      left,top    left+Aw,top
-//      left,top+Ah left+Aw,top+Ah 
+//      left,top+Ah left+Aw,top+Ah
 //  outside,
 //    top+Ah < by  || top>by+bh
-//    left > bx+bw || left+Aw <bx 
+//    left > bx+bw || left+Aw <bx
 
 function annoInBounds(item,bounding_x,bounding_y,bounding_width,bounding_height) {
   var id=makeAnnoID(item);
@@ -117,9 +117,9 @@ function annoInBounds(item,bounding_x,bounding_y,bounding_width,bounding_height)
     var anno_top= parseInt(anno.style.top);
     var anno_left= parseInt(anno.style.left);
 
-    if( anno_top+anno_height < bounding_y || anno_top > bounding_y+bounding_height || 
+    if( anno_top+anno_height < bounding_y || anno_top > bounding_y+bounding_height ||
         anno_left >  bounding_x+bounding_width || anno_left+anno_width < bounding_x)
-       return -1; 
+       return -1;
     return id;
     } else {
       alertify.error("Error: non-exisiting annoId, ",id);
@@ -210,7 +210,7 @@ window.console.log("bounding anno is ", makeAnnoID(bounding_anno));
             "event": "INFO",
             "data": p[i]};
        annotationsToLoad.annoList.push(annotationObj);
-       window.console.log("this anno IS in view ",id); 
+       window.console.log("this anno IS in view ",id);
        } else {
          window.console.log("this anno IS NOT in view", makeAnnoID(p[i]));
     }
@@ -234,9 +234,9 @@ function annoSetInViewer()
             "event": "INFO",
             "data": p[i]};
        annotationsToLoad.annoList.push(annotationObj);
-       window.console.log("this anno IS in view ",id); 
+       window.console.log("this anno IS in view ",id);
        } else {
-         window.console.log("this anno IS NOT in view"); 
+         window.console.log("this anno IS NOT in view");
     }
   }
   return annotationsToLoad;
@@ -250,9 +250,9 @@ function annoChk()
     printAnno(p[i]);
     var id=annoInViewer(p[i]);
     if(id != -1) {
-       window.console.log("this anno IS in view ",id); 
+       window.console.log("this anno IS in view ",id);
        } else {
-         window.console.log("this anno IS NOT in view"); 
+         window.console.log("this anno IS NOT in view");
     }
   }
 }
@@ -271,7 +271,7 @@ function annoAdd(item) {
         if(!atype.includes(TEST_ARROW_MARKER))
           item.shapes[0].style['type']+=TEST_ARROW_MARKER;
     }
-    } else { // it might be set from the style 
+    } else { // it might be set from the style
       if(atype && atype.includes(TEST_ARROW_MARKER) && TEST_MODE) {
          markArrow();
       }
@@ -284,7 +284,7 @@ function annoAdd(item) {
         if(!atype.includes(TEST_SPECIAL_MARKER))
           item.shapes[0].style['type']+=TEST_SPECIAL_MARKER;
     }
-    } else { // it might be set from the style 
+    } else { // it might be set from the style
       if(atype && atype.includes(TEST_SPECIAL_MARKER) && TEST_MODE) {
          markSpecial();
       }
@@ -325,7 +325,7 @@ function annoHighlightAnnotation(item) {
 
 function annoClickAnnotation() {
   if(saveCurrentHighlightAnnotation) {
-    var item=saveCurrentHighlightAnnotaiton;
+    var item=saveCurrentHighlightAnnotation;
     var json=annoLog(item,INFO_EVENT_TYPE);
     updateAnnotationList('onClickAnnotation', json);
   }
