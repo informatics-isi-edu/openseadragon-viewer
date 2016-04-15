@@ -570,15 +570,12 @@ function saveAnno(fname)
 function loadAnno(fname)
 {
   var f=fname;
-  // fname is usually localhost
-  var host = location.hostname;
-  if(!fname.includes(host)) {
-     f=fname.replace('localhost',host);
-  }
+  // var href= window.location.href;
+  var origin=window.location.origin; // http://localhost
+  var input=origin+fname;
 
   TEST_MODE=true;
-  var tmp=ckExist(f);
-//  window.console.log("got "+tmp);
+  var tmp=ckExist(input);
   readAll(JSON.parse(tmp));
 }
 
