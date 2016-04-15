@@ -16,7 +16,7 @@
   position:absolute;
   top:6px;
   left:5px;
-  background:url(feather_icon.png);
+  background:url(eye_icon.png);
   background-repeat:no-repeat;
   width:19px;
   height:22px;
@@ -116,7 +116,7 @@
   top:-14px;
   height:18px;
   width:19px;
-  display:block;  
+  display:block;
 }
 
 
@@ -314,7 +314,7 @@
   margin:0px;
   padding:6px 0px;
   font-family:'lucida grande',tahoma,verdana,arial,sans-serif;
-  font-size:12px;	
+  font-size:12px;
 }
 
 /** OpenLayers module **/

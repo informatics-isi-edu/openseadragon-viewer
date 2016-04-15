@@ -4,12 +4,12 @@
 
 .annotorious-popup-button-click:hover {
   background-color:transparent;
-  background:url(annotorious/feather_icon.png) no-repeat;
+  background:url(annotorious/eye_icon.png) no-repeat;
   outline:none;
 }
 
 .annotorious-popup-button-click {
-  background:url(annotorious/feather_icon.png) no-repeat;
+  background:url(annotorious/eye_icon.png) no-repeat;
   outline:none;
 }
 
