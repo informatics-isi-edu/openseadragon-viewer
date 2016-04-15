@@ -97,10 +97,6 @@ function event_loadAnnotations(messageType, data) {
         if (annotation.anatomy) {
             heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
         }
-        var _style = {};
-        if (annotation.config.color) {
-            _style = {"color": annotation.config.color};
-        }
         var annotationObj = {
             "type": "openseadragon_dzi",
             "id": null,
@@ -117,14 +113,14 @@ function event_loadAnnotations(messageType, data) {
                     "width": annotation.coords[2],
                     "height": annotation.coords[3]
                 },
-                "style": _style
+                "style": {}
                     }
                 ],
                 "context": annotation.context_uri 
             }
         };
-        if(annotation.style) {
-            annotationObj.data.shapes.style=annotation.style;
+        if (annotation.config) {
+            annotationObj.data.shapes[0].style = annotation.config;
         }
         annotationsToLoad.annoList.push(annotationObj);
     });
@@ -134,14 +130,12 @@ function event_loadAnnotations(messageType, data) {
 function event_createAnnotation(messageType, data) {
     cancelEditor();
     var heading = '';
+    var style = {};
+
     if (data.anatomy) {
         heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
     }
 
-    var style = {};
-    if (data.config.color) {
-        style = {"color": data.config.color};
-    }
     var annotationObj = {
         "type": "openseadragon_dzi",
         "id": null,
@@ -158,14 +152,15 @@ function event_createAnnotation(messageType, data) {
                         "width": data.coords[2],
                         "height": data.coords[3]
                     },
-                    "style": style
+                    "style": {}
                 }
             ],
             "context": data.context_uri
         }
     };
-    if(data.style) {
-        annotationObj.data.shapes[0].style=data.style;
+
+    if (data.config) {
+        annotationObj.data.shapes[0].style = data.config;
     }
     annoAdd(annotationObj.data);
 }
@@ -209,11 +204,7 @@ window.addEventListener('message', function(event) {
             case 'centerAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
-                }
-                var style = {};
-                if (data.config.color) {
-                    style = {"color": data.config.color};
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -227,21 +218,22 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": style
+                            "style": {}
                         }
                     ],
                     "context": data.context_uri
                 };
+
+                if (data.config) {
+                    annotationObj.shapes[0].style = data.config;
+                }
+
                 centerAnnoByHash(getHash(annotationObj),true);
                 break;
             case 'highlightAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
-                }
-                var style = {};
-                if (data.config.color) {
-                    style = {"color": data.config.color};
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -255,11 +247,14 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": style
+                            "style": {}
                         }
                     ],
                     "context": data.context_uri
                 };
+                if (data.config) {
+                    annotationObj.shapes[0].style = data.config;
+                }
                 highlightAnnoByHash(getHash(annotationObj));
                 break;
             case 'unHighlightAnnotation':
@@ -287,11 +282,7 @@ window.addEventListener('message', function(event) {
             case 'updateAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
-                }
-                var style = {};
-                if (data.config.color) {
-                    style = {"color": data.config.color};
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -305,23 +296,23 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": style
+                            "style": {}
                         }
                     ],
                     "context": data.context_uri
                 };
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
                 annotation.text = annotationObj.text;
+                if (data.config) {
+                    annotation.shapes[0].style = data.config;
+                }
                 break;
             case 'deleteAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
-                var style = {};
-                if (data.config.color) {
-                    style = {"color": data.config.color};
-                }
+
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
                     "text": heading + data.description,
@@ -334,11 +325,16 @@ window.addEventListener('message', function(event) {
                                 "width": data.coords[2],
                                 "height": data.coords[3]
                             },
-                            "style": style
+                            "style": {}
                         }
                     ],
                     "context": data.context_uri
                 };
+
+                if (data.config) {
+                    annotationObj.shapes[0].style = data.config;
+                }
+
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
                 myAnno.removeAnnotation(annotation);
                 break;
