@@ -204,7 +204,7 @@ window.addEventListener('message', function(event) {
             case 'centerAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -233,7 +233,7 @@ window.addEventListener('message', function(event) {
             case 'highlightAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -282,7 +282,7 @@ window.addEventListener('message', function(event) {
             case 'updateAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
                 var annotationObj = {
                     "src": "dzi://openseadragon/something",
@@ -310,7 +310,7 @@ window.addEventListener('message', function(event) {
             case 'deleteAnnotation':
                 var heading = '';
                 if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
+                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
                 }
 
                 var annotationObj = {
