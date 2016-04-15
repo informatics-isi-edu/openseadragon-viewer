@@ -263,10 +263,32 @@ function annoAdd(item) {
 
   var style=item.shapes[0].style;
   var atype=style['type'];
-  if(atype && atype.includes(TEST_ARROW_MARKER)) 
-    markArrow();
-  if(atype && atype.includes(TEST_SPECIAL_MARKER))
-    markSpecial();
+  if(isArrowAnnotation) { // if this is from chaise
+    // in case it is not set, set it
+    if(!atype) {
+      target.shapes[0].style['type']=TEST_ARROW_MARKER;
+      } else {
+        if(!atype.includes(TEST_ARROW_MARKER))
+          item.shapes[0].style['type']+=TEST_ARROW_MARKER;
+    }
+    } else { // it might be set from the style 
+      if(atype && atype.includes(TEST_ARROW_MARKER) && TEST_MODE) {
+         markArrow();
+      }
+  }
+  if(isSpecialAnnotation) { // if this is from chaise
+    // in case it is not set, set it
+    if(!atype) {
+      target.shapes[0].style['type']=TEST_SPECIAL_MARKER;
+      } else {
+        if(!atype.includes(TEST_SPECIAL_MARKER))
+          item.shapes[0].style['type']+=TEST_SPECIAL_MARKER;
+    }
+    } else { // it might be set from the style 
+      if(atype && atype.includes(TEST_SPECIAL_MARKER) && TEST_MODE) {
+         markSpecial();
+      }
+  }
 
   if(isArrowAnnotation) {
     saveArrowColor='red';
@@ -281,9 +303,9 @@ function annoAdd(item) {
         saveArrowColor=b;
   }
   myAnno.addAnnotation(item);
-  if(isArrowAnnotation)
+  if(TEST_MODE && isArrowAnnotation)
     unmarkArrow();
-  if(isSpecialAnnotation)
+  if(TEST_MODE && isSpecialAnnotation)
     unmarkSpecial();
 }
 
