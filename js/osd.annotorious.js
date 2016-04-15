@@ -540,8 +540,6 @@ function annoBtnFadeIn(){
 function saveAnno(fname)
 {
 
-var x = location.hostname;
-
   TEST_MODE=true;
   var tmp = annoDump();
   var textToWrite = JSON.stringify(tmp);
@@ -571,10 +569,15 @@ var x = location.hostname;
 // load annotation from a json file
 function loadAnno(fname)
 {
-var x = location.hostname;
+  var f=fname;
+  // fname is usually localhost
+  var host = location.hostname;
+  if(!fname.includes(host)) {
+     f=fname.replace('localhost',host);
+  }
 
   TEST_MODE=true;
-  var tmp=ckExist(fname);
+  var tmp=ckExist(f);
 //  window.console.log("got "+tmp);
   readAll(JSON.parse(tmp));
 }
