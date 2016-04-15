@@ -303,7 +303,6 @@ function annoHighlightAnnotation(item) {
 }
 
 function annoClickAnnotation() {
-  saveCurrentHighlightAnnotation=null;
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotaiton;
     var json=annoLog(item,INFO_EVENT_TYPE);
@@ -511,6 +510,9 @@ function annoBtnFadeIn(){
 
 function saveAnno(fname)
 {
+
+var x = location.hostname;
+
   TEST_MODE=true;
   var tmp = annoDump();
   var textToWrite = JSON.stringify(tmp);
@@ -540,6 +542,8 @@ function saveAnno(fname)
 // load annotation from a json file
 function loadAnno(fname)
 {
+var x = location.hostname;
+
   TEST_MODE=true;
   var tmp=ckExist(fname);
 //  window.console.log("got "+tmp);
