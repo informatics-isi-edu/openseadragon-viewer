@@ -188,9 +188,8 @@ jQuery(document).ready(function() {
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
          var arrow_node = document.createElement('span-inner');
          arrow_node.style.position = 'absolute';
-//         arrow_node.style.top = '0px';
-         arrow_node.style.top = '75%';
-         arrow_node.style.left = '75%';
+         arrow_node.style.top = '95%';
+         arrow_node.style.left = '95%';
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");
          arrow_node.style.color = saveArrowColor;
