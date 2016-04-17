@@ -607,9 +607,11 @@ function centerAnnoByHash(i,zoomIt)
      annoHighlightAnnotation(item);
      // collect up a list of annotations within and send it back
      // to chaise
+/*
      var alist=annoSetInAnno(item);
      var json = JSON.stringify(alist);
      updateAnnotationList('onInViewAnnotations', json);
+*/
   }
 }
 
