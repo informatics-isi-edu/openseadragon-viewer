@@ -184,7 +184,6 @@ jQuery(document).ready(function() {
        }
        if(isArrowAnnotation) {
          anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
-         anno_div.style.bordercolor="white";
          var inner_node = anno_div.childNodes[0];
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
          var arrow_node = document.createElement('span-inner');
@@ -476,11 +475,13 @@ function goPosition(_X,_Y,_Zoom) {
     } else {
       myViewer.viewport.zoomTo(_Zoom);
   }
+  myViewer.viewport.applyConstraints();
 }
 
 function goPositionByBounds(_X,_Y,_width,_height) {
   var rect  = new OpenSeadragon.Rect(_X, _Y, _width, _height);
   myViewer.viewport.fitBounds(rect,true);
+  myViewer.viewport.applyConstraints();
 }
 
 // should be a very small html file

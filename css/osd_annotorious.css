@@ -26,18 +26,17 @@ transition-property:none;
 transition-property:none;
 }
 
+
 .arrow-annotation-outer {
     border: 0px solid black;
 }
 
-.arrow-annotation-inner {
-    border-width:0px;
+.arrow-annotation-outer:hover {
+    border: 1px solid red;
 }
 
-.arrow-annotation-inner:hover {
-    border-style: solid;
-    border-width: 1px;
-    border-color: yellow;
+.arrow-annotation-inner {
+    border: 0px solid black;
 }
 
 .special-annotation {
