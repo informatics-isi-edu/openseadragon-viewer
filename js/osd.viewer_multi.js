@@ -474,11 +474,13 @@ function goPosition(_X,_Y,_Zoom) {
     } else {
       myViewer.viewport.zoomTo(_Zoom);
   }
+  myViewer.viewport.applyConstraints();
 }
 
 function goPositionByBounds(_X,_Y,_width,_height) {
   var rect  = new OpenSeadragon.Rect(_X, _Y, _width, _height);
   myViewer.viewport.fitBounds(rect,true);
+  myViewer.viewport.applyConstraints();
 }
 
 // should be a very small html file
