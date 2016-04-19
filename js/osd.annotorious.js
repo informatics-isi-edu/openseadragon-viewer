@@ -24,6 +24,11 @@ function makeAnnoID(item) {
   return id;
 }
 
+function makeArrowID(annoID) {
+  var id='arrow_'+annoID;
+  return id;
+}
+
 function makeAnnoListID(item) {
 //  var id='alist_'+getHash(item);
   var id=getHash(item);
@@ -44,6 +49,7 @@ function annoCtrlClick()
       $('#anno-toggle').removeClass('glyphicon-eye-close');
   }
 }
+
 
 // reuse the calls to be like annotorious_ui's
 var isFocus=false;
@@ -309,7 +315,7 @@ function annoAdd(item) {
     unmarkSpecial();
 }
 
-// item is discarded
+// unhighlight is to discard the item
 function annoUnHighlightAnnotation(item) {
   myAnno.highlightAnnotation();
   if(saveCurrentHighlightAnnotation==item) {
@@ -317,6 +323,7 @@ function annoUnHighlightAnnotation(item) {
     saveCurrentHighlightAnnotation=null;
   }
 }
+
 function annoHighlightAnnotation(item) {
   myAnno.highlightAnnotation(item);
   saveCurrentHighlightAnnotation=item;
@@ -334,9 +341,11 @@ window.console.log("here in annoClickAnnotation");
 
 function annoSetup(_anno,_viewer) {
   _anno.makeAnnotatable(_viewer);
+
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
 //window.console.log("--->calling onAnnotationCreated...");
+    // assign the annotation's id value
     saveAnnoDiv.id=makeAnnoID(item);
     if(isArrowAnnotation) {
       item.shapes[0].style = { "color":saveArrowColor };
@@ -346,6 +355,11 @@ function annoSetup(_anno,_viewer) {
         target.shapes[0].style['type']+=TEST_ARROW_MARKER;
         else
           target.shapes[0].style['type']=TEST_ARROW_MARKER;
+
+      // assign the arrow annotation's arrow object's id value
+      var arrowObj=saveAnnoDiv.lastChild; 
+      var arrowID=makeArrowID(saveAnnoDiv.id);
+      arrowObj.id=arrowID;
     }
     if(isSpecialAnnotation) {
       if(target.shapes[0].style['type'])
@@ -372,6 +386,7 @@ function annoSetup(_anno,_viewer) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
     saveCurrentHighlightAnnotation=item;
+    processForMouseOverArrow(item);
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
@@ -380,6 +395,7 @@ function annoSetup(_anno,_viewer) {
     if(saveCurrentHighlightAnnotation == item) {
       saveCurrentHighlightAnnotation=null;
     }
+    processForMouseOutOfArrow(item);
     updateAnnotationList('onUnHighlighted', json);
   });
   _anno.addHandler("onSelectionCompleted", function(target) {
@@ -395,6 +411,48 @@ function annoSetup(_anno,_viewer) {
 
 function annoReady() {
   updateAnnotationState('annotoriousReady', myAnnoReady);
+}
+
+function processForMouseOverArrow(item) {
+  var anno_id=makeAnnoID(item);
+  var arrow_id=makeArrowID(makeAnnoID(item));
+  var arrowObj=document.getElementById(arrow_id);
+  if(arrowObj) {
+     // disable ArrowClass' css effect
+    var outer_node=document.getElementById(anno_id);
+    var inner_node = outer_node.childNodes[0];
+    outer_node.classList.remove("arrow-annotation-outer"); 
+    inner_node.classList.remove("arrow-annotation-inner"); 
+    // 
+    arrowObj.style.display = 'none';
+  }
+}
+
+function processForMouseOutOfArrow(item) {
+  var anno_id=makeAnnoID(item);
+  var arrow_id=makeArrowID(makeAnnoID(item));
+  var arrowObj=document.getElementById(arrow_id);
+  if(arrowObj) {
+     // disable ArrowClass' css effect
+    var outer_node=document.getElementById(anno_id);
+    var inner_node = outer_node.childNodes[0];
+    outer_node.classList.add("arrow-annotation-outer"); 
+    inner_node.classList.add("arrow-annotation-inner"); 
+    // 
+    arrowObj.style.display = 'block';
+  }
+}
+
+function hideArrowAnnotation(arrow_id) {
+  window.console.log("calling Hide arrow..",arrow_id);
+  var arrowObj=document.getElementById(arrow_id);
+  if(arrowObj)
+     arrowObj.style.display = 'none';
+}
+function showArrowAnnotation(arrow_id) {
+  var arrowObj=document.getElementById(arrow_id);
+  if(arrowObj)
+     arrowObj.style.display = 'block';
 }
 
 /*

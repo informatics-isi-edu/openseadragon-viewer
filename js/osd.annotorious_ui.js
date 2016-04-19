@@ -27,8 +27,8 @@ function setupAnnoUI() {
     b_node.classList.add("annotorious-popup-button");
     b_node.classList.add("annotorious-popup-button-click");
     b_node.title="Click";
-    b_node.onclick="annoClickAnnotation(null)";
-    b_node.value="CLICK";
+    b_node.onclick = function(){ annoClickAnnotation(null); };
+    b_node.name="CLICK";
     popup_div[0].insertBefore(b_node, popup_div[0].lastChild);
   }
 

@@ -9,29 +9,37 @@
 }
 
 .annotorious-popup-button-click {
-    border: 1px solid green;
+    dislay: block;
+    position:absolute;
+    top: 10px;
+    right: 3px;
     background:url(annotorious/eye_icon.png) no-repeat;
     outline:none;
 }
 
-.arrow-annotation-marker {
-   color:red;
+.glyphicon-map-marker {
+    text-shadow: 0 0 5px black;
+    font-size: 24px;
 }
 
-.arrow-annotation-marker:hover {
-   color:white;
-}
+.glyphicon.smaller {font-size: 8px;}
+.glyphicon.bigger {font-size: 30px;}
+
 
 .arrow-annotation-outer {
-  border: 0px solid black;
+  border-width: 0px;
 }
 
 .arrow-annotation-outer:hover {
-    border: 1px solid red;
+  border-width: 3px;
 }
 
 .arrow-annotation-inner {
-    border: 0px solid black;
+    border-width: 0px;
+}
+
+.arrow-annotation-inner:hover {
+  border-width: 2px;
 }
 
 .special-annotation {

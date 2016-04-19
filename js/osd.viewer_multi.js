@@ -183,19 +183,21 @@ window.console.log("calling over-lay event handler -- special");
        if(isArrowAnnotation) {
 window.console.log("calling over-lay event handler -- arrow");
          anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
+         anno_div.style.borderColor= saveArrowColor;
          var inner_node = anno_div.childNodes[0];
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
-         var arrow_node = document.createElement('span-inner');
+         var arrow_node = document.createElement('a');
          arrow_node.style.position = 'absolute';
-         arrow_node.style.top = '100%';
-         arrow_node.style.left = '100%';
+         arrow_node.style.top = '50%';
+         arrow_node.style.left = '50%';
          arrow_node.classList.add("arrow-annotation-marker");
          arrow_node.classList.add("glyphicon");
-         arrow_node.classList.add("glyphicon-tag");
+         arrow_node.classList.add("glyphicon-map-marker");
          arrow_node.style.color = saveArrowColor;
          anno_div.appendChild(arrow_node);
        }
     });
+
 
     $('#downloadAction').on('click', function(target) {
       window.console.log("downloadAction activated..");
