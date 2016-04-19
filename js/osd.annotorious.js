@@ -372,13 +372,11 @@ function annoSetup(_anno,_viewer) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
     saveCurrentHighlightAnnotation=item;
-    window.console.log("by mouse, current highlight is ..",getHash(item));
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
-    window.console.log("by mouse, current unhighlight is ..",getHash(item));
     if(saveCurrentHighlightAnnotation == item) {
       saveCurrentHighlightAnnotation=null;
     }

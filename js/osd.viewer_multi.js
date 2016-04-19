@@ -198,40 +198,6 @@ window.console.log("calling over-lay event handler -- arrow");
          arrow_node.style.color = saveArrowColor;
          anno_div.appendChild(arrow_node);
        }
-
-// MEI
-/*
-var observer = new MutationObserver(function(mutations) {
-window.console.log('Attributes changed!');
-mutations.forEach(function(mutation) {
-if(mutation.type == 'attributes') {
-window.console.log(mutation.type);
-window.console.log(mutation.attributeName);
-window.console.log(mutation.oldValue);
-window.console.log(mutation.target);
-}
-});    
-});
-var observerConfig = {
-attributes: true, 
-childList: true, 
-characterData: true 
-};
-observer.observe(anno_div, observerConfig);
-*/
-
-/*
-       var _rec=target.location;
-       var _tl=_rec.getTopLeft();
-       var _tr=_rec.getTopRight();
-       var _br=_rec.getBottomRight();
-       var _bl=_rec.getBottomLeft();
-window.console.log("NEW add-overlay got called rec->"+_rec.toString());
-window.console.log("   top left->"+_tl.toString());
-window.console.log("   top right->"+_tr.toString());
-window.console.log("   bottom left->"+_bl.toString());
-window.console.log("   bottom right->"+_br.toString());
-*/
     });
 
     $('#downloadAction').on('click', function(target) {
