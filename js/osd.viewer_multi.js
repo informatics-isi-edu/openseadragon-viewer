@@ -133,6 +133,7 @@ jQuery(document).ready(function() {
     });
 
     if (typeof annoSetup === "function") {
+        // anno is declared in annotorious's jar
         annoSetup(anno,myViewer);
     }
     for( i=0; i<logURL.length; i++) {
@@ -155,29 +156,24 @@ jQuery(document).ready(function() {
 
     myViewer.addHandler('viewport-change', function(target) {
       savePosition();
-/*
-      var aSet=annoSetInView();
-      var vlist=aSet.annoList;
-      window.console.log("IN viewport-change..",vlist.length);
-*/
     });
+
+/*
     myViewer.addHandler('canvas-enter', function(target) {
-      /* make it visible */
       if (typeof annoBtnFadeIn === "function") {
         annoBtnFadeIn();
       }
     });
-
     myViewer.addHandler('canvas-exit', function(target) {
-      /* make it invisible */
       if (typeof annoBtnFadeOut === "function") {
         annoBtnFadeOut();
       }
     });
+*/
     // only overlay that is being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
        var anno_div=target.element;
-         saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
+       saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
 
        if(isSpecialAnnotation) {
          anno_div.classList.add("special-annotation");
@@ -188,48 +184,14 @@ jQuery(document).ready(function() {
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
          var arrow_node = document.createElement('span-inner');
          arrow_node.style.position = 'absolute';
-//         arrow_node.style.top = '0px';
          arrow_node.style.top = '100%';
          arrow_node.style.left = '100%';
+         arrow_node.classList.add("arrow-annotation-marker");
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");
          arrow_node.style.color = saveArrowColor;
          anno_div.appendChild(arrow_node);
        }
-
-// MEI
-/*
-var observer = new MutationObserver(function(mutations) {
-window.console.log('Attributes changed!');
-mutations.forEach(function(mutation) {
-if(mutation.type == 'attributes') {
-window.console.log(mutation.type);
-window.console.log(mutation.attributeName);
-window.console.log(mutation.oldValue);
-window.console.log(mutation.target);
-}
-});    
-});
-var observerConfig = {
-attributes: true, 
-childList: true, 
-characterData: true 
-};
-observer.observe(anno_div, observerConfig);
-*/
-
-/*
-       var _rec=target.location;
-       var _tl=_rec.getTopLeft();
-       var _tr=_rec.getTopRight();
-       var _br=_rec.getBottomRight();
-       var _bl=_rec.getBottomLeft();
-window.console.log("NEW add-overlay got called rec->"+_rec.toString());
-window.console.log("   top left->"+_tl.toString());
-window.console.log("   top right->"+_tr.toString());
-window.console.log("   bottom left->"+_bl.toString());
-window.console.log("   bottom right->"+_br.toString());
-*/
     });
 
     $('#downloadAction').on('click', function(target) {
@@ -247,7 +209,12 @@ window.console.log("   bottom right->"+_br.toString());
          _addFilters();
        }
      });
-   }
+
+    }
+    // Okay, can open shop
+    if (typeof annoReady === "function") {
+        annoReady();
+    }
 });
 
 function _addURLLayer(url, i) {

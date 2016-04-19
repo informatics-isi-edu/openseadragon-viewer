@@ -15,11 +15,21 @@ annotorious.templates.popup = function(opt_data) {
 */
 
 function setupAnnoUI() {
-  var popup_div = document.getElementsByClassName('annotorious-popup-buttons');
-  if(popup_div) {
-    popup_div[0].innerHTML='';
-    var buttons ='<div class="annotorious-popup-buttons" style="width:80px;"><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a><a class="annotorious-popup-button annotorious-popup-button-click" title="Click" onclick="annoClickAnnotation(null)">CLICK</a></div>';
-     popup_div[0].innerHTML=buttons;
+  // widen the popup buttons' space
+  var buttons_div = document.getElementsByClassName('annotorious-popup-buttons');
+  if(buttons_div) { // first one
+    buttons_div[0].style.width="80px";
+  }
+  // add the focus-click eye button
+  var popup_div = document.getElementsByClassName('annotorious-popup');
+  if(popup_div) { // first one
+    var b_node = document.createElement('a');
+    b_node.classList.add("annotorious-popup-button");
+    b_node.classList.add("annotorious-popup-button-click");
+    b_node.title="Click";
+    b_node.onclick="annoClickAnnotation(null)";
+    b_node.value="CLICK";
+    popup_div[0].insertBefore(b_node, popup_div[0].lastChild);
   }
 
   if(!enableEmbedded) {

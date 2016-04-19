@@ -2,33 +2,28 @@
   from annotorious demo 
 */
 
-.annotorious-popup .annotorious-popup-button .annotorious-popup-buttons {
--moz-transition-property:none;
--ms-transition-property:none;
--webkit-transition-property:none;
--o-transition-property:none;
-transition-property:none;
-}
-
 .annotorious-popup-button-click:hover {
-  background-color:transparent;
-  background:url(annotorious/eye_icon.png) no-repeat;
-  outline:none;
+    background-color:transparent;
+    background:url(annotorious/eye_icon.png) no-repeat;
+    outline:none;
 }
 
 .annotorious-popup-button-click {
-  background:url(annotorious/eye_icon.png) no-repeat;
-  outline:none;
--moz-transition-property:none;
--ms-transition-property:none;
--webkit-transition-property:none;
--o-transition-property:none;
-transition-property:none;
+    border: 1px solid green;
+    background:url(annotorious/eye_icon.png) no-repeat;
+    outline:none;
 }
 
+.arrow-annotation-marker {
+   color:red;
+}
+
+.arrow-annotation-marker:hover {
+   color:white;
+}
 
 .arrow-annotation-outer {
-    border: 0px solid black;
+  border: 0px solid black;
 }
 
 .arrow-annotation-outer:hover {

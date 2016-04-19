@@ -110,12 +110,12 @@ window.console.log("printAnno, x,y,w,h "+x+" "+y+" "+w+" "+h);
 
 function annoInBounds(item,bounding_x,bounding_y,bounding_width,bounding_height) {
   var id=makeAnnoID(item);
-  var anno = document.getElementById(id);
-  if(anno) {
-    var anno_width= parseInt(anno.style.width);
-    var anno_height= parseInt(anno.style.height);
-    var anno_top= parseInt(anno.style.top);
-    var anno_left= parseInt(anno.style.left);
+  var annotationObj = document.getElementById(id);
+  if(annotationObj) {
+    var anno_width= parseInt(annotationObj.style.width);
+    var anno_height= parseInt(annotationObj.style.height);
+    var anno_top= parseInt(annotationObj.style.top);
+    var anno_left= parseInt(annotationObj.style.left);
 
     if( anno_top+anno_height < bounding_y || anno_top > bounding_y+bounding_height ||
         anno_left >  bounding_x+bounding_width || anno_left+anno_width < bounding_x)
@@ -372,13 +372,11 @@ function annoSetup(_anno,_viewer) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
     saveCurrentHighlightAnnotation=item;
-    window.console.log("by mouse, current highlight is ..",getHash(item));
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
-    window.console.log("by mouse, current unhighlight is ..",getHash(item));
     if(saveCurrentHighlightAnnotation == item) {
       saveCurrentHighlightAnnotation=null;
     }
@@ -392,8 +390,11 @@ function annoSetup(_anno,_viewer) {
   });
   myAnno=_anno;
   myAnnoReady = true;
-  updateAnnotationState('annotoriousReady', myAnnoReady);
   setupAnnoUI();
+}
+
+function annoReady() {
+  updateAnnotationState('annotoriousReady', myAnnoReady);
 }
 
 /*
