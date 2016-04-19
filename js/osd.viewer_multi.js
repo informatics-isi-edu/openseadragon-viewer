@@ -172,13 +172,16 @@ jQuery(document).ready(function() {
 */
     // only overlay that is being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
+window.console.log("calling over-lay event handler -- top");
        var anno_div=target.element;
        saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
 
        if(isSpecialAnnotation) {
          anno_div.classList.add("special-annotation");
+window.console.log("calling over-lay event handler -- special");
        }
        if(isArrowAnnotation) {
+window.console.log("calling over-lay event handler -- arrow");
          anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
          var inner_node = anno_div.childNodes[0];
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
