@@ -192,10 +192,10 @@ window.console.log("calling over-lay event handler -- arrow");
          // if width or height of button is bigger than the marked area
          // then needs to place near the (0,0) location
          if( parseInt(anno_div.style.width)/2 < 24)
-           arrow_node.style.left="10%";
+           arrow_node.style.left="0%";
            else arrow_node.style.left="40%";
          if( parseInt(anno_div.style.height)/2 < 24)
-           arrow_node.style.top="10%";
+           arrow_node.style.top="0%";
            else arrow_node.style.top="40%";
          arrow_node.classList.add("arrow-annotation-marker");
          arrow_node.classList.add("glyphicon");

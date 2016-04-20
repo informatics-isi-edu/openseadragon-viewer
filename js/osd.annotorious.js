@@ -360,6 +360,16 @@ function annoSetup(_anno,_viewer) {
       var arrowObj=saveAnnoDiv.lastChild; 
       var arrowID=makeArrowID(saveAnnoDiv.id);
       arrowObj.id=arrowID;
+      /* also add onMouseOver on the arrow node..*/
+      arrowObj.onmouseenter=function() {
+         window.console.log("going into a arrow object's space..");
+         this.raiseEvent("onMouseOverAnnotation");
+      }
+      arrowObj.onmouseleave=function() {
+         window.console.log("going out of arrow object's space..");
+         this.raiseEVent("onMouseOutOfAnnotation");
+      }
+  
     }
     if(isSpecialAnnotation) {
       if(target.shapes[0].style['type'])
@@ -441,18 +451,6 @@ function processForMouseOutOfArrow(item) {
     // 
     arrowObj.style.display = 'block';
   }
-}
-
-function hideArrowAnnotation(arrow_id) {
-  window.console.log("calling Hide arrow..",arrow_id);
-  var arrowObj=document.getElementById(arrow_id);
-  if(arrowObj)
-     arrowObj.style.display = 'none';
-}
-function showArrowAnnotation(arrow_id) {
-  var arrowObj=document.getElementById(arrow_id);
-  if(arrowObj)
-     arrowObj.style.display = 'block';
 }
 
 /*
