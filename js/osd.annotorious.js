@@ -94,6 +94,8 @@ String.prototype.hashCode = function() {
 }
 
 function getHash(item) {
+   if(item == null)
+     return 0;
    var txt= item.context
               +item.shapes[0].geometry.x
                 +item.shapes[0].geometry.y
@@ -322,16 +324,28 @@ function annoAdd(item) {
     unmarkSpecial();
 }
 
-// unhighlight is to discard the item
+// unhighlight is to discard the item from the current
 function annoUnHighlightAnnotation(item) {
   myAnno.highlightAnnotation();
+  if(item)
+    processForMouseOutOfArrow(item);
   if(saveCurrentHighlightAnnotation==item) {
     window.console.log("current unhighlight is ..",getHash(item));
     saveCurrentHighlightAnnotation=null;
-  }
+  } 
 }
 
 function annoHighlightAnnotation(item) {
+  if(item)
+    processForMouseOverArrow(item);
+  var p=(getHash(saveCurrentHighlightAnnotation) != getHash(item));
+  var y=(getHash(saveCurrentHighlightAnnotation));
+  var x=getHash(item);
+  if(saveCurrentHighlightAnnotation && 
+        (getHash(saveCurrentHighlightAnnotation) != getHash(item))) {
+    // process the mouse on that one
+    processForMouseOutOfArrow(saveCurrentHighlightAnnotation);
+  }
   myAnno.highlightAnnotation(item);
   saveCurrentHighlightAnnotation=item;
   window.console.log("current highlight is ..",getHash(item));
@@ -390,7 +404,7 @@ function annoSetup(_anno,_viewer) {
         window.console.log("going into a arrow object's space..");
         var h=getHash(target);
         var item=annoRetrieveByHash(h);
-        processForMouseOverArrow(item);
+//        processForMouseOverArrow(item);
         annoHighlightAnnotation(item);
 //        myAnno.fireEvent("onMouseOverAnnotation", annotation);
       }
@@ -398,7 +412,7 @@ function annoSetup(_anno,_viewer) {
         window.console.log("going out of arrow object's space..");
         var h=getHash(target);
         var item=annoRetrieveByHash(h);
-        processForMouseOutOfArrow(item);
+//        processForMouseOutOfArrow(item);
         annoUnHighlightAnnotation(item);
 //        myAnno.fireEvent("onMouseOutOfAnnotation", annotation);
       }
