@@ -363,11 +363,11 @@ function annoSetup(_anno,_viewer) {
       /* also add onMouseOver on the arrow node..*/
       arrowObj.onmouseenter=function() {
          window.console.log("going into a arrow object's space..");
-         this.raiseEvent("onMouseOverAnnotation");
+ //        this.raiseEvent("onMouseOverAnnotation");
       }
       arrowObj.onmouseleave=function() {
          window.console.log("going out of arrow object's space..");
-         this.raiseEVent("onMouseOutOfAnnotation");
+ //        this.raiseEVent("onMouseOutOfAnnotation");
       }
   
     }
