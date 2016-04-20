@@ -192,16 +192,18 @@ window.console.log("calling over-lay event handler -- arrow");
          // if width or height of button is bigger than the marked area
          // then needs to place near the (0,0) location
          if( parseInt(anno_div.style.width)/2 < 24)
-           arrow_node.style.left="0%";
+           arrow_node.style.left="0px";
            else arrow_node.style.left="40%";
          if( parseInt(anno_div.style.height)/2 < 24)
-           arrow_node.style.top="0%";
+           arrow_node.style.top="0px";
            else arrow_node.style.top="40%";
          arrow_node.classList.add("arrow-annotation-marker");
          arrow_node.classList.add("glyphicon");
-         arrow_node.classList.add("glyphicon-map-marker");
+         arrow_node.classList.add("glyphicon-tag");
          arrow_node.style.color = saveArrowColor;
          anno_div.appendChild(arrow_node);
+window.console.log(arrow_node.style.top);
+window.console.log(arrow_node.style.left);
        }
     });
 
