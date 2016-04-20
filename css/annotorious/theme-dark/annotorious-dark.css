@@ -57,7 +57,6 @@
   border:1px solid #000;
   outline:none;
   padding:5px;
-/* XXX
   -moz-transition-property:opacity;
   -moz-transition-duration:.5s;
   -moz-transition-delay:0;
@@ -73,7 +72,6 @@
   transition-property:opacity;
   transition-duration:.5s;
   transition-delay:0;
-*/
   -moz-border-radius:8px;
   -webkit-border-radius:8px;
   -khtml-border-radius:8px;
@@ -129,7 +127,6 @@
   display:block;
   white-space:nowrap;
   padding-left:4px;
-/* XXX
   -moz-transition-property:opacity;
   -moz-transition-duration:1s;
   -moz-transition-delay:0;
@@ -142,7 +139,6 @@
   transition-property:opacity;
   transition-duration:1s;
   transition-delay:0;
-*/
 }
 
 .annotorious-popup-button {
@@ -156,7 +152,6 @@
   text-indent:100%;
   white-space:nowrap;
   overflow:hidden;
-/* XXX
   -moz-transition-property:opacity;
   -moz-transition-duration:1s;
   -moz-transition-delay:0;
@@ -172,7 +167,6 @@
   transition-property:opacity;
   transition-duration:1s;
   transition-delay:0;
-*/
 }
 
 .annotorious-popup-button-delete:hover {

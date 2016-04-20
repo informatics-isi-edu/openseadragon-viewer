@@ -17,7 +17,7 @@
     outline:none;
 }
 
-.glyphicon-map-marker {
+.glyphicon-tag {
     text-shadow: 0 0 5px black;
     font-size: 24px;
 }
@@ -31,11 +31,11 @@
 }
 
 .arrow-annotation-outer:hover {
-  border-width: 3px;
+  border-width: 2px;
 }
 
 .arrow-annotation-inner {
-    border-width: 0px;
+   border-width: 0px;
 }
 
 .arrow-annotation-inner:hover {

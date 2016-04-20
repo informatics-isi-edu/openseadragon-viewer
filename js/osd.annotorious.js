@@ -330,6 +330,7 @@ function annoHighlightAnnotation(item) {
   window.console.log("current highlight is ..",getHash(item));
 }
 
+// the 'eye' calls this
 function annoClickAnnotation() {
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
@@ -360,16 +361,24 @@ function annoSetup(_anno,_viewer) {
       var arrowObj=saveAnnoDiv.lastChild; 
       var arrowID=makeArrowID(saveAnnoDiv.id);
       arrowObj.id=arrowID;
+
       /* also add onMouseOver on the arrow node..*/
-      arrowObj.onmouseenter=function() {
-         window.console.log("going into a arrow object's space..");
- //        this.raiseEvent("onMouseOverAnnotation");
+      arrowObj.onmouseover=function() {
+        window.console.log("going into a arrow object's space..");
+        var h=getHash(target);
+        var item=annoRetrieveByHash(h);
+        processForMouseOverArrow(item);
+        annoHighlightAnnotation(item);
+//        myAnno.fireEvent("onMouseOverAnnotation", annotation);
       }
-      arrowObj.onmouseleave=function() {
-         window.console.log("going out of arrow object's space..");
- //        this.raiseEVent("onMouseOutOfAnnotation");
+      arrowObj.onmouseout=function() {
+        window.console.log("going out of arrow object's space..");
+        var h=getHash(target);
+        var item=annoRetrieveByHash(h);
+        processForMouseOutOfArrow(item);
+        annoUnHighlightAnnotation(item);
+//        myAnno.fireEvent("onMouseOutOfAnnotation", annotation);
       }
-  
     }
     if(isSpecialAnnotation) {
       if(target.shapes[0].style['type'])
