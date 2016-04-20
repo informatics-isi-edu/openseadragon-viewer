@@ -188,15 +188,8 @@ window.console.log("calling over-lay event handler -- arrow");
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
          var arrow_node = document.createElement('span-inner');
          arrow_node.style.position = 'absolute';
-         arrow_node.style.top = '50%';
-         // if width or height of button is bigger than the marked area
-         // then needs to place near the (0,0) location
-         if( parseInt(anno_div.style.width)/2 < 24)
-           arrow_node.style.left="0px";
-           else arrow_node.style.left="40%";
-         if( parseInt(anno_div.style.height)/2 < 24)
-           arrow_node.style.top="0px";
-           else arrow_node.style.top="40%";
+         arrow_node.style.left='40%';
+         arrow_node.style.top='40%';
          arrow_node.classList.add("arrow-annotation-marker");
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");

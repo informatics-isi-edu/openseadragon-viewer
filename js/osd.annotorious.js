@@ -35,6 +35,13 @@ function makeAnnoListID(item) {
   return id;
 }
 
+function annoIsArrowAnnotation(item) {
+  var id=makeAnnoID(item);
+  var annotationObj = document.getElementById(id);
+  var rc=annotationObj.classList.contains('arrow-annotation-outer');
+  return rc;
+}
+
 function annoCtrlClick()
 {
   var atog = document.getElementById('anno-toggle');
@@ -338,6 +345,22 @@ function annoClickAnnotation() {
     updateAnnotationList('onClickAnnotation', json);
   }
 window.console.log("here in annoClickAnnotation");
+}
+
+function updateColorForAnnotation(item) {
+  var id=makeAnnoID(item);
+  var style=item.shapes[0].style;
+  var color=style['color'];
+  if(!color)
+    color='red';
+
+  var annoObj=document.getElementById(id);
+  annoObj.style.borderColor= color;
+
+  var arrow_id=makeArrowID(makeAnnoID(item));
+  var arrowObj=document.getElementById(arrow_id);
+  if(arrowObj)
+    arrowObj.style.color=color;
 }
 
 function annoSetup(_anno,_viewer) {

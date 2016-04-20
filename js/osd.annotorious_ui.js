@@ -290,6 +290,7 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
+// only fields that are updated are, a) text b) style
                 var heading = '';
                 if (data.anatomy) {
                     heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
@@ -315,6 +316,10 @@ window.addEventListener('message', function(event) {
                 annotation.text = annotationObj.text;
                 if (data.config) {
                     annotation.shapes[0].style = data.config;
+                }
+                /* special case if this annotation is an ArrowAnnotation */
+                if(annoIsArrowAnnotation(item)) {
+                    updateColorForAnnotation(item);
                 }
                 break;
             case 'deleteAnnotation':
