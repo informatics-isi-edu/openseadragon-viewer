@@ -16,8 +16,8 @@ var INFO_EVENT_TYPE='INFO';
 // Special Annotaiton, when [ISRD_SPECIAL] in item.text
 // all other are regular annotation
 var TEST_MODE=false;
-var TEST_SPECIAL_MARKER="[ISRD_SPECIAL]";
-var TEST_ARROW_MARKER="[ISRD_ARROW]";
+var SPECIAL_MARKER="[ISRD_SPECIAL]";
+var ARROW_MARKER="[ISRD_ARROW]";
 
 function makeAnnoID(item) {
   var id='anno_'+getHash(item);
@@ -272,7 +272,10 @@ function annoChk()
   }
 }
 
+// loading an annotation into annotorious
+// used by backend-loading from file or chaise
 function annoAdd(item) {
+window.console.log("calling annoAdd..");
   if( annoExist(item) )
     return;
 
@@ -281,26 +284,26 @@ function annoAdd(item) {
   if(isArrowAnnotation) { // if this is from chaise
     // in case it is not set, set it
     if(!atype) {
-      item.shapes[0].style['type']=TEST_ARROW_MARKER;
+      item.shapes[0].style['type']=ARROW_MARKER;
       } else {
-        if(!atype.includes(TEST_ARROW_MARKER))
-          item.shapes[0].style['type']+=TEST_ARROW_MARKER;
+        if(!atype.includes(ARROW_MARKER))
+          item.shapes[0].style['type']+=ARROW_MARKER;
     }
     } else { // it might be set from the style
-      if(atype && atype.includes(TEST_ARROW_MARKER) && TEST_MODE) {
+      if(atype && atype.includes(ARROW_MARKER) && TEST_MODE) {
          markArrow();
       }
   }
   if(isSpecialAnnotation) { // if this is from chaise
     // in case it is not set, set it
     if(!atype) {
-      item.shapes[0].style['type']=TEST_SPECIAL_MARKER;
+      item.shapes[0].style['type']=SPECIAL_MARKER;
       } else {
-        if(!atype.includes(TEST_SPECIAL_MARKER))
-          item.shapes[0].style['type']+=TEST_SPECIAL_MARKER;
+        if(!atype.includes(SPECIAL_MARKER))
+          item.shapes[0].style['type']+=SPECIAL_MARKER;
     }
     } else { // it might be set from the style
-      if(atype && atype.includes(TEST_SPECIAL_MARKER) && TEST_MODE) {
+      if(atype && atype.includes(SPECIAL_MARKER) && TEST_MODE) {
          markSpecial();
       }
   }
@@ -318,6 +321,25 @@ function annoAdd(item) {
         saveArrowColor=b;
   }
   myAnno.addAnnotation(item);
+
+  /* need to tag the arrow's event handlers on..*/
+  if(isArrowAnnotation) {
+    var anno_id=makeAnnoID(item);
+    var arrow_id=makeArrowID(anno_id);
+    var annoObj=saveAnnoDiv;
+    saveAnnoDiv.id=anno_id;
+    var arrowObj=annoObj.lastChild;
+    arrowObj.id=arrow_id;
+      /* also add onMouseOver on the arrow node..*/
+    arrowObj.onmouseover=function() {
+      window.console.log("going into a remote arrow object's space..");
+      annoHighlightAnnotation(item);
+    }
+    arrowObj.onmouseout=function() {
+      window.console.log("going out of remote arrow object's space..");
+      annoUnHighlightAnnotation(item);
+    }
+  }
   if(TEST_MODE && isArrowAnnotation)
     unmarkArrow();
   if(TEST_MODE && isSpecialAnnotation)
@@ -330,25 +352,26 @@ function annoUnHighlightAnnotation(item) {
   if(item)
     processForMouseOutOfArrow(item);
   if(saveCurrentHighlightAnnotation==item) {
-    window.console.log("current unhighlight is ..",getHash(item));
+//    window.console.log("current unhighlight is ..",getHash(item));
     saveCurrentHighlightAnnotation=null;
   } 
 }
 
 function annoHighlightAnnotation(item) {
-  if(item)
-    processForMouseOverArrow(item);
   var p=(getHash(saveCurrentHighlightAnnotation) != getHash(item));
   var y=(getHash(saveCurrentHighlightAnnotation));
   var x=getHash(item);
   if(saveCurrentHighlightAnnotation && 
         (getHash(saveCurrentHighlightAnnotation) != getHash(item))) {
     // process the mouse on that one
+window.console.log("in highlight recovery..");
     processForMouseOutOfArrow(saveCurrentHighlightAnnotation);
   }
+  if(item)
+    processForMouseOverArrow(item);
   myAnno.highlightAnnotation(item);
   saveCurrentHighlightAnnotation=item;
-  window.console.log("current highlight is ..",getHash(item));
+//  window.console.log("current highlight is ..",getHash(item));
 }
 
 // the 'eye' calls this
@@ -377,12 +400,13 @@ function updateColorForAnnotation(item) {
     arrowObj.style.color=color;
 }
 
+// for standalone viewer's annotation manipulation
 function annoSetup(_anno,_viewer) {
   _anno.makeAnnotatable(_viewer);
 
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
-//window.console.log("--->calling onAnnotationCreated...");
+window.console.log("--->calling onAnnotationCreated...");
     // assign the annotation's id value
     saveAnnoDiv.id=makeAnnoID(item);
     if(isArrowAnnotation) {
@@ -390,9 +414,9 @@ function annoSetup(_anno,_viewer) {
     }
     if(isArrowAnnotation) {
       if(target.shapes[0].style['type'])
-        target.shapes[0].style['type']+=TEST_ARROW_MARKER;
+        target.shapes[0].style['type']+=ARROW_MARKER;
         else
-          target.shapes[0].style['type']=TEST_ARROW_MARKER;
+          target.shapes[0].style['type']=ARROW_MARKER;
 
       // assign the arrow annotation's arrow object's id value
       var arrowObj=saveAnnoDiv.lastChild; 
@@ -419,9 +443,9 @@ function annoSetup(_anno,_viewer) {
     }
     if(isSpecialAnnotation) {
       if(target.shapes[0].style['type'])
-        target.shapes[0].style['type']+=TEST_SPECIAL_MARKER;
+        target.shapes[0].style['type']+=SPECIAL_MARKER;
         else
-          target.shapes[0].style['type']=TEST_SPECIAL_MARKER;
+          target.shapes[0].style['type']=SPECIAL_MARKER;
     }
 
     var json=annoLog(item,CREATE_EVENT_TYPE);

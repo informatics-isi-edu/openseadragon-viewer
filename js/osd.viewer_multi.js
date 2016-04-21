@@ -197,6 +197,7 @@ window.console.log("calling over-lay event handler -- arrow");
          anno_div.appendChild(arrow_node);
 window.console.log(arrow_node.style.top);
 window.console.log(arrow_node.style.left);
+         
        }
     });
 
@@ -331,9 +332,11 @@ function updateTitle(_X,_Y,_Z) {
     }
   }
   newTitle=newTitle+"&x="+_X+"&y="+_Y+"&z="+_Z;
+window.console.log("in updateTitle."+newTitle);
 
   var stateObj = { update: newTitle };
 
+  var h=history;
   var i=history.length;
   var e=null;
   var t=null;
