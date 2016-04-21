@@ -348,30 +348,28 @@ window.console.log("calling annoAdd..");
 
 // unhighlight is to discard the item from the current
 function annoUnHighlightAnnotation(item) {
-  myAnno.highlightAnnotation();
-  if(item)
-    processForMouseOutOfArrow(item);
-  if(saveCurrentHighlightAnnotation==item) {
-//    window.console.log("current unhighlight is ..",getHash(item));
+  if(saveCurrentHighlightAnnotation) {
+    if(getHash(saveCurrentHighlightAnnotation)==getHash(item)) {
+      processForMouseOutOfArrow(item);
+    } 
+    myAnno.highlightAnnotation();
     saveCurrentHighlightAnnotation=null;
-  } 
+  }
 }
 
 function annoHighlightAnnotation(item) {
-  var p=(getHash(saveCurrentHighlightAnnotation) != getHash(item));
-  var y=(getHash(saveCurrentHighlightAnnotation));
-  var x=getHash(item);
-  if(saveCurrentHighlightAnnotation && 
-        (getHash(saveCurrentHighlightAnnotation) != getHash(item))) {
-    // process the mouse on that one
+  if(saveCurrentHighlightAnnotation) {
+    if(getHash(saveCurrentHighlightAnnotation) != getHash(item)) {
+       // process the mouse on that one
 window.console.log("in highlight recovery..");
-    processForMouseOutOfArrow(saveCurrentHighlightAnnotation);
-  }
-  if(item)
+      processForMouseOutOfArrow(saveCurrentHighlightAnnotation);
+      processForMouseOverArrow(item);
+    }
+  } else {
     processForMouseOverArrow(item);
+  }
   myAnno.highlightAnnotation(item);
   saveCurrentHighlightAnnotation=item;
-//  window.console.log("current highlight is ..",getHash(item));
 }
 
 // the 'eye' calls this
@@ -465,17 +463,19 @@ window.console.log("--->calling onAnnotationCreated...");
   _anno.addHandler("onMouseOverAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
-    saveCurrentHighlightAnnotation=item;
+window.console.log("in anno's onMouseOverOfAnnotaiton..");
     processForMouseOverArrow(item);
+    saveCurrentHighlightAnnotation=item;
     updateAnnotationList('onHighlighted', json);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
+window.console.log("in anno's onMouseOutOfAnnotaiton..");
+    processForMouseOutOfArrow(item);
     if(saveCurrentHighlightAnnotation == item) {
       saveCurrentHighlightAnnotation=null;
     }
-    processForMouseOutOfArrow(item);
     updateAnnotationList('onUnHighlighted', json);
   });
   _anno.addHandler("onSelectionCompleted", function(target) {
