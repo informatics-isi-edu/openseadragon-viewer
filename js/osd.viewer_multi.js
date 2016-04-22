@@ -319,6 +319,8 @@ function pointIt(target) {
 
 }
 
+
+var history_count=0;
 // will always have _X,_Y,_Z
 //    document.location=newTitle;
 function updateTitle(_X,_Y,_Z) {
@@ -332,8 +334,9 @@ function updateTitle(_X,_Y,_Z) {
     }
   }
   newTitle=newTitle+"&x="+_X+"&y="+_Y+"&z="+_Z;
-window.console.log("in updateTitle."+newTitle);
 
+//window.console.log("in updateTitle."+newTitle);
+window.console.log("in updateTitle..."+history_count);
   var stateObj = { update: newTitle };
 
   var h=history;
@@ -349,8 +352,10 @@ window.console.log("in updateTitle."+newTitle);
             if( isFirst ) {
                isFirst=false;
                history.replaceState({}, 'Title', newTitle)
+history_count++;
                } else {
                    history.replaceState(stateObj, 'Title', newTitle)
+history_count++;
             }
             return 1;
             } else {
@@ -363,6 +368,7 @@ window.console.log("in updateTitle."+newTitle);
   if( isFirst ) {
     isFirst = false;
     history.replaceState(stateObj, 'Title', newTitle)
+history_count++;
   }
   return 1;
 //  alertify.confirm(newTitle);
