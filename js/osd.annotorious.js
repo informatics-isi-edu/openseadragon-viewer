@@ -428,7 +428,7 @@ window.console.log("--->calling onAnnotationCreated...");
         var h=getHash(target);
         var item=annoRetrieveByHash(h);
 //        processForMouseOverArrow(item);
-        disableMarkerState(item);
+//XX        disableMarkerState(item);
         saveCurrentArrow=item;
 //        myAnno.fireEvent("onMouseOverAnnotation", annotation);
       }
@@ -439,7 +439,7 @@ window.console.log("--->calling onAnnotationCreated...");
 //        processForMouseOutOfArrow(item);
 //        annoUnHighlightAnnotation(item);
         saveCurrentArrow=null;
-        enableMarkerState(item);
+//XX        enableMarkerState(item);
 //        myAnno.fireEvent("onMouseOutOfAnnotation", annotation);
       }
     }
@@ -467,7 +467,7 @@ window.console.log("--->calling onAnnotationCreated...");
   _anno.addHandler("onMouseOverAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
-window.console.log("in anno's onMouseOverOfAnnotation..");
+//window.console.log("in anno's onMouseOverOfAnnotation..");
 //    processForMouseOverArrow(item);
     saveCurrentHighlightAnnotation=item;
     disableMarkerState(item);
@@ -476,7 +476,7 @@ window.console.log("in anno's onMouseOverOfAnnotation..");
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
-window.console.log("in anno's onMouseOutOfAnnotation..");
+//window.console.log("in anno's onMouseOutOfAnnotation..");
 //    processForMouseOutOfArrow(item);
     enableMarkerState(item);
     if(saveCurrentHighlightAnnotation == item) {
@@ -518,7 +518,7 @@ window.console.log("calling disableMarkerState..");
 }
 
 function enableMarkerState(item) {
-window.console.log("calling enableMarkerState..");
+//window.console.log("calling enableMarkerState..");
   var anno_id=makeAnnoID(item);
   var arrow_id=makeArrowID(makeAnnoID(item));
   var arrowObj=document.getElementById(arrow_id);
