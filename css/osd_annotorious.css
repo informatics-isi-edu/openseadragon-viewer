@@ -4,7 +4,7 @@
 
 .annotorious-popup-button-click:hover {
     background-color:transparent;
-    /*background:url(annotorious/eye_icon.png) no-repeat;*/
+    background:url(annotorious/eye_icon.png) no-repeat;
     outline: none;
     cursor: pointer;
     font-weight: bold;
@@ -15,7 +15,7 @@
     position:absolute;
     top: 10px;
     right: 3px;
-    /*background:url(annotorious/eye_icon.png) no-repeat;*/
+    background:url(annotorious/eye_icon.png) no-repeat;
     outline:none;
 }
 
