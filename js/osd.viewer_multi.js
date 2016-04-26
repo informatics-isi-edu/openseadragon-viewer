@@ -333,7 +333,7 @@ function updateTitle(_X,_Y,_Z) {
     }
   }
   newTitle=newTitle+"&x="+_X+"&y="+_Y+"&z="+_Z;
-window.console.log("in updateTitle."+newTitle);
+//window.console.log("in updateTitle."+newTitle);
 
   var stateObj = { update: newTitle };
 
