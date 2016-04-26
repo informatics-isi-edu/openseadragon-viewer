@@ -184,6 +184,8 @@ window.console.log("calling over-lay event handler -- special");
 window.console.log("calling over-lay event handler -- arrow");
          anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
          anno_div.style.borderColor= saveArrowColor;
+         var anno_z=anno_div.style.zIndex;
+         var arrow_z= (anno_z)?anno_z+2:2;
          var inner_node = anno_div.childNodes[0];
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
          var arrow_node = document.createElement('span-inner');
@@ -194,9 +196,8 @@ window.console.log("calling over-lay event handler -- arrow");
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");
          arrow_node.style.color = saveArrowColor;
+         arrow_node.style.zIndex=arrow_z;
          anno_div.appendChild(arrow_node);
-window.console.log(arrow_node.style.top);
-window.console.log(arrow_node.style.left);
          
        }
     });
