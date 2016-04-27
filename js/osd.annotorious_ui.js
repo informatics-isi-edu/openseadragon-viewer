@@ -76,7 +76,7 @@ function updateAnnotationList(mType, cData) {
         }
         if(mType == 'onInViewAnnotations') {
             /* ignore this, for Chaise only */
-window.console.log("IN HERE...");
+//window.console.log("IN HERE...");
             return;
         }
         // other ones affects the annotation_list entry
