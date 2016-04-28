@@ -112,7 +112,7 @@ jQuery(document).ready(function() {
                    showHomeControl: false,
                    showFullPageControl: false,
                    constrainDuringPan: true,
-                   visibilityRatio:     1,
+//                   visibilityRatio:     1,
 
              });
 
