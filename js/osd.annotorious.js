@@ -731,8 +731,8 @@ function centerAnnoByHash(i,zoomIt)
      var h= item.shapes[0].geometry.height;
      var x=item.shapes[0].geometry.x;
      var y=item.shapes[0].geometry.y;
-     var mx=(w/10);
-     var my=(h/10);
+     var mx=(w/5);
+     var my=(h/5);
      var ctxt=item.context;
      var src=item.src;
 
