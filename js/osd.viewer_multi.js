@@ -22,8 +22,6 @@ http://localhost/tiletiff/mview.html?
 (the ImageProperties.xml should be used for our application by default)
 */
 
-/* tracking current location .. */
-
 var myViewer=null;
 
 /* for snap and go buttons */
@@ -50,6 +48,8 @@ var isFirst=true;
 var isSpecialAnnotation=false;
 // to track arrow annotation
 var isArrowAnnotation=false;
+// to track hidden annotation
+var isHiddenAnnotation=false;
 var saveArrowColor="red";
 
 jQuery(document).ready(function() {
@@ -170,36 +170,19 @@ jQuery(document).ready(function() {
       }
     });
 */
-    // only overlay that is being added are annotations
+    // only overlays that are being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
-//window.console.log("calling over-lay event handler -- top");
+window.console.log("calling over-lay event handler --");
        var anno_div=target.element;
        saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
-
-       if(isSpecialAnnotation) {
-         anno_div.classList.add("special-annotation");
-//window.console.log("calling over-lay event handler -- special");
-       }
-       if(isArrowAnnotation) {
-//window.console.log("calling over-lay event handler -- arrow");
-         anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
-         anno_div.style.borderColor= saveArrowColor;
-         var anno_z=anno_div.style.zIndex;
-         var arrow_z= (anno_z && anno_z>2)?(anno_z-1):2;
-         var inner_node = anno_div.childNodes[0];
-         inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
-         var arrow_node = document.createElement('span-inner');
-         arrow_node.style.position = 'absolute';
-         arrow_node.style.left='40%';
-         arrow_node.style.top='40%';
-         arrow_node.classList.add("arrow-annotation-marker");
-         arrow_node.classList.add("glyphicon");
-         arrow_node.classList.add("glyphicon-tag");
-         arrow_node.style.color = saveArrowColor;
-         arrow_node.style.zIndex=arrow_z;
-         anno_div.appendChild(arrow_node);
-         
-       }
+       anno_div.classList.add("annotation-overlay-outer"); // boxmarker-outer
+       var inner_node = anno_div.childNodes[0];
+       inner_node.classList.add("annotation-overlay-inner"); // boxmarker-inner
+       var marker_node = document.createElement('span-inner');
+       marker_node.style.position = 'absolute';
+       marker_node.style.left='40%';
+       marker_node.style.top='40%';
+       anno_div.appendChild(marker_node);
     });
 
 
@@ -320,6 +303,7 @@ function pointIt(target) {
 
 }
 
+
 // will always have _X,_Y,_Z
 //    document.location=newTitle;
 function updateTitle(_X,_Y,_Z) {
@@ -333,8 +317,8 @@ function updateTitle(_X,_Y,_Z) {
     }
   }
   newTitle=newTitle+"&x="+_X+"&y="+_Y+"&z="+_Z;
-//window.console.log("in updateTitle."+newTitle);
 
+//window.console.log("in updateTitle."+newTitle);
   var stateObj = { update: newTitle };
 
   var h=history;
@@ -770,6 +754,8 @@ function markArrow() { isArrowAnnotation=true; }
 function unmarkArrow() { isArrowAnnotation=false; }
 function markSpecial() { isSpecialAnnotation=true; }
 function unmarkSpecial() { isSpecialAnnotation=false; }
+function markHidden() { isHiddenAnnotation=true; }
+function unmarkHidden() { isHiddenAnnotation=false; }
 
 // reuse the calls to be like annotorious_ui's
 function specialClick() {
@@ -794,6 +780,18 @@ function arrowClick() {
         var i=Math.floor((Math.random() * 3) + 1); 
         saveArrowColor=clist[i-1];
         atog.style.color=saveArrowColor;
+   }
+}
+
+// reuse the calls to be like annotorious_ui's
+function hiddenClick() {
+   var htog = document.getElementById('hidden-toggle');
+   if(isHiddenAnnotation) {
+      unmarkHidden();
+      htog.style.color='black';
+      } else {
+        markHidden();
+        htog.style.color='yellow';
    }
 }
 

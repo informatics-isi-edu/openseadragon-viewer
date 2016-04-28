@@ -12,13 +12,7 @@ var INFO_EVENT_TYPE='INFO';
 
 // this is for saveAnno and loadAnno buttons that
 // do localhost dump and loading -- in standalone mode
-// Arrow Annotations, when item.shape[0].style= {'color':'green'}
-//                       or [ISRD_ARROW] in item.text
-// Special Annotation, when [ISRD_SPECIAL] in item.text
-// all other are regular annotation
 var TEST_MODE=false;
-var SPECIAL_MARKER="[ISRD_SPECIAL]";
-var ARROW_MARKER="[ISRD_ARROW]";
 
 function makeAnnoID(item) {
   var id='anno_'+getHash(item);
@@ -34,13 +28,6 @@ function makeAnnoListID(item) {
 //  var id='alist_'+getHash(item);
   var id=getHash(item);
   return id;
-}
-
-function annoIsArrowAnnotation(item) {
-  var id=makeAnnoID(item);
-  var annotationObj = document.getElementById(id);
-  var rc=annotationObj.classList.contains('arrow-annotation-outer');
-  return rc;
 }
 
 function annoCtrlClick()
@@ -273,87 +260,68 @@ function annoChk()
   }
 }
 
+
 // loading an annotation into annotorious
 // used by backend-loading from file or chaise
 function annoAdd(item) {
-//window.console.log("calling annoAdd..");
+window.console.log("calling annoAdd..");
   if( annoExist(item) )
     return;
 
-  var style=item.shapes[0].style;
-  var atype=style['type'];
-  if(isArrowAnnotation) { // if this is from chaise
-    // in case it is not set, set it
-    if(!atype) {
-      item.shapes[0].style['type']=ARROW_MARKER;
-      } else {
-        if(!atype.includes(ARROW_MARKER))
-          item.shapes[0].style['type']+=ARROW_MARKER;
-    }
-    } else { // it might be set from the style
-      if(atype && atype.includes(ARROW_MARKER) && TEST_MODE) {
-         markArrow();
-      }
-  }
-  if(isSpecialAnnotation) { // if this is from chaise
-    // in case it is not set, set it
-    if(!atype) {
-      item.shapes[0].style['type']=SPECIAL_MARKER;
-      } else {
-        if(!atype.includes(SPECIAL_MARKER))
-          item.shapes[0].style['type']+=SPECIAL_MARKER;
-    }
-    } else { // it might be set from the style
-      if(atype && atype.includes(SPECIAL_MARKER) && TEST_MODE) {
-         markSpecial();
-      }
+/***** before chaise conversion *****/
+  if(isArrowAnnotation && !TEST_MODE ) { // from chaise
+    var _style=item.shapes[0].style;
+    saveArrowColor=_style['color'];
+    item.shapes[0].style={};
   }
 
-  if(isArrowAnnotation) {
-    saveArrowColor='red';
-    var style=item.shapes[0].style;
-    var b=null;
-    if(style.length != 0) { // { color:'red', 'border':'green' }
-      b=style['color'];
-    }
-    if(b == null)
-      item.shapes[0].style['color']=saveArrowColor;
-      else
-        saveArrowColor=b;
+  var style=setupStyleForAnnotation(item);
+  if(isArrowAnnotation) { // might not need this in future
+    updateDisplayType2Style(item, S_DTYPE_MARKER);
+    updateMarker2Style(item,null,saveArrowColor,null);
   }
+  if(isSpecialAnnotation) { // need to change this later
+    updateSpecial2Style(item,S_SPECIAL_BORDER_DEFAULT);
+  }
+  if(isHiddenAnnotation) { // might not need this in future
+    updateDisplayType2Style(item, S_DTYPE_HIDDEN);
+  }
+
   myAnno.addAnnotation(item);
 
+  saveAnnoDiv.id=makeAnnoID(item);
+    // assign the marker's id 
+  var arrowObj=saveAnnoDiv.childNodes[1]; // marker_node
+  arrowObj.id=makeArrowID(saveAnnoDiv.id);
+
+  updateAnnotationDOMWithStyle(item);
+
   /* need to tag the arrow's event handlers on..*/
-  if(isArrowAnnotation) {
-    var anno_id=makeAnnoID(item);
-    var arrow_id=makeArrowID(anno_id);
-    var annoObj=saveAnnoDiv;
-    saveAnnoDiv.id=anno_id;
-    var arrowObj=annoObj.lastChild;
-    arrowObj.id=arrow_id;
-      /* also add onMouseOver on the arrow node..*/
-    arrowObj.onmouseover=function() {
-//      window.console.log("going into a remote arrow object's space..");
-      saveCurrentArrow=item;
-//      disableMarkerState(item);
-    }
-    arrowObj.onmouseout=function() {
-//      window.console.log("going out of remote arrow object's space..");
-      saveCurrentArrow=null;
-//      enableMarkerState(item);
-    }
+  var arrow_id=makeArrowID(makeAnnoID(item));
+  var arrowObj=document.getElementById(arrow_id);
+    /* also add onMouseOver on the arrow node..*/
+  arrowObj.onmouseover=function() {
+    window.console.log("going into a remote arrow object's space..A");
+    saveCurrentArrow=null;
   }
+  arrowObj.onmouseout=function() {
+    window.console.log("going out of remote arrow object's space..A");
+    saveCurrentArrow=null;
+  }
+
   if(TEST_MODE && isArrowAnnotation)
     unmarkArrow();
   if(TEST_MODE && isSpecialAnnotation)
     unmarkSpecial();
+  if(TEST_MODE && isHiddenAnnotation)
+    unmarkHidden();
 }
 
 // unhighlight is to discard the item from the current
 function annoUnHighlightAnnotation(item) {
   if(saveCurrentHighlightAnnotation) {
     if(getHash(saveCurrentHighlightAnnotation)==getHash(item)) {
-      enableMarkerState(item);
+      enableDisplayState(item);
     } 
     myAnno.highlightAnnotation();
     saveCurrentHighlightAnnotation=null;
@@ -365,7 +333,7 @@ function annoHighlightAnnotation(item) {
     if(getHash(saveCurrentHighlightAnnotation) != getHash(item)) {
        // process the mouse on that one
 //window.console.log("in highlight recovery..");
-      enableMarkerState(saveCurrentHighlightAnnotation);
+      enableDisplayState(saveCurrentHighlightAnnotation);
       disableMarkerState(item);
     }
   } else {
@@ -375,7 +343,8 @@ function annoHighlightAnnotation(item) {
   saveCurrentHighlightAnnotation=item;
 }
 
-// the 'eye' calls this
+// the Focus-'eye' calls this,
+// from viewer to chaise
 function annoClickAnnotation() {
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
@@ -385,74 +354,49 @@ function annoClickAnnotation() {
 //window.console.log("here in annoClickAnnotation");
 }
 
-function updateColorForAnnotation(item) {
-  var id=makeAnnoID(item);
-  var style=item.shapes[0].style;
-  var color=style['color'];
-  if(!color)
-    color='red';
-
-  var annoObj=document.getElementById(id);
-  annoObj.style.borderColor= color;
-
-  var arrow_id=makeArrowID(makeAnnoID(item));
-  var arrowObj=document.getElementById(arrow_id);
-  if(arrowObj)
-    arrowObj.style.color=color;
-}
-
-// for standalone viewer's annotation manipulation
+// initializing of annotorious 
+// also for standalone viewer's annotation manipulation
 function annoSetup(_anno,_viewer) {
+
   _anno.makeAnnotatable(_viewer);
 
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
-//window.console.log("--->calling onAnnotationCreated...");
-    // assign the annotation's id value
+window.console.log("--->calling onAnnotationCreated...");
+    // assign the annotation's id
     saveAnnoDiv.id=makeAnnoID(item);
-    if(isArrowAnnotation) {
-      item.shapes[0].style = { "color":saveArrowColor };
-    }
-    if(isArrowAnnotation) {
-      if(target.shapes[0].style['type'])
-        target.shapes[0].style['type']+=ARROW_MARKER;
-        else
-          target.shapes[0].style['type']=ARROW_MARKER;
+    // assign the marker's id 
+    var arrowObj=saveAnnoDiv.childNodes[1]; // marker_node
+    arrowObj.id=makeArrowID(saveAnnoDiv.id);
 
-      // assign the arrow annotation's arrow object's id value
-      var arrowObj=saveAnnoDiv.lastChild; 
-      var arrowID=makeArrowID(saveAnnoDiv.id);
-      arrowObj.id=arrowID;
+    var style=setupStyleForAnnotation(item);
+
+    if(isArrowAnnotation) { // might not need this in future
+      updateDisplayType2Style(item, S_DTYPE_MARKER);
+      updateMarker2Style(item,null,saveArrowColor,null);
+    }
+    if(isSpecialAnnotation) { // need to change this later
+      updateSpecial2Style(item,S_SPECIAL_BORDER_DEFAULT);
+    }
+    if(isHiddenAnnotation) { // might not need this in future
+      updateDisplayType2Style(item, S_DTYPE_HIDDEN);
+    }
+
+    // put it into the Dom..
+    updateAnnotationDOMWithStyle(item);
 
       /* also add onMouseOver on the arrow node..*/
-      arrowObj.onmouseover=function() {
-//        window.console.log("going into a arrow object's space..");
-//        var h=getHash(target);
-//        var item=annoRetrieveByHash(h);
-//        processForMouseOverArrow(item);
-//XX        disableMarkerState(item);
-        saveCurrentArrow=item;
-      }
-      arrowObj.onmouseout=function() {
-//      window.console.log("going out of arrow object's space..");
-//        var h=getHash(target);
-//        var item=annoRetrieveByHash(h);
-//        processForMouseOutOfArrow(item);
-//        annoUnHighlightAnnotation(item);
-        saveCurrentArrow=null;
-//XX        enableMarkerState(item);
-      }
+    arrowObj.onmouseover=function() {
+window.console.log("going into a arrow object's space..B");
+      saveCurrentArrow=item;
     }
-    if(isSpecialAnnotation) {
-      if(target.shapes[0].style['type'])
-        target.shapes[0].style['type']+=SPECIAL_MARKER;
-        else
-          target.shapes[0].style['type']=SPECIAL_MARKER;
+    arrowObj.onmouseout=function() {
+window.console.log("going out of arrow object's space..");
+      saveCurrentArrow=null;
     }
-
     var json=annoLog(item,CREATE_EVENT_TYPE);
     updateAnnotationList('onAnnotationCreated', json);
-  });
+  }); // onAnnotationCreate..
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
     var json=annoLog(item,REMOVE_EVENT_TYPE);
@@ -468,7 +412,6 @@ function annoSetup(_anno,_viewer) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
 //window.console.log("in anno's onMouseOverOfAnnotation..");
-//    processForMouseOverArrow(item);
     saveCurrentHighlightAnnotation=item;
     disableMarkerState(item);
     updateAnnotationList('onHighlighted', json);
@@ -477,8 +420,7 @@ function annoSetup(_anno,_viewer) {
     var item=target;
     var json=annoLog(item,INFO_EVENT_TYPE);
 //window.console.log("in anno's onMouseOutOfAnnotation..");
-//    processForMouseOutOfArrow(item);
-    enableMarkerState(item);
+    enableDisplayState(item);
     if(saveCurrentHighlightAnnotation == item) {
       saveCurrentHighlightAnnotation=null;
     }
@@ -504,33 +446,65 @@ function annoReady() {
 function disableMarkerState(item) {
 //window.console.log("calling disableMarkerState..");
   var anno_id=makeAnnoID(item);
-  var arrow_id=makeArrowID(makeAnnoID(item));
+  var arrow_id=makeArrowID(anno_id);
   var arrowObj=document.getElementById(arrow_id);
-  if(arrowObj) {
-     // disable ArrowClass' css effect
-    var outer_node=document.getElementById(anno_id);
-    var inner_node = outer_node.childNodes[0];
-    outer_node.classList.remove("arrow-annotation-outer"); 
-    inner_node.classList.remove("arrow-annotation-inner"); 
-    // 
-    arrowObj.style.display = 'none';
-  }
+  // disable marker's css effect
+  var outer_node=document.getElementById(anno_id);
+  var inner_node = outer_node.childNodes[0];
+  outer_node.classList.remove("annotation-overlay-outer"); 
+  inner_node.classList.remove("annotation-overlay-inner"); 
+  // 
+  arrowObj.style.display = 'none';
+}
+
+function enableDisplayState(item) {
+  var style=item.shapes[0].style;
+  switch(style['displayType']) {
+    case S_DTYPE_VISIBLE:
+      // do nothing
+      break;
+    case S_DTYPE_MARKER:
+      enableMarkerState(item);
+      break;
+    case S_DTYPE_HIDDEN:
+      enableHiddenState(item);
+      break;
+   }
+}
+
+function enableHiddenState(item) {
+  var anno_id=makeAnnoID(item);
+  var arrow_id=makeArrowID(anno_id);
+
+  // enable marker's css effect
+  var outer_node=document.getElementById(anno_id);
+  var inner_node = outer_node.childNodes[0];
+  // not duplicate
+  if(! outer_node.classList.contains("annotation-overlay-outer"))
+    outer_node.classList.add("annotation-overlay-outer"); 
+  if(! inner_node.classList.contains("annotation-overlay-inner"))
+    inner_node.classList.add("annotation-overlay-inner"); 
+
+  var arrowObj=document.getElementById(arrow_id);
+  arrowObj.style.display = 'none';
 }
 
 function enableMarkerState(item) {
 //window.console.log("calling enableMarkerState..");
   var anno_id=makeAnnoID(item);
-  var arrow_id=makeArrowID(makeAnnoID(item));
+  var arrow_id=makeArrowID(anno_id);
+
+  // enable marker's css effect
+  var outer_node=document.getElementById(anno_id);
+  var inner_node = outer_node.childNodes[0];
+  // not duplicate
+  if(! outer_node.classList.contains("annotation-overlay-outer"))
+    outer_node.classList.add("annotation-overlay-outer"); 
+  if(! inner_node.classList.contains("annotation-overlay-inner"))
+    inner_node.classList.add("annotation-overlay-inner"); 
+  // 
   var arrowObj=document.getElementById(arrow_id);
-  if(arrowObj) {
-     // disable ArrowClass' css effect
-    var outer_node=document.getElementById(anno_id);
-    var inner_node = outer_node.childNodes[0];
-    outer_node.classList.add("arrow-annotation-outer"); 
-    inner_node.classList.add("arrow-annotation-inner"); 
-    // 
-    arrowObj.style.display = 'block';
-  }
+  arrowObj.style.display = 'block';
 }
 
 /*

@@ -1,13 +1,11 @@
 /*
-  from annotorious demo
+  from annotorious demo 
 */
 
 .annotorious-popup-button-click:hover {
     background-color:transparent;
     background:url(annotorious/eye_icon.png) no-repeat;
-    outline: none;
-    cursor: pointer;
-    font-weight: bold;
+    outline:none;
 }
 
 .annotorious-popup-button-click {
@@ -19,10 +17,6 @@
     outline:none;
 }
 
-.annotorious-popup-button-click:before {
-    content: "\e105";
-}
-
 .glyphicon-tag {
     text-shadow: 0 0 5px black;
     font-size: 24px;
@@ -32,24 +26,16 @@
 .glyphicon.bigger {font-size: 30px;}
 
 
-.arrow-annotation-outer {
+.annotation-overlay-outer {
   border-width: 0px;
 }
 
-.arrow-annotation-outer:hover {
-  border-width: 2px;
+.annotation-overlay-outer:hover {
+  border-width: 3px;
 }
 
-.arrow-annotation-inner {
+.annotation-overlay-inner {
    border-width: 0px;
-}
-
-.arrow-annotation-inner:hover {
-  border-width: 2px;
-}
-
-.special-annotation {
-    border: 3px solid green;
 }
 
 .osd-control-btn {
@@ -67,24 +53,27 @@
 }
 
 #osd-saveAnno-button {
-    right:660px;
+    right:690px;
 }
 #osd-loadAnno-button {
-    right:605px;
+    right:640px;
 }
 #osd-jpgAll-control-button {
-    right:555px;
+    right:595px;
+}
+#osd-hidden-control-button {
+    right:550px;
 }
 #osd-arrow-control-button {
     right:505px;
 }
-#osd-test-control-button {
+#osd-special-control-button {
     right:460px;
 }
-#osd-jpg-control-button {
+#osd-test-control-button {
     right:415px;
 }
-#osd-special-control-button {
+#osd-jpg-control-button {
     right:365px;
 }
 #osd-zoomin-control-button {
@@ -140,3 +129,4 @@
    overflow: hidden;
    font-size: 12px;
 }
+

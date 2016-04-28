@@ -15,7 +15,7 @@ annotorious.templates.popup = function(opt_data) {
 */
 
 function setupAnnoUI() {
-  // widen the popup buttons' space
+  // widen the popup buttons' space to allow space for the focus-eye
   var buttons_div = document.getElementsByClassName('annotorious-popup-buttons');
   if(buttons_div) { // first one
     buttons_div[0].style.width="80px";
@@ -28,7 +28,7 @@ function setupAnnoUI() {
     b_node.classList.add("annotorious-popup-button-click");
     b_node.title="Focus";
     b_node.onclick = function(){ annoClickAnnotation(null); };
-    b_node.name="FOCUS";
+    b_node.name="Focus";
     popup_div[0].insertBefore(b_node, popup_div[0].lastChild);
   }
 
@@ -76,7 +76,7 @@ function updateAnnotationList(mType, cData) {
         }
         if(mType == 'onInViewAnnotations') {
             /* ignore this, for Chaise only */
-//window.console.log("IN HERE...");
+window.console.log("IN HERE...");
             return;
         }
         // other ones affects the annotation_list entry
@@ -317,10 +317,7 @@ window.addEventListener('message', function(event) {
                 if (data.config) {
                     annotation.shapes[0].style = data.config;
                 }
-                /* special case if this annotation is an ArrowAnnotation */
-                if(annoIsArrowAnnotation(item)) {
-                    updateColorForAnnotation(item);
-                }
+                updateAnnotationDisplay(annotation);
                 break;
             case 'deleteAnnotation':
                 var heading = '';
