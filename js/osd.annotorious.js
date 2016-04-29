@@ -334,11 +334,11 @@ function annoAdd(item) {
       /* also add onMouseOver on the arrow node..*/
     arrowObj.onmouseover=function() {
 //      window.console.log("going into a remote arrow object's space..");
-      disableMarkerState(item);
+      saveCurrentArrow=item;
     }
     arrowObj.onmouseout=function() {
 //      window.console.log("going out of remote arrow object's space..");
-      enableMarkerState(item);
+      saveCurrentArrow=null;
     }
   }
   if(TEST_MODE && isArrowAnnotation)
@@ -425,22 +425,11 @@ function annoSetup(_anno,_viewer) {
       /* also add onMouseOver on the arrow node..*/
       arrowObj.onmouseover=function() {
 //        window.console.log("going into a arrow object's space..");
-        var h=getHash(target);
-        var item=annoRetrieveByHash(h);
-//        processForMouseOverArrow(item);
-        disableMarkerState(item);
         saveCurrentArrow=item;
-//        myAnno.fireEvent("onMouseOverAnnotation", annotation);
       }
       arrowObj.onmouseout=function() {
-//        window.console.log("going out of arrow object's space..");
-        var h=getHash(target);
-        var item=annoRetrieveByHash(h);
-//        processForMouseOutOfArrow(item);
-//        annoUnHighlightAnnotation(item);
+//      window.console.log("going out of arrow object's space..");
         saveCurrentArrow=null;
-        enableMarkerState(item);
-//        myAnno.fireEvent("onMouseOutOfAnnotation", annotation);
       }
     }
     if(isSpecialAnnotation) {
@@ -731,8 +720,8 @@ function centerAnnoByHash(i,zoomIt)
      var h= item.shapes[0].geometry.height;
      var x=item.shapes[0].geometry.x;
      var y=item.shapes[0].geometry.y;
-     var mx=(w/10);
-     var my=(h/10);
+     var mx=(w/5);
+     var my=(h/5);
      var ctxt=item.context;
      var src=item.src;
 

@@ -26,9 +26,9 @@ function setupAnnoUI() {
     var b_node = document.createElement('a');
     b_node.classList.add("annotorious-popup-button");
     b_node.classList.add("annotorious-popup-button-click");
-    b_node.title="Click";
+    b_node.title="Focus";
     b_node.onclick = function(){ annoClickAnnotation(null); };
-    b_node.name="CLICK";
+    b_node.name="FOCUS";
     popup_div[0].insertBefore(b_node, popup_div[0].lastChild);
   }
 
@@ -76,7 +76,7 @@ function updateAnnotationList(mType, cData) {
         }
         if(mType == 'onInViewAnnotations') {
             /* ignore this, for Chaise only */
-window.console.log("IN HERE...");
+//window.console.log("IN HERE...");
             return;
         }
         // other ones affects the annotation_list entry

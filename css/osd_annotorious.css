@@ -1,11 +1,13 @@
 /*
-  from annotorious demo 
+  from annotorious demo
 */
 
 .annotorious-popup-button-click:hover {
     background-color:transparent;
     background:url(annotorious/eye_icon.png) no-repeat;
-    outline:none;
+    outline: none;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 .annotorious-popup-button-click {
@@ -15,6 +17,10 @@
     right: 3px;
     background:url(annotorious/eye_icon.png) no-repeat;
     outline:none;
+}
+
+.annotorious-popup-button-click:before {
+    content: "\e105";
 }
 
 .glyphicon-tag {
@@ -134,4 +140,3 @@
    overflow: hidden;
    font-size: 12px;
 }
-

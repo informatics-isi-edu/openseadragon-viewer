@@ -112,7 +112,7 @@ jQuery(document).ready(function() {
                    showHomeControl: false,
                    showFullPageControl: false,
                    constrainDuringPan: true,
-                   visibilityRatio:     1,
+//                   visibilityRatio:     1,
 
              });
 
@@ -172,18 +172,20 @@ jQuery(document).ready(function() {
 */
     // only overlay that is being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
-window.console.log("calling over-lay event handler -- top");
+//window.console.log("calling over-lay event handler -- top");
        var anno_div=target.element;
        saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
 
        if(isSpecialAnnotation) {
          anno_div.classList.add("special-annotation");
-window.console.log("calling over-lay event handler -- special");
+//window.console.log("calling over-lay event handler -- special");
        }
        if(isArrowAnnotation) {
-window.console.log("calling over-lay event handler -- arrow");
+//window.console.log("calling over-lay event handler -- arrow");
          anno_div.classList.add("arrow-annotation-outer"); // boxmarker-outer
          anno_div.style.borderColor= saveArrowColor;
+         var anno_z=anno_div.style.zIndex;
+         var arrow_z= (anno_z && anno_z>2)?(anno_z-1):2;
          var inner_node = anno_div.childNodes[0];
          inner_node.classList.add("arrow-annotation-inner"); // boxmarker-inner
          var arrow_node = document.createElement('span-inner');
@@ -194,9 +196,8 @@ window.console.log("calling over-lay event handler -- arrow");
          arrow_node.classList.add("glyphicon");
          arrow_node.classList.add("glyphicon-tag");
          arrow_node.style.color = saveArrowColor;
+         arrow_node.style.zIndex=arrow_z;
          anno_div.appendChild(arrow_node);
-window.console.log(arrow_node.style.top);
-window.console.log(arrow_node.style.left);
          
        }
     });
@@ -334,9 +335,8 @@ function updateTitle(_X,_Y,_Z) {
     }
   }
   newTitle=newTitle+"&x="+_X+"&y="+_Y+"&z="+_Z;
-
 //window.console.log("in updateTitle."+newTitle);
-window.console.log("in updateTitle..."+history_count);
+
   var stateObj = { update: newTitle };
 
   var h=history;
