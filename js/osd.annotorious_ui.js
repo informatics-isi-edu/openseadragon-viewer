@@ -312,6 +312,7 @@ window.addEventListener('message', function(event) {
                     ],
                     "context": data.context_uri
                 };
+                console.log(data);
                 var annotation = annoRetrieveByHash(getHash(annotationObj));
                 annotation.text = annotationObj.text;
                 if (data.config) {
@@ -319,7 +320,7 @@ window.addEventListener('message', function(event) {
                 }
                 /* special case if this annotation is an ArrowAnnotation */
                 if(annoIsArrowAnnotation(annotationObj)) {
-                    console.log(annotationObj.shapes[0].style);
+                    console.log(annotation);
                     updateColorForAnnotation(annotationObj);
                 }
                 break;
