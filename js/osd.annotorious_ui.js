@@ -319,6 +319,7 @@ window.addEventListener('message', function(event) {
                 }
                 /* special case if this annotation is an ArrowAnnotation */
                 if(annoIsArrowAnnotation(annotationObj)) {
+                    console.log(annotationObj.shapes[0].style);
                     updateColorForAnnotation(annotationObj);
                 }
                 break;
