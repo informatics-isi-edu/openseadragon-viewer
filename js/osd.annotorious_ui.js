@@ -126,7 +126,7 @@ function event_loadAnnotations(messageType, data) {
                 "style": {}
                     }
                 ],
-                "context": annotation.context_uri 
+                "context": annotation.context_uri
             }
         };
         if (annotation.config) {
@@ -318,8 +318,8 @@ window.addEventListener('message', function(event) {
                     annotation.shapes[0].style = data.config;
                 }
                 /* special case if this annotation is an ArrowAnnotation */
-                if(annoIsArrowAnnotation(item)) {
-                    updateColorForAnnotation(item);
+                if(annoIsArrowAnnotation(annotationObj)) {
+                    updateColorForAnnotation(annotationObj);
                 }
                 break;
             case 'deleteAnnotation':
