@@ -386,10 +386,10 @@ function annoClickAnnotation() {
 }
 
 function updateColorForAnnotation(item) {
+console.log('Inside updateColorForAnnotation:', item);
   var id=makeAnnoID(item);
   var style=item.shapes[0].style;
   var color=style['color'];
-  console.log('Style:', style, 'Color:', color);
   if(!color)
     color='red';
 
