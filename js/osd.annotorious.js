@@ -594,7 +594,7 @@ function updateAnnotations() {
 
   for (var i = 0; i < annotations.length; i++) {
     _addAnnoOption(getHash(annotations[i]));
-    var oneItem = '<a href="#" class="list-group-item" id='+
+    var oneItem = '<a class="list-group-item" id='+
            makeAnnoListID(annotations[i]) + ' style="color:black" '+
            'onclick=annoClick('+getHash(annotations[i]) +') '+
            '>' + annotations[i].text +

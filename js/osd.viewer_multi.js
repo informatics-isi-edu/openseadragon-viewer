@@ -39,6 +39,7 @@ var logHeader=null;
 var logURL=[];
 
 var saveAnnoDiv=null;
+var saveHistoryTitle=null;
 
 // this is to work around that the initial load of the viewport
 // always goes to the initial view first
@@ -51,6 +52,10 @@ var isSpecialAnnotation=false;
 // to track arrow annotation
 var isArrowAnnotation=false;
 var saveArrowColor="red";
+
+var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isChrome = !!window.chrome && !!window.chrome.webstore;
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
 jQuery(document).ready(function() {
 
@@ -155,6 +160,7 @@ jQuery(document).ready(function() {
     });
 
     myViewer.addHandler('viewport-change', function(target) {
+//    myViewer.addHandler('animation-finish', function(target) {
       savePosition();
     });
 
@@ -321,7 +327,16 @@ function pointIt(target) {
 }
 
 
-var history_count=0;
+function updateHistory(state,newTitle) {
+  if(isSafari) {
+      /* hum.. https://forums.developer.apple.com/thread/36650 */
+//    saveHistoryTitle=newTitle;
+      history.replaceState(state, 'Title', newTitle)
+    } else {
+      history.replaceState(state, 'Title', newTitle)
+  }
+}
+
 // will always have _X,_Y,_Z
 //    document.location=newTitle;
 function updateTitle(_X,_Y,_Z) {
@@ -351,11 +366,9 @@ function updateTitle(_X,_Y,_Z) {
         if ( t != newTitle ) {
             if( isFirst ) {
                isFirst=false;
-               history.replaceState({}, 'Title', newTitle)
-history_count++;
+               updateHistory({}, newTitle);
                } else {
-                   history.replaceState(stateObj, 'Title', newTitle)
-history_count++;
+                   updateHistory(stateObj, newTitle);
             }
             return 1;
             } else {
@@ -367,8 +380,7 @@ history_count++;
   }
   if( isFirst ) {
     isFirst = false;
-    history.replaceState(stateObj, 'Title', newTitle)
-history_count++;
+    updateHistory(stateObj, newTitle);
   }
   return 1;
 //  alertify.confirm(newTitle);
