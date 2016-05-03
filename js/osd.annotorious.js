@@ -352,7 +352,7 @@ function annoUnHighlightAnnotation(item) {
   if(saveCurrentHighlightAnnotation) {
     if(getHash(saveCurrentHighlightAnnotation)==getHash(item)) {
       enableMarkerState(item);
-    } 
+    }
     myAnno.highlightAnnotation();
     saveCurrentHighlightAnnotation=null;
   }
@@ -418,7 +418,7 @@ function annoSetup(_anno,_viewer) {
           target.shapes[0].style['type']=ARROW_MARKER;
 
       // assign the arrow annotation's arrow object's id value
-      var arrowObj=saveAnnoDiv.lastChild; 
+      var arrowObj=saveAnnoDiv.lastChild;
       var arrowID=makeArrowID(saveAnnoDiv.id);
       arrowObj.id=arrowID;
 
@@ -499,9 +499,9 @@ function disableMarkerState(item) {
      // disable ArrowClass' css effect
     var outer_node=document.getElementById(anno_id);
     var inner_node = outer_node.childNodes[0];
-    outer_node.classList.remove("arrow-annotation-outer"); 
-    inner_node.classList.remove("arrow-annotation-inner"); 
-    // 
+    outer_node.classList.remove("arrow-annotation-outer");
+    inner_node.classList.remove("arrow-annotation-inner");
+    //
     arrowObj.style.display = 'none';
   }
 }
@@ -515,9 +515,9 @@ function enableMarkerState(item) {
      // disable ArrowClass' css effect
     var outer_node=document.getElementById(anno_id);
     var inner_node = outer_node.childNodes[0];
-    outer_node.classList.add("arrow-annotation-outer"); 
-    inner_node.classList.add("arrow-annotation-inner"); 
-    // 
+    outer_node.classList.add("arrow-annotation-outer");
+    inner_node.classList.add("arrow-annotation-inner");
+    //
     arrowObj.style.display = 'block';
   }
 }
