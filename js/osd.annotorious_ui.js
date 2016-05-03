@@ -290,7 +290,7 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
-// only fields that are updated are, a) text b) style
+// only fields that can be updated are, a) text b) style
                 var heading = '';
                 if (data.anatomy) {
                     heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
@@ -317,7 +317,7 @@ window.addEventListener('message', function(event) {
                 if (data.config) {
                     annotation.shapes[0].style = data.config;
                 }
-                updateAnnotationDisplay(annotation);
+                updateAnnotationDOMWithStyle(annotation);
                 break;
             case 'deleteAnnotation':
                 var heading = '';
