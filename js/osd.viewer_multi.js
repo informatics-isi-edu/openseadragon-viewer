@@ -159,8 +159,8 @@ jQuery(document).ready(function() {
       }
     });
 
-    myViewer.addHandler('viewport-change', function(target) {
-//    myViewer.addHandler('animation-finish', function(target) {
+//    myViewer.addHandler('viewport-change', function(target) {
+    myViewer.addHandler('animation-finish', function(target) {
       savePosition();
     });
 
