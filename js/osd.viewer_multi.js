@@ -177,7 +177,7 @@ jQuery(document).ready(function() {
 */
     // only overlays that are being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
-window.console.log("calling over-lay event handler --");
+//window.console.log("calling over-lay event handler --");
        var anno_div=target.element;
        saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
        anno_div.classList.add("annotation-overlay-outer"); // boxmarker-outer

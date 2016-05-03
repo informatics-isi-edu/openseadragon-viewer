@@ -128,7 +128,7 @@ function setupItemSliders(idx) {
 }
 
 window.onload = function() {
-  if (propertyList && propertyList.length < 2) {
+  if (propertyList && propertyList.length < 2 && propertyList.length>0) {
       jQuery('#itemList').prepend('<h5>'+propertyList[0].name+'</h5>');
   }
 
