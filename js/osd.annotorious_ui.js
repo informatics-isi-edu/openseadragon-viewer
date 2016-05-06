@@ -101,78 +101,17 @@ function uploadAnnotationList(mType, cState) {
 
 function event_loadAnnotations(messageType, data) {
     var annotationsToLoad = {"annoList":[]};
-    data.map(function formatAnnotationObj(annotation) {
-        annotation = annotation.data;
-        var heading = '';
-        if (annotation.anatomy) {
-            heading = '<strong>' + capitalizeFirstLetter(annotation.anatomy) + '</strong><br>';
-        }
-        var annotationObj = {
-            "type": "openseadragon_dzi",
-            "id": null,
-            "event": "INFO",
-            "data": {
-                "src": "dzi://openseadragon/something",
-                "text": heading + annotation.description,
-                "shapes": [
-                    {
-                "type": "rect",
-                "geometry": {
-                    "x": annotation.coords[0],
-                    "y": annotation.coords[1],
-                    "width": annotation.coords[2],
-                    "height": annotation.coords[3]
-                },
-                "style": {}
-                    }
-                ],
-                "context": annotation.context_uri 
-            }
-        };
-        if (annotation.config) {
-            annotationObj.data.shapes[0].style = annotation.config;
-        }
-        annotationsToLoad.annoList.push(annotationObj);
+    data.map(function(annotation) {
+        annotation = convertToAnnotation(annotation);
+        annotationsToLoad.annoList.push(annotation);
     });
     readAll(annotationsToLoad);
 }
 
 function event_createAnnotation(messageType, data) {
+    var annotation = convertToAnnotation(data);
     cancelEditor();
-    var heading = '';
-    var style = {};
-
-    if (data.anatomy) {
-        heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
-    }
-
-    var annotationObj = {
-        "type": "openseadragon_dzi",
-        "id": null,
-        "event": "INFO",
-        "data": {
-            "src": "dzi://openseadragon/something",
-            "text": heading + data.description,
-            "shapes": [
-                {
-                    "type": "rect",
-                    "geometry": {
-                        "x": data.coords[0],
-                        "y": data.coords[1],
-                        "width": data.coords[2],
-                        "height": data.coords[3]
-                    },
-                    "style": {}
-                }
-            ],
-            "context": data.context_uri
-        }
-    };
-
-    if (data.config) {
-        annotationObj.data.shapes[0].style = data.config;
-    }
-    annoAdd(annotationObj.data);
+    annoAdd(annotation);
 }
 
 /*********************************************************/
@@ -198,90 +137,22 @@ window.addEventListener('message', function(event) {
             case 'downloadView':
                 jpgClick(data+".jpg");
                 break;
-            case 'loadArrowAnnotations':
-                markArrow();
-                event_loadAnnotations(messageType, data);
-                unmarkArrow();
-                break;
-            case 'loadSpecialAnnotations':
-                markSpecial();
-                event_loadAnnotations(messageType, data);
-                unmarkSpecial();
-                break;
             case 'loadAnnotations':
                 event_loadAnnotations(messageType, data);
                 break;
             case 'centerAnnotation':
-                var heading = '';
-                if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
-                }
-                var annotationObj = {
-                    "src": "dzi://openseadragon/something",
-                    "text": heading + data.description,
-                    "shapes": [
-                        {
-                            "type": "rect",
-                            "geometry": {
-                                "x": data.coords[0],
-                                "y": data.coords[1],
-                                "width": data.coords[2],
-                                "height": data.coords[3]
-                            },
-                            "style": {}
-                        }
-                    ],
-                    "context": data.context_uri
-                };
-
-                if (data.config) {
-                    annotationObj.shapes[0].style = data.config;
-                }
-
-                centerAnnoByHash(getHash(annotationObj),true);
+                var annotation = convertToAnnotation(data);
+                centerAnnoByHash(getHash(annotation),true);
                 break;
             case 'highlightAnnotation':
-                var heading = '';
-                if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
-                }
-                var annotationObj = {
-                    "src": "dzi://openseadragon/something",
-                    "text": heading + data.description,
-                    "shapes": [
-                        {
-                            "type": "rect",
-                            "geometry": {
-                                "x": data.coords[0],
-                                "y": data.coords[1],
-                                "width": data.coords[2],
-                                "height": data.coords[3]
-                            },
-                            "style": {}
-                        }
-                    ],
-                    "context": data.context_uri
-                };
-                if (data.config) {
-                    annotationObj.shapes[0].style = data.config;
-                }
-                highlightAnnoByHash(getHash(annotationObj));
+                var annotation = convertToAnnotation(data);
+                highlightAnnoByHash(getHash(annotation));
                 break;
             case 'unHighlightAnnotation':
                 annoUnHighlightAnnotation(null);
                 break;
             case 'drawAnnotation':
                 myAnno.activateSelector();
-                break;
-            case 'createArrowAnnotation':
-                markArrow();
-                event_createAnnotation(messageType, data);
-                unmarkArrow();
-                break;
-            case 'createSpecialAnnotation':
-                markSpecial();
-                event_createAnnotation(messageType, data);
-                unmarkSpecial();
                 break;
             case 'createAnnotation':
                 event_createAnnotation(messageType, data);
@@ -290,64 +161,14 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
-// only fields that can be updated are, a) text b) style
-                var heading = '';
-                if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
-                }
-                var annotationObj = {
-                    "src": "dzi://openseadragon/something",
-                    "text": heading + data.description,
-                    "shapes": [
-                        {
-                            "type": "rect",
-                            "geometry": {
-                                "x": data.coords[0],
-                                "y": data.coords[1],
-                                "width": data.coords[2],
-                                "height": data.coords[3]
-                            },
-                            "style": {}
-                        }
-                    ],
-                    "context": data.context_uri
-                };
-                var annotation = annoRetrieveByHash(getHash(annotationObj));
-                annotation.text = annotationObj.text;
-                if (data.config) {
-                    annotation.shapes[0].style = data.config;
-                }
+                var annotation = convertToAnnotation(data);
+                annotation = annoRetrieveByHash(getHash(annotation));
+                annotation.text = data.text;
                 updateAnnotationDOMWithStyle(annotation);
                 break;
             case 'deleteAnnotation':
-                var heading = '';
-                if (data.anatomy) {
-                    heading = '<strong>' + capitalizeFirstLetter(data.anatomy) + '</strong><br>';
-                }
-
-                var annotationObj = {
-                    "src": "dzi://openseadragon/something",
-                    "text": heading + data.description,
-                    "shapes": [
-                        {
-                            "type": "rect",
-                            "geometry": {
-                                "x": data.coords[0],
-                                "y": data.coords[1],
-                                "width": data.coords[2],
-                                "height": data.coords[3]
-                            },
-                            "style": {}
-                        }
-                    ],
-                    "context": data.context_uri
-                };
-
-                if (data.config) {
-                    annotationObj.shapes[0].style = data.config;
-                }
-
-                var annotation = annoRetrieveByHash(getHash(annotationObj));
+                var annotation = convertToAnnotation(data);
+                annotation = annoRetrieveByHash(getHash(annotation));
                 myAnno.removeAnnotation(annotation);
                 break;
             default:
@@ -367,4 +188,39 @@ function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
     return string;
+}
+
+// Converts an ERMrest/Chaise annotation entity into an Annotorious annotation
+function convertToAnnotation(_annotation) {
+    var annotationText = '';
+    var annotationStyle = {};
+    if (_annotation.anatomy) {
+        annotationText = '<strong>' + capitalizeFirstLetter(_annotation.anatomy) + '</strong><br>';
+    }
+    if (_annotation.description) {
+        annotation += _annotation.description;
+    }
+    // All new Chaise annotations should have a config now, but perserve this check
+    // for older annotations without a config
+    if (_annotation.config) {
+        annotationStyle = _annotation.config;
+    }
+    var annotation = {
+        "src": "dzi://openseadragon/something",
+        "text": annotationText,
+        "shapes": [
+            {
+                "type": "rect",
+                "geometry": {
+                    "x": _annotation.coords[0],
+                    "y": _annotation.coords[1],
+                    "width": _annotation.coords[2],
+                    "height": _annotation.coords[3]
+                },
+                "style": annotationStyle
+            }
+        ],
+        "context": _annotation.context_uri
+    };
+    return annotation;
 }
