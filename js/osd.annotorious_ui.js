@@ -162,8 +162,8 @@ window.addEventListener('message', function(event) {
                 break;
             case 'updateAnnotation':
                 var annotation = convertToAnnotation(data);
-                annotation = annoRetrieveByHash(getHash(annotation));
-                annotation.text = data.description;
+                var existingAnnotation = annoRetrieveByHash(getHash(annotation));
+                existingAnnotation.text = annotation.text;
                 updateAnnotationDOMWithStyle(annotation);
                 break;
             case 'deleteAnnotation':
