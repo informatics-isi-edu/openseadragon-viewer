@@ -134,7 +134,7 @@ jQuery(document).ready(function() {
             fontColor: "rgb(0, 0, 0)",
             backgroundColor: "rgba(204, 204, 204, 0.7)",
             fontSize: "small",
-            barThickness: 3 
+            barThickness: 3
     });
 
     if (typeof annoSetup === "function") {
@@ -159,7 +159,8 @@ jQuery(document).ready(function() {
       }
     });
 
-    myViewer.addHandler('viewport-change', function(target) {
+//    myViewer.addHandler('viewport-change', function(target) {
+    myViewer.addHandler('animation-finish', function(target) {
       savePosition();
     });
 
@@ -543,7 +544,7 @@ function extractInfo(str) {
   if(_msip != null)
      _msip=parseFloat(_msip);
      else _msip=0;
- 
+
 
   if(_h == null || _w == null || _tw == null || _th == null ||
         _scale == null || _min == null || _max == null ||
@@ -568,7 +569,7 @@ function jpgClick(fname) {
    }
 
    var rawImg;
-   if( hasScalebar() ) { 
+   if( hasScalebar() ) {
       var canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
       rawImg = canvas.toDataURL("image/jpeg",1);
       } else {
@@ -652,7 +653,7 @@ function jpgAllClick(fname) {
      $('.annotorious-popup').css('display','');
    }
 }
-  
+
 
 //http://www.quirksmode.org/js/detect.html
 //http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser/9851769
@@ -695,7 +696,7 @@ function jpgClickNoScale(fname) {
        }
    }
 }
-  
+
 function dataUriToBlob(dataURI) {
   // serialize the base64/URLEncoded data
   var byteString;
@@ -748,7 +749,7 @@ function fullPageClick() {
     if ( myViewer.buttons ) {
         myViewer.buttons.emulateExit();
     }
-    if(myViewer.fullPageButton === undefined) { 
+    if(myViewer.fullPageButton === undefined) {
 window.console.log("BAD BAD BAD...");
        return;
     }
@@ -785,7 +786,7 @@ function arrowClick() {
       } else {
         markArrow();
         var clist= [ 'red', 'green', 'blue', 'yellow'];
-        var i=Math.floor((Math.random() * 3) + 1); 
+        var i=Math.floor((Math.random() * 3) + 1);
         saveArrowColor=clist[i-1];
         atog.style.color=saveArrowColor;
    }
@@ -823,12 +824,12 @@ function resetScalebar(value)
   myViewer.scalebar(options);
 }
 
-function hasScalebar() 
+function hasScalebar()
 {
   var _pixelsPerMeter=myViewer.scalebarInstance.pixelsPerMeter;
   if(_pixelsPerMeter != 0) {
-    return true; 
+    return true;
     } else {
-      return false; 
+      return false;
   }
 }

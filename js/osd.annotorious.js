@@ -289,7 +289,7 @@ function annoAdd(item) {
   myAnno.addAnnotation(item);
 
   saveAnnoDiv.id=makeAnnoID(item);
-    // assign the marker's id 
+    // assign the marker's id
   var arrowObj=saveAnnoDiv.childNodes[1]; // marker_node
   arrowObj.id=makeArrowID(saveAnnoDiv.id);
 
@@ -308,7 +308,7 @@ function annoUnHighlightAnnotation(item) {
   if(saveCurrentHighlightAnnotation) {
     if(getHash(saveCurrentHighlightAnnotation)==getHash(item)) {
       updateAnnotationDisplay(item);
-    } 
+    }
     myAnno.highlightAnnotation();
     saveCurrentHighlightAnnotation=null;
   }
@@ -343,7 +343,7 @@ function annoClickAnnotation() {
   }
 }
 
-// initializing of annotorious 
+// initializing of annotorious
 // also for standalone viewer's annotation manipulation
 function annoSetup(_anno,_viewer) {
 
@@ -354,7 +354,7 @@ function annoSetup(_anno,_viewer) {
 window.console.log("--->calling onAnnotationCreated...");
     // assign the annotation's id
     saveAnnoDiv.id=makeAnnoID(item);
-    // assign the marker's id 
+    // assign the marker's id
     var arrowObj=saveAnnoDiv.childNodes[1]; // marker_node
     arrowObj.id=makeArrowID(saveAnnoDiv.id);
 
@@ -431,15 +431,15 @@ function enableVisibleState(item) {
   var outer_node=document.getElementById(anno_id);
   var inner_node = outer_node.childNodes[0];
   if(outer_node.classList.contains("annotation-overlay-outer"))
-    outer_node.classList.remove("annotation-overlay-outer"); 
+    outer_node.classList.remove("annotation-overlay-outer");
   if(inner_node.classList.contains("annotation-overlay-inner"))
-    inner_node.classList.remove("annotation-overlay-inner"); 
-  // 
+    inner_node.classList.remove("annotation-overlay-inner");
+  //
   // if it is a special annotation, reset the borderWidth
   if( isSpecialAnnotationType(item)) {
     outer_node.style.borderWidth="3px";
   }
-  
+
   arrowObj.style.display = 'none';
 }
 
@@ -452,9 +452,9 @@ function enableHiddenState(item) {
   var inner_node = outer_node.childNodes[0];
   // not duplicate
   if(! outer_node.classList.contains("annotation-overlay-outer"))
-    outer_node.classList.add("annotation-overlay-outer"); 
+    outer_node.classList.add("annotation-overlay-outer");
   if(! inner_node.classList.contains("annotation-overlay-inner"))
-    inner_node.classList.add("annotation-overlay-inner"); 
+    inner_node.classList.add("annotation-overlay-inner");
 
 // in case it is special then need to reset the border to outer_node
   if( isSpecialAnnotationType(item)) {
@@ -475,9 +475,9 @@ function enableMarkerState(item) {
   var inner_node = outer_node.childNodes[0];
   // not duplicate
   if(! outer_node.classList.contains("annotation-overlay-outer"))
-    outer_node.classList.add("annotation-overlay-outer"); 
+    outer_node.classList.add("annotation-overlay-outer");
   if(! inner_node.classList.contains("annotation-overlay-inner"))
-    inner_node.classList.add("annotation-overlay-inner"); 
+    inner_node.classList.add("annotation-overlay-inner");
 
   if( isSpecialAnnotationType(item)) {
     outer_node.style.borderWidth="";
