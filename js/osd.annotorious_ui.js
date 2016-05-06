@@ -192,19 +192,36 @@ function capitalizeFirstLetter(string) {
 
 // Converts an ERMrest/Chaise annotation entity into an Annotorious annotation
 function convertToAnnotation(_annotation) {
+    console.log(_annotation);
     var annotationText = '';
     var annotationStyle = {};
     if (_annotation.anatomy) {
         annotationText = '<strong>' + capitalizeFirstLetter(_annotation.anatomy) + '</strong><br>';
     }
     if (_annotation.description) {
-        annotation += _annotation.description;
+        annotationText += _annotation.description;
     }
     // All new Chaise annotations should have a config now, but perserve this check
     // for older annotations without a config
     if (_annotation.config) {
         annotationStyle = _annotation.config;
     }
+
+    if (_annotation.type == 'arrow') {
+        annotationStyle.displayType = 'marker';
+        annotationStyle.marker = {
+            'class': 'glyphicon-tag',
+            'color': _annotation.config.color,
+            'font': '24px'
+        };
+    } else {
+        annotationStyle.displayType = 'visible';
+    }
+
+    if (_annotation.type == 'section') {
+        annotationStyle.special = {'borderColor': 'green'};
+    }
+
     var annotation = {
         "src": "dzi://openseadragon/something",
         "text": annotationText,
