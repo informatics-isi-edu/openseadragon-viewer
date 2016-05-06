@@ -164,7 +164,7 @@ window.addEventListener('message', function(event) {
                 var annotation = convertToAnnotation(data);
                 var existingAnnotation = annoRetrieveByHash(getHash(annotation));
                 existingAnnotation.text = annotation.text;
-                updateAnnotationDOMWithStyle(annotation);
+                updateAnnotationDOMWithStyle(existingAnnotation);
                 break;
             case 'deleteAnnotation':
                 var annotation = convertToAnnotation(data);
@@ -192,7 +192,6 @@ function capitalizeFirstLetter(string) {
 
 // Converts an ERMrest/Chaise annotation entity into an Annotorious annotation
 function convertToAnnotation(_annotation) {
-    console.log(_annotation);
     var annotationText = '';
     var annotationStyle = {};
     if (_annotation.anatomy) {

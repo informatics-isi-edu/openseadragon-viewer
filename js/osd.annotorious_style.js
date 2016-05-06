@@ -8,9 +8,9 @@
 //             marker:{ class: 'glyphicon-tag',
 //                      color: 'red',
 //                      font: '24px'
-//                    } 
+//                    }
 //           }
-//          
+//
 //
 var S_DTYPE='displayType';
 var S_DTYPE_VISIBLE='visible';
@@ -31,12 +31,12 @@ var S_SPECIAL_BORDER_DEFAULT='green';
 var initialStyle= { 'displayType': S_DTYPE_DEFAULT,
                     'marker':{ 'class': S_MARKER_CLASS_DEFAULT,
                                'color': S_MARKER_COLOR_DEFAULT,
-                               'font': S_MARKER_FONT_DEFAULT } 
+                               'font': S_MARKER_FONT_DEFAULT }
                   };
 var initialSpecial = { 'special': {'borderColor': S_SPECIAL_BORDER_DEFAULT} };
-var initialMarker = { 'marker':{ 'class': S_MARKER_CLASS_DEFAULT,
-                                 'color': S_MARKER_COLOR_DEFAULT,
-                                 'font': S_MARKER_FONT_DEFAULT }};
+var initialMarker = { 'class': S_MARKER_CLASS_DEFAULT,
+                        'color': S_MARKER_COLOR_DEFAULT,
+                        'font': S_MARKER_FONT_DEFAULT };
 
 // only one of the style object
 function cloneIt(obj) {
@@ -45,7 +45,7 @@ function cloneIt(obj) {
 };
 
 function isObjEmpty(obj) {
-  var rc=(Object.keys(obj).length === 0 && 
+  var rc=(Object.keys(obj).length === 0 &&
                JSON.stringify(obj) === JSON.stringify({}));
   return rc;
 }
@@ -61,7 +61,7 @@ function setupStyleForAnnotation(item) {
       style['marker']=cloneIt(initialMarker);
     }
     item.shapes[0].style=style;
-    } else { 
+    } else {
       item.shapes[0].style=cloneIt(initialStyle);
   }
   return item.shapes[0].style;
@@ -81,7 +81,7 @@ function updateAnnotationDOMWithStyle(item) {
   var inner_node = anno_div.childNodes[0]; // boxmarker-inner
   var marker_node = anno_div.childNodes[1]; // marker
 
-  if(isObjEmpty(style)) { 
+  if(isObjEmpty(style)) {
     style=setupStyleForAnnotation(item);
   }
 
@@ -96,7 +96,7 @@ function updateAnnotationDOMWithStyle(item) {
   marker_node.classList.add(_class);
   marker_node.style.color=_color;
 
-  //if there is a special style 
+  //if there is a special style
   if(style['special']) {
     anno_div.style.borderColor=style['special']['borderColor'];
   }
@@ -125,20 +125,20 @@ function updateAnnotationDisplay(item) {
 
 function updateSpecial2Style(item,_bcolor) {
   var style=item.shapes[0].style;
-  if(isObjEmpty(style)) { 
+  if(isObjEmpty(style)) {
     style=setupStyleForAnnotaiton(item);
   }
 
   if(style['special'] == null) {
     item.shapes[0].style['special']=cloneIt(initialSpecial);
-  } 
+  }
 
   item.shapes[0].style['special']['borderColor']=_bcolor;
 }
 
 function updateMarker2Style(item,_class,_color,_font) {
   var style=item.shapes[0].style;
-  if(isObjEmpty(style)) { 
+  if(isObjEmpty(style)) {
     style=setupStyleForAnnotation(item);
   }
   if(_font)
@@ -151,7 +151,7 @@ function updateMarker2Style(item,_class,_color,_font) {
 
 function updateDisplayType2Style(item,_dtype) {
   var style=item.shapes[0].style;
-  if(isObjEmpty(style)) { 
+  if(isObjEmpty(style)) {
     style=setupStyleForAnnotation(item);
   }
   item.shapes[0].style['displayType']=_dtype;
