@@ -772,8 +772,7 @@ function readAll(blob) {
            } else {
              t=p;
          }
-         tt= t["data"];
-         annoAdd(tt);
+         annoAdd(t);
       }
    }
    updateAnnotations();
