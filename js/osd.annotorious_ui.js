@@ -161,10 +161,10 @@ window.addEventListener('message', function(event) {
                 cancelEditor();
                 break;
             case 'updateAnnotation':
-                var annotation = convertToAnnotation(data);
+                var newAnnotationData = convertToAnnotation(data);
                 var existingAnnotation = annoRetrieveByHash(getHash(annotation));
-                existingAnnotation.text = annotation.text;
-                updateAnnotationDOMWithStyle(existingAnnotation);
+                existingAnnotation.text = newAnnotationData.text;
+                updateAnnotationDOMWithStyle(newAnnotationData);
                 break;
             case 'deleteAnnotation':
                 var annotation = convertToAnnotation(data);
