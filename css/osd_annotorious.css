@@ -17,13 +17,44 @@
     outline:none;
 }
 
-.glyphicon-tag {
-    text-shadow: 0 0 5px black;
-    font-size: 24px;
+.annotorious-popup-button-zap:hover {
+    background-color:transparent;
+    background:url(annotorious/off.png) no-repeat;
+    outline:none;
 }
 
-.glyphicon.smaller {font-size: 8px;}
-.glyphicon.bigger {font-size: 30px;}
+.annotorious-popup-button-zap {
+    dislay: block;
+    position:absolute;
+    top: 10px;
+    right: 30px;
+    background:url(annotorious/off.png) no-repeat;
+    outline:none;
+}
+
+.annotorious-popup-button-mark:hover {
+    background-color:transparent;
+    background:url(annotorious/mark.png) no-repeat;
+    outline:none;
+}
+
+.annotorious-popup-button-mark {
+    dislay: block;
+    position:absolute;
+    top: 10px;
+    right: 57px;
+    background:url(annotorious/mark.png) no-repeat;
+    outline:none;
+}
+
+
+.glyphicon-tag { 
+    opacity: 0.6;
+    text-shadow: 0 0 5px black;
+} 
+
+.glyphicon-smaller { font-size: 15px; }
+.glyphicon-bigger {font-size: 30px;}
 
 
 .annotation-overlay-outer {
@@ -36,6 +67,22 @@
 
 .annotation-overlay-inner {
    border-width: 0px;
+}
+
+.annotation-marker {
+   position:absolute;
+   left:0;
+   top:0;
+}
+
+.annotation-marker-tooltip {
+   position: absolute;
+   top: 20%;
+   left: 40%;
+   z-index: 100;
+   font-weight: bold;
+   font-size: small;
+   color: white;
 }
 
 .osd-control-btn {
@@ -64,7 +111,7 @@
 #osd-hidden-control-button {
     right:550px;
 }
-#osd-arrow-control-button {
+#osd-marker-control-button {
     right:505px;
 }
 #osd-special-control-button {

@@ -18,10 +18,11 @@ function setupAnnoUI() {
   // widen the popup buttons' space to allow space for the focus-eye
   var buttons_div = document.getElementsByClassName('annotorious-popup-buttons');
   if(buttons_div) { // first one
-    buttons_div[0].style.width="80px";
+    buttons_div[0].style.width="140px";
   }
   // add the focus-click eye button
   var popup_div = document.getElementsByClassName('annotorious-popup');
+  var buttons_div = document.getElementsByClassName('annotorious-popup-buttons');
   if(popup_div) { // first one
     var b_node = document.createElement('a');
     b_node.classList.add("annotorious-popup-button");
@@ -30,6 +31,27 @@ function setupAnnoUI() {
     b_node.onclick = function(){ annoClickAnnotation(null); };
     b_node.name="Focus";
     popup_div[0].insertBefore(b_node, popup_div[0].lastChild);
+  }
+  
+  var buttons_div = document.getElementsByClassName('annotorious-popup-buttons');
+  if(buttons_div) {
+    // add the invisible-click zap button
+    var bb_node = document.createElement('a');
+    bb_node.classList.add("annotorious-popup-button");
+    bb_node.classList.add("annotorious-popup-button-zap");
+    bb_node.title="Zap";
+    bb_node.onclick = function(){ annoZapAnnotation(null); };
+    bb_node.name="Zap";
+    buttons_div[0].insertBefore(bb_node, buttons_div[0].lastChild);
+
+    // add the marking-click mark button
+    var bbb_node = document.createElement('a');
+    bbb_node.classList.add("annotorious-popup-button");
+    bbb_node.classList.add("annotorious-popup-button-mark");
+    bbb_node.title="Marker";
+    bbb_node.onclick = function(){ annoMarkAnnotation(null); };
+    bbb_node.name="Marker";
+    buttons_div[0].insertBefore(bbb_node, buttons_div[0].lastChild);
   }
 
   if(!enableEmbedded) {
@@ -55,14 +77,12 @@ function updateAnnotationList(mType, cData) {
         window.top.postMessage({messageType: mType, content: cData}, window.location.origin);
     } else {
         if(mType == 'onHighlighted') {
-            var t=JSON.parse(cData);
-            var item=t.data
+            var item=JSON.parse(cData);
             colorAnnoListItem(item,1);
             return;
         }
         if(mType == 'onUnHighlighted') {
-            var t=JSON.parse(cData);
-            var item=t.data
+            var item=JSON.parse(cData);
             colorAnnoListItem(item,0);
             return;
         }
@@ -164,6 +184,7 @@ window.addEventListener('message', function(event) {
                 var newAnnotationData = convertToAnnotation(data);
                 var existingAnnotation = annoRetrieveByHash(getHash(newAnnotationData));
                 existingAnnotation.text = newAnnotationData.text;
+                existingAnnotation.shapes = newAnnotationData.shapes;
                 updateAnnotationDOMWithStyle(newAnnotationData);
                 break;
             case 'deleteAnnotation':

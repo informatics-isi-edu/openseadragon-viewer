@@ -18,8 +18,37 @@ function makeAnnoID(item) {
   return id;
 }
 
-function makeArrowID(annoID) {
+// This is to make a temporary annotation id
+// with just location information
+// needs to be replaced later with a full annotation id
+// this is to work around annotorious' updates that
+// 'replaces' the DOM instead of rewriting it
+function makeAnnoIDWithLocation(location)
+{
+  var id='tanno_'+getHashWithLocation(location);
+  return id;
+}
+
+function makeMarkerID(annoID) {
   var id='arrow_'+annoID;
+  return id;
+}
+
+// trim marker id back into annotation id
+function trimMarkerID(markerID) {
+  var annoID=markerID.replace("arrow_","");
+  return annoID;
+}
+// trim Annotation's id into hash value
+function trimAnnoID(annoID) {
+  var hashValue=annoID.replace("anno_","");
+  return hashValue;
+}
+
+// temporary annotation id, see makeAnnoIDWithLocation
+function makeMarkerIDWithLocation(location)
+{
+  var id='tarrow_'+makeAnnoIDWithLocation(location);
   return id;
 }
 
@@ -27,6 +56,17 @@ function makeAnnoListID(item) {
 //  var id='alist_'+getHash(item);
   var id=getHash(item);
   return id;
+}
+
+// when there is a zooming change, the size of Marker
+// might need to be adjusted
+function annoResizeMarkers() {
+  var markers = document.getElementsByClassName('annotation-marker');
+  var len = markers.length;
+  for (var i = 0; i < len; i++) {
+     var markerObj=markers[i];
+     processMarkerSize(markerObj);
+  }
 }
 
 function annoCtrlClick()
@@ -83,14 +123,23 @@ String.prototype.hashCode = function() {
 function getHash(item) {
    if(item == null)
      return 0;
-   var txt= item.context
-              +item.shapes[0].geometry.x
-                +item.shapes[0].geometry.y
-              +item.shapes[0].geometry.width
-                +item.shapes[0].geometry.height;
+   var txt= item.context 
+            +item.shapes[0].geometry.x
+            +item.shapes[0].geometry.y
+            +item.shapes[0].geometry.width
+            +item.shapes[0].geometry.height;
    return txt.hashCode();
 }
 
+function getHashWithLocation(location) {
+   if(location == null)
+     return 0;
+   var txt= "ISRD" + location.x
+              +location.y
+            +location.width
+              +location.height;
+   return txt.hashCode();
+}
 function printAnno(item) {
   var x=item.shapes[0].geometry.x;
   var y=item.shapes[0].geometry.y;
@@ -161,7 +210,7 @@ function annoDump() {
   var len=p.length;
   var alist=[];
   for(var i=0; i < len; i++) {
-      alist.push(annoLog(p[i],INFO_EVENT_TYPE));
+      alist.push(annoJSON(p[i]));
   }
   var tmp = { "annoList" : alist };
   return tmp;
@@ -259,30 +308,62 @@ function annoChk()
   }
 }
 
+var save1=null;
+var save2=null;
 
-// loading an annotation into annotorious
+// just compare the distance between first 2 annotations
+function annoCompare()
+{
+window.console.log("----> annoCompare..");
+  if(save1!=null && save2!=null ) {
+    var p=myAnno.getAnnotations();
+    var len=p.length;
+    var tmp=null;
+    var a1=null;
+    var a2=null;
+    for(var i=0;i < len; i++) {
+      tmp=makeAnnoID(p[i]);
+      if(tmp == save1) {
+       a1=p[i];
+       window.console.log("i for a1 is ",i);
+      } else {
+        if(tmp == save2) {
+          a2=p[i];
+          window.console.log("i for a2 is ",i);
+        }
+      }
+    }
+    var x1=a1.shapes[0].geometry.x;
+    var y1=a1.shapes[0].geometry.y;
+    var a2=p[len-2];
+    var x2=a2.shapes[0].geometry.x;
+    var y2=a2.shapes[0].geometry.y;
+    var pixel1= myViewer.viewport.pixelFromPoint(new OpenSeadragon.Point(x1,y1)); 
+    var pixel2= myViewer.viewport.pixelFromPoint(new OpenSeadragon.Point(x2,y2)); 
+window.console.log("orig x1, ",x1," y1,",y1); 
+window.console.log("orig x2, ",x2," y2,",y2); 
+window.console.log("x1, ",pixel1.x," to x2,",pixel2.x); 
+window.console.log("y1, ",pixel1.y," to y2,",pixel2.y); 
+    var distance=pixel1.distanceTo(pixel2);
+window.console.log("distance is ..",distance);
+  }
+}
+
 // used by backend-loading from file or chaise
 function annoAdd(item) {
 //window.console.log("calling annoAdd..");
   if( annoExist(item) )
     return;
 
-/***** before chaise conversion *****/
-  if(isArrowAnnotation && !TEST_MODE ) { // from chaise
-    var _style=item.shapes[0].style;
-    saveArrowColor=_style['color'];
-    item.shapes[0].style={};
-  }
-
   var style=setupStyleForAnnotation(item);
-  if(isArrowAnnotation) { // might not need this in future
+  if(isMarkerAnnotation) { // for standalone load from file
     updateDisplayType2Style(item, S_DTYPE_MARKER);
-    updateMarker2Style(item,null,saveArrowColor,null);
+    updateMarker2Style(item,null,saveMarkerColor,null);
   }
-  if(isSpecialAnnotation) { // need to change this later
+  if(isSpecialAnnotation) { // for standalone load from file
     updateSpecial2Style(item,S_SPECIAL_BORDER_DEFAULT);
   }
-  if(isHiddenAnnotation) { // might not need this in future
+  if(isHiddenAnnotation) { // for standalone load from file
     updateDisplayType2Style(item, S_DTYPE_HIDDEN);
   }
 
@@ -290,13 +371,22 @@ function annoAdd(item) {
 
   saveAnnoDiv.id=makeAnnoID(item);
     // assign the marker's id
-  var arrowObj=saveAnnoDiv.childNodes[1]; // marker_node
-  arrowObj.id=makeArrowID(saveAnnoDiv.id);
+  var markerObj=saveAnnoDiv.childNodes[1]; // marker_node
+  markerObj.id=makeMarkerID(saveAnnoDiv.id);
 
+  markerObj.onmouseover=function() {
+    onMouseOverAnnotationFoo(item);
+    markerObj.style.display = 'none';
+  };
+  markerObj.onmouseout=function() {
+    onMouseOutOfAnnotationFoo(item);
+    markerObj.style.display = 'block';
+  };
+ 
   updateAnnotationDOMWithStyle(item);
 
-  if(TEST_MODE && isArrowAnnotation)
-    unmarkArrow();
+  if(TEST_MODE && isMarkerAnnotation)
+    unmarkMarker();
   if(TEST_MODE && isSpecialAnnotation)
     unmarkSpecial();
   if(TEST_MODE && isHiddenAnnotation)
@@ -320,10 +410,10 @@ function annoHighlightAnnotation(item) {
        // process the mouse on that one
 //window.console.log("in highlight recovery..");
       updateAnnotationDisplay(saveCurrentHighlightAnnotation);
-      enableVisibleState(item);
+      enableHightlightState(item);
     }
   } else {
-    enableVisibleState(item);
+    enableHighlightState(item);
   }
   myAnno.highlightAnnotation(item);
   saveCurrentHighlightAnnotation=item;
@@ -334,13 +424,57 @@ function annoHighlightAnnotation(item) {
 function annoClickAnnotation() {
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
-    var json=annoLog(item,INFO_EVENT_TYPE);
+    var json=annoJSON(item);
     updateAnnotationList('onClickAnnotation', json);
   }
-//window.console.log("here in annoClickAnnotation");
+/*
   if(!enableEmbedded) { // tag on testing displayType updates
     updateDisplayTypeTest();
   }
+*/
+}
+
+function annoZapAnnotation() {
+  if(saveCurrentHighlightAnnotation) {
+    var item=saveCurrentHighlightAnnotation;
+    var _style=item.shapes[0].style;
+    switch (_style['displayType']) {
+      case S_DTYPE_HIDDEN:
+        updateDisplayType2Style(item, S_DTYPE_VISIBLE);
+        break;
+      default:
+        updateDisplayType2Style(item, S_DTYPE_HIDDEN);
+    }
+    updateAnnotationDOMWithStyle(item);
+  }
+}
+
+function annoMarkAnnotation() {
+  if(saveCurrentHighlightAnnotation) {
+    var item=saveCurrentHighlightAnnotation;
+    updateDisplayType2Style(item, S_DTYPE_MARKER);
+    updateAnnotationDOMWithStyle(item);
+  }
+}
+
+function smallMarker(_item) {
+  var item=_item;
+  var x=item.shapes[0].geometry.x;
+  var y=item.shapes[0].geometry.y;
+  var w=item.shapes[0].geometry.width;
+  var h=item.shapes[0].geometry.height;
+
+  var point1=new OpenSeadragon.Point(x,y);
+  var point2=new OpenSeadragon.Point(x+w,y+h);
+
+  var pixel1= myViewer.viewport.pixelFromPoint(point1);
+  var pixel2= myViewer.viewport.pixelFromPoint(point2);
+  var distance= pixel1.distanceTo(pixel2);
+  // default is 24 pixel marker
+  if(distance < 30) {
+     return 1;
+  }
+  return 0;
 }
 
 // initializing of annotorious
@@ -352,58 +486,65 @@ function annoSetup(_anno,_viewer) {
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
 window.console.log("--->calling onAnnotationCreated...");
-    // assign the annotation's id
+    // assign the real annotation's id
     saveAnnoDiv.id=makeAnnoID(item);
     // assign the marker's id
-    var arrowObj=saveAnnoDiv.childNodes[1]; // marker_node
-    arrowObj.id=makeArrowID(saveAnnoDiv.id);
+    var markerObj=saveAnnoDiv.childNodes[1]; // marker_node
+    markerObj.id=makeMarkerID(saveAnnoDiv.id);
+    markerObj.onmouseover=function() {
+      onMouseOverAnnotationFoo(target);
+      markerObj.style.display = 'none';
+    };
+    markerObj.onmouseout=function() {
+      onMouseOutOfAnnotationFoo(target);
+      markerObj.style.display = 'block';
+    };
 
     var style=setupStyleForAnnotation(item);
+//XX trying out, did not work, updateStyle2Default(item);
 
-    if(isArrowAnnotation) { // might not need this in future
+    if(isMarkerAnnotation) { //only for standalone mode
       updateDisplayType2Style(item, S_DTYPE_MARKER);
-      updateMarker2Style(item,null,saveArrowColor,null);
+      updateMarker2Style(item,null,saveMarkerColor,null);
     }
-    if(isSpecialAnnotation) { // need to change this later
+    if(isSpecialAnnotation) { //only for standalone mode
       updateSpecial2Style(item,S_SPECIAL_BORDER_DEFAULT);
     }
-    if(isHiddenAnnotation) { // might not need this in future
+    if(isHiddenAnnotation) { //only for standalone mode
       updateDisplayType2Style(item, S_DTYPE_HIDDEN);
     }
 
     // put it into the Dom..
     updateAnnotationDOMWithStyle(item);
-    var json=annoLog(item,CREATE_EVENT_TYPE);
+    
+    var json=annoJSON(item);
     updateAnnotationList('onAnnotationCreated', json);
+    if(save1 == null) {
+      save1= saveAnnoDiv.id;
+      } else {
+      if(save2 == null)
+        save2 = saveAnnoDiv.id;
+    }
   }); // onAnnotationCreate..
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
-    var json=annoLog(item,REMOVE_EVENT_TYPE);
+    var json=annoJSON(item);
     updateAnnotationList('onAnnotationRemoved', json);
   });
   _anno.addHandler("onAnnotationUpdated", function(target) {
     var item=target;
-    var json=annoLog(item,UPDATE_EVENT_TYPE);
+    var json=annoJSON(item);
+    // if the annotation has a temporary id, replace it with real one */
+    updateAnnotationID(item);
+    updateAnnotationDOMWithStyle(item);
     updateAnnotationList('onAnnotationUpdated', json);
   });
 // the annotation would have gotten highlighted
   _anno.addHandler("onMouseOverAnnotation", function(target) {
-    var item=target;
-    var json=annoLog(item,INFO_EVENT_TYPE);
-//window.console.log("in anno's onMouseOverOfAnnotation..");
-    saveCurrentHighlightAnnotation=item;
-    enableVisibleState(item);
-    updateAnnotationList('onHighlighted', json);
+    onMouseOverAnnotationFoo(target);
   });
   _anno.addHandler("onMouseOutOfAnnotation", function(target) {
-    var item=target;
-    var json=annoLog(item,INFO_EVENT_TYPE);
-//window.console.log("in anno's onMouseOutOfAnnotation..");
-    updateAnnotationDisplay(item);
-    if(saveCurrentHighlightAnnotation == item) {
-      saveCurrentHighlightAnnotation=null;
-    }
-    updateAnnotationList('onUnHighlighted', json);
+    onMouseOutOfAnnotationFoo(target);
   });
   _anno.addHandler("onSelectionCompleted", function(target) {
     var item=target;
@@ -420,13 +561,40 @@ function annoReady() {
   updateAnnotationState('annotoriousReady', myAnnoReady);
 }
 
+// act as if this is mouse over underlying annotation
+function onMouseOverAnnotationFoo(target) {
+    var item=target;
+    var json=annoJSON(item);
+    if(saveCurrentHighlightAnnotation == item) {
+      // do nothing
+      return;
+    }
+    saveCurrentHighlightAnnotation=item;
+    enableVisibleState(item);
+    updateAnnotationList('onHighlighted', json);
+}
+
+// act as if this is mosue out of underlying annotation
+function onMouseOutOfAnnotationFoo(target) {
+    var item=target;
+    var json=annoJSON(item);
+    if(saveCurrentHighlightAnnotation==null) {
+      // do nothing
+      return;
+    }
+    updateAnnotationDisplay(item);
+    if(saveCurrentHighlightAnnotation == item) {
+      saveCurrentHighlightAnnotation=null;
+    }
+    updateAnnotationList('onUnHighlighted', json);
+}
+
 // turn back to unhighlighted annotation state
 // highlighting is done by the annotorious
-function enableVisibleState(item) {
-//window.console.log("calling enableVisibleState..");
+function enableHighlightState(item) {
   var anno_id=makeAnnoID(item);
-  var arrow_id=makeArrowID(anno_id);
-  var arrowObj=document.getElementById(arrow_id);
+  var marker_id=makeMarkerID(anno_id);
+  var markerObj=document.getElementById(marker_id);
   // disable marker's css effect
   var outer_node=document.getElementById(anno_id);
   var inner_node = outer_node.childNodes[0];
@@ -440,79 +608,101 @@ function enableVisibleState(item) {
     outer_node.style.borderWidth="3px";
   }
 
-  arrowObj.style.display = 'none';
+  markerObj.style.display = 'none';
+}
+// turn back to unhighlighted annotation state
+// highlighting is done by the annotorious
+function enableVisibleState(item) {
+  var anno_id=makeAnnoID(item);
+  var marker_id=makeMarkerID(anno_id);
+  var markerObj=document.getElementById(marker_id);
+  // enable marker's css effect
+  var outer_node=document.getElementById(anno_id);
+  // when in 'update' or 'delete' mode, it looks like openseadragon
+  // already removed the DOM object
+  if(outer_node) {
+    var inner_node = outer_node.childNodes[0];
+    if(outer_node.classList.contains("annotation-overlay-outer"))
+      outer_node.classList.remove("annotation-overlay-outer");
+    if(inner_node.classList.contains("annotation-overlay-inner"))
+      inner_node.classList.remove("annotation-overlay-inner");
+
+  // if it is a special annotation, reset the borderWidth
+    if( isSpecialAnnotationType(item)) {
+      outer_node.style.borderWidth="3px";
+    }
+  } else {
+//window.console.log("NULL, enableVisbleState.. could be in update mode..",anno_id);
+  }
+
+  if(markerObj)
+    markerObj.style.display = 'none';
 }
 
 function enableHiddenState(item) {
   var anno_id=makeAnnoID(item);
-  var arrow_id=makeArrowID(anno_id);
+  var marker_id=makeMarkerID(anno_id);
 
   // enable marker's css effect
   var outer_node=document.getElementById(anno_id);
-  var inner_node = outer_node.childNodes[0];
+  if(outer_node) {
+    var inner_node = outer_node.childNodes[0];
   // not duplicate
-  if(! outer_node.classList.contains("annotation-overlay-outer"))
-    outer_node.classList.add("annotation-overlay-outer");
-  if(! inner_node.classList.contains("annotation-overlay-inner"))
-    inner_node.classList.add("annotation-overlay-inner");
-
+    if(! outer_node.classList.contains("annotation-overlay-outer"))
+      outer_node.classList.add("annotation-overlay-outer");
+    if(! inner_node.classList.contains("annotation-overlay-inner"))
+      inner_node.classList.add("annotation-overlay-inner");
+  
 // in case it is special then need to reset the border to outer_node
-  if( isSpecialAnnotationType(item)) {
-    outer_node.style.borderWidth="";
+    if( isSpecialAnnotationType(item)) {
+      outer_node.style.borderWidth="";
+    }
+  
+    var markerObj=document.getElementById(marker_id);
+    markerObj.style.display = 'none';
+  } else {
+//window.console.log("NULL, enableHiddenState.. can be in update ",anno_id);
   }
-
-  var arrowObj=document.getElementById(arrow_id);
-  arrowObj.style.display = 'none';
 }
 
+// if a marker is being covered by another marker almost completely 
+// and is very small(relatively to the viewer), then
+// make one of them the 'FAT marker' and turn the current one into
+// hidden one.
 function enableMarkerState(item) {
-//window.console.log("calling enableMarkerState..");
   var anno_id=makeAnnoID(item);
-  var arrow_id=makeArrowID(anno_id);
+  var marker_id=makeMarkerID(anno_id);
 
   // enable marker's css effect
   var outer_node=document.getElementById(anno_id);
-  var inner_node = outer_node.childNodes[0];
+  if(outer_node) {
+    var inner_node = outer_node.childNodes[0];
   // not duplicate
-  if(! outer_node.classList.contains("annotation-overlay-outer"))
-    outer_node.classList.add("annotation-overlay-outer");
-  if(! inner_node.classList.contains("annotation-overlay-inner"))
-    inner_node.classList.add("annotation-overlay-inner");
-
-  if( isSpecialAnnotationType(item)) {
-    outer_node.style.borderWidth="";
+    if(! outer_node.classList.contains("annotation-overlay-outer"))
+      outer_node.classList.add("annotation-overlay-outer");
+    if(! inner_node.classList.contains("annotation-overlay-inner"))
+      inner_node.classList.add("annotation-overlay-inner");
+  
+    if( isSpecialAnnotationType(item)) {
+      outer_node.style.borderWidth="";
+    }
+  
+    var markerObj=document.getElementById(marker_id);
+    markerObj.style.display = 'block';
+  } else {
+//window.console.log("NULL, enableMarkerState.. could be in update ",anno_id);
   }
-
-  var arrowObj=document.getElementById(arrow_id);
-  arrowObj.style.display = 'block';
 }
 
 /*
-   src:item.src,
-   context:item.context,
-   text:item.text,
    shape:item.shapes[0].type,
    x: item.shapes[0].geometry.x,
    y: item.shapes[0].geometry.y,
    width: item.shapes[0].geometry.width,
    height: item.shapes[0].geometry.height
 */
-function annoLog(item, eventType) {
-   var hash=getHash(item);
-   var tmp= { type: 'openseadragon_dzi',
-              id : hash,
-              event : eventType,
-              data : item
-            };
-
-   var json = JSON.stringify(tmp,null,2);
-
-/* if data has url embedded in there. need to escape with
-encoded = encodeURIComponent( parm )
-*/
-   // if( debug ) {
-   //    printDebug(json);
-   // }
+function annoJSON(item) {
+   var json = JSON.stringify(item,null,2);
    return json;
 }
 
@@ -541,6 +731,28 @@ function annoMakeAnno(_src,_context,_text,_x,_y,_width,_height)
     }]
   }
   return myAnnotation;
+}
+
+function updateAnnotationID(item) {
+  var annoID=makeAnnoID(item);
+  var markerID=makeMarkerID(annoID);
+  // if it exists on document then do nothing
+  var v=document.getElementById(annoID);
+  if(v)  
+    return;
+
+  var location=item.shapes[0].geometry;
+  var tannoID=makeAnnoIDWithLocation(location);
+  v=document.getElementById(tannoID);
+  if(v) {
+    // reassign the annotation's id
+    v.id=annoID;
+    // reassign the marker's id
+    var markerObj=v.childNodes[1]; // marker_node
+    markerObj.id=markerID;
+    } else {
+window.console.log("BAD.. need to panic..");
+  }
 }
 
 /*************************** ui part **************************/
@@ -630,7 +842,6 @@ function annoBtnFadeIn(){
 
 function saveAnno(fname)
 {
-
   TEST_MODE=true;
   var tmp = annoDump();
   var textToWrite = JSON.stringify(tmp);
@@ -778,9 +989,10 @@ function readAll(blob) {
    updateAnnotations();
 }
 
-//XXX
+//XXX -->  
 // Test switching the annotation's displayType to something else
 function updateDisplayTypeTest() {
+window.console.log("calling updateDisplayTypeTest..");
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
     var _style=item.shapes[0].style;

@@ -48,16 +48,17 @@ var isFirst=true;
 // to track special annotation
 var isSpecialAnnotation=false;
 // to track arrow annotation
-var isArrowAnnotation=false;
+var isMarkerAnnotation=false;
 // to track hidden annotation
 var isHiddenAnnotation=false;
-var saveArrowColor="red";
+var saveMarkerColor="red";
 
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
 jQuery(document).ready(function() {
+
 
 //process args
 //  var args = document.location.search.substring(1).split('?');
@@ -140,6 +141,21 @@ jQuery(document).ready(function() {
     if (typeof annoSetup === "function") {
         // anno is declared in annotorious's jar
         annoSetup(anno,myViewer);
+/*
+Currently supported property values are:
+  
+    outline: outline color for annotation and selection shapes
+    stroke: stroke color for annotation and selection shapes
+    fill: fill color for annotation and selection shapes
+    hi_stroke: stroke color for highlighted annotation shapes
+    hi_fill fill color for highlighted annotation shapes
+    outline_width: outline width for annotation and selection shapes
+    stroke_width: stroke width for annotation and selection shapes
+    hi_outline_width: outline width for highlighted annotation shapes
+    hi_stroke_width: stroke width for highlighted annotation shapes
+*/
+//  anno.setProperties({ 'outline' : 'purple' }); 
+
     }
     for( i=0; i<logURL.length; i++) {
        url=logURL[i];
@@ -159,9 +175,10 @@ jQuery(document).ready(function() {
       }
     });
 
-//    myViewer.addHandler('viewport-change', function(target) {
     myViewer.addHandler('animation-finish', function(target) {
       savePosition();
+//  need to reprocess for the size of the visible marker..
+      annoResizeMarkers();
     });
 
 /*
@@ -176,21 +193,35 @@ jQuery(document).ready(function() {
       }
     });
 */
+/* -- this is to test access to pixels on the viewport location
+    myViewer.addHandler('canvas-click', function(target) {
+window.console.log('canvas got clicked..');
+      pointIt(target);
+    });
+*/
+
     // only overlays that are being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
-//window.console.log("calling over-lay event handler --");
        var anno_div=target.element;
+       var location=target.location;
        saveAnnoDiv=anno_div; // to be consumed from the osd_annotorious.js
+       anno_div.id=makeAnnoIDWithLocation(location);
        anno_div.classList.add("annotation-overlay-outer"); // boxmarker-outer
        var inner_node = anno_div.childNodes[0];
        inner_node.classList.add("annotation-overlay-inner"); // boxmarker-inner
        var marker_node = document.createElement('span-inner');
-       marker_node.style.position = 'absolute';
-       marker_node.style.left='40%';
-       marker_node.style.top='40%';
+//       var marker_node = document.createElement('a');
+       marker_node.classList.add("annotation-marker"); 
+       marker_node.id=makeMarkerIDWithLocation(location);   
        anno_div.appendChild(marker_node);
-    });
 
+/*
+       var tooltip_node = document.createElement('a');
+       tooltip_node.classList.add("annotation-marker-tooltip"); 
+       tooltip_node.innerText="1";
+       marker_node.appendChild(tooltip_node);
+*/
+    });
 
     $('#downloadAction').on('click', function(target) {
       window.console.log("downloadAction activated..");
@@ -213,7 +244,21 @@ jQuery(document).ready(function() {
     if (typeof annoReady === "function") {
         annoReady();
     }
+
+// http://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
+
+/*
+    $(document).on('mouseenter', '.annotation-marker',
+      function() 
+      {
+window.console.log("EXTRA, found a annotation-marker...");
+      }
+    );
+*/
+
 });
+
+
 
 function _addURLLayer(url, i) {
   var e = ckExist(url);
@@ -305,14 +350,24 @@ function pointIt(target) {
                    viewportPoint.x, viewportPoint.y);
   msg= "click point: ("+imagePoint.x
                     +", "+imagePoint.y+")";
-  alertify.success(msg);
+  var pixel= myViewer.viewport.pixelFromPoint(
+new OpenSeadragon.Point(viewportPoint.x,viewportPoint.y));
+//  alertify.success(msg);
+window.console.log("target position is x ", target.position.x);
+window.console.log("target position is y ", target.position.y);
+window.console.log(" viewport point is x ", viewportPoint.x);
+window.console.log(" viewport point is y ", viewportPoint.y);
+window.console.log("   image point is x ", imagePoint.x);
+window.console.log("   image point is y ", imagePoint.y);
+window.console.log("     pixel point is x ", pixel.x);
+window.console.log("     pixel point is y ", pixel.y);
 
 }
 
 function updateHistory(state,newTitle) {
-  if(isSafari) {
-      /* hum.. https://forums.developer.apple.com/thread/36650 */
-    saveHistoryTitle=newTitle;
+  saveHistoryTitle=newTitle;
+  if(!isSafari) {
+    /* hum.. https://forums.developer.apple.com/thread/36650 */
     } else {
       history.replaceState(state, 'Title', newTitle)
   }
@@ -759,8 +814,8 @@ window.console.log("BAD BAD BAD...");
     }
 }
 
-function markArrow() { isArrowAnnotation=true; }
-function unmarkArrow() { isArrowAnnotation=false; }
+function markMarker() { isMarkerAnnotation=true; }
+function unmarkMarker() { isMarkerAnnotation=false; }
 function markSpecial() { isSpecialAnnotation=true; }
 function unmarkSpecial() { isSpecialAnnotation=false; }
 function markHidden() { isHiddenAnnotation=true; }
@@ -778,17 +833,17 @@ function specialClick() {
    }
 }
 
-function arrowClick() {
-   var atog = document.getElementById('arrow-toggle');
-   if(isArrowAnnotation) {
-      unmarkArrow();
+function markerClick() {
+   var atog = document.getElementById('marker-toggle');
+   if(isMarkerAnnotation) {
+      unmarkMarker();
       atog.style.color='black';
       } else {
-        markArrow();
+        markMarker();
         var clist= [ 'red', 'green', 'blue', 'yellow'];
         var i=Math.floor((Math.random() * 3) + 1);
-        saveArrowColor=clist[i-1];
-        atog.style.color=saveArrowColor;
+        saveMarkerColor=clist[i-1];
+        atog.style.color=saveMarkerColor;
    }
 }
 
