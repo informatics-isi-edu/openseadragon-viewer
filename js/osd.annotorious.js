@@ -434,13 +434,15 @@ function annoClickAnnotation() {
 */
 }
 
+// if hidden, becomes border
+// else always hide it
 function annoZapAnnotation() {
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
     var _style=item.shapes[0].style;
     switch (_style['displayType']) {
       case S_DTYPE_HIDDEN:
-        updateDisplayType2Style(item, S_DTYPE_VISIBLE);
+        updateDisplayType2Style(item, S_DTYPE_BORDER);
         break;
       default:
         updateDisplayType2Style(item, S_DTYPE_HIDDEN);
@@ -449,6 +451,7 @@ function annoZapAnnotation() {
   }
 }
 
+// always turn it into a marker
 function annoMarkAnnotation() {
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
@@ -483,6 +486,14 @@ function annoSetup(_anno,_viewer) {
 
   _anno.makeAnnotatable(_viewer);
 
+  // Sets the annotation shape's outline to red  
+/*
+  var top_anno=_anno;
+  anno.setProperties({
+      outline: 'red'
+  });
+*/
+
   _anno.addHandler("onAnnotationCreated", function(target) {
     var item=target;
 window.console.log("--->calling onAnnotationCreated...");
@@ -501,7 +512,49 @@ window.console.log("--->calling onAnnotationCreated...");
     };
 
     var style=setupStyleForAnnotation(item);
-//XX trying out, did not work, updateStyle2Default(item);
+
+if(MEI_TEST) {
+updateStyle2Default(item);
+updateAnnotationDOMWithStyle(item);
+
+var ctxt=item.context;
+var myAnnotation = {
+    src : "dzi://openseadragon/something",
+    text : 'My new annotation',
+    context: ctxt,
+    shapes : [{
+        type : 'rect',
+        geometry : { x : 0.1, y: 0.1, width : 0.4, height: 0.3 },
+        style: {
+/*
+      fill: '#E5CCFF',
+      hi_fill: '#E5CCFF',
+      stroke: '#E5CCFF',
+      hi_stroke: '#E5CCFF',
+      outline: '#E5CCFF',
+      hi_outline: '#E5CCFF',
+
+      Ce: 2, //outline_width
+      xe: 2, //hi_outline_width
+      Ee: 1, //stroke_width
+      ye: 1 //hi_stroke_width
+*/
+          fill:'#E5CCFF',
+          stroke:'#000',
+          outline:'#000',
+          outline_width:2,
+          stroke_width:1,
+          hi_fill:'#fff',
+          hi_stroke:'#fff',
+          hi_outline:'#E5CCFF',
+          hi_outline_width:2,
+          hi_stroke_width:1
+        }
+    }]
+};
+myAnno.addAnnotation(myAnnotation);
+return;
+}
 
     if(isMarkerAnnotation) { //only for standalone mode
       updateDisplayType2Style(item, S_DTYPE_MARKER);
@@ -519,12 +572,15 @@ window.console.log("--->calling onAnnotationCreated...");
     
     var json=annoJSON(item);
     updateAnnotationList('onAnnotationCreated', json);
+
+// testing pixel distance on viewport
     if(save1 == null) {
       save1= saveAnnoDiv.id;
       } else {
       if(save2 == null)
         save2 = saveAnnoDiv.id;
     }
+
   }); // onAnnotationCreate..
   _anno.addHandler("onAnnotationRemoved", function(target) {
     var item=target;
@@ -570,7 +626,7 @@ function onMouseOverAnnotationFoo(target) {
       return;
     }
     saveCurrentHighlightAnnotation=item;
-    enableVisibleState(item);
+    enableBorderState(item);
     updateAnnotationList('onHighlighted', json);
 }
 
@@ -612,7 +668,7 @@ function enableHighlightState(item) {
 }
 // turn back to unhighlighted annotation state
 // highlighting is done by the annotorious
-function enableVisibleState(item) {
+function enableBorderState(item) {
   var anno_id=makeAnnoID(item);
   var marker_id=makeMarkerID(anno_id);
   var markerObj=document.getElementById(marker_id);
@@ -989,6 +1045,22 @@ function readAll(blob) {
    updateAnnotations();
 }
 
+
+// since annotorious did not implement this for openseadragon
+// we mimick it here.
+// this does not change any annotations' style but the overlays
+// in DOM
+// outer = goog.dom.createDom('div', 'annotorious-ol-boxmarker-outer');
+function annoHideAllAnnotations()
+{
+  $("div.annotorious-ol-boxmarker-outer").hide();
+}
+
+function annoShowAllAnnotations()
+{
+  $("div.annotorious-ol-boxmarker-outer").show();
+}
+
 //XXX -->  
 // Test switching the annotation's displayType to something else
 function updateDisplayTypeTest() {
@@ -998,9 +1070,9 @@ window.console.log("calling updateDisplayTypeTest..");
     var _style=item.shapes[0].style;
     switch (_style['displayType']) {
       case S_DTYPE_MARKER:
-        updateDisplayType2Style(item, S_DTYPE_VISIBLE);
+        updateDisplayType2Style(item, S_DTYPE_BORDER);
         break;
-      case S_DTYPE_VISIBLE:
+      case S_DTYPE_BORDER:
         updateDisplayType2Style(item, S_DTYPE_HIDDEN);
         break;
       case S_DTYPE_HIDDEN:
