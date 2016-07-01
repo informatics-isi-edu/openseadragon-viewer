@@ -1,9 +1,9 @@
 
 //   overlay-annotation-outer  (includes the marker)
 //   overlay-annotation-inner  (includes the marker)
-
 //
-//    style: { displayType: [marker|visible|hidden],
+//    style: { displayType: [Marker|Border|Hidden],
+//             annoType: [ Place | Shape ],
 //             special: { borderColor: 'green' },
 //             marker:{ class: 'glyphicon-tag',
 //                      color: 'red',
@@ -26,11 +26,17 @@
 //  } 
 //
 
+var MEI_TEST=false;
+
+var S_ATYPE='annoType';
+var S_ATYPE_PLACE='place';
+var S_ATYPE_SHAPE='shape';
 var S_DTYPE='displayType';
-var S_DTYPE_VISIBLE='visible';
-var S_DTYPE_HIDDEN='hidden';
+var S_DTYPE_BORDER='border';
 var S_DTYPE_MARKER='marker';
-var S_DTYPE_DEFAULT=S_DTYPE_VISIBLE;
+var S_DTYPE_HIDDEN='hidden';
+var S_DTYPE_DEFAULT=S_DTYPE_BORDER;
+var S_ATYPE_DEFAULT=S_ATYPE_SHAPE;
 var S_MARKER='marker';
 var S_MARKER_CLASS='class';
 var S_MARKER_CLASS_DEFAULT='glyphicon-tag';
@@ -44,6 +50,7 @@ var S_SPECIAL_BORDER='borderColor';
 var S_SPECIAL_BORDER_DEFAULT='green';
 
 var initialStyle= { 'displayType': S_DTYPE_DEFAULT,
+                    'annoType':S_ATYPE_DEFAULT,
                     'marker':{ 'class': S_MARKER_CLASS_DEFAULT,
                                'color': S_MARKER_COLOR_DEFAULT,
                                'font': S_MARKER_FONT_DEFAULT }
@@ -60,10 +67,10 @@ var defaultStyle= {
      'hi_stroke': '#E5CCFF',
      'outline': '#E5CCFF',
      'hi_outline': '#E5CCFF',
-     'Ce': 2, //outline_width
-     'xe': 2, //hi_outline_width
-     'Ee': 1, //stroke_width
-     'ye': 1 //hi_stroke_width 
+     'outline_width': 2, //outline_width
+     'hi_outline_width': 2, //hi_outline_width
+     'stroke_width': 1, //stroke_width
+     'hi_stroke_width': 1 //hi_stroke_width 
 }; 
 
 // only one of the style object
@@ -86,6 +93,9 @@ function setupStyleForAnnotation(item) {
     // fill in missing ones if necessary
     if(style['displayType']==null) { //required
       style['displayType']=S_DTYPE_DEFAULT;
+    }
+    if(style['annoType']==null) { // required
+      style['annoType']=S_ATYPE_DEFAULT;
     }
     if(style['marker']==null) { // required
       style['marker']=cloneIt(initialMarker);
@@ -168,12 +178,22 @@ function updateAnnotationDOMWithStyle(item) {
     style=setupStyleForAnnotation(item);
   }
 
-  // using marker info
-  var _font=style['marker']['font'];
-  var _class=style['marker']['class'];
-  var _color=style['marker']['color'];
+  var _font;
+  var _class;
+  var _color;
 
-  anno_div.style.borderColor=_color;
+if(MEI_TEST) {
+  _font='24px';
+  _class='glyphicon-tag';
+  _color='yellow';
+} else {
+  // using marker info
+  _font=style['marker']['font'];
+  _class=style['marker']['class'];
+  _color=style['marker']['color'];
+}
+
+//XX  anno_div.style.borderColor=_color;
   marker_node.classList.add("glyphicon");
   marker_node.classList.add(_class);
   marker_node.style.color=_color;
@@ -193,8 +213,8 @@ function updateAnnotationDOMWithStyle(item) {
 function updateAnnotationDisplay(item) {
   var style=item.shapes[0].style;
   switch(style['displayType']) {
-    case S_DTYPE_VISIBLE:
-      enableVisibleState(item);
+    case S_DTYPE_BORDER:
+      enableBorderState(item);
       break;
     case S_DTYPE_HIDDEN:
       enableHiddenState(item);
@@ -236,16 +256,18 @@ function updateMarker2Style(item,_class,_color,_font) {
 }
 
 function updateStyle2Default(item) {
+   item.shapes[0].style={};
+
    item.shapes[0].style['fill']='#E5CCFF';
    item.shapes[0].style['hi_fill']='#E5CCFF';
    item.shapes[0].style['stroke']='#E5CCFF';
    item.shapes[0].style['hi_stroke']='#E5CCFF';
    item.shapes[0].style['outline']='#E5CCFF';
    item.shapes[0].style['hi_outline']='#E5CCFF';
-   item.shapes[0].style['Ce']=2;
-   item.shapes[0].style['xe']=2;
-   item.shapes[0].style['Ee']=1;
-   item.shapes[0].style['ye']=1;
+   item.shapes[0].style['outline_width']=2;
+   item.shapes[0].style['hi_outline_width']=2;
+   item.shapes[0].style['stroke_width']=1;
+   item.shapes[0].style['hi_stroke_width']=1;
 }
 
 function updateDisplayType2Style(item,_dtype) {

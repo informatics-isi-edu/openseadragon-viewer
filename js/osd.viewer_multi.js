@@ -859,6 +859,7 @@ function hiddenClick() {
    }
 }
 
+var toggle=true;
 // dump some info
 function testClick() {
   var vCenter = myViewer.viewport.getCenter(true);
@@ -870,6 +871,12 @@ function testClick() {
   window.console.log("           bounds:"+vBounds.toString());
 
   annoChk();
+  if(toggle) {
+    annoHideAllAnnotations();
+    } else {
+    annoShowAllAnnotations();
+  }
+  toggle=!toggle;
 }
 
 function resetScalebar(value)
