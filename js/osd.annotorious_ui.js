@@ -177,6 +177,12 @@ window.addEventListener('message', function(event) {
                     updateAnnotationDOMWithStyle(annotation);
                 }
                 break;
+            case 'hideAllAnnotations':
+                annoHideAllAnnotations();
+                break;
+            case 'showAllAnnotations':
+                annoShowAllAnnotations();
+                break;
             case 'drawAnnotation':
                 myAnno.activateSelector();
                 break;
@@ -219,10 +225,10 @@ function capitalizeFirstLetter(string) {
 
 // Converts an ERMrest/Chaise annotation entity into an Annotorious annotation
 // var S_DTYPE='displayType';
-// var S_DTYPE_VISIBLE='visible';
+// var S_DTYPE_BORDER='border';
 // var S_DTYPE_HIDDEN='hidden';
 // var S_DTYPE_MARKER='marker';
-// var S_DTYPE_DEFAULT=S_DTYPE_VISIBLE;
+// var S_DTYPE_DEFAULT=S_DTYPE_BORDER;
 // var S_MARKER='marker';
 // var S_MARKER_CLASS='class';
 // var S_MARKER_CLASS_DEFAULT='glyphicon-tag';
@@ -237,7 +243,7 @@ function capitalizeFirstLetter(string) {
 function convertToAnnotation(_annotation) {
     var annotationText = '';
     var annotationStyle = {
-        displayType: S_DTYPE_VISIBLE,
+        displayType: S_DTYPE_BORDER,
         marker: {
             class: S_MARKER_CLASS_DEFAULT,
             color: S_MARKER_COLOR_DEFAULT,
