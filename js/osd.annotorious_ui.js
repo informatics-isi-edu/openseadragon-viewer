@@ -32,7 +32,7 @@ function setupAnnoUI() {
     b_node.name="Focus";
     popup_div[0].insertBefore(b_node, popup_div[0].lastChild);
   }
-  
+
   var buttons_div = document.getElementsByClassName('annotorious-popup-buttons');
   if(buttons_div) {
     // add the invisible-click zap button
@@ -214,7 +214,14 @@ function capitalizeFirstLetter(string) {
 // Converts an ERMrest/Chaise annotation entity into an Annotorious annotation
 function convertToAnnotation(_annotation) {
     var annotationText = '';
-    var annotationStyle = {};
+    var annotationStyle = {
+        displayType: 'visible',
+        marker: {
+            class: 'glyphicon-tag',
+            color: 'red',
+            font: '24px'
+        }
+    };
     if (_annotation.anatomy) {
         annotationText = '<strong>' + capitalizeFirstLetter(_annotation.anatomy) + '</strong><br>';
     }
@@ -223,22 +230,14 @@ function convertToAnnotation(_annotation) {
     }
     // All new Chaise annotations should have a config now, but perserve this check
     // for older annotations without a config
+    // Default _annotation.config structure: {color: 'whatever the default color is in Chaise'}
     if (_annotation.config) {
-        annotationStyle = _annotation.config;
+        annotationStyle.marker.color = _annotation.config.color;
     }
 
     if (_annotation.type == 'arrow') {
         annotationStyle.displayType = 'marker';
-        annotationStyle.marker = {
-            'class': 'glyphicon-tag',
-            'color': _annotation.config.color,
-            'font': '24px'
-        };
-    } else {
-        annotationStyle.displayType = 'visible';
-    }
-
-    if (_annotation.type == 'section') {
+    } else if (_annotation.type == 'section') {
         annotationStyle.special = {'borderColor': 'green'};
     }
 
