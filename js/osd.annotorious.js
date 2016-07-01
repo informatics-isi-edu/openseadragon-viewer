@@ -249,18 +249,13 @@ function annoRetrieveByHash(h) {
 // annotation's boundary
 function annoSetInAnno(bounding_anno) {
 window.console.log("bounding anno is ", makeAnnoID(bounding_anno));
-  var annotationsToLoad = {"annoList":[]};
+  var annotationsToLoad =[]; 
   var p=myAnno.getAnnotations();
   var len=p.length;
   for (var i = 0; i < len; i++) {
     var id=annoInAnno(p[i],bounding_anno);
     if(id != -1) {
-       var annotationObj = {
-            "type": "openseadragon_dzi",
-            "id": null,
-            "event": "INFO",
-            "data": p[i]};
-       annotationsToLoad.annoList.push(annotationObj);
+       annotationsToLoad.push(p[i]);
        window.console.log("this anno IS in view ",id);
        } else {
          window.console.log("this anno IS NOT in view", makeAnnoID(p[i]));
@@ -273,18 +268,13 @@ window.console.log("bounding anno is ", makeAnnoID(bounding_anno));
 // boundary
 function annoSetInViewer()
 {
-  var annotationsToLoad = {"annoList":[]};
+  var annotationsToLoad = [];
   var p=myAnno.getAnnotations();
   var len=p.length;
   for (var i = 0; i < len; i++) {
     var id=annoInViewer(p[i]);
     if(id != -1) {
-       var annotationObj = {
-            "type": "openseadragon_dzi",
-            "id": null,
-            "event": "INFO",
-            "data": p[i]};
-       annotationsToLoad.annoList.push(annotationObj);
+       annotationsToLoad.push(p[i]);
        window.console.log("this anno IS in view ",id);
        } else {
          window.console.log("this anno IS NOT in view");
