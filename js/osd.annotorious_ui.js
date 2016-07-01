@@ -174,6 +174,9 @@ window.addEventListener('message', function(event) {
             case 'syncVisibility':
                 for (var i = 0, len = data.length; i < len; i++) {
                     var annotation = convertToAnnotation(data[i]);
+                    var existingAnnotation = 
+                      annoRetrieveByHash(getHash(annotation));
+                    existingAnnotation.shapes = annotation.shapes;
                     updateAnnotationDOMWithStyle(annotation);
                 }
                 break;
