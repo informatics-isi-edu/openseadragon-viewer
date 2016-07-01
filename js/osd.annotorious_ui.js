@@ -171,6 +171,12 @@ window.addEventListener('message', function(event) {
             case 'unHighlightAnnotation':
                 annoUnHighlightAnnotation(null);
                 break;
+            case 'syncVisibility':
+                for (var i = 0, len = data.length; i < len; i++) {
+                    var annotation = convertToAnnotation(data[i]);
+                    updateAnnotationDOMWithStyle(annotation);
+                }
+                break;
             case 'drawAnnotation':
                 myAnno.activateSelector();
                 break;
@@ -212,14 +218,30 @@ function capitalizeFirstLetter(string) {
 }
 
 // Converts an ERMrest/Chaise annotation entity into an Annotorious annotation
+// var S_DTYPE='displayType';
+// var S_DTYPE_VISIBLE='visible';
+// var S_DTYPE_HIDDEN='hidden';
+// var S_DTYPE_MARKER='marker';
+// var S_DTYPE_DEFAULT=S_DTYPE_VISIBLE;
+// var S_MARKER='marker';
+// var S_MARKER_CLASS='class';
+// var S_MARKER_CLASS_DEFAULT='glyphicon-tag';
+// var S_MARKER_CLASS_FAT='glyphicon-star';
+// var S_MARKER_COLOR='color';
+// var S_MARKER_COLOR_DEFAULT='red';
+// var S_MARKER_FONT='font';
+// var S_MARKER_FONT_DEFAULT='24px';
+// var S_SPECIAL='special';
+// var S_SPECIAL_BORDER='borderColor';
+// var S_SPECIAL_BORDER_DEFAULT='green';
 function convertToAnnotation(_annotation) {
     var annotationText = '';
     var annotationStyle = {
-        displayType: 'visible',
+        displayType: S_DTYPE_VISIBLE,
         marker: {
-            class: 'glyphicon-tag',
-            color: 'red',
-            font: '24px'
+            class: S_MARKER_CLASS_DEFAULT,
+            color: S_MARKER_COLOR_DEFAULT,
+            font: S_MARKER_FONT_DEFAULT
         }
     };
     if (_annotation.anatomy) {
@@ -228,17 +250,24 @@ function convertToAnnotation(_annotation) {
     if (_annotation.description) {
         annotationText += _annotation.description;
     }
+
+    if (_annotation.type == 'arrow') {
+        annotationStyle.displayType = S_DTYPE_MARKER;
+    } else if (_annotation.type == 'section') {
+        if (!annotationStyle.special) {
+            annotationStyle.special = {};
+        }
+        annotationStyle.special[S_SPECIAL_BORDER] = S_SPECIAL_BORDER_DEFAULT;
+    }
+
     // All new Chaise annotations should have a config now, but perserve this check
     // for older annotations without a config
     // Default _annotation.config structure: {color: 'whatever the default color is in Chaise'}
     if (_annotation.config) {
         annotationStyle.marker.color = _annotation.config.color;
-    }
-
-    if (_annotation.type == 'arrow') {
-        annotationStyle.displayType = 'marker';
-    } else if (_annotation.type == 'section') {
-        annotationStyle.special = {'borderColor': 'green'};
+        if (_annotation.config.visible == false) {
+            annotationStyle.displayType = S_DTYPE_HIDDEN;
+        }
     }
 
     var annotation = {
