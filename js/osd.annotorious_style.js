@@ -151,9 +151,13 @@ function processMarkerSize(markerObj) {
   if(markerObj.classList.contains("glyphicon-smaller"))
     markerObj.classList.remove("glyphicon-smaller");
   markerObj.style.fontSize="";
+  markerObj.style.top="40%";
+  markerObj.style.left="40%";
 
   if (currentZoom < minZoom + step) {
     markerObj.classList.add("glyphicon-smaller");
+//    markerObj.style.top="0";
+//    markerObj.style.left="0";
     return;
   }
   if (currentZoom < minZoom + (step * 3)) {
