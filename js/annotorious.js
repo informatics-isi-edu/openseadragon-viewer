@@ -4112,7 +4112,6 @@ $JSCompiler_prototypeAlias$$.$removeAnnotation$ = function $$JSCompiler_prototyp
 };
 $JSCompiler_prototypeAlias$$.$getAnnotations$ = function $$JSCompiler_prototypeAlias$$$$getAnnotations$$() {
   return $goog$array$map$$(this.$_overlays$, function($overlay$$9$$) {
-    console.log($overlay$$9$$);
     return $overlay$$9$$.$annotation$
   })
 };
