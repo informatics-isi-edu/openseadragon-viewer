@@ -65,6 +65,7 @@ function setupAnnoUI() {
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
         styleSheet.insertRule('.annotorious-popup-button-edit { visibility:hidden }', 0);
         styleSheet.insertRule('.annotorious-popup-button-delete { visibility:hidden }', 0);
+        styleSheet.insertRule('.annotorious-popup-button-mark { visibility:hidden }', 0);
   }
 }
 
