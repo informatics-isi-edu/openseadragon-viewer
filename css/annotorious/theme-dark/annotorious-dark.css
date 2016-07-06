@@ -25,16 +25,16 @@
 
 .annotorious-opacity-fade {
   -moz-transition-property:opacity;
-  -moz-transition-duration:.5s;
+  -moz-transition-duration:.7s;
   -moz-transition-delay:0;
   -webkit-transition-property:opacity;
-  -webkit-transition-duration:.5s;
+  -webkit-transition-duration:.7s;
   -webkit-transition-delay:0;
   -o-transition-property:opacity;
-  -o-transition-duration:.5s;
+  -o-transition-duration:.7s;
   -o-transition-delay:0;
   transition-property:opacity;
-  transition-duration:.5s;
+  transition-duration:.7s;
   transition-delay:0;
 }
 
@@ -58,19 +58,19 @@
   outline:none;
   padding:5px;
   -moz-transition-property:opacity;
-  -moz-transition-duration:.5s;
+  -moz-transition-duration:.7s;
   -moz-transition-delay:0;
   -ms-transition-property:opacity;
-  -ms-transition-duration:.5s;
+  -ms-transition-duration:.7s;
   -ms-transition-delay:0;
   -webkit-transition-property:opacity;
-  -webkit-transition-duration:.5s;
+  -webkit-transition-duration:.7s;
   -webkit-transition-delay:0;
   -o-transition-property:opacity;
-  -o-transition-duration:.5s;
+  -o-transition-duration:.7s;
   -o-transition-delay:0;
   transition-property:opacity;
-  transition-duration:.5s;
+  transition-duration:.7s;
   transition-delay:0;
   -moz-border-radius:8px;
   -webkit-border-radius:8px;
