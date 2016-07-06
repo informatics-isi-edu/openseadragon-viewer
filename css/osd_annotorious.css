@@ -33,17 +33,19 @@
 }
 
 .annotorious-popup-button-mark:hover {
-    background:url(annotorious/mark.png) no-repeat;
+    text-decoration: none;
+    color: black;
+    text-shadow: 0 0 5px #ccc;
 }
 
 .annotorious-popup-button-mark {
-    background-color: transparent;
-    dislay: block;
     position:absolute;
+    background-repeat: no-repeat;
+    background-color:transparent;
+    color: black;
     top: 10px;
-    right: 57px;
-    background:url(annotorious/mark.png) no-repeat;
-    outline:none;
+    right: 65px;
+    text-shadow: 0 0 1px #ccc;
 }
 
 

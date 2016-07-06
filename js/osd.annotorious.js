@@ -417,11 +417,10 @@ function annoClickAnnotation() {
     var json=annoJSON(item);
     updateAnnotationList('onClickAnnotation', json);
   }
-/*
   if(!enableEmbedded) { // tag on testing displayType updates
-    updateDisplayTypeTest();
+window.console.log("in annoClickAnnotation...");
+//    updateDisplayTypeTest();
   }
-*/
 }
 
 // if hidden, becomes border
@@ -441,11 +440,19 @@ function annoZapAnnotation() {
   }
 }
 
-// always turn it into a marker
+// turn it into a marker
+// back into a border..
 function annoMarkAnnotation() {
   if(saveCurrentHighlightAnnotation) {
     var item=saveCurrentHighlightAnnotation;
-    updateDisplayType2Style(item, S_DTYPE_MARKER);
+    var _style=item.shapes[0].style;
+    switch (_style['displayType']) {
+      case S_DTYPE_MARKER:
+        updateDisplayType2Style(item, S_DTYPE_BORDER);
+        break;
+      default:
+        updateDisplayType2Style(item, S_DTYPE_MARKER);
+    }
     updateAnnotationDOMWithStyle(item);
   }
 }

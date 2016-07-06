@@ -48,8 +48,9 @@ function setupAnnoUI() {
   if(buttons_div) {
     // add the marking-click mark button
     var bbb_node = document.createElement('a');
-    bbb_node.classList.add("annotorious-popup-button");
     bbb_node.classList.add("annotorious-popup-button-mark");
+    bbb_node.classList.add("glyphicon");
+    bbb_node.classList.add("glyphicon-flag");
     bbb_node.title="Marker";
     bbb_node.onclick = function(){ annoMarkAnnotation(null); };
     bbb_node.name="Marker";
