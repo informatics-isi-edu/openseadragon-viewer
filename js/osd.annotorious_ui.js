@@ -27,7 +27,7 @@ function setupAnnoUI() {
     var b_node = document.createElement('a');
     b_node.classList.add("annotorious-popup-button-click");
     b_node.classList.add("glyphicon");
-    b_node.classList.add("glyphicon-record");
+    b_node.classList.add("glyphicon-eye-open");
     b_node.title="Focus";
     b_node.onclick = function(){ annoClickAnnotation(null); };
     b_node.name="Focus";
@@ -37,7 +37,7 @@ function setupAnnoUI() {
     var bb_node = document.createElement('a');
     bb_node.classList.add("annotorious-popup-button-zap");
     bb_node.classList.add("glyphicon");
-    bb_node.classList.add("glyphicon-eye-open");
+    bb_node.classList.add("glyphicon-remove-circle");
     bb_node.title="Zap";
     bb_node.onclick = function(){ annoZapAnnotation(null); };
     bb_node.name="Zap";
