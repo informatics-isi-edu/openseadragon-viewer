@@ -3,42 +3,41 @@
 */
 
 .annotorious-popup-button-click:hover {
-    background-color:transparent;
-    background:url(annotorious/eye_icon.png) no-repeat;
-    outline:none;
+    color: grey;
+    text-decoration: none;
 }
 
 .annotorious-popup-button-click {
-    dislay: block;
     position:absolute;
-    top: 10px;
-    right: 3px;
-    background:url(annotorious/eye_icon.png) no-repeat;
-    outline:none;
-}
-
-.annotorious-popup-button-zap:hover {
+    background-repeat: no-repeat;
     background-color:transparent;
-    background:url(annotorious/off.png) no-repeat;
-    outline:none;
+    color: #ccc;
+    top: 10px;
+    right: 15px;
+    text-shadow: 0 0 5px black;
 }
 
 .annotorious-popup-button-zap {
-    dislay: block;
     position:absolute;
+    background-repeat: no-repeat;
+    background-color:transparent;
+    color: #ccc;
     top: 10px;
-    right: 30px;
-    background:url(annotorious/off.png) no-repeat;
-    outline:none;
+    right: 40px;
+    text-shadow: 0 0 5px black;
+}
+
+.annotorious-popup-button-zap:hover {
+    color: grey;
+    text-decoration: none;
 }
 
 .annotorious-popup-button-mark:hover {
-    background-color:transparent;
     background:url(annotorious/mark.png) no-repeat;
-    outline:none;
 }
 
 .annotorious-popup-button-mark {
+    background-color: transparent;
     dislay: block;
     position:absolute;
     top: 10px;
