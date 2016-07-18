@@ -124,6 +124,13 @@ function uploadAnnotationList(mType, cState) {
     }
 }
 
+// save the propertyList to the backend
+function uploadFilteringPropertyList(mType, pData) {
+    if (enableEmbedded) {
+        window.top.postMessage({messageType: mType, content: pData}, window.location.origin);
+    }
+}
+
 function event_loadAnnotations(messageType, data) {
     var annotationsToLoad = {"annoList":[]};
     data.map(function(annotation) {
@@ -132,6 +139,16 @@ function event_loadAnnotations(messageType, data) {
     });
     readAll(annotationsToLoad);
 }
+
+function event_loadFilteringPropertyList(messageType, data) {
+    var propertyToLoad = [];
+    data.map(function(item) {
+        var p=JSON.parse(item);
+        propertyToLoad.push(p);
+    });
+    loadPropertyList(propertyToLoad);
+}
+
 
 function event_createAnnotation(messageType, data) {
     var annotation = convertToAnnotation(data);
@@ -211,6 +228,10 @@ window.addEventListener('message', function(event) {
                 var annotation = convertToAnnotation(data);
                 annotation = annoRetrieveByHash(getHash(annotation));
                 myAnno.removeAnnotation(annotation);
+                break;
+// for image filtering
+            case 'loadFilteringPropertyList':
+                event_loadFilteringPropertyList(messageType, data);
                 break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', event);

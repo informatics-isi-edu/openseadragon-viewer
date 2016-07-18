@@ -30,10 +30,11 @@ function ctrlClick()
   nav.classList.toggle( "active" );
   if(isActive(nav)) {
     sidebar_control_slideOut();
-    savePropertyList();
+//enable just for mei, testLoadingPropertyList();
+    setTrackingPropertyList();
     } else {
       sidebar_control_slideIn();
-      dumpPropertyList();
+      savePropertyList();
   }
 }
 
@@ -74,12 +75,16 @@ function presetOpacity(alpha,i) {
   return presetOpacityValue;
 }
 
-// dump what is in propertyList
-function dumpPropertyList() {
+// save what is in propertyList to the backedn
+// array of small json items
+function savePropertyList() {
+   var plist=[];
    for(var i=0; i<propertyList.length; i++) {
      var p=propertyList[i];
      window.console.log(p);
+     var j=JSON.stringify(p,null,2);
    }
+   uploadFilteringPropertyList('filteringPropertyList', plist);
 }
 
 function clonePropertyList(startList) {
@@ -94,7 +99,7 @@ function clonePropertyList(startList) {
 
 // reuse the location
 function copyPropertyListItem(startList,s,destList,d) {
-   destList[d]=JSON.parse(JSON.stringify(startList[s]));
+  destList[d]=JSON.parse(JSON.stringify(startList[s]));
 /*
    destList[d]['contrast']=startList[s]['contrast'];
    destList[d]['opacity']=startList[s]['opacity'];
@@ -102,8 +107,35 @@ function copyPropertyListItem(startList,s,destList,d) {
 */
 }
 
-function savePropertyList() {
-   initPropertyList=clonePropertyList(propertyList);
+function setTrackingPropertyList() {
+  initPropertyList=clonePropertyList(propertyList);
+}
+
+function _updateSliders() {
+  for(var i=0; i<propertyList.length; i++) {
+    updateItemSliders(i);
+  }
+}
+
+// update the propertyList on demand and then
+// update the viewer to reflect the new propertyList
+function loadPropertyList(newPropertyList) {
+  propertyList=clonePropertyList(newPropertyList);
+  setTrackingPropertyList();
+  _clearFilters();
+  _addFilters();
+  _updateSliders();
+}
+
+function testLoadingPropertyList() {
+   var nList=[];
+   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56 };
+   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0 };
+   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0 };
+   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0 };
+   
+   nList.push(a); nList.push(aa); nList.push(aaa); nList.push(aaaa);
+   loadPropertyList(nList);
 }
 
 function _RGBTohex(rgb) {
@@ -167,7 +199,7 @@ function setupItemSliders(idx) {
 
 function updateItemSliders(idx) {
   var p=propertyList[idx];
-window.console.log("in updatItemSliders..", p);
+window.console.log("in updateItemSliders..", p);
   var name=p['cname'];
   var _s='#'+name+'_opacity';
   var _sb=name+'_opacity_btn';
@@ -392,9 +424,6 @@ window.console.log("bad panic..",propertyList.length," - ", initPropertyList.len
   // redraw the image
   _clearFilters();
   _addFilters();
- 
-/* update the matching slider/etc XXX */
-  
 }
 
 /* 0 , 1 */
