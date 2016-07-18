@@ -59,7 +59,8 @@ function setupAnnoUI() {
 
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
-      var bElm = document.getElementById('osd-control-panel');
+//      var bElm = document.getElementById('osd-control-panel');
+      var bElm = document.getElementById('osd-control-panel-test');
       if(bElm)
         bElm.style.display = '';
       } else {

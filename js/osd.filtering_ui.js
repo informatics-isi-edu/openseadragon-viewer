@@ -7,13 +7,13 @@
 var filterList = [];
 var showFilters = false;
 
-
 var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647']
 var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'rgb': '0.1 0.3 0.2' } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
 var propertyList = [];
+var initPropertyList=[]; // the initial property list
 
 function isActive(elm) {
   if(elm.classList.contains("active")) {
@@ -23,49 +23,87 @@ function isActive(elm) {
   }
 }
 
+// this is filtering control sidebar
 function ctrlClick()
 {
   var nav = document.getElementById('nav-toggle');
   nav.classList.toggle( "active" );
   if(isActive(nav)) {
     sidebar_control_slideOut();
+    savePropertyList();
     } else {
       sidebar_control_slideIn();
+      dumpPropertyList();
   }
 }
 
 // preset
 function presetContrast(i) {
-  return 0;
+  var presetContrastValue=0;
+  return presetContrastValue;
 }
 
 // rgb is a "0.000000 1.000000 0.200000"
 function presetHue(rgb,name) {
+  var presetHueValue=null;
   if(rgb == null) {
      if(name == "unknown") { // default hue light blue
 //    window.console.log("don't know the color type..");
-      return 180;
+      presetHueValue=180;
     } else if(name == "combo" || name == "TL Brightfield") {
-      return -1;
+      presetHueValue=null;
     } else if(blueColors.indexOf(name) != -1) {
-      return 240;
+      presetHueValue=240;
     } else if(redColors.indexOf(name) != -1) {
-      return 0;
+      presetHueValue=0;
     } else if(greenColors.indexOf(name) != -1) {
-      return 120;
+      presetHueValue=120;
     }
     } else {
      // get hue from rgb value.. 
-      return hueIs(rgb);
+      presetHueValue=hueIs(rgb);
   }
+  return presetHueValue;
 }
 
 function presetOpacity(alpha,i) {
+  var presetOpacityValue=1;
   if(alpha != null) { 
-    return alpha;
+    presetOpacityValue=alpha;
   }
-  // no alpha 
-  return 1;
+  return presetOpacityValue;
+}
+
+// dump what is in propertyList
+function dumpPropertyList() {
+   for(var i=0; i<propertyList.length; i++) {
+     var p=propertyList[i];
+     window.console.log(p);
+   }
+}
+
+function clonePropertyList(startList) {
+   var _destList=[];
+   for(var i=0; i<startList.length; i++) {
+     var pp=JSON.parse(JSON.stringify(startList[i]));
+     _destList.push(pp);
+     window.console.log("--",pp);
+   }
+   return _destList;
+}
+
+// reuse the location
+function copyPropertyListItem(startList,s,destList,d) {
+   destList[d]=JSON.parse(JSON.stringify(startList[s]));
+/*
+   destList[d]['contrast']=startList[s]['contrast'];
+   destList[d]['opacity']=startList[s]['opacity'];
+   destList[d]['hue']=startList[s]['hue'];
+*/
+}
+
+function savePropertyList() {
+   initPropertyList=clonePropertyList(propertyList);
 }
 
 function _RGBTohex(rgb) {
@@ -127,6 +165,29 @@ function setupItemSliders(idx) {
   jQuery(_h).slider("option", "step", 10);
 }
 
+function updateItemSliders(idx) {
+  var p=propertyList[idx];
+window.console.log("in updatItemSliders..", p);
+  var name=p['cname'];
+  var _s='#'+name+'_opacity';
+  var _sb=name+'_opacity_btn';
+  var _c='#'+name+'_contrast';
+  var _cb=name+'_contrast_btn';
+  var _h='#'+name+'_hue';
+  var _hb=name+'_hue_btn';
+
+  var sbtn=document.getElementById(_sb);
+  sbtn.value=p['opacity'];
+  jQuery(_s).slider("option", "value", p['opacity']); // by default
+  var cbtn=document.getElementById(_cb);
+  cbtn.value=p['contrast'];
+  jQuery(_c).slider("option", "value", p['contrast']);
+  var hbtn=document.getElementById(_hb);
+  hbtn.value=p['hue'];
+  jQuery(_h).slider("option", "value", p['hue']);
+}
+
+
 window.onload = function() {
   if (propertyList && propertyList.length < 2 && propertyList.length>0) {
       jQuery('#itemList').prepend('<h5>'+propertyList[0].name+'</h5>');
@@ -157,6 +218,8 @@ window.onload = function() {
 function addItemListEntry(n,i,label,hue,contrast,opacity) {
   var name = n.replace(/ +/g, "");
   var _name=n;
+  var _reset_name=name+'_reset';
+  var _reset_btn=name+'_reset_btn';
   var _hue_name=name+'_hue';
   var _hue_btn=name+'_hue_btn';
   var _opacity_name=name+'_opacity';
@@ -169,11 +232,11 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-  _nn+='<div id="'+name+'" class="row channel"><div class="col-md-12 item"><div class="data" style="font-size:small;letter-spacing:1px;"><label for="'+_name+'" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div>';
+  _nn+='<div id="' +name+ '" class="row channel"><div class="col-md-12 item "><div class="data" style="font-size:small;letter-spacing:1px;"><div><label for ="' +_name+ '" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div><div><label for ="' +_reset_btn+ '" >Reset?</label> <input type="button" class="btn btn-sm btn-primary pull-right" id="'+_reset_btn+'" style="margin-right:40px"  onClick="toggleResetItem('+i+','+'\''+_name+'\');" /></div></div>';
   _nn+='<div class="row filtercontrol">';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
-if(hue >= 0) {
+if(hue != null) {
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
   } else { // this is a combo or unknown type --> rgb
 }
@@ -213,15 +276,19 @@ function _clearFilters() {
    });
 }
 
-function toggleFilters() {
+function toggleFiltering() {
   showFilters = ! showFilters;
   if(showFilters) {
     _addFilters();
-    jQuery('#filtersBtn').prop('value','Remove Color Filters');
+    jQuery('#filtersBtn').prop('value','Remove Filters');
     } else {
       _clearFilters();
-      jQuery('#filtersBtn').prop('value','Add Color Filters');
+      jQuery('#filtersBtn').prop('value','Add Filters');
   }
+}
+
+function resetFiltering() {
+  _clearFilters();
 }
 
 function _addInvertFilter(ItemID) {
@@ -297,6 +364,39 @@ function _updateOpacity(name, newOpacity) {
   alertify.error("_updateOpacity should never be here");
 }
 
+function toggleResetItem(itemID, itemLabel) {
+  var item=myViewer.world.getItemAt(itemID);
+  /* reset the current set to the initial set */
+  var s=null; /* index in the current set */
+  var d=null; /* index in the initial set */
+  var stmp;
+  var dtmp;
+if(propertyList.length != initPropertyList.length) {
+window.console.log("bad panic..",propertyList.length," - ", initPropertyList.length);
+}
+  for(var i=0; i<propertyList.length; i++) {
+    stmp=initPropertyList[i];
+    dtmp=propertyList[i];
+    if(itemLabel == stmp.name) { s=i; }
+    if(itemLabel == dtmp.name) { d=i; }
+    if(s!=null && d!=null ) {
+      break;
+    }
+  }
+  if(s!=null && d!=null ) {
+    copyPropertyListItem(initPropertyList,s,propertyList,d);
+    } else {
+      window.console.log("hum.. BAD");
+  }
+  updateItemSliders(s);
+  // redraw the image
+  _clearFilters();
+  _addFilters();
+ 
+/* update the matching slider/etc XXX */
+  
+}
+
 /* 0 , 1 */
 function toggleItem(itemID, itemLabel) {
   var item=myViewer.world.getItemAt(itemID);
@@ -308,7 +408,8 @@ function toggleItem(itemID, itemLabel) {
       item.setOpacity(op);
   }
 }
-namehttp://tiku.io/questions/1014477/javascript-convert-grayscale-to-color-given-hue
+
+//http://tiku.io/questions/1014477/javascript-convert-grayscale-to-color-given-hue
 function _hsv2rgb(h, s, v) {
     h /= 60;
     var i = Math.floor(h);

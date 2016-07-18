@@ -258,7 +258,14 @@ window.console.log("EXTRA, found a annotation-marker...");
 
 });
 
-
+function layerId4URL(url) {
+  for(var i=0; i<logURL.length; i++) {
+    if(url == logURL[i]) {
+      return i;
+    }
+  }
+  return null;
+}
 
 function _addURLLayer(url, i) {
   var e = ckExist(url);
@@ -334,7 +341,6 @@ function _addURLLayer(url, i) {
      resetScalebar(_meterscaleinpixels);
    }
 }
-
 
 function pointIt(target) {
   if(myViewer === null) {
