@@ -46,13 +46,13 @@ function presetContrast(i) {
 
 // rgb is a "0.000000 1.000000 0.200000"
 function presetHue(rgb,name) {
-  var presetHueValue=null;
+  var presetHueValue=-1;
   if(rgb == null) {
      if(name == "unknown") { // default hue light blue
 //    window.console.log("don't know the color type..");
       presetHueValue=180;
     } else if(name == "combo" || name == "TL Brightfield") {
-      presetHueValue=null;
+      presetHueValue=-1;
     } else if(blueColors.indexOf(name) != -1) {
       presetHueValue=240;
     } else if(redColors.indexOf(name) != -1) {
@@ -268,7 +268,7 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
   _nn+='<div class="row filtercontrol">';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
-if(hue != null) {
+if(hue >= 0) {
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
   } else { // this is a combo or unknown type --> rgb
 }
