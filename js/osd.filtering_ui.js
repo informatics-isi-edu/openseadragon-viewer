@@ -238,7 +238,12 @@ window.onload = function() {
   var numChannels = $('.channel').length;
   if (numChannels < 2) {
     $('#channels-list').hide();
+// suppress the visibility check-button if here is just 1 channel
+    var _visible_name='0_visible'; // should only have one
+    var v = document.getElementById(_visible_name);
+    v.style.display='none';
   }
+
   $('#channels-list').change(function() {
     var channel = $('#channels-list').find('option:selected').val();
     $('.channel').hide();
@@ -250,6 +255,7 @@ window.onload = function() {
 function addItemListEntry(n,i,label,hue,contrast,opacity) {
   var name = n.replace(/ +/g, "");
   var _name=n;
+  var _visible_name=i+'_visible';
   var _reset_name=name+'_reset';
   var _reset_btn=name+'_reset_btn';
   var _hue_name=name+'_hue';
@@ -264,7 +270,7 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-  _nn+='<div id="' +name+ '" class="row channel"><div class="col-md-12 item "><div class="data" style="font-size:small;letter-spacing:1px;"><div><label for ="' +_name+ '" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div><div><label for ="' +_reset_btn+ '" >Reset?</label> <input type="button" class="btn btn-sm btn-primary pull-right" id="'+_reset_btn+'" style="margin-right:40px"  onClick="toggleResetItem('+i+','+'\''+_name+'\');" /></div></div>';
+  _nn+='<div id="' +name+ '" class="row channel"><div class="col-md-12 item "><div class="data" style="font-size:small;letter-spacing:1px;"><div id="'+_visible_name+'"><label for ="' +_name+ '" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div><div><label for ="' +_reset_btn+ '" >Reset?</label> <input type="button" class="btn btn-sm btn-primary pull-right" id="'+_reset_btn+'" style="margin-right:40px"  onClick="toggleResetItem('+i+','+'\''+_name+'\');" /></div></div>';
   _nn+='<div class="row filtercontrol">';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
