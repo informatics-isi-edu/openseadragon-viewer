@@ -214,9 +214,12 @@ window.console.log("in updateItemSliders..", p);
   var cbtn=document.getElementById(_cb);
   cbtn.value=p['contrast'];
   jQuery(_c).slider("option", "value", p['contrast']);
+// this hbtn is actually optional
   var hbtn=document.getElementById(_hb);
-  hbtn.value=p['hue'];
-  jQuery(_h).slider("option", "value", p['hue']);
+  if(hbtn) {
+    hbtn.value=p['hue'];
+    jQuery(_h).slider("option", "value", p['hue']);
+  }
 }
 
 
