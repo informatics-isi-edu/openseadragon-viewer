@@ -307,6 +307,7 @@ function _addURLLayer(url, i) {
     var op=presetOpacity(_alpha,i);
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
+    var brightness=presetBrightness(i);
     var options = {
                   tileSource: {
                      height: _height,
@@ -335,9 +336,9 @@ function _addURLLayer(url, i) {
                    opacity: op
                    };
      myViewer.addTiledImage( options );
-     addItemListEntry(_name,i,_dir,hue,contrast,op);
+     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op);
      var cname = _name.replace(/ +/g, "");
-     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast} );
+     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness } );
      resetScalebar(_meterscaleinpixels);
    }
 }

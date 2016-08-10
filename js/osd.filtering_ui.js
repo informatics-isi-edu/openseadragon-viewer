@@ -44,6 +44,12 @@ function presetContrast(i) {
   return presetContrastValue;
 }
 
+// preset
+function presetBrightness(i) {
+  var presetBrightnessValue=0;
+  return presetBrightnessValue;
+}
+
 // rgb is a "0.000000 1.000000 0.200000"
 function presetHue(rgb,name) {
   var presetHueValue=-1;
@@ -129,10 +135,10 @@ function loadPropertyList(newPropertyList) {
 
 function testLoadingPropertyList() {
    var nList=[];
-   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56 };
-   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0 };
-   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0 };
-   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0 };
+   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100 };
+   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0 };
+   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50 };
+   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100 };
    
    nList.push(a); nList.push(aa); nList.push(aaa); nList.push(aaaa);
    loadPropertyList(nList);
@@ -150,11 +156,13 @@ function _RGBTohex(rgb) {
 function setupItemSliders(idx) {
   var p=propertyList[idx];
   var name=p['cname'];
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0 } );
   var _s='#'+name+'_opacity';
   var _sb=name+'_opacity_btn';
   var _c='#'+name+'_contrast';
   var _cb=name+'_contrast_btn';
+  var _b='#'+name+'_brightness';
+  var _bb=name+'_brightness_btn';
   var _h='#'+name+'_hue';
   var _hb=name+'_hue_btn';
   var sbtn=document.getElementById(_sb);
@@ -183,6 +191,19 @@ function setupItemSliders(idx) {
   jQuery(_c).slider("option", "max", 100);
   jQuery(_c).slider("option", "step", 2);
 
+  var bbtn=document.getElementById(_bb);
+  jQuery(_b).slider({
+      slide: function( event, ui ) {
+        bbtn.value=ui.value;
+        _updateBrightness(name,ui.value);
+      }
+  });
+  jQuery(_b).width(100 + '%');
+  jQuery(_b).slider("option", "value", p['brightness']);
+  jQuery(_b).slider("option", "min", -255);
+  jQuery(_b).slider("option", "max", 255);
+  jQuery(_b).slider("option", "step", 5);
+
   var hbtn=document.getElementById(_hb);
   jQuery(_h).slider({
       slide: function( event, ui ) {
@@ -205,6 +226,8 @@ window.console.log("in updateItemSliders..", p);
   var _sb=name+'_opacity_btn';
   var _c='#'+name+'_contrast';
   var _cb=name+'_contrast_btn';
+  var _b='#'+name+'_brightness';
+  var _bb=name+'_brightness_btn';
   var _h='#'+name+'_hue';
   var _hb=name+'_hue_btn';
 
@@ -214,6 +237,9 @@ window.console.log("in updateItemSliders..", p);
   var cbtn=document.getElementById(_cb);
   cbtn.value=p['contrast'];
   jQuery(_c).slider("option", "value", p['contrast']);
+  var bbtn=document.getElementById(_bb);
+  bbtn.value=p['brightness'];
+  jQuery(_b).slider("option", "value", p['brightness']);
 // this hbtn is actually optional
   var hbtn=document.getElementById(_hb);
   if(hbtn) {
@@ -255,7 +281,7 @@ window.onload = function() {
 }
 
 // squeeze out all spaces in name
-function addItemListEntry(n,i,label,hue,contrast,opacity) {
+function addItemListEntry(n,i,label,hue,contrast,brightness,opacity) {
   var name = n.replace(/ +/g, "");
   var _name=n;
   var _visible_name=i+'_visible';
@@ -267,8 +293,11 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
   var _opacity_btn=name+'_opacity_btn';
   var _contrast_name=name+'_contrast';
   var _contrast_btn=name+'_contrast_btn';
+  var _brightness_name=name+'_brightness';
+  var _brightness_btn=name+'_brightness_btn';
   var _hue_init_value=hue;
   var _contrast_init_value=contrast;
+  var _brightness_init_value=brightness;
   var _opacity_init_value=opacity;
 
   var _nn='';
@@ -276,6 +305,7 @@ function addItemListEntry(n,i,label,hue,contrast,opacity) {
   _nn+='<div id="' +name+ '" class="row channel"><div class="col-md-12 item "><div class="data" style="font-size:small;letter-spacing:1px;"><div id="'+_visible_name+'"><label for ="' +_name+ '" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div><div><label for ="' +_reset_btn+ '" >Reset?</label> <input type="button" class="btn btn-sm btn-primary pull-right" id="'+_reset_btn+'" style="margin-right:40px"  onClick="toggleResetItem('+i+','+'\''+_name+'\');" /></div></div>';
   _nn+='<div class="row filtercontrol">';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
+  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Brightness<input id=\''+_brightness_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_brightness_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_brightness_name+'\' class="slider" style="background:green;"></div></div>';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
 if(hue >= 0) {
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
@@ -292,8 +322,8 @@ function _addFilters() {
    jQuery('.filtercontrol').show();
    for(i=0;i<propertyList.length;i++) {
      var p=propertyList[i];
-//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
-     _addFilter(p['itemID'],p['hue'],p['contrast']);
+//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100 } );
+     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness']);
    }
    myViewer.setFilterOptions({
      filters: filterList
@@ -339,17 +369,19 @@ function _addInvertFilter(ItemID) {
       });
 }
 
-function _addFilter(ItemID, angle, contrast) {
+function _addFilter(ItemID, angle, contrast, brightness) {
    var p=myViewer.world.getItemAt(ItemID);
    if(angle < 0) { // special case.. this is a RGB full colored image
      filterList.push( {
         items: [myViewer.world.getItemAt(ItemID) ],
-        processors: [ OpenSeadragon.Filters.CONTRAST(contrast)]
+        processors: [ OpenSeadragon.Filters.CONTRAST(contrast),
+                      OpenSeadragon.Filters.BRIGHTNESS(brightness) ]
      });
      } else {
        filterList.push( {
           items: [myViewer.world.getItemAt(ItemID) ],
           processors: [ OpenSeadragon.Filters.CONTRAST(contrast),
+                        OpenSeadragon.Filters.BRIGHTNESS(brightness),
                         OpenSeadragon.Filters.HUE(angle) ]
        });
    }
@@ -365,6 +397,18 @@ function _updateContrast(name, newContrast) {
      }
   }
   alertify.error("_updateContrast should never be here");
+}
+
+function _updateBrightness(name, newBrightness) {
+  for(i=0; i<propertyList.length; i++) {
+     if( propertyList[i]['cname'] == name) {
+       var _i=propertyList[i]['itemID'];
+       propertyList[i]['brightness']=newBrightness;
+       _addFilters();
+       return;
+     }
+  }
+  alertify.error("_updateBrightness should never be here");
 }
 
 
