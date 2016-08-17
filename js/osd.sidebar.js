@@ -25,6 +25,12 @@ function sidebar_control_slideOut() {
   jQuery('#controlMenu', jQuery('.navigationLi')).stop().animate({
     'marginLeft': '-2px'
   }, 200);
+
+/*
+  $('#controlMenu').on('mouseenter', 
+          function() { window.console.log("hovering here.."); });
+*/
+
 }
 
 function sidebar_control_slideIn() {

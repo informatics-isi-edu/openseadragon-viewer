@@ -57,8 +57,9 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
-jQuery(document).ready(function() {
+var DEBUG_MODE=false;
 
+jQuery(document).ready(function() {
 
 //process args
 //  var args = document.location.search.substring(1).split('?');
@@ -109,7 +110,8 @@ jQuery(document).ready(function() {
     alertify.error("Error: Need to supply an url");
   } else {
 
-    myViewer = OpenSeadragon({
+    if(enableEmbedded || DEBUG_MODE) { // 
+      myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
 //                   debugMode: true,
@@ -121,6 +123,22 @@ jQuery(document).ready(function() {
 //                   visibilityRatio:     1,
 
              });
+      } else {
+      myViewer = OpenSeadragon({
+                   id: "openseadragon",
+                   prefixUrl: "images/",
+//                   debugMode: true,
+                   showNavigator: true,
+                   showZoomControl: true,
+                   showHomeControl: true,
+                   showFullPageControl: true,
+                   navigationControlAnchor: OpenSeadragon.ControlAnchor.BOTTOM_RIGHT,
+                   constrainDuringPan: true,
+//                   visibilityRatio:     1,
+
+             });
+      myViewer.controls.bottomright.style.right = '50px';
+    }
 
     myViewer.scalebar({
 //            type: OpenSeadragon.ScalebarType.MICROSCOPY,
@@ -677,7 +695,9 @@ function jpgAllClick(fname) {
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
    if(!enableEmbedded) { // only when it is a standalone viewer
-     $('.annotorious-popup').css('display','none');
+     if(!DEBUG_MODE) {
+       $('.annotorious-popup').css('display','none');
+     }
    }
 //http://stackoverflow.com/questions/10932670/how-do-i-draw-the-content-of-div-on-html5-canvas-using-jquery
    html2canvas(document.body, {
@@ -712,7 +732,9 @@ function jpgAllClick(fname) {
        }
    });
    if(!enableEmbedded) { // only when it is a standalone viewer
-     $('.annotorious-popup').css('display','');
+     if(!DEBUG_MODE) {
+       $('.annotorious-popup').css('display','');
+     }
    }
 }
 

@@ -60,8 +60,9 @@ function setupAnnoUI() {
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
       var bElm = document.getElementById('osd-control-panel');
-      if(bElm)
-        bElm.style.display = '';
+      if(bElm && DEBUG_MODE) {
+          bElm.style.display = '';
+      }
       } else {
         // Hide the annotation editor aka the black box. Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
