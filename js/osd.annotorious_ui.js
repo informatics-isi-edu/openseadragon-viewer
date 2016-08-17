@@ -60,7 +60,7 @@ function setupAnnoUI() {
   if(!enableEmbedded) {
       /* enable control and annotations buttons */
       var bElm = document.getElementById('osd-control-panel');
-      if(bElm && DEBUG_MODE) {
+      if(bElm && typeof(RUN_FOR_DEBUG) !== "undefined") {
           bElm.style.display = '';
       }
       } else {

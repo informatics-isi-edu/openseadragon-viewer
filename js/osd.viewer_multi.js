@@ -57,8 +57,6 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
-var DEBUG_MODE=false;
-
 jQuery(document).ready(function() {
 
 //process args
@@ -110,7 +108,7 @@ jQuery(document).ready(function() {
     alertify.error("Error: Need to supply an url");
   } else {
 
-    if(enableEmbedded || DEBUG_MODE) { // 
+    if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") { // 
       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
@@ -695,9 +693,7 @@ function jpgAllClick(fname) {
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
    if(!enableEmbedded) { // only when it is a standalone viewer
-     if(!DEBUG_MODE) {
-       $('.annotorious-popup').css('display','none');
-     }
+      $('.annotorious-popup').css('display','none');
    }
 //http://stackoverflow.com/questions/10932670/how-do-i-draw-the-content-of-div-on-html5-canvas-using-jquery
    html2canvas(document.body, {
@@ -732,9 +728,7 @@ function jpgAllClick(fname) {
        }
    });
    if(!enableEmbedded) { // only when it is a standalone viewer
-     if(!DEBUG_MODE) {
-       $('.annotorious-popup').css('display','');
-     }
+     $('.annotorious-popup').css('display','');
    }
 }
 
