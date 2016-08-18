@@ -1,4 +1,2 @@
-
-
-// include this file if in want to run in debug mdoe
+// include this file if viewer is to run in debug mdoe
 var RUN_FOR_DEBUG=true;

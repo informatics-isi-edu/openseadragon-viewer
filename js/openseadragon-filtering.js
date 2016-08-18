@@ -227,6 +227,7 @@
     $.Filters = {
       //http://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently/3115178#3115178
        CONTRAST: function(factor) {
+window.console.log("XXX in CONTRAST filtering.");
             if (factor < -100 || factor > 100) {
                 throw new Error("CONTRAST factor must be within -100 to 100 range.");
             }
@@ -256,6 +257,7 @@
             };
         },
         HUE: function(angle) { 
+window.console.log("XXX in HUE filtering.");
             if (angle < 0) {
                 throw new Error("HUE angle be greater than 0.");
             }
@@ -314,6 +316,7 @@
             };
         },
         BRIGHTNESS: function(adjustment) {
+window.console.log("XXX in BRIGHTNESS filtering.");
             if (adjustment < -255 || adjustment > 255) {
                 throw new Error(
                         "Brightness adjustment must be between -255 and 255.");
@@ -433,6 +436,33 @@
                         imgData.data[offset + 2] = b;
                     }
                 }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+        NORMALIZE: function(minv, maxv) {
+window.console.log("XXX in NORMALIZE filtering.");
+            if (maxv < minv) {
+                throw new Error("NORMALIZE range must be greater than 0.");
+            }
+
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                        0, 0, context.canvas.width, context.canvas.height);
+                var max=0;
+                var min=0;
+                var pixels = imgData.data;
+
+                var deno=maxv - minv;
+
+                for (var i = 0; i < pixels.length; i += 1) {
+                   var P = pixels[i];
+                   var Pixel = P - minv / deno;
+                   pixels[i]=Pixel;
+                   if(P > max) max=P;
+                   if(P < min) min=P;
+                }
+window.console.log("max is", max,"min is",min);
                 context.putImageData(imgData, 0, 0);
                 callback();
             };

@@ -6,14 +6,21 @@
 
 var filterList = [];
 var showFilters = false;
+var resetMode=false;
 
 var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647']
 var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10 } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'normalize': [min, max] } );
 var propertyList = [];
 var initPropertyList=[]; // the initial property list
+
+function setupFiltering()
+{
+// initial setting fo initPropertyList
+  setTrackingPropertyList();
+}
 
 function isActive(elm) {
   if(elm.classList.contains("active")) {
@@ -87,8 +94,8 @@ function savePropertyList() {
    var plist=[];
    for(var i=0; i<propertyList.length; i++) {
      var p=propertyList[i];
-     window.console.log(p);
      var j=JSON.stringify(p,null,2);
+     window.console.log(j);
    }
    uploadFilteringPropertyList('filteringPropertyList', plist);
 }
@@ -135,10 +142,10 @@ function loadPropertyList(newPropertyList) {
 
 function testLoadingPropertyList() {
    var nList=[];
-   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100 };
-   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0 };
-   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50 };
-   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100 };
+   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, normalize: [0,1] };
+   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, normalize: [0,1] };
+   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, normalize: [0,1] };
+   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, normalize: [0,1] };
    
    nList.push(a); nList.push(aa); nList.push(aaa); nList.push(aaaa);
    loadPropertyList(nList);
@@ -156,7 +163,7 @@ function _RGBTohex(rgb) {
 function setupItemSliders(idx) {
   var p=propertyList[idx];
   var name=p['cname'];
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0 } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, normalize: [0,1] } );
   var _s='#'+name+'_opacity';
   var _sb=name+'_opacity_btn';
   var _c='#'+name+'_contrast';
@@ -306,7 +313,7 @@ function addItemListEntry(n,i,label,hue,contrast,brightness,opacity) {
   _nn+='<div class="row filtercontrol">';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Brightness<input id=\''+_brightness_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_brightness_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_brightness_name+'\' class="slider" style="background:green;"></div></div>';
-  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
+  _nn+='<div class="col-md-12 filter-slider" style="display:none"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
 if(hue >= 0) {
   _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
   } else { // this is a combo or unknown type --> rgb
@@ -322,8 +329,8 @@ function _addFilters() {
    jQuery('.filtercontrol').show();
    for(i=0;i<propertyList.length;i++) {
      var p=propertyList[i];
-//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100 } );
-     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness']);
+//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100, 'normalize':[0,1]] } );
+     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness'],p['normalize']);
    }
    myViewer.setFilterOptions({
      filters: filterList
@@ -369,20 +376,32 @@ function _addInvertFilter(ItemID) {
       });
 }
 
-function _addFilter(ItemID, angle, contrast, brightness) {
+function _addFilter(ItemID, angle, contrast, brightness, normval) {
    var p=myViewer.world.getItemAt(ItemID);
+
+   // get the initial(stored) filter list, 
+   // skip the one that remained the same
+   var plist=[];
+   var initIdx=findPropertyByItemId(initPropertyList, ItemID);
+   if(initIdx ==null) {
+     window.console.log("PANIC..");
+     return;
+   }
+   if(resetMode || initPropertyList[initIdx]['contrast']!=contrast)
+     plist.push(OpenSeadragon.Filters.CONTRAST(contrast));
+   if(resetMode || initPropertyList[initIdx]['brightness']!=brightness)
+     plist.push(OpenSeadragon.Filters.BRIGHTNESS(brightness));
    if(angle < 0) { // special case.. this is a RGB full colored image
      filterList.push( {
         items: [myViewer.world.getItemAt(ItemID) ],
-        processors: [ OpenSeadragon.Filters.CONTRAST(contrast),
-                      OpenSeadragon.Filters.BRIGHTNESS(brightness) ]
+        processors: plist
      });
-     } else {
+     } else { 
+//       plist.push(OpenSeadragon.Filters.INVERT());
+       plist.push(OpenSeadragon.Filters.HUE(angle));
        filterList.push( {
           items: [myViewer.world.getItemAt(ItemID) ],
-          processors: [ OpenSeadragon.Filters.CONTRAST(contrast),
-                        OpenSeadragon.Filters.BRIGHTNESS(brightness),
-                        OpenSeadragon.Filters.HUE(angle) ]
+          processors: plist
        });
    }
 }
@@ -449,6 +468,18 @@ function _updateOpacity(name, newOpacity) {
   alertify.error("_updateOpacity should never be here");
 }
 
+function findPropertyByItemId(plist, item) {
+  var _ii=initPropertyList;
+  var _pp=propertyList;
+  for(var i=0; i<plist.length; i++) {
+    var tmp=plist[i];
+    if(item == tmp.itemID) {
+      return i;
+    }
+  }
+  return null;
+}  
+
 function toggleResetItem(itemID, itemLabel) {
   var item=myViewer.world.getItemAt(itemID);
   /* reset the current set to the initial set */
@@ -476,7 +507,9 @@ window.console.log("bad panic..",propertyList.length," - ", initPropertyList.len
   updateItemSliders(s);
   // redraw the image
   _clearFilters();
+  resetMode=true;
   _addFilters();
+  resetMode=false;
 }
 
 /* 0 , 1 */

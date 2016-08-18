@@ -177,6 +177,8 @@ Currently supported property values are:
        url=logURL[i];
        _addURLLayer(url,i);
     }
+    // setup the filtering's tracking
+    setupFiltering();
 
     // if logX, logY, logZoom are not null
     if( (logX != null) && (logY != null) && (logZoom !=null)) {
@@ -305,6 +307,8 @@ function _addURLLayer(url, i) {
     var _dir=r['dir'];
     var _format=r['format'];
     var _meterscaleinpixels=r['meterscaleinpixels'];
+    var _minvalue=r['minvalue'];
+    var _maxvalue=r['maxvalue'];
     var _realMin=_minLevel;
 //this is needed because there is no level 0
     if(_minLevel != 0)
@@ -354,7 +358,7 @@ function _addURLLayer(url, i) {
      myViewer.addTiledImage( options );
      addItemListEntry(_name,i,_dir,hue,contrast,brightness,op);
      var cname = _name.replace(/ +/g, "");
-     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness } );
+     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'normalize': [_minvalue, _maxvalue] } );
      resetScalebar(_meterscaleinpixels);
    }
 }
@@ -604,7 +608,6 @@ function extractInfo(str) {
   if(_format == null)
      _format="jpg"; // default
 
-
   var _channelname=imageElem[0].getAttribute("channelName");
   if(_channelname == null)
      alertify.error("Error: DZI image must have a channel name even if unknown");
@@ -623,6 +626,16 @@ function extractInfo(str) {
      _msip=parseFloat(_msip);
      else _msip=0;
 
+  var _minv=imageElem[0].getAttribute("minValue");
+  if(_minv != null)
+     _minv=parseFloat(_minv);
+     else _minv=0.0;
+
+  var _maxv=imageElem[0].getAttribute("maxValue");
+  if(_maxv != null)
+     _maxv=parseFloat(_maxv);
+     else _maxv=1.0;
+
 
   if(_h == null || _w == null || _tw == null || _th == null ||
         _scale == null || _min == null || _max == null ||
@@ -634,7 +647,7 @@ function extractInfo(str) {
             'minlevel':_min,'maxlevel':_max, 'overlap':_overlap,
             'channelname':_channelname, 'channelalpha':_channelalpha,
             'channelrgb':_channelrgb,'dir':_dir, 'format':_format,
-            'meterscaleinpixels':_msip};
+            'meterscaleinpixels':_msip, 'minvalue':_minv, 'maxvalue':_maxv};
 }
 
 
