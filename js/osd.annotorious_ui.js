@@ -6,7 +6,8 @@
 
 var enableEmbedded = false;
 if (window.self !== window.top) {
-    enableEmbedded = true;
+  var $iframe_parent_div = window.frameElement ? $(window.frameElement.parentNode) : null;
+  if (!$iframe_parent_div || !$iframe_parent_div.is(':visible')) enableEmbedded = true;
 }
 
 /* from annotorious.js
@@ -64,6 +65,9 @@ function setupAnnoUI() {
           bElm.style.display = '';
       }
       } else {
+        var bElm = document.getElementById('osd-control-panel-mini');
+        if(bElm)
+          bElm.style.display = '';
         // Hide the annotation editor aka the black box. Editing will occur in Chaise.
         var styleSheet = document.styleSheets[document.styleSheets.length-1];
         styleSheet.insertRule('.annotorious-editor { display:none }', 0);
