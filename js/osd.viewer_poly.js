@@ -1,25 +1,31 @@
 
 /* run :
 
-  http://localhost/tiletiff/polyview.html?
+  http://localhost/tiletiff/pview.html?
          http://localhost/tiletiff/data/DZI/ImageProperties.xml
        or
 or
-  http://localhost/tiletiff/polyview.html?
+  http://localhost/tiletiff/pview.html?
          http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
          &x=0.123&y=1.234&m=2.5
 or
-  http://localhost/tiletiff/polyview.html?
+  http://localhost/tiletiff/pview.html?
          url=http://localhost/tiletiff/data/first_dzi/ImageProperties.xml
          &url=http://localhost/tiletiff/data/second_dzi/ImageProperties.xml
          &url=http://localhost/tiletiff/data/third_dzi/ImageProperties.xml
 
-http://localhost/tiletiff/polyview.html?
+http://localhost/tiletiff/pview.html?
  url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml
 (the ImageProperties.xml should be used for our application by default)
+
+to bring in another annotator's data xml, (specific to a particular one..)
+http://localhost/tiletiff/pview.html?
+url=http://localhost/data/otherAnnotator/DZI/Brigh/ImageProperties.xml&
+url=http://localhost/data/otherAnnotator/AnnotationData.xml
+
 */
 
 var myViewer=null;
