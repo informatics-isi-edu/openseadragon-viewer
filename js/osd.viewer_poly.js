@@ -1,20 +1,20 @@
 
 /* run :
 
-  http://localhost/tiletiff/mview.html?
+  http://localhost/tiletiff/polyview.html?
          http://localhost/tiletiff/data/DZI/ImageProperties.xml
        or
 or
-  http://localhost/tiletiff/mview.html?
+  http://localhost/tiletiff/polyview.html?
          http://localhost/tiletiff/data/sample3_DZI/ImageProperties.xml
          &x=0.123&y=1.234&m=2.5
 or
-  http://localhost/tiletiff/mview.html?
+  http://localhost/tiletiff/polyview.html?
          url=http://localhost/tiletiff/data/first_dzi/ImageProperties.xml
          &url=http://localhost/tiletiff/data/second_dzi/ImageProperties.xml
          &url=http://localhost/tiletiff/data/third_dzi/ImageProperties.xml
 
-http://localhost/tiletiff/mview.html?
+http://localhost/tiletiff/polyview.html?
  url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml
  &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml
@@ -172,13 +172,21 @@ Currently supported property values are:
 */
 //  anno.setProperties({ 'outline' : 'purple' }); 
 
-// XXX for poly
-    anno.addPlugin('PolygonSelector', { activate: true });
+// XXX for poly, anno.addPlugin('PolygonSelector', { activate: true });
 
     }
     for( i=0; i<logURL.length; i++) {
        url=logURL[i];
-       _addURLLayer(url,i);
+        
+       if(url.indexOf('ImageProperties.xml')!= -1) {
+         _addURLLayer(url,i);
+         } else {  // accepting other annotator's annotation data in XML
+           if(url.indexOf('AnnotationData.xml')!= -1) {
+             _addDataLayer(url,i);
+             } else {
+                alertify.error("URL needs to be either ImageProperties.xml or AnnotationData.xml");
+           }
+       }
     }
     // setup the filtering's tracking
     setupFiltering();
@@ -214,12 +222,11 @@ Currently supported property values are:
       }
     });
 */
-/* -- this is to test access to pixels on the viewport location 
+/* -- this is to test access to pixels on the viewport location */
     myViewer.addHandler('canvas-click', function(target) {
 window.console.log('canvas got clicked..');
       pointIt(target);
     });
-*/
 
     // only overlays that are being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
@@ -365,6 +372,17 @@ function _addURLLayer(url, i) {
      resetScalebar(_meterscaleinpixels);
    }
 }
+
+
+function _addDataLayer(url, i) {
+  var e = ckExist(url);
+  if(e==null) {
+    alertify.error("Error: Unable to load url, "+url);
+    return;
+  }
+  extractDataXML(e);
+}
+
 
 function pointIt(target) {
   if(myViewer === null) {
@@ -548,7 +566,7 @@ function goPositionByBounds(_X,_Y,_width,_height) {
 function ckExist(url) {
   var http = new XMLHttpRequest();
   http.onload = function () {
-    window.console.log(http.responseText);
+//    window.console.log(http.responseText);
   }
   http.open("GET", url, false);
   http.send(null);
@@ -696,6 +714,7 @@ function jpgClick(fname) {
    }
 }
 
+// download everything on the canvas including the annotations..
 function jpgAllClick(fname) {
    var dname=fname;
    if(dname == null) {
@@ -860,7 +879,8 @@ function unmarkSpecial() { isSpecialAnnotation=false; }
 function markHidden() { isHiddenAnnotation=true; }
 function unmarkHidden() { isHiddenAnnotation=false; }
 
-// reuse the calls to be like annotorious_ui's
+// reuse the calls to be like annotorious_ui's 
+// make an annotation 'special'
 function specialClick() {
    var stog = document.getElementById('special-toggle');
    if(isSpecialAnnotation) {
@@ -898,7 +918,7 @@ function hiddenClick() {
    }
 }
 
-var toggle=true;
+var TESTtoggle=true;
 // dump some info
 function testClick() {
   var vCenter = myViewer.viewport.getCenter(true);
@@ -910,12 +930,12 @@ function testClick() {
   window.console.log("           bounds:"+vBounds.toString());
 
   annoChk();
-  if(toggle) {
+  if(TESTtoggle) {
     annoHideAllAnnotations();
     } else {
     annoShowAllAnnotations();
   }
-  toggle=!toggle;
+  TESTtoggle=!TESTtoggle;
 }
 
 function resetScalebar(value)

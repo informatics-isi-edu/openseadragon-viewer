@@ -102,6 +102,9 @@
     padding:15px 16px;
 }
 
+#osd-overlay-button {
+    right:740px;
+}
 #osd-saveAnno-button {
     right:690px;
 }
