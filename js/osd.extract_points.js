@@ -114,16 +114,33 @@ function xmlToJson(xml) {
 function addAShape(_d,_xscale,_yscale) {
   var _ad=_d['@attributes'];
   var _color=_ad['color'];
+  var _closed=_ad['closed'];
   var _dpoints=_d['point'];
 
   var _dlist=[];
   _dpoints.forEach(function( item ) {
      _dlist.push(item['@attributes']);
   });
+  var _dproperties=_d['property'];
+  var _plist=[];
+  _dproperties.forEach(function( item ) {
+     var klist=Object.keys(item);
+     var _ap=item['@attributes']; 
+     var _label=_ap['name'];
+     var _nl=klist[1];
+     var _n=item[_nl];
+     var _nn=JSON.stringify(_n);
+     var _sn=JSON.stringify(item);
+     _plist.push({name:_label, value:_sn});
+  });
+
+  // properties
 
   saveOverlayShapes.push({ xscale:_xscale,
                          yscale:_yscale,
                          color:_color,
+                         closed:_closed,
+                         property:_plist,
                          points:_dlist });
 }
 

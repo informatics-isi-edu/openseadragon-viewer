@@ -9,8 +9,10 @@
   http://localhost/tiletiff/mview.html?
          url=http://localhost/tiletiff/data/someImage.jpg&
          channelName='combo'&
+         aliasName='redData'&
          url=http://localhost/tiletiff/data/anotherImage.jpg&
          channelName='DAPI'&
+         aliasName='otherData'&
          meterScaleInPixels=378417.96875
 
 common colors,
@@ -35,6 +37,7 @@ var logZoom=null;
 var logHeader=null;
 var logURL=[];
 var logCHANNELNAME=[];
+var logALIASNAME=[];
 
 var saveAnnoDiv=null;
 var saveHistoryTitle=null;
@@ -91,6 +94,12 @@ jQuery(document).ready(function() {
                 || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                  str=str.substr(1,str.length-2);
               logCHANNELNAME.push(str);
+            } else if(kvp[0].trim() == 'aliasName') {
+              var str=kvp[1].trim(); // trim the ' or "
+              if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+                || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
+                 str=str.substr(1,str.length-2);
+              logALIASNAME.push(str);
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
@@ -190,9 +199,14 @@ Currently supported property values are:
 //  anno.addPlugin('PolygonSelector', { activate: true });
 
     }
-    for( i=0; i<logURL.length; i++) {
-       url=logURL[i];
-       _addURLLayer(url,i,logCHANNELNAME[i]);
+    var _alen=logALIASNAME.length; 
+    var _ulen=logURL.length;
+    for( i=0; i<_ulen; i++) {
+       var url=logURL[i];
+       var alias=null;
+       if(_alen==_ulen) 
+         alias=logALIASNAME[i];
+       _addURLLayer(url,i,logCHANNELNAME[i],alias);
     }
     // setup the filtering's tracking
     setupFiltering();
@@ -328,7 +342,7 @@ function layerId4URL(url) {
     data=""
 />
 ****/
-function _addURLLayer(url, i, channelname) {
+function _addURLLayer(url, i, channelname, aliasname) {
 
     var r= {
            channelname:channelname,
@@ -338,12 +352,10 @@ function _addURLLayer(url, i, channelname) {
            tilewidth:1024,
            tileheight:1024 };
 
-    var _name=r['channelname'];
-    var _alpha=r['alpha'];
-    var _rgb=r['rgb'];
-    var _tileWidth=r['tilewidth'];
-    var _tileHeight=r['tileheight'];
-    var _dir=r['dir'];
+    var _name=channelname;
+    var _alpha=null;
+    var _rgb=null;
+    var _dir=".";
 
     var op=presetOpacity(_alpha,i);
     var hue=presetHue(_rgb,_name);
@@ -361,6 +373,9 @@ function _addURLLayer(url, i, channelname) {
     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op);
     var cname = _name.replace(/ +/g, "");
     var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'normalize': [0,1] }; 
+    if(aliasname != null) {
+      p['name']= aliasname;
+    }
     var pp=JSON.stringify(p);
 window.console.log("new property list is..",pp);
     propertyList.push(p);
