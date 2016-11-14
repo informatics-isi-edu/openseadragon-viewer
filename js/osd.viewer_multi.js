@@ -172,8 +172,8 @@ Currently supported property values are:
 */
 //  anno.setProperties({ 'outline' : 'purple' }); 
 
-// XXX for poly
-    anno.addPlugin('PolygonSelector', { activate: true });
+// for annotorious polygon
+//    anno.addPlugin('PolygonSelector', { activate: true });
 
     }
     for( i=0; i<logURL.length; i++) {

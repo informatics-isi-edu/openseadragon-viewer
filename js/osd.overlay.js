@@ -26,12 +26,22 @@ function convertData(a,_xscale,_yscale) {
 
 function getRandom() { return Math.random(); }
 
-function calcFontSize(fs) {
+function calcFromPixel(fs) {
+window.console.log("calcFrompixel..", fs);
   var pos1= new OpenSeadragon.Point(0,0);
   var vPt1 = myViewer.viewport.pointFromPixel(pos1);
   var pos2= new OpenSeadragon.Point(fs,0);
   var vPt2 = myViewer.viewport.pointFromPixel(pos2);
-  return Math.abs(vPt2.x - vPt1.x);
+  var p=Math.abs(vPt2.x - vPt1.x);
+window.console.log("new val is", p);
+  return p;
+}
+
+function calcThickness(t,xscale) {
+   window.console.log("XXX--", t);
+   var pp=calcFromPixel(parseFloat(t)*xscale);
+   window.console.log(pp);
+   return pp;
 }
 
 function overlayClick() {
@@ -48,13 +58,13 @@ function overlayClick() {
         var slen=saveOverlayShapes.length;
         for(var i=0;i<slen;i++) {
            var name="myShapes"+i;
-           var _thickness=0.01;
            var _set=saveOverlayShapes[i];
            var xscale=parseFloat(_set['xscale']);
            var yscale=parseFloat(_set['yscale']);
            var color=_set['color'];
            var points=_set['points'];
            var ndata=convertData(points,xscale,yscale);
+           var _thickness=calcThickness(points[0].d, xscale);
            if(points.length>2) {
              addPolygonOverlays(name,ndata,_thickness,color);
            } else {
@@ -76,7 +86,7 @@ function overlayClick() {
           var fontType=_set['fontType'];
           // need to convert from pixel to viewport distance
           var fontSize=parseInt(_set['fontSize']);
-          fontSize=calcFontSize(fontSize);
+          fontSize=calcFromPixel(fontSize);
           var text=_set['text'];
           var d=ndata[0];
           addTextOverlays(name,d.x,d.y,text,color,fontType,fontSize);

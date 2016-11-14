@@ -140,6 +140,19 @@ function loadPropertyList(newPropertyList) {
   _updateSliders();
 }
 
+function makeSimpleProperty(name, cname, id) {
+
+   var simpleP= { name: name,
+                  cname: cname,
+                  itemID: id,
+                  opacity: 1,
+                  hue: xx,
+                  contrast: xx,
+                  brightness: 100,
+                  normalize: [0,1] };
+   return simpleP;
+}
+
 function testLoadingPropertyList() {
    var nList=[];
    var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, normalize: [0,1] };
@@ -172,6 +185,7 @@ function setupItemSliders(idx) {
   var _bb=name+'_brightness_btn';
   var _h='#'+name+'_hue';
   var _hb=name+'_hue_btn';
+
   var sbtn=document.getElementById(_sb);
   jQuery(_s).slider({
       slide: function( event, ui ) {
@@ -186,6 +200,7 @@ function setupItemSliders(idx) {
   jQuery(_s).slider("option", "step", 0.1);
 
   var cbtn=document.getElementById(_cb);
+  cbtn.value=p['contrast'];
   jQuery(_c).slider({
       slide: function( event, ui ) {
         cbtn.value=ui.value;
@@ -199,6 +214,7 @@ function setupItemSliders(idx) {
   jQuery(_c).slider("option", "step", 2);
 
   var bbtn=document.getElementById(_bb);
+  bbtn.value=p['brightness'];
   jQuery(_b).slider({
       slide: function( event, ui ) {
         bbtn.value=ui.value;

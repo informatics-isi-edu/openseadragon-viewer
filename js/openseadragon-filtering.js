@@ -67,7 +67,12 @@
             }
             var tile = event.tile;
             var image = event.image;
-            if (image !== null) {
+
+window.console.log("In tileloadedHandler..");
+if(image===undefined)
+  window.console.log("image is not defined!!");
+
+            if (image !== undefined && image !== null) {
                 var canvas = document.createElement('canvas');
                 canvas.width = image.width;
                 canvas.height = image.height;
