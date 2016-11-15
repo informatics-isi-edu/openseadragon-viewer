@@ -148,13 +148,14 @@ jQuery(document).ready(function() {
       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-//                   debugMode: true,
+                   debugMode: true,
                    showNavigator: true,
                    showZoomControl: true,
                    showHomeControl: true,
                    showFullPageControl: true,
                    navigationControlAnchor: OpenSeadragon.ControlAnchor.BOTTOM_RIGHT,
                    constrainDuringPan: true,
+//buildPyramid: false,
 //                   visibilityRatio:     1,
 
              });
@@ -286,10 +287,7 @@ window.console.log('canvas got clicked..');
 
     myViewer.world.addHandler('add-item', function openHandler() {
 // when propertyList matches with total cnt..
-window.console.log("calling add-item handler..");
        if( propertyList.length == myViewer.world.getItemCount()) {
-//         myViewer.world.removeHandler('add-item', openHandler);
-window.console.log("calling resetScalebar in add-item..");
          resetScalebar(save_meterscaleinpixels);
          showFilters=true;
          _addFilters();

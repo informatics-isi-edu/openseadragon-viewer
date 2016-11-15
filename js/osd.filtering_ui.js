@@ -304,7 +304,7 @@ window.onload = function() {
 }
 
 // squeeze out all spaces in name
-function addItemListEntry(n,i,label,hue,contrast,brightness,opacity) {
+function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity) {
   var name = n.replace(/ +/g, "");
   var _name=n;
   var _visible_name=i+'_visible';
@@ -509,8 +509,8 @@ window.console.log("bad panic..",propertyList.length," - ", initPropertyList.len
   for(var i=0; i<propertyList.length; i++) {
     stmp=initPropertyList[i];
     dtmp=propertyList[i];
-    if(itemLabel == stmp.name) { s=i; }
-    if(itemLabel == dtmp.name) { d=i; }
+    if(itemLabel == stmp.cname) { s=i; }
+    if(itemLabel == dtmp.cname) { d=i; }
     if(s!=null && d!=null ) {
       break;
     }
