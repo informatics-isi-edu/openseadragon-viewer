@@ -149,14 +149,14 @@ jQuery(document).ready(function() {
                    id: "openseadragon",
                    prefixUrl: "images/",
 //                   debugMode: true,
-                   showNavigator: true,
-                   showZoomControl: true,
-                   showHomeControl: true,
+                   showNavigator: false,
+                   showZoomControl: false,
+                   showHomeControl: false,
                    showFullPageControl: true,
                    navigationControlAnchor: OpenSeadragon.ControlAnchor.BOTTOM_RIGHT,
                    constrainDuringPan: true,
 //buildPyramid: false,
-//                   visibilityRatio:     1,
+                   visibilityRatio:     0.5,
 
              });
       myViewer.controls.bottomright.style.right = '50px';
