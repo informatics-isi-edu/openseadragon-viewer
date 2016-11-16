@@ -148,7 +148,7 @@ jQuery(document).ready(function() {
       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
-                   debugMode: true,
+//                   debugMode: true,
                    showNavigator: true,
                    showZoomControl: true,
                    showHomeControl: true,
