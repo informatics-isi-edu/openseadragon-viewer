@@ -279,7 +279,7 @@ window.onload = function() {
 }
 
 // squeeze out all spaces in name
-function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity) {
+function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,alias=null) {
   var name = n.replace(/ +/g, "");
   var _name=n;
   var _collapse_name=i+'_collapse';
@@ -304,7 +304,10 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity) {
 
 _nn+=' <div class="panel panel-default" > <input type="checkbox" id="'+_visible_name+'" class="pull-left" checked="" style="margin:10px"  onClick="toggleItem('+i+',\''+name+'\')" />';
 
-_nn+=' <div class="panel-heading"> <h5 class="panel-title" style="font-size:14px;"><a data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'">'+name+'</a> </h5> </div>';
+ var aname=name;
+ if(alias != null)
+   aname=alias;
+_nn+=' <div class="panel-heading"> <h5 class="panel-title" style="font-size:14px;"><a data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'">'+aname+'</a> </h5> </div>';
 
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 

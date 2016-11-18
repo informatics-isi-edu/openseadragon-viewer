@@ -368,7 +368,7 @@ function _addURLLayer(url, i, channelname, aliasname) {
                   };
     myViewer.addTiledImage( options );
 
-    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op);
+    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,aliasname);
     var cname = _name.replace(/ +/g, "");
     var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'normalize': [0,1] }; 
     if(aliasname != null) {
