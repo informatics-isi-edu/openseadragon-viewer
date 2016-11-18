@@ -64,12 +64,21 @@
 }
 
 
+.navigation-bottomleft {
+        background-color: #ccc;
+        opacity: 0.8;
+	position: fixed;
+	padding: 0px;
+        bottom: 0px;
+	left: 0px;
+	list-style: none;
+	z-index: 9999;
+}
 .navigation {
         background-color: #ccc;
         opacity: 0.8;
 	position: fixed;
 	padding: 0px;
-/*	bottom: 0px; */
 	left: 0px;
 	list-style: none;
 	z-index: 9999;

@@ -34,7 +34,9 @@ function isActive(elm) {
 function ctrlClick()
 {
   var nav = document.getElementById('nav-toggle');
+window.console.log("nav is active..",isActive(nav));
   nav.classList.toggle( "active" );
+window.console.log("and now nav is active..",isActive(nav));
   if(isActive(nav)) {
     sidebar_control_slideOut();
 //enable just for mei, testLoadingPropertyList();
