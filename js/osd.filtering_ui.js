@@ -273,40 +273,16 @@ window.console.log("in updateItemSliders..", p);
 
 
 window.onload = function() {
-  if (propertyList && propertyList.length < 2 && propertyList.length>0) {
-      jQuery('#itemList').prepend('<h5>'+propertyList[0].name+'</h5>');
-  }
-
-  var dropdown = document.getElementById('channels-list');
-  var channels = '';
   for (var i = 0; i < propertyList.length; i++) {
-    channels += '<option value="' + propertyList[i].cname + '">' + propertyList[i].name + '</option>';
     setupItemSliders(i);
   }
-  dropdown.innerHTML = channels;
-
-  $('.channel').hide();
-  $('.channel').eq(0).show();
-  var numChannels = $('.channel').length;
-  if (numChannels < 2) {
-    $('#channels-list').hide();
-// suppress the visibility check-button if here is just 1 channel
-    var _visible_name='0_visible'; // should only have one
-    var v = document.getElementById(_visible_name);
-    v.style.display='none';
-  }
-
-  $('#channels-list').change(function() {
-    var channel = $('#channels-list').find('option:selected').val();
-    $('.channel').hide();
-    $('#'+channel).show();
-  });
 }
 
 // squeeze out all spaces in name
 function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity) {
   var name = n.replace(/ +/g, "");
   var _name=n;
+  var _collapse_name=i+'_collapse';
   var _visible_name=i+'_visible';
   var _reset_name=name+'_reset';
   var _reset_btn=name+'_reset_btn';
@@ -325,18 +301,37 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity) {
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-  _nn+='<div id="' +name+ '" class="row channel"><div class="col-md-12 item "><div class="data" style="font-size:small;letter-spacing:1px;"><div id="'+_visible_name+'"><label for ="' +_name+ '" >Visible?</label> <input type="checkbox" class="pull-right" id="'+_name+'" checked="" style="margin-right:40px"  onClick="toggleItem('+i+','+'\''+_name+'\');" /></div><div><label for ="' +_reset_btn+ '" >Reset?</label> <input type="button" class="btn btn-sm btn-primary pull-right" id="'+_reset_btn+'" style="margin-right:40px"  onClick="toggleResetItem('+i+','+'\''+_name+'\');" /></div></div>';
-  _nn+='<div class="row filtercontrol">';
-  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Contrast<input id=\''+_contrast_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_contrast_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_contrast_name+'\' class="slider" style="background:yellow;"></div></div>';
-  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Brightness<input id=\''+_brightness_btn+'\' type="button" class="btn btn-info pull-right"  value=\''+_brightness_init_value+'\' style="color:black; background:white; height:16px; width:24px; font-size:12px; padding:0px;"></div><div id=\''+_brightness_name+'\' class="slider" style="background:green;"></div></div>';
-  _nn+='<div class="col-md-12 filter-slider" style="display:none"><div class="menuLabel">Opacity<input id=\''+_opacity_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_opacity_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div id=\''+_opacity_name+'\' class="slider" style="background:grey;"></div></div>';
+
+_nn+=' <div class="panel panel-default" > <input type="checkbox" id="'+_visible_name+'" class="pull-left" checked="" style="margin:10px"  onClick="toggleItem('+i+',\''+name+'\')" />';
+
+_nn+=' <div class="panel-heading"> <h5 class="panel-title" style="font-size:14px;"><a data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'">'+name+'</a> </h5> </div>';
+
+_nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
+
+_nn+= ' <div id="'+name+ '" class="row"> <button id="'+_reset_btn+ '" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:14px;margin-right:20px">Reset</button><div class="filtercontrol">';
+
+//contrast slider...
+_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:yellow;"> </div> </div>';
+
+//brightness slider...
+_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:green;"> </div> </div>';
+
+// opacity slider... disable by default 
+_nn+= '<div class="col-md-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_name+'" class="slider" style="background:grey;"> </div> </div>';
+
+
+//hue slider
 if(hue >= 0) {
-  _nn+='<div class="col-md-12 filter-slider"><div class="menuLabel">Hue<input id=\''+_hue_btn+'\' type="button" class="btn btn-info pull-right" value=\''+_hue_init_value+'\' style="color:black; background:white; height:16px; width:24px; margin-left:10px; font-size:12px; padding:0px;"></div><div class="slider h-slider" id=\''+_hue_name+'\'></div></div></div>';
-  } else { // this is a combo or unknown type --> rgb
+_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Hue<input id="'+ _hue_btn+'" type="button" class="btn btn-info pull-right" value="240" style="color:black; background:white; height:16px; width:30px; margin-left:10px; font-size:12px; padding:0px;"> </div> <div class="slider h-slider" id="'+ _hue_name+'"> </div> </div>';
+} else { 
+// this is a combo or unknown type --> rgb 
 }
-  _nn+='</div></div></div>';
+
+// last bits
+_nn+= '</div> </div> </div> <!-- panel-body --> </div> </div> <!-- panel -->';
+
   jQuery('#itemList').append(_nn);
-// window.console.log(_nn);
+window.console.log(_nn);
 }
 
 // this is called when any of the hue/contrast slider got touched

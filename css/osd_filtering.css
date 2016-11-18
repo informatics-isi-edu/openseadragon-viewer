@@ -57,7 +57,7 @@ h3.page-header {
 
 #itemList {
    color: black;
-   margin-left: 10px;
+   margin: 0px; 
 }
 
 #itemList .item {
@@ -78,7 +78,8 @@ h3.page-header {
 }
 
 .filtercontrol {
-     padding-bottom: 4px;
+     padding: 0px;
+     width: 250px;
 }
 
 .filtercontrol .filter-slider {
@@ -171,3 +172,17 @@ h3.page-header {
 #nav-toggle.active span:after {
   transform: rotate(-45deg);
 }
+
+.panel-body {
+   background-color: transparent;
+   overflow: hidden;
+}
+
+.panel {
+   background-color: transparent;
+   color:black;
+}
+.panel-title {
+   background-color: transparent;
+}
+

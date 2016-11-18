@@ -168,13 +168,6 @@
     background-image: url(../images/feather_pressed.png);
 }
 
-.panel-body {
-   background-color: green;
-   margin-left: 10px;
-   max-height: 10;
-   overflow-y: scroll;
-}
-
 #annotations-list {
    width: 85%;
    margin-top: 5px;

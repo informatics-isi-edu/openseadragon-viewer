@@ -2,14 +2,13 @@
 <meta charset="utf-8">
 <html>
 <head>
-<title> 2D+ simple viewer </title>
+<title> 2D+ really simple viewer </title>
 
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.min.css" rel="stylesheet">
 <link href="css/viewer.css" rel="stylesheet">
 <link href="css/osd_viewer.css" rel="stylesheet">
-<link href="css/osd_filtering.css" rel="stylesheet">
 
 <script type="text/javascript" src="js/jquery.js"> </script>
 <script type='text/javascript' src='js/jquery-ui.min.js'></script>
@@ -43,6 +42,7 @@
 
 <link href="css/osd_sidebar.css" rel="stylesheet">
 <script type='text/javascript' src='js/osd.sidebar.js'></script>
+<link href="css/osd_filtering.css" rel="stylesheet">
 </head>
 
 <body>
@@ -51,16 +51,15 @@
   <div id="viewer">
     <div id="openseadragon" class="openseadragon" style="background-color:black;border:none"></div>
 
-<ul class='navigation'>
+<ul class='navigation' style='opacity:0.6'>
 <!-- for filtering control -->
-  <li id='control' class='navigationLi' style='display:none;'><div id='controlMenu' class='menu' style='margin-bottom:20px'>
-    <div id='controlTabs' class='tabbox idTabs'>
-      <div id='controlLabel' class='menuLabel' style='margin:10px;'>Channel(s)</div>
-      <div id='itemList' style='width:100%;' class='row'>
-          <select id="channels-list" name="channels-list"></select>
-      </div>
+  <li id='control' class='navigationLi' style='display:none;'>
+    <div id='controlMenu' class='menu' style='margin-bottom:20px;'>
+      <div id='controlLabel' class='menuLabel' style='margin:10px;margin-right:40px; font-size:16px;color:black'>Channel(s)</div>
+<!-- filering items are added to here.. -->
+      <div id='itemList' class='panel-group row' style="background-color:transparent"> </div>
     </div>
-  </div></li>
+  </li>
 <!-- for annotation listing control -->
   <li id='annotations' class='navigationLi' style='display:none;'><div id='annoMenu'  class='menu'>
     <div id='annotationTabs' class='row'>
@@ -71,7 +70,7 @@
   </div></li>
 </ul>
     <div id="osd-control-panel-mini">
-      <button id="osd-control-button" title="Channel filtering" class="btn btn-default osd-control-btn" style="bottom:10px;right:10px;" onclick="ctrlClick()"/>
+      <button id="osd-control-button" title="Channel filtering" class="btn btn-default osd-control-btn" style="bottom:10px;right:10px;opacity:0.6;" onclick="ctrlClick()"/>
              <a id="nav-toggle" href="#"><span></span></a></button>
     </div>
     <div id="osd-control-panel" style="display:none;">
