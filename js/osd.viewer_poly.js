@@ -136,12 +136,12 @@ jQuery(document).ready(function() {
                    showZoomControl: true,
                    showHomeControl: true,
                    showFullPageControl: true,
-                   navigationControlAnchor: OpenSeadragon.ControlAnchor.BOTTOM_RIGHT,
+                   navigationControlAnchor: OpenSeadragon.ControlAnchor.TOP_LEFT,
                    constrainDuringPan: true,
 //                   visibilityRatio:     1,
 
              });
-      myViewer.controls.bottomright.style.right = '50px';
+      myViewer.controls.topleft.style.left = '100px';
     }
 
     myViewer.scalebar({
@@ -149,7 +149,7 @@ jQuery(document).ready(function() {
             type: OpenSeadragon.ScalebarType.MAP,
             pixelsPerMeter: 0,
             minWidth: "75px",
-            location: OpenSeadragon.ScalebarLocation.TOP_LEFT,
+            location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
             xOffset: 5,
             yOffset: 10,
             stayInsideImage: true,

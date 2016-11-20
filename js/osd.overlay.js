@@ -48,7 +48,7 @@ function overlayClick() {
    var otog = document.getElementById('overlay-toggle');
    overlayToggle = !overlayToggle;
    if(overlayToggle) {
-      otog.style.color='yellow';
+      otog.style.color='blue';
       if(overlayLoaded) { // just load it once
         enableAllOverlays();
         return;
@@ -94,7 +94,7 @@ function overlayClick() {
       }
       } else {
         disableAllOverlays();
-        otog.style.color='blue';
+        otog.style.color='black';
    }
 }
 
