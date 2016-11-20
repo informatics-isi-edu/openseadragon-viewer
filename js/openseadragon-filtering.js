@@ -232,9 +232,8 @@ if(image===undefined)
     $.Filters = {
       //http://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently/3115178#3115178
        CONTRAST: function(factor) {
-window.console.log("XXX in CONTRAST filtering.");
-            if (factor < -100 || factor > 100) {
-                throw new Error("CONTRAST factor must be within -100 to 100 range.");
+            if (factor < 0 || factor > 100) {
+                throw new Error("CONTRAST factor must be within 0 to 100 range.");
             }
             factor = (100 + factor) / 100;
             factor *= factor;

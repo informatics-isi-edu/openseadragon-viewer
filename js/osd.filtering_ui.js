@@ -148,8 +148,8 @@ function makeSimpleProperty(name, cname, id) {
                   cname: cname,
                   itemID: id,
                   opacity: 1,
-                  hue: xx,
-                  contrast: xx,
+                  hue: 240,
+                  contrast: 0,
                   brightness: 100,
                   normalize: [0,1] };
    return simpleP;
@@ -211,7 +211,7 @@ function setupItemSliders(idx) {
   });
   jQuery(_c).width(100 + '%');
   jQuery(_c).slider("option", "value", p['contrast']);
-  jQuery(_c).slider("option", "min", -100);
+  jQuery(_c).slider("option", "min", 0);
   jQuery(_c).slider("option", "max", 100);
   jQuery(_c).slider("option", "step", 2);
 
