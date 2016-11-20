@@ -244,7 +244,7 @@ window.addEventListener('message', function(event) {
                 event_loadFilteringPropertyList(messageType, data);
                 break;
             default:
-                console.log('Invalid message type. No action performed. Received message event: ', event);
+                console.log('Invalid message type. No action performed. Received message event: ', messageType);
         }
     } else {
         console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
