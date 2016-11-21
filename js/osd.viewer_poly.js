@@ -141,7 +141,7 @@ jQuery(document).ready(function() {
 //                   visibilityRatio:     1,
 
              });
-      myViewer.controls.topleft.style.left = '100px';
+      myViewer.controls.topleft.style.left = '160px';
     }
 
     myViewer.scalebar({

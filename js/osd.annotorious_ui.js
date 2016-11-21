@@ -170,6 +170,7 @@ function event_createAnnotation(messageType, data) {
 // An event listener to capture incoming messages from Chaise
 /*********************************************************/
 window.addEventListener('message', function(event) {
+window.console.log("XXX add event listener for incoming mesg from chaise..");
     if (event.origin === window.location.origin) {
         var messageType = event.data.messageType;
         var data = event.data.content;

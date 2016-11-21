@@ -38,7 +38,7 @@ window.console.log("new val is", p);
 }
 
 function calcThickness(t,xscale) {
-   window.console.log("XXX--", t);
+   window.console.log("thickness=>", t);
    var pp=calcFromPixel(parseFloat(t)*xscale);
    window.console.log(pp);
    return pp;
@@ -112,9 +112,6 @@ function addRectOverlays(name,_x,_y,_dx,_dy,_o,_c) {
                         .attr("y", _y)
                         .attr("height", _dy);
 
-  overlay.onClick(d3Rect.node(), function() {
-       window.console.log("click on rectangle");
-  });
   $(window).resize(function() { overlay.resize()});
   overlayList.push("#"+name);
 }
@@ -128,11 +125,25 @@ function addCircleOverlays(name,_cx,_cy,_r,_o,_c) {
             .attr("id",name)
             .attr('cx', _cx)
             .attr('cy', _cy)
-            .attr('r', _r);
+            .attr('r', _r*2)
+            .on('mouseout', function(){
+window.console.log("on a circle..");
+                var tnode=this;
+                tnode.style.fill=_c;
+            })
+            .on('mouseover', function(){
+window.console.log("on a circle..");
+               var tnode=this;
+               tnode.style.fill='green';
+            });
 
+/*
   overlay.onClick(d3Circle.node(), function() {
+       var msg=" a circle node is clicked "+name;
        window.console.log("click on circle");
+       alertify.confirm(msg);
   });
+*/
 
   $(window).resize(function() { overlay.resize()});
   overlayList.push("#"+name);
@@ -151,9 +162,11 @@ function addLineOverlays(name, _x1,_y1,_x2,_y2,_t,_o,_c) {
             .attr('stroke-width',_t)
             .attr('stroke',_c);
 
+/*
   overlay.onClick(d3Line.node(), function() {
        window.console.log("click on line");
   });
+*/
 
   $(window).resize(function() { overlay.resize()});
   overlayList.push("#"+name);
@@ -172,28 +185,61 @@ var pathFunc = d3.line()
   var pp=pathFunc(_dlist);
   window.console.log(pp);
 
+window.console.log("width of the polygon is..",_t);
+
   var overlay=myViewer.svgOverlay();
   var d3Polygon=d3.select(overlay.node()).append("path")
                .attr("id",name)
                .attr("d", pathFunc(_dlist))
                .attr('stroke-width',_t)
-               .attr('stroke',_c)
+               .attr('stroke','yellow')
                .style('fill','none');
 //               .style('fill-opacity', 0.2)
 //               .style("fill", function(d) { return "#f00"; });
 
+  var d3PolygonInside=d3.select(overlay.node()).append("path")
+               .attr("id",name+"_inner")
+               .attr("d", pathFunc(_dlist))
+               .attr('stroke-width',_t/1.5)
+               .attr('stroke',_c)
+//               .style('fill','none')
+               .style('fill-opacity', 0.2)
+               .style("fill", function(d) { return "#f00"; })
+               .on('mouseover', function(){
+                  var tnode=this;
+                  tnode.style.stroke="red";
+window.console.log("-> catching on the mouseover on polygon...");
+               })
+               .on('mouseout', function(){
+                  var tnode=this;
+                  tnode.style.stroke=_c;
+               });
 
-  overlay.onClick(d3Polygon.node(), function() {
-       window.console.log("click on path");
-  });
+
+/*
+    var pnode=d3PolygonInside.node();
+    $(pnode).mouseover(
+       function(evt) {
+var t=evt.target;
+if(t.style.stroke =="red")
+  t.style.stroke = "yellow";
+  else 
+    t.style.stroke = "red";
+//$(this).css({"stroke":"red"}).hide(100).show(100).css({"stroke":"yellow"});
+    });
+*/
 
   $(window).resize(function() { overlay.resize()});
   overlayList.push("#"+name);
+  overlayList.push("#"+name+"_inner");
 }
 
 function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
   var overlay=myViewer.svgOverlay();
-  var d3Text=d3.select(overlay.node()).append("text")
+
+  var outside=d3.select(overlay.node()).append("g")
+              .attr("transform", function(d, i) { return "translate(0,0)"; });
+  var d3Text=outside.append("text")
                .attr("id",name)
                .attr("x", _x)
                .attr("y", _y)
@@ -202,13 +248,36 @@ function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
                .attr("font-size", _fs)
                .attr("fill", _c);
 
-  overlay.onClick(d3Text.node(), function() {
-       window.console.log("click on text");
-  });
+  // can not click on a text node because it includes the whole 
+  // svg canvas area
+
+  var dnode=d3Text.node();
+  var bBox = dnode.getBBox();
+//window.console.log('XxY', bBox.x + 'x' + bBox.y);
+//window.console.log('size', bBox.width + 'x' + bBox.height);
+  var _bx=bBox.x;
+  var _by=bBox.y;
+  var _bdx=bBox.width;
+  var _bdy=bBox.height;
+
+window.console.log("need to reset the text to ",_bdx,", ",_bdy);
+
+  var d3Rect = outside.append("rect")
+                        .style('fill', 'blue')
+                        .style('fill-opacity', 0.2)
+                        .attr("id",name+"_bounding")
+                        .attr("x", _bx)
+                        .attr("width", _bdx)
+                        .attr("y", _by)
+                        .attr("height", _bdy);
+
+window.console.log("need to reset the text to ",_bdx,", ",_bdy);
+d3.select("#"+name).attr("display", "none");
+
 
   $(window).resize(function() { overlay.resize()});
   overlayList.push("#"+name);
-
+  overlayList.push("#"+name+"_bounding");
 }
 
 function enableAllOverlays() {
