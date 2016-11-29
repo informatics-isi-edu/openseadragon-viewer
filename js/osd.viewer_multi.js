@@ -145,7 +145,7 @@ jQuery(document).ready(function() {
             minWidth: "75px",
             location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
             xOffset: 10,
-            yOffset: 30,
+            yOffset: 10,
             stayInsideImage: true,
             color: "rgb(153, 0, 0)",
             fontColor: "rgb(0, 0, 0)",

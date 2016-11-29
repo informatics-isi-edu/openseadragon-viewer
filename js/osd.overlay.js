@@ -2,6 +2,7 @@
 //
 var overlayToggle=false;
 var overlayList=[];
+var overlayTextList=[];
 var overlayLoaded=false;
 
 function convertData(a,_xscale,_yscale) {
@@ -54,25 +55,8 @@ function overlayClick() {
         return;
       } 
       overlayLoaded=true;
-      if(saveOverlayShapes.length>0) {
-        var slen=saveOverlayShapes.length;
-        for(var i=0;i<slen;i++) {
-           var name="myShapes"+i;
-           var _set=saveOverlayShapes[i];
-           var xscale=parseFloat(_set['xscale']);
-           var yscale=parseFloat(_set['yscale']);
-           var color=_set['color'];
-           var points=_set['points'];
-           var ndata=convertData(points,xscale,yscale);
-           var _thickness=calcThickness(points[0].d, xscale);
-           if(points.length>2) {
-             addPolygonOverlays(name,ndata,_thickness,color);
-           } else {
-             var d=ndata[0];
-             addCircleOverlays(name,d.x,d.y,_thickness,1,color);
-           }
-         }
-      }
+// make sure svg has a 'name-label' to it
+//      setupSVG();
       if(saveOverlayTexts.length>0) {
         var tlen=saveOverlayTexts.length;
         for(var i=0;i<tlen;i++) {
@@ -92,6 +76,26 @@ function overlayClick() {
           addTextOverlays(name,d.x,d.y,text,color,fontType,fontSize);
         }
       }
+      if(saveOverlayShapes.length>0) {
+        var slen=saveOverlayShapes.length;
+        for(var i=0;i<slen;i++) {
+           var name="myShapes"+i;
+           var _set=saveOverlayShapes[i];
+           var xscale=parseFloat(_set['xscale']);
+           var yscale=parseFloat(_set['yscale']);
+           var color=_set['color'];
+           var points=_set['points'];
+           var ndata=convertData(points,xscale,yscale);
+           var _thickness=calcThickness(points[0].d, xscale);
+           if(points.length>2) {
+             addPolygonOverlays(name,ndata,_thickness,color);
+           } else {
+             var d=ndata[0];
+             addCircleOverlays(name,d.x,d.y,_thickness,1,color);
+           }
+         }
+      }
+//      convertSVG();
       } else {
         disableAllOverlays();
         otog.style.color='black';
@@ -117,24 +121,33 @@ function addRectOverlays(name,_x,_y,_dx,_dy,_o,_c) {
 }
 
 
+// the _r is so small..
 function addCircleOverlays(name,_cx,_cy,_r,_o,_c) {
   var overlay=myViewer.svgOverlay();
   var d3Circle=d3.select(overlay.node()).append("circle")
-            .style('fill',_c)
+            .style('fill',"white")
             .style('fill-opacity', _o)
             .attr("id",name)
+            .attr('cx', _cx)
+            .attr('cy', _cy)
+            .attr('r', _r*3)
+
+  var d3CircleInside=d3.select(overlay.node()).append("circle")
+            .style('fill',_c)
+            .style('fill-opacity', _o)
+            .attr("id",name+"_inner")
             .attr('cx', _cx)
             .attr('cy', _cy)
             .attr('r', _r*2)
             .on('mouseout', function(){
 window.console.log("on a circle..");
-                var tnode=this;
-                tnode.style.fill=_c;
+                var tnode=d3.select("#"+name).node();
+                tnode.style.fill="white";
             })
             .on('mouseover', function(){
-window.console.log("on a circle..");
-               var tnode=this;
-               tnode.style.fill='green';
+window.console.log("over a circle..");
+               var tnode=d3.select("#"+name).node();
+               tnode.style.fill="yellow";
             });
 
 /*
@@ -147,6 +160,7 @@ window.console.log("on a circle..");
 
   $(window).resize(function() { overlay.resize()});
   overlayList.push("#"+name);
+  overlayList.push("#"+name+"_inner");
 }
 
 
@@ -192,7 +206,7 @@ window.console.log("width of the polygon is..",_t);
                .attr("id",name)
                .attr("d", pathFunc(_dlist))
                .attr('stroke-width',_t)
-               .attr('stroke','yellow')
+               .attr('stroke','white')
                .style('fill','none');
 //               .style('fill-opacity', 0.2)
 //               .style("fill", function(d) { return "#f00"; });
@@ -200,19 +214,21 @@ window.console.log("width of the polygon is..",_t);
   var d3PolygonInside=d3.select(overlay.node()).append("path")
                .attr("id",name+"_inner")
                .attr("d", pathFunc(_dlist))
-               .attr('stroke-width',_t/1.5)
+               .attr('stroke-width',_t/2)
                .attr('stroke',_c)
 //               .style('fill','none')
                .style('fill-opacity', 0.2)
                .style("fill", function(d) { return "#f00"; })
                .on('mouseover', function(){
-                  var tnode=this;
-                  tnode.style.stroke="red";
+                  var tnode=d3.select("#"+name).node();
+//                  var tnode=this;
+                  tnode.style.stroke="yellow";
 window.console.log("-> catching on the mouseover on polygon...");
                })
                .on('mouseout', function(){
-                  var tnode=this;
-                  tnode.style.stroke=_c;
+                  var tnode=d3.select("#"+name).node();
+                  //var tnode=this;
+                  tnode.style.stroke="white";
                });
 
 
@@ -237,8 +253,10 @@ if(t.style.stroke =="red")
 function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
   var overlay=myViewer.svgOverlay();
 
-  var outside=d3.select(overlay.node()).append("g")
-              .attr("transform", function(d, i) { return "translate(0,0)"; });
+  var outside=d3.select(overlay.node());
+
+window.console.log("_x and _y ", _x," ",_y);
+//;transform", function(d, i) { return "translate(0,0)"; });
   var d3Text=outside.append("text")
                .attr("id",name)
                .attr("x", _x)
@@ -248,36 +266,16 @@ function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
                .attr("font-size", _fs)
                .attr("fill", _c);
 
-  // can not click on a text node because it includes the whole 
-  // svg canvas area
-
-  var dnode=d3Text.node();
-  var bBox = dnode.getBBox();
+// can not click on a text node because it includes the whole 
+// svg canvas area
+// how to figure out the bounding box of a text
+//  var dnode=d3Text.node();
+//  var bBox = dnode.getBBox();
 //window.console.log('XxY', bBox.x + 'x' + bBox.y);
 //window.console.log('size', bBox.width + 'x' + bBox.height);
-  var _bx=bBox.x;
-  var _by=bBox.y;
-  var _bdx=bBox.width;
-  var _bdy=bBox.height;
-
-window.console.log("need to reset the text to ",_bdx,", ",_bdy);
-
-  var d3Rect = outside.append("rect")
-                        .style('fill', 'blue')
-                        .style('fill-opacity', 0.2)
-                        .attr("id",name+"_bounding")
-                        .attr("x", _bx)
-                        .attr("width", _bdx)
-                        .attr("y", _by)
-                        .attr("height", _bdy);
-
-window.console.log("need to reset the text to ",_bdx,", ",_bdy);
-d3.select("#"+name).attr("display", "none");
-
 
   $(window).resize(function() { overlay.resize()});
-  overlayList.push("#"+name);
-  overlayList.push("#"+name+"_bounding");
+  overlayTextList.push("#"+name);
 }
 
 function enableAllOverlays() {
@@ -287,6 +285,11 @@ function enableAllOverlays() {
   for(var i=0; i<len;i ++) {
     d3.select(overlayList[i]).attr("display", "");
   } 
+  len=overlayTextList.length;
+  for(var i=0; i<len;i ++) {
+    d3.select(overlayTextList[i]).attr("display", "");
+  } 
+  enableTextOverlays();
 }
 
 function disableAllOverlays() {
@@ -295,6 +298,25 @@ function disableAllOverlays() {
   var len=overlayList.length;
   for(var i=0; i<len;i ++) {
     d3.select(overlayList[i]).attr("display", "none");
+  } 
+  disableTextOverlays();
+}
+
+function enableTextOverlays() {
+  var v=myViewer;
+  var overlay=myViewer.svgOverlay();
+  var len=overlayTextList.length;
+  for(var i=0; i<len;i ++) {
+    d3.select(overlayTextList[i]).attr("display", "");
+  } 
+}
+
+function disableTextOverlays() {
+  var v=myViewer;
+  var overlay=myViewer.svgOverlay();
+  var len=overlayTextList.length;
+  for(var i=0; i<len;i ++) {
+    d3.select(overlayTextList[i]).attr("display", "none");
   } 
 }
 
@@ -308,3 +330,13 @@ function removeAllOverlays() {
   overlayList=[];
 }
 
+/*** this is for working with canvg                              **/
+// https://oliverbinns.com/articles/rasterising-SVG-in-the-browser/
+function foo()
+{  
+
+  var overlay=myViewer.svgOverlay();
+  var svgString = overlay.innerHTML;
+  var s = $('#svgDrawing');
+  canvg(canv, svgString, canvgOptions);
+}

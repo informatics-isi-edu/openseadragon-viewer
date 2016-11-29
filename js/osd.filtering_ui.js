@@ -31,7 +31,7 @@ function isActive(elm) {
 }
 
 // this is filtering control sidebar
-function ctrlClick()
+function channelClick()
 {
   var nav = document.getElementById('nav-toggle');
 window.console.log("nav is active..",isActive(nav));

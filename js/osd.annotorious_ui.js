@@ -244,6 +244,9 @@ window.console.log("XXX add event listener for incoming mesg from chaise..");
             case 'loadFilteringPropertyList':
                 event_loadFilteringPropertyList(messageType, data);
                 break;
+            case 'filterChannels':
+                channelClick();
+                break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', messageType);
         }
