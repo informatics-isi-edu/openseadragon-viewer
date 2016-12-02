@@ -1,4 +1,3 @@
-
 /* run :
 
   http://localhost/tiletiff/mview.html?
@@ -14,12 +13,41 @@ or
          &url=http://localhost/tiletiff/data/second_dzi/ImageProperties.xml
          &url=http://localhost/tiletiff/data/third_dzi/ImageProperties.xml
 
-http://localhost/tiletiff/mview.html?
- url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
- &url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml
- &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml
- &url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml
-(the ImageProperties.xml should be used for our application by default)
+  http://localhost/tiletiff/mview.html?
+      url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml&
+      url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml&
+      url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml&
+      url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml
+
+to bring in another annotator's data xml, (specific to a particular one..)
+
+  http://localhost/tiletiff/mview.html?
+      url=http://localhost/data/otherAnnotator/DZI/Brigh/ImageProperties.xml&
+      url=http://localhost/data/otherAnnotator/AnnotationData.xml
+
+to handle none-dzi images
+
+  http://localhost/tiletiff/mview.html?
+      http://localhost/tiletiff/data/someImage.jpg&
+      channelName='combo'&
+      meterScaleInPixels=378417.96875
+  or
+
+  http://localhost/tiletiff/mview.html?
+       url=http://localhost/tiletiff/data/someImage.jpg&
+       channelName='combo'&
+       aliasName='redData'&
+       url=http://localhost/tiletiff/data/anotherImage.jpg&
+       channelName='DAPI'&
+       aliasName='otherData'&
+       meterScaleInPixels=378417.96875
+
+common colors,
+var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594',
+                  'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647']
+var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
+var blueColors = ['DAPI']
+colorized : 'combo' or "TL Brightfield"
 */
 
 var myViewer=null;
@@ -35,6 +63,8 @@ var logY=null;
 var logZoom=null;
 var logHeader=null;
 var logURL=[];
+var logCHANNELNAME=[];
+var logALIASNAME=[];
 
 var saveAnnoDiv=null;
 var saveHistoryTitle=null;
@@ -56,6 +86,20 @@ var saveMarkerColor="red";
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+var save_meterscaleinpixels;
+function saveScalebar(s) { save_meterscaleinpixels=s; }
+
+// false, if any of url is of ImageProperties.xml
+// need to process all the url for 'alais'
+function isSimpleBaseImage() {
+  for(var i=0; i<logURL.length; i++) {
+     var url=logURL[i];
+     if(url.indexOf('ImageProperties.xml')!= -1) 
+       return false;
+  }
+  return true;
+}
 
 jQuery(document).ready(function() {
 
@@ -82,6 +126,21 @@ jQuery(document).ready(function() {
             if(kvp[0].trim() == 'url') {
               url=kvp[1].replace(new RegExp('/$'),'').trim();
               logURL.push(url);
+            } else if(kvp[0].trim() == 'channelName') {
+              var str=kvp[1].trim(); // trim the ' or "
+              if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+                || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
+                 str=str.substr(1,str.length-2);
+              logCHANNELNAME.push(str);
+            } else if(kvp[0].trim() == 'aliasName') {
+              var str=kvp[1].trim(); // trim the ' or "
+              if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+                || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
+                 str=str.substr(1,str.length-2);
+              logALIASNAME.push(str);
+            } else if(kvp[0].trim() == 'meterScaleInPixels') {
+              var m=parseFloat(kvp[1]);
+              saveScalebar(m);
             } else if(kvp[0].trim() == 'x') {
                 var t=parseFloat(kvp[1]);
                 if(!isNaN(t)) {
@@ -108,6 +167,17 @@ jQuery(document).ready(function() {
     alertify.error("Error: Need to supply an url");
   } else {
 
+    var isSimpleURL=isSimpleBaseImage();
+    // setup the channel alias names, only for simple url 
+    if(isSimpleURL) {
+      var _alen=logALIASNAME.length;
+      var _clen=logCHANNELNAME.length;
+      if(_clen > 0 && _alen != _clen) {
+        // copy over
+        logALIASNAME=[];
+        logALIASNAME=logCHANNELNAME;
+      }
+    }
     if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") { // 
       myViewer = OpenSeadragon({
                    id: "openseadragon",
@@ -121,8 +191,8 @@ jQuery(document).ready(function() {
 //                   visibilityRatio:     1,
 
              });
-      } else {
-      myViewer = OpenSeadragon({
+     } else {
+       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
 //                   debugMode: true,
@@ -135,8 +205,8 @@ jQuery(document).ready(function() {
 //                   visibilityRatio:     1,
 
              });
-      myViewer.controls.topleft.style.left = '50px';
-    }
+       myViewer.controls.topleft.style.left = '160px';
+   }
 
     myViewer.scalebar({
 //            type: OpenSeadragon.ScalebarType.MICROSCOPY,
@@ -144,7 +214,7 @@ jQuery(document).ready(function() {
             pixelsPerMeter: 0,
             minWidth: "75px",
             location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
-            xOffset: 10,
+            xOffset: 5,
             yOffset: 10,
             stayInsideImage: true,
             color: "rgb(153, 0, 0)",
@@ -172,13 +242,25 @@ Currently supported property values are:
 */
 //  anno.setProperties({ 'outline' : 'purple' }); 
 
-// for annotorious polygon
-//    anno.addPlugin('PolygonSelector', { activate: true });
+// XXX for poly, anno.addPlugin('PolygonSelector', { activate: true });
 
     }
     for( i=0; i<logURL.length; i++) {
        url=logURL[i];
-       _addURLLayer(url,i);
+        
+       if(url.indexOf('ImageProperties.xml')!= -1) {
+         _addURLLayer(url,i);
+         } else {  // accepting other annotator's annotation data in XML
+           if(url.indexOf('AnnotationData.xml')!= -1) {
+             _addDataLayer(url,i);
+             } else {
+                if(isSimpleURL) {
+                  _addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
+                } else {
+                alertify.error("URL needs to be either ImageProperties.xml or AnnotationData.xml or must be simple jpg/png");
+                }
+           }
+       }
     }
     // setup the filtering's tracking
     setupFiltering();
@@ -214,12 +296,11 @@ Currently supported property values are:
       }
     });
 */
-/* -- this is to test access to pixels on the viewport location 
+/* -- this is to test access to pixels on the viewport location */
     myViewer.addHandler('canvas-click', function(target) {
 window.console.log('canvas got clicked..');
       pointIt(target);
     });
-*/
 
     // only overlays that are being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
@@ -252,9 +333,10 @@ window.console.log('canvas got clicked..');
       window.console.log("printAction activated..");
     });
 
-    myViewer.world.addHandler('add-item', function(target) {
+    myViewer.world.addHandler('add-item', function openHandler() {
 // when propertyList matches with total cnt..
        if( propertyList.length == myViewer.world.getItemCount()) {
+         resetScalebar(save_meterscaleinpixels);
          showFilters=true;
          _addFilters();
        }
@@ -365,6 +447,55 @@ function _addURLLayer(url, i) {
      resetScalebar(_meterscaleinpixels);
    }
 }
+
+function _addDataLayer(url, i) {
+  var e = ckExist(url);
+  if(e==null) {
+    alertify.error("Error: Unable to load url, "+url);
+    return;
+  }
+  extractDataXML(e);
+}
+
+function _addSimpleURLLayer(url, i, channelname, aliasname) {
+
+    var r= {
+           channelname:channelname,
+           alpha:null,
+           rgb:null,
+           dir:"",
+           tilewidth:1024,
+           tileheight:1024 };
+
+    var _name=channelname;
+    var _alpha=null;
+    var _rgb=null;
+    var _dir=".";
+
+    var op=presetOpacity(_alpha,i);
+    var hue=presetHue(_rgb,_name);
+    var contrast=presetContrast(i);
+    var brightness=presetBrightness(i);
+    var options = {
+                  tileSource: {
+                    type:'image',
+                    url:url
+                   },
+                   compositeOperation: 'lighter',
+                  };
+    myViewer.addTiledImage( options );
+
+    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,aliasname);
+    var cname = _name.replace(/ +/g, "");
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'normalize': [0,1] }; 
+    if(aliasname != null) {
+      p['name']= aliasname;
+    }
+    var pp=JSON.stringify(p);
+window.console.log("new property list is..",pp);
+    propertyList.push(p);
+}
+
 
 function pointIt(target) {
   if(myViewer === null) {
@@ -548,7 +679,7 @@ function goPositionByBounds(_X,_Y,_width,_height) {
 function ckExist(url) {
   var http = new XMLHttpRequest();
   http.onload = function () {
-    window.console.log(http.responseText);
+//    window.console.log(http.responseText);
   }
   http.open("GET", url, false);
   http.send(null);
@@ -696,6 +827,7 @@ function jpgClick(fname) {
    }
 }
 
+// download everything on the canvas including the annotations..
 function jpgAllClick(fname) {
    var dname=fname;
    if(dname == null) {
@@ -860,7 +992,8 @@ function unmarkSpecial() { isSpecialAnnotation=false; }
 function markHidden() { isHiddenAnnotation=true; }
 function unmarkHidden() { isHiddenAnnotation=false; }
 
-// reuse the calls to be like annotorious_ui's
+// reuse the calls to be like annotorious_ui's 
+// make an annotation 'special'
 function specialClick() {
    var stog = document.getElementById('special-toggle');
    if(isSpecialAnnotation) {
@@ -898,7 +1031,7 @@ function hiddenClick() {
    }
 }
 
-var toggle=true;
+var TESTtoggle=true;
 // dump some info
 function testClick() {
   var vCenter = myViewer.viewport.getCenter(true);
@@ -910,12 +1043,12 @@ function testClick() {
   window.console.log("           bounds:"+vBounds.toString());
 
   annoChk();
-  if(toggle) {
+  if(TESTtoggle) {
     annoHideAllAnnotations();
     } else {
     annoShowAllAnnotations();
   }
-  toggle=!toggle;
+  TESTtoggle=!TESTtoggle;
 }
 
 function resetScalebar(value)

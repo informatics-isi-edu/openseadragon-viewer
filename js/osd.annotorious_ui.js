@@ -1,5 +1,5 @@
 
-/* event/message linkup with chaise */
+/* annotations event/message linkup with chaise */
 
 // A flag to track whether OpenSeadragon/Annotorious is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
@@ -134,13 +134,6 @@ function uploadAnnotationList(mType, cState) {
     }
 }
 
-// save the propertyList to the backend
-function uploadFilteringPropertyList(mType, pData) {
-    if (enableEmbedded) {
-        window.top.postMessage({messageType: mType, content: pData}, window.location.origin);
-    }
-}
-
 function event_loadAnnotations(messageType, data) {
     var annotationsToLoad = {"annoList":[]};
     data.map(function(annotation) {
@@ -149,16 +142,6 @@ function event_loadAnnotations(messageType, data) {
     });
     readAll(annotationsToLoad);
 }
-
-function event_loadFilteringPropertyList(messageType, data) {
-    var propertyToLoad = [];
-    data.map(function(item) {
-        var p=JSON.parse(item);
-        propertyToLoad.push(p);
-    });
-    loadPropertyList(propertyToLoad);
-}
-
 
 function event_createAnnotation(messageType, data) {
     var annotation = convertToAnnotation(data);
@@ -170,7 +153,7 @@ function event_createAnnotation(messageType, data) {
 // An event listener to capture incoming messages from Chaise
 /*********************************************************/
 window.addEventListener('message', function(event) {
-window.console.log("XXX add event listener for incoming mesg from chaise..");
+window.console.log("XXX add annotation event listener for incoming mesg from chaise..");
     if (event.origin === window.location.origin) {
         var messageType = event.data.messageType;
         var data = event.data.content;
@@ -239,13 +222,6 @@ window.console.log("XXX add event listener for incoming mesg from chaise..");
                 var annotation = convertToAnnotation(data);
                 annotation = annoRetrieveByHash(getHash(annotation));
                 myAnno.removeAnnotation(annotation);
-                break;
-// for image filtering
-            case 'loadFilteringPropertyList':
-                event_loadFilteringPropertyList(messageType, data);
-                break;
-            case 'filterChannels':
-                channelClick();
                 break;
             default:
                 console.log('Invalid message type. No action performed. Received message event: ', messageType);
