@@ -2,51 +2,64 @@
 jQuery(function() {
 
   // activate the tab boxes
-  // .. for control
+  // .. for channels filtering
+/*
   jQuery(".controlTab").bind('mouseenter', function() {
     jQuery('.controlTab').removeClass('selected');
     jQuery(this).addClass("selected");
   });
+*/
   
 });
 
-// control sidebar js
-function sidebar_control_slideOut() {
+// channel sidebar js
+function sidebar_channels_slideOut() {
 
-  if (jQuery('#control').hasClass('menuDisabled')) {
+  if (jQuery('#channels').hasClass('menuDisabled')) {
     // if this menu is disabled, don't slide
     return;
   }
 
   // make sure it is displaying
-  var ctrlElm = document.getElementById('control');
+  var ctrlElm = document.getElementById('sidebar');
+//  ctrlElm.style.opacity = 0;
   ctrlElm.style.display = '';
     
-  jQuery('#controlMenu', jQuery('.navigationLi')).stop().animate({
-    'marginLeft': '-2px'
-  }, 200);
+//  var iPtr=$('#sidebar');
+//  iPtr.removeClass('fade-out').addClass('fade-in');
+
+  jQuery('.navigationLi').stop().animate({'marginLeft': '-2px' }, 400);
 
 /*
-  $('#controlMenu').on('mouseenter', 
-          function() { window.console.log("hovering here.."); });
+  jQuery('#channelsMenu', jQuery('.navigationLi')).stop().animate({
+    'marginLeft': '-2px'
+  }, 400);
 */
 
 }
 
-function sidebar_control_slideIn() {
+function sidebar_channels_slideIn() {
 
-  if (jQuery('#control').hasClass('menuDisabled')) {
+  if (jQuery('#channels').hasClass('menuDisabled')) {
     // if this menu is disabled, don't slide
     return;
   }
 
-  // make sure it is displaying
-  var ctrlElm = document.getElementById('control');
+  var ctrlElm = document.getElementById('sidebar');
   ctrlElm.style.display = '';
     
-  jQuery('#controlMenu', jQuery('.navigationLi')).stop().animate({
+// var iPtr=$('#sidebar');
+//  iPtr.removeClass('fade-in').addClass('fade-out');
+//  ctrlElm.style.display = 'none';
+//  ctrlElm.style.opacity = 0;
+
+  jQuery('.navigationLi').stop().animate({ 'marginLeft': '-450px' }, 400);
+
+/*
+  jQuery('#channelsMenu', jQuery('.navigationLi')).stop().animate({
     'marginLeft': '-300px'
-  }, 200);
+  }, 400);
+*/
 }
 
 // annotorious sidebar js

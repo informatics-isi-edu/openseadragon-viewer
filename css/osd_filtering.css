@@ -1,5 +1,5 @@
 
-#osd-control-button {
+#osd-channels-control-button {
     right:50px;
 }
 
@@ -79,7 +79,7 @@ h3.page-header {
 
 .filtercontrol {
      padding: 0px;
-     width: 250px;
+     width: 90%;
 }
 
 .filtercontrol .filter-slider {
@@ -173,16 +173,28 @@ h3.page-header {
   transform: rotate(-45deg);
 }
 
+/* a filtering panel */
+.panel {
+  margin: 15px 0;
+  border: none;
+}
+
 .panel-body {
-   background-color: transparent;
+   background-color: white;
    overflow: hidden;
 }
 
-.panel {
-   background-color: transparent;
-   color:black;
-}
 .panel-title {
-   background-color: transparent;
+  font-weight:bold;
+  color: #444;
+  font-size: 14px;
+}
+
+.panel > .panel-heading {
+    background-image: none;
+    background-color: white;
+    color: white;
+    border: 1px solid #f9f9f9;
+    border-radius: 3px;
 }
 

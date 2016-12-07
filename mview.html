@@ -2,38 +2,44 @@
 <meta charset="utf-8">
 <html>
 <head>
-<title> 2D+ mviewer </title>
+<title> 2D+ overlay mviewer </title>
 
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.min.css" rel="stylesheet">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="css/annotorious/theme-dark/annotorious-dark.css" rel="stylesheet">
 <link href="css/viewer.css" rel="stylesheet">
 <link href="css/osd_viewer.css" rel="stylesheet">
 <link href="css/osd_filtering.css" rel="stylesheet">
+<link href="css/osd_sidebar.css" rel="stylesheet">
 
 <script type="text/javascript" src="js/jquery.js"> </script>
 <script type='text/javascript' src='js/jquery-ui.min.js'></script>
 <script type='text/javascript' src='js/jquery.ui.slider.js'></script>
 <script type="text/javascript" src="js/alertify.min.js"> </script>
 <script type="text/javascript" src="js/debug.js"> </script>
+<script type="text/javascript" src="js/osd.debug.js"> </script>
 <!-- MEI 
 <script type="text/javascript" src="js/osd.debug.js"> </script>
 -->
 
 <!-- for openseadragon and viewer -->
 <script type="text/javascript" src="js/html2canvas.js"> </script>
+<script type="text/javascript" src="js/osd.overlay.js"> </script>
+<script type="text/javascript" src="js/osd.extract_points.js"> </script>
 <script type="text/javascript" src="js/osd.viewer_multi.js"> </script>
+
 <script type="text/javascript" src="js/osd.filtering_ui.js"> </script>
 <script type="text/javascript" src="js/openseadragon.js"> </script>
 <script type="text/javascript" src="js/openseadragon-filtering.js"> </script>
 <script type="text/javascript" src="js/openseadragon-scalebar.js"> </script>
+<script type="text/javascript" src="js/openseadragon-svg-overlay.js"> </script>
+<script type="text/javascript" src="js/d3.js"> </script>
 
 <!-- for annotorious -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/bootstrap-theme.min.css" rel="stylesheet">
 <script type='text/javascript' src='js/bootstrap.min.js'></script>
-
-<link href="css/annotorious/theme-dark/annotorious-dark.css" rel="stylesheet">
 <link href="css/osd_annotorious.css" rel="stylesheet">
 
 <script type="text/javascript" src="js/annotorious.min.js"> </script>
@@ -42,27 +48,25 @@
 <script type="text/javascript" src="js/osd.annotorious_ui.js"> </script>
 
 <script type="text/javascript" src="js/osd.channel_ui.js"> </script>
-
-<link href="css/osd_sidebar.css" rel="stylesheet">
 <script type='text/javascript' src='js/osd.sidebar.js'></script>
 </head>
 
 <body>
 <!-- The viewer -->
 <div class="content">
-  <div id="viewer">
+  <div id="viewer" style="width:100%">
     <div id="openseadragon" class="openseadragon" style="background-color:black;border:none"></div>
 
-<ul class='navigation' style="opacity:0.8; top:60px;">
+<div id="controls" class="row col-md-4" style="opacity:0.9;position:absolute;top:0;" >
+<ul id="sidebar" class="navigation" style="display:none">
 <!-- for filtering control -->
-  <li id='control' class='navigationLi' style='display:none;'>
-    <div id='controlMenu' class='menu' style='margin-bottom:20px;'>
-      <div id='controlLabel' class='menuLabel' style='margin:10px;margin-right:100px; font-size:16px;color:black'>Channel(s)</div>
+  <li id='channels' class='navigationLi col-md-3' style="background-color:white">
+    <div id='channelsMenu' class='menu'>
+      <div id='channelsLabel' class='menuLabel' style="font-size:16px;font-weight:bold">Channel(s)</div>
 <!-- filering items are added to here.. -->
       <div id='itemList' class='panel-group row' style="background-color:transparent"> </div>
     </div>
   </li>
-
 <!-- for annotation listing control -->
   <li id='annotations' class='navigationLi' style='display:none;'><div id='annoMenu'  class='menu'>
     <div id='annotationTabs' class='row'>
@@ -72,14 +76,27 @@
     </div>
   </div></li>
 </ul>
+</div> <!-- channels filtering -->
+
+<!--
+    <div id="osd-control-panel-mini">
+      <button id="osd-channels-control-button" title="Channel filtering" class="btn btn-default osd-control-btn" style="top:10px;left:10px;opacity:0.6" onclick="channelsClick()"/>
+             <a id="nav-toggle" href="#"><span></span></a></button>
+      <button id="osd-overlay-button" title="add overlay" class="btn btn-default osd-control-btn" onclick='overlayClick()' style="top:10px;left:60px;opacity:0.6"><a id="overlay-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
+      <button id="osd-annotate-button" title="add annotation" style="top:10px;left:110px;opacity:0.7" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"></button>
+
+    </div>
+-->
+
     <div id="osd-control-panel" style="display:none;">
 <!-- for testing loading and unloading of annotations -->
+      <button id="osd-overlay-button" title="add overlay" class="btn btn-default osd-control-btn" onclick='overlayClick()'><a id="overlay-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px;margin-left:-6px;color:blue;"></a></button>
       <button id="osd-saveAnno-button" title="dump,anno_list.json" class="btn btn-default osd-control-btn" onclick='saveAnno("anno_list.json")'><a id="saveAnno-toggle" class="glyphicon glyphicon-hand-up" style="position:absolute; margin-top:8px;margin-left:-6px;color:red;"></a></button>
       <button id="osd-loadAnno-button" title="load,anno_list.json" class="btn btn-default osd-control-btn" onclick='loadAnno("/data/anno_list.json")'><a id="loadAnno-toggle" class="glyphicon glyphicon-hand-down" style="position:absolute; margin-top:8px;margin-left:-6px;color:green;"></a></button>
       <button id="osd-hidden-control-button" title="hidden annotation" class="btn btn-default osd-control-btn" onclick="hiddenClick()"><a id="hidden-toggle" class="glyphicon glyphicon-remove" style="position:absolute; margin-top:8px;margin-left:-6px;color:black; font-size:16px; text-shadow: 0 0 0 black;"></a></button>
       <button id="osd-marker-control-button" title="marker annotation" class="btn btn-default osd-control-btn" onclick="markerClick()"><a id="marker-toggle" class="glyphicon glyphicon-tag" style="position:absolute; margin-top:8px;margin-left:-6px;color:black; font-size:16px; text-shadow: 0 0 0 black;"></a></button>
       <button id="osd-focus-control-button" title="focus" class="btn btn-default osd-control-btn" onclick="focusClick()"><a id="focus-toggle" class="glyphicon glyphicon-record" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
-      <button id="osd-test-control-button" title="testing" class="btn btn-default osd-control-btn" onclick="testClick()"><a id="test-toggle" class="glyphicon glyphicon-superscript" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
+      <button id="osd-test-control-button" title="testing" class="btn btn-default osd-control-btn" onclick="testClick()"><a id="test-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px;margin-left:-6px;color:red;"></a></button>
       <button id="osd-special-control-button" title="special annotation" class="btn btn-default osd-control-btn" onclick="specialClick()"><a id="special-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
       <button id="osd-home-control-button" title="go home" class="btn btn-default osd-control-btn" onclick="homeClick()"><a class="glyphicon glyphicon-home" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
       <button id="osd-zoomin-control-button" title="zoom in" class="btn btn-default osd-control-btn" onclick="zoomInClick()"><a class="glyphicon glyphicon-plus" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
@@ -88,7 +105,7 @@
       <button id="osd-jpg-control-button" title="download img" class="btn btn-default osd-control-btn" onclick="jpgClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
       <button id="osd-jpgAll-control-button" title="download img+anno" class="btn btn-default osd-control-btn" onclick="jpgAllClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:purple;"></a></button>
       <button id="osd-anno-control-button" title="anno list" class="btn btn-default osd-control-btn" onclick="annoCtrlClick()"><a id="anno-toggle" class="glyphicon glyphicon-eye-open" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
-      <button id="osd-control-button" title="Channel filtering" class="btn btn-default osd-control-btn" onclick="channelClick()"/>
+      <button id="osd-channels-control-button" title="Channel filtering" class="btn btn-default osd-control-btn" onclick="channelsClick()"/>
              <a id="nav-toggle" href="#"><span></span></a></button>
       <button id="osd-annotate-button" onmouseover="annoBtnEnter()"
                   onmouseout="annoBtnExit()" onclick="annotate()"></button>

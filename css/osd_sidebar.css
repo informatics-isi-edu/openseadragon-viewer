@@ -16,7 +16,7 @@
 	height: 70%;
 }
 
-#controlTabs {
+#channelsTabs {
 	width: 200px;
 	height: 30%;
 }
@@ -55,7 +55,7 @@
 	height: 200px; 
 	margin-top: 16px;
 	padding: 10px;
-	border: 1px solid #AFAFAF;
+	border: 1px solid #ddd;
   -moz-border-radius: 0px 2px 2px 0px;
   -webkit-border-bottom-right-radius: 2px;
   -webkit-border-top-right-radius: 2px;
@@ -74,10 +74,11 @@
 	list-style: none;
 	z-index: 9999;
 }
+
 .navigation {
-        background-color: #ccc;
-        opacity: 0.8;
-	position: fixed;
+        background-color: #f9f9f9;
+        opacity: 0.9;
+	position: relative;
 	padding: 0px;
 	left: 0px;
 	list-style: none;
@@ -126,8 +127,49 @@
 }
 
 .menuLabel {
-  letter-spacing: 1px;
-  font-size: small;
-  font-weight: bold;  
+  margin-left:20px;
+  font-size:14px;
+  color:black;
 }
+
+@-webkit-keyframes fadeIn { from { opacity:0; left:-300; } to { opacity:0.9; left:100; } }
+@-moz-keyframes fadeIn { from { opacity:0; left:-300; } to { opacity:0.9; left:100; } }
+@keyframes fadeIn { from { opacity:0; left:-300; } to { opacity:0.9; left:100; } }
+
+.fade-in {
+        -webkit-animation:fadeIn ease-in 1;
+        -moz-animation:fadeIn ease-in 1;
+        animation:fadeIn ease-in 1;
+
+        -webkit-animation-fill-mode:forwards;
+        -moz-animation-fill-mode:forwards;
+        animation-fill-mode:forwards;
+
+        -webkit-animation-duration:0.6s;
+        -moz-animation-duration:0.6s;
+        animation-duration:0.6s;
+}
+
+
+@-webkit-keyframes fadeOut { from { opacity:0.9; left:0; } to { opacity:0; left:-200; } }
+@-moz-keyframes fadeOut { from { opacity:0.9; left:0; } to { opacity:0; left:-200; } }
+@keyframes fadeOut { from { opacity:0.9; left:0; } to { opacity:0; left:-200; } }
+
+.fade-out {
+        -webkit-animation:fadeOut ease-in 1;
+        -moz-animation:fadeOut ease-in 1;
+        animation:fadeOut ease-in 1;
+
+
+        -webkit-animation-fill-mode:forwards;
+        -moz-animation-fill-mode:forwards;
+        animation-fill-mode:forwards;
+
+        -webkit-animation-duration:0.4s;
+        -moz-animation-duration:0.4s;
+        animation-duration:0.4s;
+}
+
+
+
 

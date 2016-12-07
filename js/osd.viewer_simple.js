@@ -236,18 +236,6 @@ window.console.log('XXXYYY in visiblehandler.. ');
       annoResizeMarkers();
     });
 
-/*
-    myViewer.addHandler('canvas-enter', function(target) {
-window.console.log('calling canvas-enter');
-        ctrlBtnFadeIn();
-    });
-
-    myViewer.addHandler('canvas-exit', function(target) {
-window.console.log('calling canvas-exit');
-        ctrlBtnFadeOut();
-    });
-*/
-
 /* -- this is to test access to pixels on the viewport location 
     myViewer.addHandler('canvas-click', function(target) {
 window.console.log('canvas got clicked..');
@@ -948,23 +936,3 @@ function hasScalebar()
       return false;
   }
 }
-
-// make all control buttons fade in and out
-
-function ctrlBtnFadeOut() {
-window.console.log("-->calling fadeOut..");
-  var button = $("#osd-control-button");
-
-  if (button.is(':focus') || button.is(':hover')) {
-window.console.log("..don't fade..");
-  } else {
-    button.delay(2500).fadeOut(1500);
-window.console.log("..fading for sure..");
-  }
-}
-
-function ctrlBtnFadeIn(){
-  var button = $("#osd-control-button");
-  button.fadeIn("fast");
-}
-

@@ -30,19 +30,19 @@ function isActive(elm) {
   }
 }
 
-// this is filtering control sidebar
-function channelClick()
+// this is filtering channels sidebar
+function channelsClick()
 {
   var nav = document.getElementById('nav-toggle');
 window.console.log("nav is active..",isActive(nav));
   nav.classList.toggle( "active" );
 window.console.log("and now nav is active..",isActive(nav));
   if(isActive(nav)) {
-    sidebar_control_slideOut();
+    sidebar_channels_slideOut();
 //enable just for mei, testLoadingPropertyList();
     setTrackingPropertyList();
     } else {
-      sidebar_control_slideIn();
+      sidebar_channels_slideIn();
       savePropertyList();
   }
 }
@@ -304,12 +304,12 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,alias=null) {
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
 
-_nn+=' <div class="panel panel-default" > <input type="checkbox" id="'+_visible_name+'" class="pull-left" checked="" style="margin:10px"  onClick="toggleItem('+i+',\''+name+'\')" />';
+_nn+=' <div class="panel panel-default col-md-12"> <input type="checkbox" id="'+_visible_name+'" class="pull-left" checked="" style="margin:10px"  onClick="toggleItem('+i+',\''+name+'\')" />';
 
  var aname=name;
  if(alias != null)
    aname=alias;
-_nn+=' <div class="panel-heading"> <h5 class="panel-title" style="font-size:14px;"><a data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'">'+aname+'</a> </h5> </div>';
+_nn+=' <div class="panel-heading"> <h5 class="row panel-title" style="background-color:transparent;"><a data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'">'+aname+'</a> </h5> </div>';
 
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 
