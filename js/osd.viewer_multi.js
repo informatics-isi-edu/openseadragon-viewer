@@ -169,7 +169,9 @@ jQuery(document).ready(function() {
 
     var isSimpleURL=isSimpleBaseImage();
     // setup the channel alias names, only for simple url 
+    var toShowNavigator=true; // suppress navigator if it is simple jpg viewing
     if(isSimpleURL) {
+      toShowNavigator=false;
       var _alen=logALIASNAME.length;
       var _clen=logCHANNELNAME.length;
       if(_clen > 0 && _alen != _clen) {
@@ -183,7 +185,7 @@ jQuery(document).ready(function() {
                    id: "openseadragon",
                    prefixUrl: "images/",
 //                   debugMode: true,
-                   showNavigator: true,
+                   showNavigator: toShowNavigator,
                    showZoomControl: false,
                    showHomeControl: false,
                    showFullPageControl: false,
@@ -196,7 +198,7 @@ jQuery(document).ready(function() {
                    id: "openseadragon",
                    prefixUrl: "images/",
 //                   debugMode: true,
-                   showNavigator: true,
+                   showNavigator: toShowNavigator,
                    showZoomControl: true,
                    showHomeControl: true,
                    showFullPageControl: true,

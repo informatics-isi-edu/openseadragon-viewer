@@ -313,7 +313,7 @@ _nn+=' <div class="panel-heading"> <h5 class="row panel-title" style="background
 
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 
-_nn+= ' <div id="'+name+ '" class="row" style="background-color:white"> <button id="'+_reset_btn+ '" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:14px;margin-top:2px; margin-right:20px">Reset</button><div class="filtercontrol">';
+_nn+= ' <div id="'+name+ '" class="row" style="background-color:white;opacity:1;"> <button id="'+_reset_btn+ '" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:14px;margin-top:2px; margin-right:20px">Reset</button><div class="filtercontrol">';
 
 //contrast slider...
 _nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:yellow;"> </div> </div>';
