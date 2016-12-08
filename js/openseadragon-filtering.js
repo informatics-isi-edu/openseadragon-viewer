@@ -261,7 +261,7 @@ if(image===undefined)
             };
         },
         HUE: function(angle) { 
-window.console.log("XXX in HUE filtering.");
+window.console.log(" in HUE filtering.");
             if (angle < 0) {
                 throw new Error("HUE angle be greater than 0.");
             }
@@ -320,7 +320,7 @@ window.console.log("XXX in HUE filtering.");
             };
         },
         BRIGHTNESS: function(adjustment) {
-window.console.log("XXX in BRIGHTNESS filtering.");
+window.console.log(" in BRIGHTNESS filtering.");
             if (adjustment < -255 || adjustment > 255) {
                 throw new Error(
                         "Brightness adjustment must be between -255 and 255.");
@@ -444,8 +444,26 @@ window.console.log("XXX in BRIGHTNESS filtering.");
                 callback();
             };
         },
+// encoded = ((original / 255) ^ (1 / gamma)) * 255
+        GAMMA: function(adjustment) {
+window.console.log(" in GAMMA filtering.");
+            if (adjustment < 0 || adjustment > 1) {
+                throw new Error(
+                        "Gammf adjustment must be between 0 and 1.");
+            }
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                        0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+                for (var i = 0; i < pixels.length; i ++) {
+                    pixels[i] = Math.round(Math.pow((pixels[i] / 255),adjustment) * 255);
+                }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
         NORMALIZE: function(minv, maxv) {
-window.console.log("XXX in NORMALIZE filtering.");
+window.console.log(" in NORMALIZE filtering.");
             if (maxv < minv) {
                 throw new Error("NORMALIZE range must be greater than 0.");
             }
@@ -453,8 +471,8 @@ window.console.log("XXX in NORMALIZE filtering.");
             return function(context, callback) {
                 var imgData = context.getImageData(
                         0, 0, context.canvas.width, context.canvas.height);
-                var max=0;
-                var min=0;
+                var _max=0;
+                var _min=0;
                 var pixels = imgData.data;
 
                 var deno=maxv - minv;
@@ -463,10 +481,10 @@ window.console.log("XXX in NORMALIZE filtering.");
                    var P = pixels[i];
                    var Pixel = P - minv / deno;
                    pixels[i]=Pixel;
-                   if(P > max) max=P;
-                   if(P < min) min=P;
+                   if(P > _max) _max=P;
+                   if(P < _in) _min=P;
                 }
-window.console.log("max is", max,"min is",min);
+window.console.log("max is", _max,"min is",_min);
                 context.putImageData(imgData, 0, 0);
                 callback();
             };

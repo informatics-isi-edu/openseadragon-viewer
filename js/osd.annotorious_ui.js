@@ -1,21 +1,6 @@
 
 /* annotations event/message linkup with chaise */
 
-// A flag to track whether OpenSeadragon/Annotorious is
-// being used inside another window (i.e. Chaise), set enableEmbedded.
-
-var enableEmbedded = false;
-if (window.self !== window.top) {
-    enableEmbedded = true;
-}
-
-/*** this does not seem to work..
-if (window.self !== window.top) {
-  var $iframe_parent_div = window.frameElement ? $(window.frameElement.parentNode) : null;
-  if (!$iframe_parent_div || !$iframe_parent_div.is(':visible'))
-    enableEmbedded = true;
-}
-****/
 /* from annotorious.js
 annotorious.templates.popup = function(opt_data) {
   return '<div class="annotorious-popup top-left" style="position:absolute;z-index:1"><div class="annotorious-popup-buttons" ><a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a><a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a></div><span class="annotorious-popup-text"></span></div>'; }

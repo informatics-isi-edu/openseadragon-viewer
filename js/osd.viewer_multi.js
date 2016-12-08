@@ -52,6 +52,23 @@ colorized : 'combo' or "TL Brightfield"
 
 var myViewer=null;
 
+// A flag to track whether OpenSeadragon/Annotorious is
+// being used inside another window (i.e. Chaise), set enableEmbedded.
+
+var enableEmbedded = false;
+if (window.self !== window.top) {
+    enableEmbedded = true;
+}
+
+/*** this does not seem to work..
+if (window.self !== window.top) {
+  var $iframe_parent_div = window.frameElement ? $(window.frameElement.parentNode) : null;
+  if (!$iframe_parent_div || !$iframe_parent_div.is(':visible'))
+    enableEmbedded = true;
+}
+****/
+
+
 /* for snap and go buttons */
 var snapX=null;
 var snapY=null;
@@ -415,6 +432,7 @@ function _addURLLayer(url, i) {
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
     var brightness=presetBrightness(i);
+    var gamma=presetGamma(i);
     var options = {
                   tileSource: {
                      height: _height,
@@ -443,9 +461,9 @@ function _addURLLayer(url, i) {
                    opacity: op
                    };
      myViewer.addTiledImage( options );
-     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op);
+     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma);
      var cname = _name.replace(/ +/g, "");
-     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'normalize': [_minvalue, _maxvalue] } );
+     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma, 'normalize': [_minvalue, _maxvalue] } );
      resetScalebar(_meterscaleinpixels);
    }
 }
@@ -478,6 +496,7 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
     var brightness=presetBrightness(i);
+    var gamma=presetGamma(i);
     var options = {
                   tileSource: {
                     type:'image',
@@ -487,9 +506,9 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
                   };
     myViewer.addTiledImage( options );
 
-    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,aliasname);
+    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
     var cname = _name.replace(/ +/g, "");
-    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'normalize': [0,1] }; 
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma, 'normalize': [0,1] }; 
     if(aliasname != null) {
       p['name']= aliasname;
     }

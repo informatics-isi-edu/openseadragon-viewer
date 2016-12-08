@@ -48,6 +48,11 @@ window.console.log("and now nav is active..",isActive(nav));
 }
 
 // preset
+function presetGamma(i) {
+  var presetGammaValue=1;
+  return presetGammaValue;
+}
+// preset
 function presetContrast(i) {
   var presetContrastValue=0;
   return presetContrastValue;
@@ -90,7 +95,7 @@ function presetOpacity(alpha,i) {
   return presetOpacityValue;
 }
 
-// save what is in propertyList to the backedn
+// save what is in propertyList to the backend
 // array of small json items
 function savePropertyList() {
    var plist=[];
@@ -115,11 +120,6 @@ function clonePropertyList(startList) {
 // reuse the location
 function copyPropertyListItem(startList,s,destList,d) {
   destList[d]=JSON.parse(JSON.stringify(startList[s]));
-/*
-   destList[d]['contrast']=startList[s]['contrast'];
-   destList[d]['opacity']=startList[s]['opacity'];
-   destList[d]['hue']=startList[s]['hue'];
-*/
 }
 
 function setTrackingPropertyList() {
@@ -151,16 +151,17 @@ function makeSimpleProperty(name, cname, id) {
                   hue: 240,
                   contrast: 0,
                   brightness: 100,
+                  gamma: 0,
                   normalize: [0,1] };
    return simpleP;
 }
 
 function testLoadingPropertyList() {
    var nList=[];
-   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, normalize: [0,1] };
-   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, normalize: [0,1] };
-   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, normalize: [0,1] };
-   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, normalize: [0,1] };
+   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, gamma:0, normalize: [0,1] };
+   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, gamma:0, normalize: [0,1] };
+   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, gamma:0, normalize: [0,1] };
+   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, gamma:0, normalize: [0,1] };
    
    nList.push(a); nList.push(aa); nList.push(aaa); nList.push(aaaa);
    loadPropertyList(nList);
@@ -178,7 +179,7 @@ function _RGBTohex(rgb) {
 function setupItemSliders(idx) {
   var p=propertyList[idx];
   var name=p['cname'];
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, normalize: [0,1] } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, gamma:0, normalize: [0,1] } );
   var _s='#'+name+'_opacity';
   var _sb=name+'_opacity_btn';
   var _c='#'+name+'_contrast';
@@ -187,6 +188,8 @@ function setupItemSliders(idx) {
   var _bb=name+'_brightness_btn';
   var _h='#'+name+'_hue';
   var _hb=name+'_hue_btn';
+  var _g='#'+name+'_gamma';
+  var _gb=name+'_gamma_btn';
 
   var sbtn=document.getElementById(_sb);
   jQuery(_s).slider({
@@ -229,18 +232,34 @@ function setupItemSliders(idx) {
   jQuery(_b).slider("option", "max", 255);
   jQuery(_b).slider("option", "step", 5);
 
+  var gbtn=document.getElementById(_gb);
+  gbtn.value=p['gamma'];
+  jQuery(_g).slider({
+      slide: function( event, ui ) {
+        gbtn.value=ui.value;
+        _updateGamma(name,ui.value);
+      }
+  });
+  jQuery(_g).width(100 + '%');
+  jQuery(_g).slider("option", "value", p['gamma']);
+  jQuery(_g).slider("option", "min", 0);
+  jQuery(_g).slider("option", "max", 1);
+  jQuery(_g).slider("option", "step",0.125);
+
   var hbtn=document.getElementById(_hb);
-  jQuery(_h).slider({
+  if(hbtn) {
+    jQuery(_h).slider({
       slide: function( event, ui ) {
         hbtn.value=ui.value;
         _updateHue(name,ui.value);
       }
-  });
-  jQuery(_h).width(100 + '%');
-  jQuery(_h).slider("option", "value", p['hue']);
-  jQuery(_h).slider("option", "min", 0);
-  jQuery(_h).slider("option", "max", 360);
-  jQuery(_h).slider("option", "step", 10);
+    });
+    jQuery(_h).width(100 + '%');
+    jQuery(_h).slider("option", "value", p['hue']);
+    jQuery(_h).slider("option", "min", 0);
+    jQuery(_h).slider("option", "max", 360);
+    jQuery(_h).slider("option", "step", 10);
+  }
 }
 
 function updateItemSliders(idx) {
@@ -255,16 +274,25 @@ window.console.log("in updateItemSliders..", p);
   var _bb=name+'_brightness_btn';
   var _h='#'+name+'_hue';
   var _hb=name+'_hue_btn';
+  var _g='#'+name+'_gamma';
+  var _gb=name+'_gamma_btn';
 
   var sbtn=document.getElementById(_sb);
   sbtn.value=p['opacity'];
   jQuery(_s).slider("option", "value", p['opacity']); // by default
+
   var cbtn=document.getElementById(_cb);
   cbtn.value=p['contrast'];
   jQuery(_c).slider("option", "value", p['contrast']);
+
   var bbtn=document.getElementById(_bb);
   bbtn.value=p['brightness'];
   jQuery(_b).slider("option", "value", p['brightness']);
+
+  var gbtn=document.getElementById(_gb);
+  gbtn.value=p['gamma'];
+  jQuery(_g).slider("option", "value", p['gamma']);
+
 // this hbtn is actually optional
   var hbtn=document.getElementById(_hb);
   if(hbtn) {
@@ -281,7 +309,7 @@ window.onload = function() {
 }
 
 // squeeze out all spaces in name
-function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,alias=null) {
+function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=null) {
   var name = n.replace(/ +/g, "");
   var _name=n;
   var _collapse_name=i+'_collapse';
@@ -296,10 +324,13 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,alias=null) {
   var _contrast_btn=name+'_contrast_btn';
   var _brightness_name=name+'_brightness';
   var _brightness_btn=name+'_brightness_btn';
+  var _gamma_name=name+'_gamma';
+  var _gamma_btn=name+'_gamma_btn';
   var _hue_init_value=hue;
   var _contrast_init_value=contrast;
   var _brightness_init_value=brightness;
   var _opacity_init_value=opacity;
+  var _gamma_init_value=gamma;
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
@@ -320,6 +351,9 @@ _nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Contrast<inp
 
 //brightness slider...
 _nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:green;"> </div> </div>';
+
+//gamma slider...
+_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:blue;"> </div> </div>';
 
 // opacity slider... disable by default 
 _nn+= '<div class="col-md-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_name+'" class="slider" style="background:grey;"> </div> </div>';
@@ -345,8 +379,8 @@ function _addFilters() {
    jQuery('.filtercontrol').show();
    for(i=0;i<propertyList.length;i++) {
      var p=propertyList[i];
-//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100, 'normalize':[0,1]] } );
-     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness'],p['normalize']);
+//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100, 'gamma':0, 'normalize':[0,1]] } );
+     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness'],p['gamma'],p['normalize']);
    }
    myViewer.setFilterOptions({
      filters: filterList
@@ -392,7 +426,7 @@ function _addInvertFilter(ItemID) {
       });
 }
 
-function _addFilter(ItemID, angle, contrast, brightness, normval) {
+function _addFilter(ItemID, angle, contrast, brightness, gamma,  normval) {
    var p=myViewer.world.getItemAt(ItemID);
 
    // get the initial(stored) filter list, 
@@ -407,6 +441,8 @@ function _addFilter(ItemID, angle, contrast, brightness, normval) {
      plist.push(OpenSeadragon.Filters.CONTRAST(contrast));
    if(resetMode || initPropertyList[initIdx]['brightness']!=brightness)
      plist.push(OpenSeadragon.Filters.BRIGHTNESS(brightness));
+   if(resetMode || initPropertyList[initIdx]['gamma']!=gamma)
+     plist.push(OpenSeadragon.Filters.GAMMA(gamma));
    if(angle < 0) { // special case.. this is a RGB full colored image
      filterList.push( {
         items: [myViewer.world.getItemAt(ItemID) ],
@@ -444,6 +480,18 @@ function _updateBrightness(name, newBrightness) {
      }
   }
   alertify.error("_updateBrightness should never be here");
+}
+
+function _updateGamma(name, newGamma) {
+  for(i=0; i<propertyList.length; i++) {
+     if( propertyList[i]['cname'] == name) {
+       var _i=propertyList[i]['itemID'];
+       propertyList[i]['gamma']=newGamma;
+       _addFilters();
+       return;
+     }
+  }
+  alertify.error("_updateGamma should never be here");
 }
 
 
