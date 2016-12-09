@@ -64,6 +64,7 @@
 }
 
 
+/*
 .navigation-bottomleft {
         background-color: #ccc;
         opacity: 0.8;
@@ -74,12 +75,14 @@
 	list-style: none;
 	z-index: 9999;
 }
+*/
 
 .navigation {
         background-color: #f9f9f9;
 	position: relative;
 	padding: 0px;
 	left: 0px;
+        width:110%;
 	list-style: none;
 	z-index: 9999;
 }
