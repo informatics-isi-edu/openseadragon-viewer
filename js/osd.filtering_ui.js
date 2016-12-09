@@ -49,7 +49,7 @@ window.console.log("and now nav is active..",isActive(nav));
 
 // preset
 function presetGamma(i) {
-  var presetGammaValue=1;
+  var presetGammaValue=0.75;
   return presetGammaValue;
 }
 // preset
