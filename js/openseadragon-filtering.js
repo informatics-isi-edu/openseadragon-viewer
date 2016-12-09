@@ -447,7 +447,7 @@ window.console.log(" in BRIGHTNESS filtering.");
 // encoded = ((original / 255) ^ (1 / gamma)) * 255
         GAMMA: function(adjustment) {
 window.console.log(" in GAMMA filtering.");
-            if (adjustment < 0 || adjustment > 1) {
+            if (adjustment < 0 || adjustment > 3) {
                 throw new Error(
                         "Gammf adjustment must be between 0 and 1.");
             }

@@ -147,16 +147,16 @@ function makeSimpleProperty(name, cname, id) {
                   hue: 240,
                   contrast: 0,
                   brightness: 100,
-                  gamma: 0 };
+                  gamma: 1 };
    return simpleP;
 }
 
 function testLoadingPropertyList() {
    var nList=[];
-   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, gamma:0 };
-   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, gamma:0};
-   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, gamma:0};
-   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, gamma:0};
+   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, gamma:1 };
+   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, gamma:1};
+   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, gamma:1};
+   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, gamma:1};
    
    nList.push(a); nList.push(aa); nList.push(aaa); nList.push(aaaa);
    loadPropertyList(nList);
@@ -174,7 +174,7 @@ function _RGBTohex(rgb) {
 function setupItemSliders(idx) {
   var p=propertyList[idx];
   var name=p['cname'];
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, gamma:0);
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, gamma:1);
   var _s='#'+name+'_opacity';
   var _sb=name+'_opacity_btn';
   var _c='#'+name+'_contrast';
@@ -238,7 +238,7 @@ function setupItemSliders(idx) {
   jQuery(_g).width(100 + '%');
   jQuery(_g).slider("option", "value", p['gamma']);
   jQuery(_g).slider("option", "min", 0);
-  jQuery(_g).slider("option", "max", 1);
+  jQuery(_g).slider("option", "max", 3);
   jQuery(_g).slider("option", "step",0.125);
 
   var hbtn=document.getElementById(_hb);
@@ -348,7 +348,7 @@ _nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Contrast<inp
 _nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:green;"> </div> </div>';
 
 //gamma slider...
-_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:blue;"> </div> </div>';
+_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="1" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:blue;"> </div> </div>';
 
 // opacity slider... disable by default 
 _nn+= '<div class="col-md-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_name+'" class="slider" style="background:grey;"> </div> </div>';
