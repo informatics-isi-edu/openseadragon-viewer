@@ -201,15 +201,17 @@ h3.page-header {
 }
 
 .panel-heading .accordion-toggle:after {
+    font-size: 10px;
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
-    float: right;        /* adjust as needed */
-    color: grey;         /* adjust as needed */
+    content: "\e114";    
+    float: right;        
+    color: grey;         
 }
 
 /* symbol for "collapsed" panels */
 .panel-heading .accordion-toggle.collapsed:after {
-    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+    font-size: 10px;
+    content: "\e080";
 }
 
 
