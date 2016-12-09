@@ -12,7 +12,7 @@ var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTo
 var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'normalize': [min, max] } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10} );
 var propertyList = [];
 var initPropertyList=[]; // the initial property list
 
@@ -98,13 +98,9 @@ function presetOpacity(alpha,i) {
 // save what is in propertyList to the backend
 // array of small json items
 function savePropertyList() {
-   var plist=[];
-   for(var i=0; i<propertyList.length; i++) {
-     var p=propertyList[i];
-     var j=JSON.stringify(p,null,2);
-     window.console.log(j);
-   }
-   uploadFilteringPropertyList('filteringPropertyList', plist);
+   var pp=JSON.stringify(propertyList);
+   window.console.log(pp);
+   uploadFilteringPropertyList('filteringPropertyList', pp);
 }
 
 function clonePropertyList(startList) {
@@ -151,17 +147,16 @@ function makeSimpleProperty(name, cname, id) {
                   hue: 240,
                   contrast: 0,
                   brightness: 100,
-                  gamma: 0,
-                  normalize: [0,1] };
+                  gamma: 0 };
    return simpleP;
 }
 
 function testLoadingPropertyList() {
    var nList=[];
-   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, gamma:0, normalize: [0,1] };
-   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, gamma:0, normalize: [0,1] };
-   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, gamma:0, normalize: [0,1] };
-   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, gamma:0, normalize: [0,1] };
+   var a= { name: "DAPI", cname: "DAPI", itemID: 0, opacity: 1, hue: 240, contrast: 56, brightness: 100, gamma:0 };
+   var aa= { name: "Alexa Fluor 488", cname: "AlexaFluor488", itemID: 1, opacity: 1, hue: 120, contrast: 0, brightness: 0, gamma:0};
+   var aaa= { name: "Alexa Fluor 555", cname: "AlexaFluor555", itemID: 2, opacity: 1, hue: 0, contrast: 0, brightness: 50, gamma:0};
+   var aaaa= { name: "combo", cname: "combo", itemID: 3, opacity: 1, hue: null, contrast: 0, brightness: 100, gamma:0};
    
    nList.push(a); nList.push(aa); nList.push(aaa); nList.push(aaaa);
    loadPropertyList(nList);
@@ -179,7 +174,7 @@ function _RGBTohex(rgb) {
 function setupItemSliders(idx) {
   var p=propertyList[idx];
   var name=p['cname'];
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, gamma:0, normalize: [0,1] } );
+//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness': 0, gamma:0);
   var _s='#'+name+'_opacity';
   var _sb=name+'_opacity_btn';
   var _c='#'+name+'_contrast';
@@ -379,8 +374,8 @@ function _addFilters() {
    jQuery('.filtercontrol').show();
    for(i=0;i<propertyList.length;i++) {
      var p=propertyList[i];
-//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100, 'gamma':0, 'normalize':[0,1]] } );
-     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness'],p['gamma'],p['normalize']);
+//propertyList.push( { 'name': _name, 'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10, 'brightness':100, 'gamma':0} );
+     _addFilter(p['itemID'],p['hue'],p['contrast'],p['brightness'],p['gamma']);
    }
    myViewer.setFilterOptions({
      filters: filterList
@@ -426,7 +421,7 @@ function _addInvertFilter(ItemID) {
       });
 }
 
-function _addFilter(ItemID, angle, contrast, brightness, gamma,  normval) {
+function _addFilter(ItemID, angle, contrast, brightness, gamma) {
    var p=myViewer.world.getItemAt(ItemID);
 
    // get the initial(stored) filter list, 

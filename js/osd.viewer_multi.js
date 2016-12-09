@@ -463,7 +463,7 @@ function _addURLLayer(url, i) {
      myViewer.addTiledImage( options );
      addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma);
      var cname = _name.replace(/ +/g, "");
-     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma, 'normalize': [_minvalue, _maxvalue] } );
+     propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma } );
      resetScalebar(_meterscaleinpixels);
    }
 }
@@ -508,7 +508,7 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
 
     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
     var cname = _name.replace(/ +/g, "");
-    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma, 'normalize': [0,1] }; 
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma}; 
     if(aliasname != null) {
       p['name']= aliasname;
     }
