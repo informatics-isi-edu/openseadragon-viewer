@@ -185,8 +185,10 @@ h3.page-header {
 }
 
 .panel-title {
+/*
   font-weight:bold;
-  color: #444;
+*/
+  color: #000;
   font-size: 14px;
 }
 
