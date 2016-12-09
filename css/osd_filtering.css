@@ -200,3 +200,16 @@ h3.page-header {
     border-radius: 3px;
 }
 
+.panel-heading .accordion-toggle:after {
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+
+/* symbol for "collapsed" panels */
+.panel-heading .accordion-toggle.collapsed:after {
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+
