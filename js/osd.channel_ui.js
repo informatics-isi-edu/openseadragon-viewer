@@ -2,7 +2,15 @@
 /* channel filtering event/message linkup with chaise */
 
 // save the propertyList to the backend
+// mType='filteringPropertyList'
 function uploadFilteringPropertyList(mType, pData) {
+    if (enableEmbedded) {
+        window.top.postMessage({messageType: mType, content: pData}, window.location.origin);
+    }
+}
+
+// mType='dismissChannels'
+function dismissChannelsPullOut(mType,pData) {
     if (enableEmbedded) {
         window.top.postMessage({messageType: mType, content: pData}, window.location.origin);
     }

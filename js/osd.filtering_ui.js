@@ -162,6 +162,13 @@ function testLoadingPropertyList() {
    loadPropertyList(nList);
 }
 
+// initate dismiss of pull out from the chaise side
+function dismissChannels() {
+   var pp=JSON.stringify(propertyList);
+   dismissChannelsPullOut('dismissChannels', pp);
+}
+
+
 function _RGBTohex(rgb) {
    var r=Math.floor(rgb[0] * 255);
    var g=Math.floor(rgb[1] * 255);
