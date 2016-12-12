@@ -336,15 +336,14 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
 
   var _nn='';
 //hue hint from http://hslpicker.com/#00e1ff
-
-_nn+=' <div class="panel panel-default col-md-12">';
-_nn+='<button id="'+_visible_name+'" class="pull-left" style="margin-top:10px; margin-right:5px; border:none;background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
-
  var aname=name;
  if(alias != null)
    aname=alias;
-_nn+=' <div class="panel-heading"> <h5 class="row panel-title" style="background-color:transparent;"><a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand" >'+aname+'</a> </h5></a> </div>';
 
+_nn+='<div class="panel panel-default col-md-12">';
+_nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
+_nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;vertical-align:middle; border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+_nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand" >'+aname+'</a> </div></div>';
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 
 _nn+= ' <div id="'+name+ '" title="restore settings" class="row" style="background-color:white;opacity:1;"> <button id="'+_reset_btn+ '" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:12px;margin-top:2px; margin-right:20px" >Reset</button><div class="filtercontrol">';
