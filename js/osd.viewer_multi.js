@@ -839,7 +839,10 @@ function jpgClick(fname) {
      }
      } else {
        if(isSafari) {
-         rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+//https://github.com/eligrey/FileSaver.js/issues/12#issuecomment-47247096
+//         rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+//         rawImg= rawImg.replace("image/jpeg", "image/png");
+         rawImg= rawImg.replace("image/jpeg", "application/octet-stream");
          document.location.href = rawImg;
          } else { // IE
             var blob = dataUriToBlob(rawImg);
