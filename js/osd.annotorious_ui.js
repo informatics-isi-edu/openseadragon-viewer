@@ -138,7 +138,7 @@ function event_createAnnotation(messageType, data) {
 // An event listener to capture incoming messages from Chaise
 /*********************************************************/
 window.addEventListener('message', function(event) {
-window.console.log("XXX add annotation event listener for incoming mesg from chaise..");
+//window.console.log("add annotation event listener for incoming mesg from chaise..");
     if (event.origin === window.location.origin) {
         var messageType = event.data.messageType;
         var data = event.data.content;
@@ -209,7 +209,7 @@ window.console.log("XXX add annotation event listener for incoming mesg from cha
                 myAnno.removeAnnotation(annotation);
                 break;
             default:
-                console.log('Invalid message type. No action performed. Received message event: ', messageType);
+                console.log('No action performed from annotorious handler. Received message event: ', messageType);
         }
     } else {
         console.log('Invalid event origin. Event origin: ', origin, '. Expected origin: ', window.location.origin);
