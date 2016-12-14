@@ -342,7 +342,7 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
 
 _nn+='<div class="panel panel-default col-md-12">';
 _nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
-_nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;vertical-align:middle; border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+_nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
 _nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand" >'+aname+'</a> </div></div>';
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 
