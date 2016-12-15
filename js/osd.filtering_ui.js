@@ -439,18 +439,16 @@ function _addFilter(ItemID, angle, contrast, brightness, gamma) {
      window.console.log("PANIC..");
      return;
    }
-   if(resetMode && initPropertyList[initIdx]['contrast']!=contrast)
+   if(resetMode || initPropertyList[initIdx]['contrast']!=contrast)
      plist.push(OpenSeadragon.Filters.CONTRAST(contrast));
-   if(resetMode && initPropertyList[initIdx]['brightness']!=brightness)
+   if(resetMode || initPropertyList[initIdx]['brightness']!=brightness)
      plist.push(OpenSeadragon.Filters.BRIGHTNESS(brightness));
 // since GAMMA default (0.75) is not the 'base' identity (1), always have
 // to include the GAMMA
-   if(resetMode) {
-     if(initPropertyList[initIdx]['gamma']!=gamma)
+   if(resetMode || initPropertyList[initIdx]['gamma']!=gamma)
        plist.push(OpenSeadragon.Filters.GAMMA(gamma));
-   } else {
+   if(!resetMode)
      plist.push(OpenSeadragon.Filters.GAMMA(gamma));
-   }
    if(angle < 0) { // special case.. this is a RGB full colored image
      filterList.push( {
         items: [myViewer.world.getItemAt(ItemID) ],
