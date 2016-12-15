@@ -232,6 +232,7 @@ if(image===undefined)
     $.Filters = {
       //http://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently/3115178#3115178
        CONTRAST: function(factor) {
+window.console.log(" in CONSTRAST filtering with factor.",factor);
             if (factor < 0 || factor > 100) {
                 throw new Error("CONTRAST factor must be within 0 to 100 range.");
             }
@@ -261,7 +262,7 @@ if(image===undefined)
             };
         },
         HUE: function(angle) { 
-window.console.log(" in HUE filtering.");
+window.console.log(" in HUE filtering with angle.",angle);
             if (angle < 0) {
                 throw new Error("HUE angle be greater than 0.");
             }
@@ -320,7 +321,7 @@ window.console.log(" in HUE filtering.");
             };
         },
         BRIGHTNESS: function(adjustment) {
-window.console.log(" in BRIGHTNESS filtering.");
+window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
             if (adjustment < -255 || adjustment > 255) {
                 throw new Error(
                         "Brightness adjustment must be between -255 and 255.");
@@ -446,7 +447,7 @@ window.console.log(" in BRIGHTNESS filtering.");
         },
 // encoded = ((original / 255) ^ (1 / gamma)) * 255
         GAMMA: function(adjustment) {
-window.console.log(" in GAMMA filtering.");
+window.console.log(" in GAMMA filtering with adjustment", adjustment);
             if (adjustment < 0 || adjustment > 3) {
                 throw new Error(
                         "Gammf adjustment must be between 0 and 1.");
