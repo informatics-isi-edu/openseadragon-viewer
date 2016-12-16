@@ -428,11 +428,12 @@ function _addURLLayer(url, i) {
           alertify.error("data jpegs should be at the same level as ImageProperties.xml");
         }
     }
+    var cname = _name.replace(/ +/g, "");
     var op=presetOpacity(_alpha,i);
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
     var brightness=presetBrightness(i);
-    var gamma=presetGamma(i);
+    var gamma=presetGamma(i,_name);
     var options = {
                   tileSource: {
                      height: _height,
@@ -462,7 +463,6 @@ function _addURLLayer(url, i) {
                    };
      myViewer.addTiledImage( options );
      addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma);
-     var cname = _name.replace(/ +/g, "");
      propertyList.push( { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma } );
      resetScalebar(_meterscaleinpixels);
    }
@@ -492,11 +492,12 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     var _rgb=null;
     var _dir=".";
 
+    var cname = _name.replace(/ +/g, "");
     var op=presetOpacity(_alpha,i);
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
     var brightness=presetBrightness(i);
-    var gamma=presetGamma(i);
+    var gamma=presetGamma(i,_name);
     var options = {
                   tileSource: {
                     type:'image',
@@ -507,7 +508,6 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     myViewer.addTiledImage( options );
 
     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
-    var cname = _name.replace(/ +/g, "");
     var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma}; 
     if(aliasname != null) {
       p['name']= aliasname;

@@ -48,8 +48,13 @@ window.console.log("and now nav is active..",isActive(nav));
 }
 
 // preset
-function presetGamma(i) {
-  var presetGammaValue=0.75;
+function presetGamma(i,name) {
+  var presetGammaValue=0.875;
+  if(  (blueColors.indexOf(name) != -1) 
+    || (redColors.indexOf(name) != -1) 
+    || (greenColors.indexOf(name) != -1) ) { 
+      presetGammaValue=0.75;
+  }
   return presetGammaValue;
 }
 // preset
