@@ -5,14 +5,14 @@
 // mType='filteringPropertyList'
 function uploadFilteringPropertyList(mType, pData) {
     if (enableEmbedded) {
-        window.top.postMessage({messageType: mType, content: pData}, window.location.origin);
+        window.parent.postMessage({messageType: mType, content: pData}, window.location.origin);
     }
 }
 
 // mType='dismissChannels'
 function dismissChannelsPullOut(mType,pData) {
     if (enableEmbedded) {
-        window.top.postMessage({messageType: mType, content: pData}, window.location.origin);
+        window.parent.postMessage({messageType: mType, content: pData}, window.location.origin);
     }
 }
 
