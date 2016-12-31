@@ -20,6 +20,13 @@ function sidebar_channels_slideOut() {
     return;
   }
 
+  var panelptr=$('#channels');
+  var sidebarptr=$('#sidebar');
+  sidebarptr.css("display","");
+  panelptr.css("display","");
+  panelptr.removeClass('fade-out').addClass('fade-in');
+
+/***** TEST
   // make sure it is displaying
   var ctrlElm = document.getElementById('sidebar');
 //  ctrlElm.style.opacity = 0;
@@ -30,11 +37,10 @@ function sidebar_channels_slideOut() {
 
   jQuery('.navigationLi').stop().animate({'marginLeft': '-2px' }, 400);
 
-/*
-  jQuery('#channelsMenu', jQuery('.navigationLi')).stop().animate({
-    'marginLeft': '-2px'
-  }, 400);
-*/
+//  jQuery('#channelsMenu', jQuery('.navigationLi')).stop().animate({
+//    'marginLeft': '-2px'
+//  }, 400);
+*****/
 
 }
 
@@ -45,6 +51,11 @@ function sidebar_channels_slideIn() {
     return;
   }
 
+  var panelptr=$('#channels');
+  panelptr.removeClass('fade-in').addClass('fade-out');
+  panelptr.css("display","none");
+
+/***** TEST
   var ctrlElm = document.getElementById('sidebar');
   ctrlElm.style.display = '';
     
@@ -55,11 +66,7 @@ function sidebar_channels_slideIn() {
 
   jQuery('.navigationLi').stop().animate({ 'marginLeft': '-450px' }, 400);
 
-/*
-  jQuery('#channelsMenu', jQuery('.navigationLi')).stop().animate({
-    'marginLeft': '-300px'
-  }, 400);
-*/
+*****/
 }
 
 // annotorious sidebar js

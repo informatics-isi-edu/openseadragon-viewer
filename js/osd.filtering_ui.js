@@ -170,7 +170,11 @@ function testLoadingPropertyList() {
 // initate dismiss of pull out from the chaise side
 function dismissChannels() {
    var pp=JSON.stringify(propertyList);
-   dismissChannelsPullOut('dismissChannels', pp);
+   if(enableEmbedded) {
+     dismissChannelsPullOut('dismissChannels', pp);
+     } else {
+      channelsClick();
+  }
 }
 
 

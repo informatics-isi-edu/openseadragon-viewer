@@ -197,7 +197,7 @@ jQuery(document).ready(function() {
         logALIASNAME=logCHANNELNAME;
       }
     }
-    if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") { // 
+    if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") {
       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
