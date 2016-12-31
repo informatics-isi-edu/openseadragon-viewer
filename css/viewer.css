@@ -137,9 +137,9 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 }
 
 
-@-webkit-keyframes fadeIn { from { opacity:0; left:-200; } to { opacity:0.95; left:0; } }
-@-moz-keyframes fadeIn { from { opacity:0; left:-200; } to { opacity:0.95; left:0; } }
-@keyframes fadeIn { from { opacity:0; left:-200; } to { opacity:0.95; left:0; } }
+@-webkit-keyframes fadeIn { from { opacity:0; left:-200px; } to { opacity:0.95; left:0px; } }
+@-moz-keyframes fadeIn { from { opacity:0; left:-200px; } to { opacity:0.95; left:0px; } }
+@keyframes fadeIn { from { opacity:0; left:-200px; } to { opacity:0.95; left:0px; } }
 
 .fade-in {
 	-webkit-animation:fadeIn ease-in 1;  
@@ -156,9 +156,9 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 }
 
 
-@-webkit-keyframes fadeOut { from { opacity:0.95; left:0; } to { opacity:0; left:-200; } }
-@-moz-keyframes fadeOut { from { opacity:0.95; left:0; } to { opacity:0; left:-200; } }
-@keyframes fadeOut { from { opacity:0.95; left:0; } to { opacity:0; left:-200; } }
+@-webkit-keyframes fadeOut { from { opacity:0.95; left:0px; } to { opacity:0; left:-200px; } }
+@-moz-keyframes fadeOut { from { opacity:0.95; left:0px; } to { opacity:0; left:-200px; } }
+@keyframes fadeOut { from { opacity:0.95; left:0px; } to { opacity:0; left:-200px; } }
 
 .fade-out {
 	-webkit-animation:fadeOut ease-in 1;  
