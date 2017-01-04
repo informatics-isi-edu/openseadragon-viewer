@@ -349,7 +349,7 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
  if(alias != null)
    aname=alias;
 
-_nn+='<div class="panel panel-default col-md-12">';
+_nn+='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
 _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
 _nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand" >'+aname+'</a> </div></div>';
@@ -358,21 +358,21 @@ _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class=
 _nn+= ' <div id="'+name+ '" title="restore settings" class="row" style="background-color:white;opacity:1;"> <button id="'+_reset_btn+ '" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:12px;margin-top:2px; margin-right:20px" >Reset</button><div class="filtercontrol">';
 
 //contrast slider...
-_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:#337ab7;"> </div></div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:#337ab7;"> </div></div>';
 
 //brightness slider...
-_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
 
 //gamma slider...
-_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="1" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="1" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
 
 // opacity slider... disable by default 
-_nn+= '<div class="col-md-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_name+'" class="slider" style="background:grey;"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_name+'" class="slider" style="background:grey;"> </div> </div>';
 
 
 //hue slider
 if(hue >= 0) {
-_nn+= '<div class="col-md-12 filter-slider"> <div class="menuLabel">Hue<input id="'+ _hue_btn+'" type="button" class="btn btn-info pull-right" value="240" style="color:black; background:white; height:16px; width:30px; margin-left:10px; font-size:12px; padding:0px;"> </div> <div class="slider h-slider" id="'+ _hue_name+'"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Hue<input id="'+ _hue_btn+'" type="button" class="btn btn-info pull-right" value="240" style="color:black; background:white; height:16px; width:30px; margin-left:10px; font-size:12px; padding:0px;"> </div> <div class="slider h-slider" id="'+ _hue_name+'"> </div> </div>';
 } else { 
 // this is a combo or unknown type --> rgb 
 }
