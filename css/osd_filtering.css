@@ -88,7 +88,7 @@ h3.page-header {
      vertical-align: top;
      font-size: 12px;
      margin: 10px 0;
-     width: 85%;
+     width: 95%;
 }
 
 .slider {
@@ -175,7 +175,7 @@ h3.page-header {
 
 /* a filtering panel */
 .panel {
-  margin: 15px 0;
+  margin: 15px 5px;
   border: none;
 }
 

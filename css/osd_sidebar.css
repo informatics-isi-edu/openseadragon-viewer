@@ -4,13 +4,6 @@
        background-color: orange;
 }
 
-/*
-.tabbox {
-	width: 200px;
-	height: 30%;
-}
-*/
-
 #annotationTabs {
 	width: 200px;
 	height: 70%;
@@ -82,7 +75,7 @@
 	position: relative;
 	padding: 0px;
 	left: 0px;
-        width:110%;
+        width:120%;
 	list-style: none;
 	z-index: 9999;
 }
@@ -129,7 +122,7 @@
 }
 
 .menuLabel {
-  margin-left:20px;
+  margin-left:10px;
   font-size:14px;
   color:black;
 }

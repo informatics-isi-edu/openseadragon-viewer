@@ -20,6 +20,7 @@
 <script type='text/javascript' src='js/jquery.ui.slider.js'></script>
 <script type="text/javascript" src="js/alertify.min.js"> </script>
 <script type="text/javascript" src="js/debug.js"> </script>
+<script type="text/javascript" src="js/osd.debug.js"> </script>
 <!-- MEI 
 <script type="text/javascript" src="js/osd.debug.js"> </script>
 -->
@@ -57,12 +58,12 @@
   <div id="viewer" class="row col-md-12 col-xs-12">
     <div id="openseadragon" class="openseadragon" style="background-color:black;border:none"></div>
 
-<div id="controls" class="row col-md-3 control-block" style="opacity:0.95;position:absolute;top:0;left:0;" >
+<div id="controls" class="row col-md-3 col-xs-3 control-block" style="opacity:0.95;position:absolute;top:0;left:0;" >
 <ul id="sidebar" class="navigation" style="display:none">
 <!-- for filtering control -->
   <li id='channels' class='navigationLi row col-md-12 col-xs-12' style="background-color:#f9f9f9">
     <div id='channelsMenu' class='menu'>
-      <div id='channelsLabel' class='menuLabel' style="font-size:14px;font-weight:bold">CHANNEL(s)<button class="pull-right" title="dismiss" onclick="dismissChannels()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
+      <div id='channelsLabel' class='menuLabel' style="margin-left:20px;font-size:14px;font-weight:bold">CHANNEL(s)<button class="pull-right" title="dismiss" onclick="dismissChannels()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
 </button>
       </div>
 <!-- filtering items are added to here.. -->
