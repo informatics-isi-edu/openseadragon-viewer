@@ -355,7 +355,7 @@ _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-bl
 _nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand" >'+aname+'</a> </div></div>';
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 
-_nn+= ' <div id="'+name+ '" title="restore settings" class="row" style="background-color:white;opacity:1;"> <button id="'+_reset_btn+ '" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:12px;margin-top:2px; margin-right:20px" >Reset</button><div class="filtercontrol">';
+_nn+= ' <div id="'+name+ '" class="row" style="background-color:white;opacity:1;"> <button id="'+_reset_btn+ '" title="restore settings" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:12px;margin-top:2px; margin-right:20px" >Reset</button><div class="filtercontrol">';
 
 //contrast slider...
 _nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:#337ab7;"> </div></div>';
