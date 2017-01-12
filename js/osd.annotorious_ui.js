@@ -74,7 +74,7 @@ function setupAnnoUI() {
 /*********************************************************/
 function updateAnnotationList(mType, cData) {
     if (enableEmbedded) {
-        window.top.postMessage({messageType: mType, content: cData}, window.location.origin);
+        window.parent.postMessage({messageType: mType, content: cData}, window.location.origin);
     } else {
         if(mType == 'onHighlighted') {
             var item=JSON.parse(cData);
@@ -109,13 +109,13 @@ window.console.log("IN HERE...");
 
 function updateAnnotationState(mType, cState) {
     if (enableEmbedded) {
-        window.top.postMessage({messageType: mType, content: cState}, window.location.origin);
+        window.parent.postMessage({messageType: mType, content: cState}, window.location.origin);
     }
 }
 
 function uploadAnnotationList(mType, cState) {
     if (enableEmbedded) {
-        window.top.postMessage({messageType: mType, content: cState}, window.location.origin);
+        window.parent.postMessage({messageType: mType, content: cState}, window.location.origin);
     }
 }
 
