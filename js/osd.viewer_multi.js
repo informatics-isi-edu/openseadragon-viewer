@@ -890,10 +890,14 @@ function jpgAllClick(fname) {
        var pixelDensityRatio=queryForRetina(canvas);
        if(pixelDensityRatio != 1) {
          var newCanvas = document.createElement("canvas");
-         newCanvas.width = canvas.width * pixelDensityRatio;
-         newCanvas.height = canvas.height * pixelDensityRatio;
+         var s_width=canvas.width*pixelDensityRatio;
+         var s_height=canvas.height*pixelDensityRatio;
+window.console.log("width is ", s_width);
+window.console.log("height is ", s_height);
+         newCanvas.width = canvas.width;
+         newCanvas.height = canvas.height;
          var newCtx = newCanvas.getContext("2d");
-         newCtx.drawImage(canvas, 0 , 0);
+         newCtx.drawImage(canvas, 0 , 0, s_width, s_height, 0,0 );
          rawImg = newCanvas.toDataURL("image/jpeg",1);
          } else {
            rawImg = canvas.toDataURL("image/jpeg",1);
@@ -1129,7 +1133,7 @@ function queryForRetina(canv) {
                          ctxt.oBackingStorePixelRatio ||
                          ctxt.backingStorePixelRatio || 1;
   var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
-window.console.log("queryForRetina..", pixelDensityRatio);
+
   return pixelDensityRatio;
 }
 
