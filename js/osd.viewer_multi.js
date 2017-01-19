@@ -820,19 +820,21 @@ function jpgClick(fname) {
    var rawImg;
    if( hasScalebar() ) {
      canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
+     rawImg = canvas.toDataURL("image/jpeg",1);
      } else {   
        canvas= myViewer.drawer.canvas;
-   }
-   var pixelDensityRatio=queryForRetina(canvas);
-   if(pixelDensityRatio != 1) {
-      var newCanvas = document.createElement("canvas");
-      newCanvas.width = canvas.width * pixelDensityRatio;
-      newCanvas.height = canvas.height * pixelDensityRatio;
-      var newCtx = newCanvas.getContext("2d");
-      newCtx.drawImage(canvas, 0 , 0);
-      rawImg = newCanvas.toDataURL("image/jpeg",1);
-      } else {
-        rawImg = canvas.toDataURL("image/jpeg",1);
+       var pixelDensityRatio=queryForRetina(canvas);
+       if(pixelDensityRatio != 1) {
+         var newCanvas = document.createElement("canvas");
+         newCanvas.width = canvas.width * pixelDensityRatio;
+         newCanvas.height = canvas.height * pixelDensityRatio;
+         var newCtx = newCanvas.getContext("2d");
+         newCtx.drawImage(canvas, 0 , 0);
+         rawImg = newCanvas.toDataURL("image/jpeg",1);
+//window.open(rawImg);
+         } else {
+            rawImg = canvas.toDataURL("image/jpeg",1);
+       }
    }
 
    if( ! isIE ) { // this only works for firefox and chrome
@@ -1126,7 +1128,7 @@ function queryForRetina(canv) {
                          ctxt.msBackingStorePixelRatio ||
                          ctxt.oBackingStorePixelRatio ||
                          ctxt.backingStorePixelRatio || 1;
-var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
+  var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
 window.console.log("queryForRetina..", pixelDensityRatio);
   return pixelDensityRatio;
 }

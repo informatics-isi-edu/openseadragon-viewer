@@ -350,8 +350,9 @@
          */
         getAsCanvas: function() {
             var canvas = document.createElement("canvas");
-            canvas.width = this.divElt.offsetWidth;
-            canvas.height = this.divElt.offsetHeight;
+            var pixelDensityRatio=queryForRetina(imgCanvas);
+            canvas.width = this.divElt.offsetWidth * pixelDensityRatio;
+            canvas.height = this.divElt.offsetHeight * pixelDensityRatio;
             var context = canvas.getContext("2d");
             context.fillStyle = this.backgroundColor;
             context.fillRect(0, 0, canvas.width, canvas.height);
@@ -378,18 +379,16 @@
          */
         getImageWithScalebarAsCanvas: function() {
             var imgCanvas = this.viewer.drawer.canvas;
-// test Retina
-//var  pixelDensityRatio=queryForRetina(imgCanvas);
+            var pixelDensityRatio=queryForRetina(imgCanvas);
             var newCanvas = document.createElement("canvas");
-//            newCanvas.width = imgCanvas.width * pixelDensityRatio;
-//            newCanvas.height = imgCanvas.height * pixelDensityRatio;
-            newCanvas.width = imgCanvas.width;
-            newCanvas.height = imgCanvas.height;
+            newCanvas.width = imgCanvas.width * pixelDensityRatio;
+            newCanvas.height = imgCanvas.height * pixelDensityRatio;
             var newCtx = newCanvas.getContext("2d");
             newCtx.drawImage(imgCanvas, 0 , 0);
             var scalebarCanvas = this.getAsCanvas();
             var location = this.getScalebarLocation();
-            newCtx.drawImage(scalebarCanvas, location.x, location.y);
+            newCtx.drawImage(scalebarCanvas, location.x * pixelDensityRatio,
+                                             location.y * pixelDensityRatio);
             return newCanvas;
         }
     };
