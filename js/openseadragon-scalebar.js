@@ -350,7 +350,7 @@
          */
         getAsCanvas: function() {
             var canvas = document.createElement("canvas");
-            var pixelDensityRatio=queryForRetina(imgCanvas);
+            var pixelDensityRatio=queryForRetina(canvas);
             canvas.width = this.divElt.offsetWidth * pixelDensityRatio;
             canvas.height = this.divElt.offsetHeight * pixelDensityRatio;
             var context = canvas.getContext("2d");
