@@ -365,6 +365,10 @@
                         this.barThickness, canvas.height);
             }
             context.font = window.getComputedStyle(this.divElt).font;
+            if(pixelDensityRatio == 2) { // change the font 
+// orig font is.. 10px sans-serif
+               context.font = "20px sans-serif";
+            }
             context.textAlign = "center";
             context.textBaseline = "middle";
             context.fillStyle = this.fontColor;
@@ -381,10 +385,13 @@
             var imgCanvas = this.viewer.drawer.canvas;
             var pixelDensityRatio=queryForRetina(imgCanvas);
             var newCanvas = document.createElement("canvas");
-            newCanvas.width = imgCanvas.width * pixelDensityRatio;
-            newCanvas.height = imgCanvas.height * pixelDensityRatio;
+            var _width=imgCanvas.width;
+            var _height=imgCanvas.height;
+            newCanvas.width = _width;
+            newCanvas.height = _height;
             var newCtx = newCanvas.getContext("2d");
-            newCtx.drawImage(imgCanvas, 0 , 0);
+            newCtx.drawImage(imgCanvas, 0,0, _width, _height,
+                                        0,0, _width, _height);
             var scalebarCanvas = this.getAsCanvas();
             var location = this.getScalebarLocation();
             newCtx.drawImage(scalebarCanvas, location.x * pixelDensityRatio,
