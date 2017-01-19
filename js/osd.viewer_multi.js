@@ -118,6 +118,7 @@ function isSimpleBaseImage() {
   return true;
 }
 
+// ...MAIN...
 jQuery(document).ready(function() {
 
 //process args
@@ -806,6 +807,7 @@ function extractInfo(str) {
 }
 
 
+// XXX Retina scale factor ???
 function jpgClick(fname) {
    var dname=fname;
    if(dname == null) {
@@ -816,10 +818,20 @@ function jpgClick(fname) {
 
    var rawImg;
    if( hasScalebar() ) {
+//   if(0) {
       var canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
       rawImg = canvas.toDataURL("image/jpeg",1);
       } else {
-        rawImg = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
+        var canvas= myViewer.drawer.canvas;
+        var pixelDensityRatio=queryForRetina(canvas);
+//        rawImg = canvas.toDataURL("image/jpeg",1);
+// RETINA FIX
+var newCanvas = document.createElement("canvas");
+newCanvas.width = canvas.width * pixelDensityRatio;
+newCanvas.height = canvas.height * pixelDensityRatio;
+var newCtx = newCanvas.getContext("2d");
+newCtx.drawImage(canvas, 0 , 0);
+        rawImg = newCanvas.toDataURL("image/jpeg",1);
    }
 
    if( ! isIE ) { // this only works for firefox and chrome
@@ -870,8 +882,15 @@ function jpgAllClick(fname) {
 //http://stackoverflow.com/questions/10932670/how-do-i-draw-the-content-of-div-on-html5-canvas-using-jquery
    html2canvas(document.body, {
        onrendered: function(canvas) {
-       var rawImg = canvas.toDataURL("image/jpeg",1);
-//       window.open(img);
+// RETINA FIX
+        var pixelDensityRatio=queryForRetina(canvas);
+var newCanvas = document.createElement("canvas");
+newCanvas.width = canvas.width * pixelDensityRatio;
+newCanvas.height = canvas.height * pixelDensityRatio;
+var newCtx = newCanvas.getContext("2d");
+newCtx.drawImage(canvas, 0 , 0);
+       var rawImg = newCanvas.toDataURL("image/jpeg",1);
+//       window.open(rawImg);
 
        if( ! isIE ) { // this only works for firefox and chrome
          var dload = document.createElement('a');
@@ -1091,3 +1110,19 @@ function hasScalebar()
       return false;
   }
 }
+
+// testing for retina
+function queryForRetina(canv) {
+// query for various pixel ratios
+ var ctxt = canv.getContext("2d");
+ var devicePixelRatio = window.devicePixelRatio || 1;
+ var backingStoreRatio = ctxt.webkitBackingStorePixelRatio ||
+                         ctxt.mozBackingStorePixelRatio ||
+                         ctxt.msBackingStorePixelRatio ||
+                         ctxt.oBackingStorePixelRatio ||
+                         ctxt.backingStorePixelRatio || 1;
+var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
+window.console.log("queryForRetina..", pixelDensityRatio);
+  return pixelDensityRatio;
+}
+

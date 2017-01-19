@@ -378,9 +378,11 @@
          */
         getImageWithScalebarAsCanvas: function() {
             var imgCanvas = this.viewer.drawer.canvas;
+// test Retina
+var  pixelDensityRatio=queryForRetina(imgCanvas);
             var newCanvas = document.createElement("canvas");
-            newCanvas.width = imgCanvas.width;
-            newCanvas.height = imgCanvas.height;
+            newCanvas.width = imgCanvas.width * pixelDensityRatio;
+            newCanvas.height = imgCanvas.height * pixelDensityRatio;
             var newCtx = newCanvas.getContext("2d");
             newCtx.drawImage(imgCanvas, 0 , 0);
             var scalebarCanvas = this.getAsCanvas();
