@@ -826,10 +826,13 @@ function jpgClick(fname) {
        var pixelDensityRatio=queryForRetina(canvas);
        if(pixelDensityRatio != 1) {
          var newCanvas = document.createElement("canvas");
-         newCanvas.width = canvas.width * pixelDensityRatio;
-         newCanvas.height = canvas.height * pixelDensityRatio;
+         var _width=canvas.width;
+         var _height=canvas.height;
+         newCanvas.width = _width;
+         newCanvas.height = _height;
          var newCtx = newCanvas.getContext("2d");
-         newCtx.drawImage(canvas, 0 , 0);
+         newCtx.drawImage(canvas, 0,0, _width, _height,
+                                  0,0, _width, _height);
          rawImg = newCanvas.toDataURL("image/jpeg",1);
 //window.open(rawImg);
          } else {
@@ -890,14 +893,13 @@ function jpgAllClick(fname) {
        var pixelDensityRatio=queryForRetina(canvas);
        if(pixelDensityRatio != 1) {
          var newCanvas = document.createElement("canvas");
-         var s_width=canvas.width*pixelDensityRatio;
-         var s_height=canvas.height*pixelDensityRatio;
-window.console.log("width is ", s_width);
-window.console.log("height is ", s_height);
-         newCanvas.width = canvas.width;
-         newCanvas.height = canvas.height;
+         var _width = canvas.width;
+         var _height = canvas.height;
+         newCanvas.width = _width;
+         newCanvas.height = _height;
          var newCtx = newCanvas.getContext("2d");
-         newCtx.drawImage(canvas, 0 , 0, s_width, s_height, 0,0 );
+         newCtx.drawImage(canvas, 0,0, _width, _height, 
+                                  0,0, _width, _height);
          rawImg = newCanvas.toDataURL("image/jpeg",1);
          } else {
            rawImg = canvas.toDataURL("image/jpeg",1);
