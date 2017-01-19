@@ -816,22 +816,23 @@ function jpgClick(fname) {
      dname="osd_"+ff+".jpg";
    }
 
+   var canvas;
    var rawImg;
    if( hasScalebar() ) {
-//   if(0) {
-      var canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
-      rawImg = canvas.toDataURL("image/jpeg",1);
+     canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
+     } else {   
+       canvas= myViewer.drawer.canvas;
+   }
+   var pixelDensityRatio=queryForRetina(canvas);
+   if(pixelDensityRatio != 1) {
+      var newCanvas = document.createElement("canvas");
+      newCanvas.width = canvas.width * pixelDensityRatio;
+      newCanvas.height = canvas.height * pixelDensityRatio;
+      var newCtx = newCanvas.getContext("2d");
+      newCtx.drawImage(canvas, 0 , 0);
+      rawImg = newCanvas.toDataURL("image/jpeg",1);
       } else {
-        var canvas= myViewer.drawer.canvas;
-        var pixelDensityRatio=queryForRetina(canvas);
-//        rawImg = canvas.toDataURL("image/jpeg",1);
-// RETINA FIX
-var newCanvas = document.createElement("canvas");
-newCanvas.width = canvas.width * pixelDensityRatio;
-newCanvas.height = canvas.height * pixelDensityRatio;
-var newCtx = newCanvas.getContext("2d");
-newCtx.drawImage(canvas, 0 , 0);
-        rawImg = newCanvas.toDataURL("image/jpeg",1);
+        rawImg = canvas.toDataURL("image/jpeg",1);
    }
 
    if( ! isIE ) { // this only works for firefox and chrome
@@ -883,14 +884,18 @@ function jpgAllClick(fname) {
    html2canvas(document.body, {
        onrendered: function(canvas) {
 // RETINA FIX
-        var pixelDensityRatio=queryForRetina(canvas);
-var newCanvas = document.createElement("canvas");
-newCanvas.width = canvas.width * pixelDensityRatio;
-newCanvas.height = canvas.height * pixelDensityRatio;
-var newCtx = newCanvas.getContext("2d");
-newCtx.drawImage(canvas, 0 , 0);
-       var rawImg = newCanvas.toDataURL("image/jpeg",1);
-//       window.open(rawImg);
+       var rawImg;
+       var pixelDensityRatio=queryForRetina(canvas);
+       if(pixelDensityRatio != 1) {
+         var newCanvas = document.createElement("canvas");
+         newCanvas.width = canvas.width * pixelDensityRatio;
+         newCanvas.height = canvas.height * pixelDensityRatio;
+         var newCtx = newCanvas.getContext("2d");
+         newCtx.drawImage(canvas, 0 , 0);
+         rawImg = newCanvas.toDataURL("image/jpeg",1);
+         } else {
+           rawImg = canvas.toDataURL("image/jpeg",1);
+       }
 
        if( ! isIE ) { // this only works for firefox and chrome
          var dload = document.createElement('a');
