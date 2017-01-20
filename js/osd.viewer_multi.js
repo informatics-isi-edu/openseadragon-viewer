@@ -870,6 +870,7 @@ function jpgClick(fname) {
 }
 
 // download everything on the canvas including the annotations..
+// var overlay=myViewer.svgOverlay();
 function jpgAllClick(fname) {
    var dname=fname;
    if(dname == null) {
@@ -897,11 +898,20 @@ function jpgAllClick(fname) {
          var _height = canvas.height;
          newCanvas.width = _width;
          newCanvas.height = _height;
-         var newCtx = newCanvas.getContext("2d");
-         newCtx.drawImage(canvas, 0,0, _width, _height, 
+         var newCtxt = newCanvas.getContext("2d");
+         newCtxt.drawImage(canvas, 0,0, _width, _height, 
                                   0,0, _width, _height);
+/* grab overlays 
+         var overlay=myViewer.svgOverlay();
+*/
          rawImg = newCanvas.toDataURL("image/jpeg",1);
          } else {
+           var ctxt = canvas.getContext("2d");
+           var overlay=document.getElementsByTagName("svg");
+           var cnt=overlay.length;
+           for(var i=0; i<cnt; i++) {
+//           ctxt.drawImage(overlay[i], 0, 0);
+           }
            rawImg = canvas.toDataURL("image/jpeg",1);
        }
 
