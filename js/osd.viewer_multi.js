@@ -840,7 +840,7 @@ function jpgClick(fname) {
        }
    }
 
-   if( ! isIE ) { // this only works for firefox and chrome
+   if( !isIE && !isSafari ) { // this only works for firefox and chrome
      var dload = document.createElement('a');
      dload.href = rawImg;
      dload.download = dname;
