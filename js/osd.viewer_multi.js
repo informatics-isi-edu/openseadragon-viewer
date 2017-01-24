@@ -100,7 +100,7 @@ var isMarkerAnnotation=false;
 var isHiddenAnnotation=false;
 var saveMarkerColor="red";
 
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
@@ -879,7 +879,7 @@ function jpgAllClick(fname) {
      dname="osd_"+ff+".jpg";
    }
 
-   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+   var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
    var isChrome = !!window.chrome && !!window.chrome.webstore;
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
