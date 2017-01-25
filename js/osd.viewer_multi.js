@@ -100,7 +100,8 @@ var isMarkerAnnotation=false;
 var isHiddenAnnotation=false;
 var saveMarkerColor="red";
 
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0 || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
+var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
+//var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0 || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
@@ -879,10 +880,6 @@ function jpgAllClick(fname) {
      dname="osd_"+ff+".jpg";
    }
 
-   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0 || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
-   var isChrome = !!window.chrome && !!window.chrome.webstore;
-   var isIE = /*@cc_on!@*/false || !!document.documentMode;
-
    if(!enableEmbedded) { // only when it is a standalone viewer
       $('.annotorious-popup').css('display','none');
    }
@@ -956,9 +953,6 @@ function jpgClickNoScale(fname) {
      var ff= f.toString();
      dname="osd_"+ff+".jpg";
    }
-   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-   var isChrome = !!window.chrome && !!window.chrome.webstore;
-   var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
    if( ! isSafari && ! isIE ) { // this only works for firefox and chrome
      var img = myViewer.drawer.canvas.toDataURL("image/jpeg",1);
