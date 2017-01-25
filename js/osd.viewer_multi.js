@@ -100,7 +100,8 @@ var isMarkerAnnotation=false;
 var isHiddenAnnotation=false;
 var saveMarkerColor="red";
 
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
+//var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0 || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
@@ -807,8 +808,63 @@ function extractInfo(str) {
 }
 
 
-// XXX Retina scale factor ???
 function jpgClick(fname) {
+   var dname=fname;
+   if(dname == null) {
+     var f = new Date().getTime();
+     var ff= f.toString();
+     dname="osd_"+ff+".jpg";
+   }
+
+/* 
+html2canvas($('#myDiv'), {
+   onrendered: function(canvas) {
+     var img = canvas.toDataURL()
+     window.open(img);
+  }
+});
+html2canvas(document.body).then(function(canvas) {
+    document.body.appendChild(canvas);
+});
+https://github.com/niklasvh/html2canvas/issues/95
+$(h2cSelector).html2canvas($.extend({
+            flashcanvas: "../external/flashcanvas.min.js",
+            logging: true,
+            profile: true,
+            useCORS: true,
+            allowTaint: true
+        }, h2cOptions));
+    }, 100);
+*/
+   var loaders = [];
+   if( hasScalebar() ) {
+     var _canvas=myViewer.drawer.canvas;
+//    var tag = document.getElementByTag('special-toggle');
+//    var p=$(".openseadragon-container");
+    var p=$(".openseadragon-canvas");
+    var overlay=myViewer.svgOverlay().node();
+    var _svg='<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">' + overlay.outerHTML+'</svg>';
+window.console.log(_svg);
+    var pp=document.body;
+window.console.log('XX', typeof(pp));
+window.console.log('XX', typeof(p));
+    html2canvas(_svg, {
+        onrendered: function (canvas) {
+window.console.log("doing the convert now..");
+     $.when.apply(null, loaders).done(function() {
+       _downloadIt(canvas, dname);
+     });
+     },
+            logging: true,
+            profile: true,
+            useCORS: true,
+            allowTaint: true
+    });
+   }
+}
+
+// XXX Retina scale factor ???
+function jpgOOClick(fname) {
    var dname=fname;
    if(dname == null) {
      var f = new Date().getTime();
@@ -818,9 +874,15 @@ function jpgClick(fname) {
 
    var canvas;
    var rawImg;
+
+   var loaders = [];
    if( hasScalebar() ) {
      canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
-     rawImg = canvas.toDataURL("image/jpeg",1);
+     loaders.push(drawCheese(canvas));
+     $.when.apply(null, loaders).done(function() {
+window.console.log("doing the convert now..");
+       _downloadIt(canvas, dname);
+     });
      } else {   
        canvas= myViewer.drawer.canvas;
        var pixelDensityRatio=queryForRetina(canvas);
@@ -833,14 +895,24 @@ function jpgClick(fname) {
          var newCtx = newCanvas.getContext("2d");
          newCtx.drawImage(canvas, 0,0, _width, _height,
                                   0,0, _width, _height);
-         rawImg = newCanvas.toDataURL("image/jpeg",1);
+         loaders.push(drawCheese(newCanvas));
+         $.when.apply(null, loaders).done(function() {
+             _downloadIt(newCanvas, dname);
+         });
 //window.open(rawImg);
          } else {
-            rawImg = canvas.toDataURL("image/jpeg",1);
+           loaders.push(drawCheese(canvas));
+           $.when.apply(null, loaders).done(function() {
+               _downloadIt(canvas, dname);
+           });
        }
    }
+}
 
-   if( ! isIE ) { // this only works for firefox and chrome
+function _downloadIt(canvas, dname) {
+   var rawImg = canvas.toDataURL("image/jpeg",1);
+
+   if( !isIE && !isSafari ) { // this only works for firefox and chrome
      var dload = document.createElement('a');
      dload.href = rawImg;
      dload.download = dname;
@@ -861,6 +933,7 @@ function jpgClick(fname) {
 //         rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
 //         rawImg= rawImg.replace("image/jpeg", "image/png");
          rawImg= rawImg.replace("image/jpeg", "application/octet-stream");
+//         window.open(rawImg);
          document.location.href = rawImg;
          } else { // IE
             var blob = dataUriToBlob(rawImg);
@@ -879,68 +952,57 @@ function jpgAllClick(fname) {
      dname="osd_"+ff+".jpg";
    }
 
-   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-   var isChrome = !!window.chrome && !!window.chrome.webstore;
-   var isIE = /*@cc_on!@*/false || !!document.documentMode;
-
    if(!enableEmbedded) { // only when it is a standalone viewer
       $('.annotorious-popup').css('display','none');
    }
+   var _width;
+   var _height;
+   var loaders = [];
 //http://stackoverflow.com/questions/10932670/how-do-i-draw-the-content-of-div-on-html5-canvas-using-jquery
+
+    html2canvas(document.body, {
+      onrendered: function(canvas) {
+        document.body.appendChild(canvas);
+      },
+      top:500,
+      width: 300,
+      height: 300 
+    });
+
+/*
    html2canvas(document.body, {
        onrendered: function(canvas) {
+window.console.log("html2canvas renderered..")
 // RETINA FIX
        var rawImg;
        var pixelDensityRatio=queryForRetina(canvas);
        if(pixelDensityRatio != 1) {
          var newCanvas = document.createElement("canvas");
-         var _width = canvas.width;
-         var _height = canvas.height;
+         _width = canvas.width;
+         _height = canvas.height;
          newCanvas.width = _width;
          newCanvas.height = _height;
          var newCtxt = newCanvas.getContext("2d");
          newCtxt.drawImage(canvas, 0,0, _width, _height, 
                                   0,0, _width, _height);
-/* grab overlays 
-         var overlay=myViewer.svgOverlay();
-*/
-         rawImg = newCanvas.toDataURL("image/jpeg",1);
+         loaders.push(drawCheese(newCanvas));
+         $.when.apply(null, loaders).done(function() {
+           _downloadIt(newCanvas, dname);
+         });
          } else {
-           var ctxt = canvas.getContext("2d");
-           var overlay=document.getElementsByTagName("svg");
-           var cnt=overlay.length;
-           for(var i=0; i<cnt; i++) {
-//           ctxt.drawImage(overlay[i], 0, 0);
-           }
-           rawImg = canvas.toDataURL("image/jpeg",1);
+window.console.log("in here 1");
+//window.open(canvas);
+//           loaders.push(drawCheese(canvas));
+//           $.when.apply(null, loaders).done(function() {
+//             _downloadIt(canvas, dname);
+//           });
        }
-
-       if( ! isIE ) { // this only works for firefox and chrome
-         var dload = document.createElement('a');
-         dload.href = rawImg;
-         dload.download = dname;
-         dload.innerHTML = "Download Image File";
-         dload.style.display = 'none';
-         if( isChrome ) {
-           dload.click();
-           delete dload;
-           } else {
-             dload.onclick=destroyClickedElement;
-             document.body.appendChild(dload);
-             dload.click();
-             delete dload;
-         }
-         } else {
-           if(isSafari) {
-             rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
-             document.location.href = rawImg;
-             } else { // IE
-                var blob = dataUriToBlob(rawImg);
-                window.navigator.msSaveBlob(blob, dname);
-           }
-       }
-       }
+document.body.appendChild(canvas);
+       },
+       width:300,
+       height:300
    });
+*/
    if(!enableEmbedded) { // only when it is a standalone viewer
      $('.annotorious-popup').css('display','');
    }
@@ -956,7 +1018,7 @@ function jpgClickNoScale(fname) {
      var ff= f.toString();
      dname="osd_"+ff+".jpg";
    }
-   var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+   var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
    var isChrome = !!window.chrome && !!window.chrome.webstore;
    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
@@ -1148,4 +1210,37 @@ function queryForRetina(canv) {
 
   return pixelDensityRatio;
 }
+
+
+function drawCheese(canvas, callback) {
+    var deferred = $.Deferred();
+    var img = new Image();
+//    img.crossOrigin = "anonymous";
+    img.setAttribute('crossOrigin', 'anonymous');
+    var ctx = canvas.getContext('2d');
+    var data = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">' +
+        '<foreignObject width="100%" height="100%">' +
+         '<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:40px">' +
+           '<em>I</em> like ' + 
+           '<span style="color:white; text-shadow:0 0 2px blue;">' +
+           'cheese</span>' +
+         '</div>' +
+         '</foreignObject>' +
+         '</svg>';
+
+  var DOMURL = window.URL || window.webkitURL || window;
+  
+  var svg = new Blob([data], {type: 'image/svg+xml'});
+  var url = DOMURL.createObjectURL(svg);
+
+  img.onload = function() {
+      ctx.drawImage(img, 0, 0);
+      DOMURL.revokeObjectURL(url);
+      deferred.resolve();
+  };
+
+  img.src = url;
+  return deferred.promise();
+}
+
 
