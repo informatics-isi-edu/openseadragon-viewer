@@ -1,5 +1,7 @@
 
-
+//
+// TESTING out converting canvas to svg
+//
 //https://oliverbinns.com/articles/rasterising-SVG-in-the-browser/
 
 function scaling(paperSize, printDPI, svgMaxDim) {

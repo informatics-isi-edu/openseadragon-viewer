@@ -30,14 +30,13 @@ function isActive(elm) {
   }
 }
 
+
 // this is filtering channels sidebar
+var channels_sidebar=false;
 function channelsClick()
 {
-  var nav = document.getElementById('nav-toggle');
-window.console.log("nav is active..",isActive(nav));
-  nav.classList.toggle( "active" );
-window.console.log("and now nav is active..",isActive(nav));
-  if(isActive(nav)) {
+  channels_sidebar = ! channels_sidebar;
+  if(channels_sidebar) {
     sidebar_channels_slideOut();
 //enable just for mei, testLoadingPropertyList();
     setTrackingPropertyList();
@@ -323,14 +322,19 @@ window.onload = function() {
 function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=null) {
   var name = n.replace(/ +/g, "");
   var _name=n;
+
   var _collapse_name=i+'_collapse';
-  var _visible_name=i+'_visible';
+  var _visible_name=i+'_item_visible';
+  var _opacity_name=i+'_item_opacity';
+  var _task_name=i+'_item_task';
+  var taskDiv=_task_name+'Div';
+
   var _reset_name=name+'_reset';
   var _reset_btn=name+'_reset_btn';
   var _hue_name=name+'_hue';
   var _hue_btn=name+'_hue_btn';
-  var _opacity_name=name+'_opacity';
-  var _opacity_btn=name+'_opacity_btn';
+  var _opacity_slider_name=name+'_opacity';
+  var _opacity_slider_btn=name+'_opacity_btn';
   var _contrast_name=name+'_contrast';
   var _contrast_btn=name+'_contrast_btn';
   var _brightness_name=name+'_brightness';
@@ -351,28 +355,39 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
 
 _nn+='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
-_nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
-_nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand" >'+aname+'</a> </div></div>';
-_nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse"> <div class="panel-body">';
 
-_nn+= ' <div id="'+name+ '" class="row" style="background-color:white;opacity:1;"> <button id="'+_reset_btn+ '" title="restore settings" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:12px;margin-top:2px; margin-right:20px" >Reset</button><div class="filtercontrol">';
+var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\',\''+_task_name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+
+var _bb='<button id="'+_opacity_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white;"  onClick="openTask('+i+',\''+_task_name+'\',\''+taskDiv+'\')" title="click to expand"><span id="'+_task_name+'" class="glyphicon glyphicon-tasks" style="color:#407CCA"></span> </button>';
+
+_nn+=_b+'<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand">'+_bb+'</a><p>'+name+'</p>';
+
+_nn+='</div></div>';
+_nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse">';
+
+_nn+='<div class="panel-body">';
+
+_nn+='<div id="'+name+ '" class="row col-md-12 col-xs-12" style="background-color:white;opacity:1;">';
+_nn+='<button id="'+_reset_btn+ '" title="restore settings" type="button" class="btn btn-xs btn-primary pull-right" onclick="toggleResetItem('+ i+ ','+ '\''+ name+ '\');" style="font-size:12;margin-right:-10px; margin-bottom:10px;" >Reset</button></div>';
+
+_nn+='<div id='+taskDiv+' class="filtercontrol">';
 
 //contrast slider...
-_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:#337ab7;"> </div></div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Contrast<input id="'+ _contrast_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:10px; padding:0px;"></div> <div id="'+ _contrast_name+'" class="slider" style="background:#337ab7; "> </div></div>';
 
 //brightness slider...
-_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Brightness<input id="'+ _brightness_btn+'" type="button" class="btn btn-info pull-right"  value="0" style="color:black; background:white; height:16px; width:30px; font-size:10px; padding:0px;"> </div> <div id="'+_brightness_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
 
 //gamma slider...
-_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="1" style="color:black; background:white; height:16px; width:30px; font-size:12px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:#337ab7;"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Gamma<input id="'+ _gamma_btn+'" type="button" class="btn btn-info pull-right"  value="1" style="color:black; background:white; height:16px; width:30px; font-size:10px; padding:0px;"> </div> <div id="'+_gamma_name+'" class="slider" style="background:#337ab7; "> </div> </div>';
 
 // opacity slider... disable by default 
-_nn+= '<div class="col-md-12 col-xs-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_name+'" class="slider" style="background:grey;"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider" style="display:none"> <div class="menuLabel">Opacity<input id="'+_opacity_slider_btn+'" type="button" class="btn btn-info pull-right" value="1" style="color:black; background:white; height:16px; width:30; margin-left:10px; font-size:12px; padding:0px;"> </div> <div id="'+_opacity_slider_name+'" class="slider" style="background:grey;"> </div> </div>';
 
 
 //hue slider
 if(hue >= 0) {
-_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Hue<input id="'+ _hue_btn+'" type="button" class="btn btn-info pull-right" value="240" style="color:black; background:white; height:16px; width:30px; margin-left:10px; font-size:12px; padding:0px;"> </div> <div class="slider h-slider" id="'+ _hue_name+'"> </div> </div>';
+_nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Hue<input id="'+ _hue_btn+'" type="button" class="btn btn-info pull-right" value="240" style="color:black; background:white; height:16px; width:30px; margin-left:10px; font-size:10px; padding:0px; margin-bottom:10px;"> </div> <div class="slider h-slider" id="'+ _hue_name+'"> </div> </div>';
 } else { 
 // this is a combo or unknown type --> rgb 
 }
@@ -381,7 +396,11 @@ _nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Hu
 _nn+= '</div> </div> </div> <!-- panel-body --> </div> </div> <!-- panel -->';
 
   jQuery('#itemList').append(_nn);
-window.console.log(_nn);
+window.console.log('MM',_nn);
+}
+
+function openTask(i,name,taskDiv) {
+  jQuery('.filtercontrol').show();
 }
 
 // this is called when any of the hue/contrast slider got touched
@@ -593,18 +612,23 @@ window.console.log("bad panic..",propertyList.length," - ", initPropertyList.len
 }
 
 /* 0 , 1 */
-function toggleItem(itemID, itemLabel) {
+function toggleItem(itemID, itemLabel,taskLabel) {
   var item=myViewer.world.getItemAt(itemID);
   var tmp='#'+itemLabel;
   var eptr = $(tmp);
   var op=item.getOpacity();
+  var _btn=taskLabel;
   if (op > 0) {
     item.setOpacity(0);
     eptr.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
+    document.getElementById(_btn).style.color="grey";
+    document.getElementById(_btn).disabled=true;
     } else {
       op=_getOpacityByID(itemID);
       item.setOpacity(op);
       eptr.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
+      document.getElementById(_btn).disabled=false;
+      document.getElementById(_btn).style.color="#337ab7";
   }
 }
 

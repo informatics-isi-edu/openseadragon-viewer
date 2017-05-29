@@ -174,3 +174,32 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 	animation-duration:0.4s;
 }
 
+
+.btn.pick {
+  background-color: #18558E;
+}
+
+.btn.pick:hover {
+    background-color: #002D73;
+    border-color: #1E4E9A;
+}
+
+.btn-success {
+    background-color: #407CCA;
+    border-color: #1E4E9A;
+}
+
+.open > .dropdown-toggle.btn-success, .btn-success:hover, .btn-success:focus, .btn-success:active {
+    background-color: #002D73;
+    border-color: #1E4E9A;
+}
+
+.btn.pick {
+  background-color: #18558E;
+}
+
+.btn.pick:hover {
+    background-color: #002D73;
+    border-color: #1E4E9A;
+}
+
