@@ -356,7 +356,7 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
 _nn+='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
 
-var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\',\''+_task_name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\',\''+_opacity_name+'\',\''+_task_name+'\',\''+taskDiv+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
 
 var _bb='<button id="'+_opacity_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white;"  onClick="openTask('+i+',\''+_task_name+'\',\''+taskDiv+'\')" title="click to expand"><span id="'+_task_name+'" class="glyphicon glyphicon-tasks" style="color:#407CCA"></span> </button>';
 
@@ -612,22 +612,23 @@ window.console.log("bad panic..",propertyList.length," - ", initPropertyList.len
 }
 
 /* 0 , 1 */
-function toggleItem(itemID, itemLabel,taskLabel) {
+function toggleItem(itemID, itemLabel,opacityLabel,taskbtn,taskDiv) {
   var item=myViewer.world.getItemAt(itemID);
   var tmp='#'+itemLabel;
   var eptr = $(tmp);
   var op=item.getOpacity();
-  var _btn=taskLabel;
+  var _btn=taskbtn;
   if (op > 0) {
     item.setOpacity(0);
     eptr.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
     document.getElementById(_btn).style.color="grey";
-    document.getElementById(_btn).disabled=true;
+    document.getElementById(opacityLabel).disabled=true;
+    document.getElementById(taskDiv).style.display='none';
     } else {
       op=_getOpacityByID(itemID);
       item.setOpacity(op);
       eptr.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
-      document.getElementById(_btn).disabled=false;
+      document.getElementById(opacityLabel).disabled=false;
       document.getElementById(_btn).style.color="#337ab7";
   }
 }

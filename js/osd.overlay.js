@@ -621,19 +621,19 @@ function setupOverlaySelect() {
 // toggle visibility of layer
 // overlaySVGLayerList->({ layerid:layerid, layer:name, opacity:pval });
 // overlaySVGPathList->({ layerid:layerid, group:name, path:pname, node:d3Path});
-function toggleLayer(idx, layerLabel, sliderDiv) {
+function toggleLayer(idx, layerLabel, opacityLabel, taskbtn, sliderDiv) {
   var layer=getLayerByLayerid(idx);
   var tmp='#'+layerLabel;
   var sDiv=idx+'_layer_opacityDiv';
   var eptr = $(tmp);
   var name=layer['layer'];
   var _id=layer['layerid'];
-  var _btn=sliderDiv;
+  var _btn=taskbtn;
   var open=eptr.hasClass('glyphicon-eye-open');
   if (open) {
     eptr.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
     updateLayerVisibility(idx,true);
-    document.getElementById(_btn).disabled=true;
+    document.getElementById(opacityLabel).disabled=true;
     document.getElementById(_btn).style.color="grey";
 // if the task slider is open, close it,--
 window.console.log("sDiv is.. ",sDiv);
@@ -641,7 +641,7 @@ window.console.log("sDiv is.. ",sDiv);
     } else {
       eptr.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
       updateLayerVisibility(idx,false);
-      document.getElementById(_btn).disabled=false;
+      document.getElementById(opacityLabel).disabled=false;
       document.getElementById(_btn).style.color="#407CCA";
   }
 }
@@ -677,7 +677,7 @@ var _nn='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading">';
 _nn+='<div class="row panel-title" style="background-color:transparent">';
 
-var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleLayer('+i+',\''+_eye_name+'\',\''+sliderDiv+'\')" title="hide or show layer"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:'+color+'"></span> </button>';
+var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleLayer('+i+',\''+_eye_name+'\',\''+_opacity_name+'\',\''+_task_name+'\',\''+sliderDiv+'\')" title="hide or show layer"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:'+color+'"></span> </button>';
 
 var _bb='<button id="'+_opacity_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white;"  onClick="opacityLayer(\''+sliderDiv+'\')" title="click to change opacity of layer"><span id="'+_task_name+'" class="glyphicon glyphicon-tasks" style="color:#407CCA"></span> </button>';
 
