@@ -621,28 +621,28 @@ function setupOverlaySelect() {
 // toggle visibility of layer
 // overlaySVGLayerList->({ layerid:layerid, layer:name, opacity:pval });
 // overlaySVGPathList->({ layerid:layerid, group:name, path:pname, node:d3Path});
-function toggleLayer(idx, layerLabel, opacityLabel, taskbtn, sliderDiv) {
+function toggleLayer(idx, layerLabel, opacityLabel, taskbtn, collapseName) {
   var layer=getLayerByLayerid(idx);
   var tmp='#'+layerLabel;
-  var sDiv=idx+'_layer_opacityDiv';
   var eptr = $(tmp);
   var name=layer['layer'];
   var _id=layer['layerid'];
-  var _btn=taskbtn;
   var open=eptr.hasClass('glyphicon-eye-open');
+  var cptr='#'+collapseName;
+  if($(cptr).hasClass('in')) {
+    $(cptr).removeClass('in');
+  }
   if (open) {
     eptr.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
     updateLayerVisibility(idx,true);
     document.getElementById(opacityLabel).disabled=true;
-    document.getElementById(_btn).style.color="grey";
+    document.getElementById(taskbtn).style.color="grey";
 // if the task slider is open, close it,--
-window.console.log("sDiv is.. ",sDiv);
-    document.getElementById(sliderDiv).style.display = 'none';
     } else {
       eptr.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
       updateLayerVisibility(idx,false);
       document.getElementById(opacityLabel).disabled=false;
-      document.getElementById(_btn).style.color="#407CCA";
+      document.getElementById(taskbtn).style.color="#407CCA";
   }
 }
 
@@ -670,6 +670,7 @@ function addLayerListEntry(n,i,opacity,color) {
   var _opacity_slider_btn=name+'_layer_opacity_slider_btn';
   var _opacity_init_value=opacity;
   var sliderDiv=_opacity_name+'Div';
+  var sliderRDiv=_opacity_name+'RDiv';
 
 
 var _nn='<div class="panel panel-default col-md-12 col-xs-12">';
@@ -677,7 +678,7 @@ var _nn='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading">';
 _nn+='<div class="row panel-title" style="background-color:transparent">';
 
-var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleLayer('+i+',\''+_eye_name+'\',\''+_opacity_name+'\',\''+_task_name+'\',\''+sliderDiv+'\')" title="hide or show layer"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:'+color+'"></span> </button>';
+var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleLayer('+i+',\''+_eye_name+'\',\''+_opacity_name+'\',\''+_task_name+'\',\''+_collapse_name+'\')" title="hide or show layer"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:'+color+'"></span> </button>';
 
 var _bb='<button id="'+_opacity_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white;"  onClick="opacityLayer(\''+sliderDiv+'\')" title="click to change opacity of layer"><span id="'+_task_name+'" class="glyphicon glyphicon-tasks" style="color:#407CCA"></span> </button>';
 
@@ -689,7 +690,7 @@ _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse">';
 // where the slider is
 _nn+='<div class="panel-body">';
 
-_nn+='<div class="row col-md-12 col-xs-12">';
+_nn+='<div id=\''+sliderRDiv+'\' class="row col-md-12 col-xs-12">';
 _nn+='<button id=\''+_reset_slider_btn+'\' class="pull-right btn btn-xs btn-success" style="font-size:12; margin-bottom:10px; margin-right:-10px;" title="Reset opacity" onclick="resetLayer('+i+',\''+name+'\')">Reset</button></div>'; 
 
 _nn+= '<div id=\''+sliderDiv+'\' class="layercontrol" style="display:none">';
@@ -707,7 +708,6 @@ window.console.log(_nn);
 
 // turn it on
 function opacityLayer(sliderDiv) {
-  var p=document.getElementById(sliderDiv);
   document.getElementById(sliderDiv).style.display = '';
 } 
 
