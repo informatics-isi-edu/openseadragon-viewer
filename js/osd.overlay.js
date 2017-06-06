@@ -703,7 +703,7 @@ _nn+='<!-- sliderDiv -->';
 _nn+= '</div> </div> </div> <!-- panel-body --> </div> </div> <!-- panel -->';
 
   jQuery('#layerList').append(_nn);
-window.console.log(_nn);
+//window.console.log(_nn);
 }
 
 // turn it on

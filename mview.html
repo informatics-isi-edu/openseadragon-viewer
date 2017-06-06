@@ -80,13 +80,13 @@
     </div>
   </li>
 <!-- for annotation listing control -->
-  <li id='annotations' class='navigationLi' style='display:none;'><div id='annoMenu'  class='menu'>
-    <div id='annotationTabs' class='row'>
-      <div id='annotationLabel' class='menuLabel' style='margin:30px;'>Annotation(s)</div>
-        <div id="annotations-list"></div>
-
+  <li id='annotations' class='navigationLi row col-md-12 col-xs-12' style="background-color:#f9f9f9;display:none">
+    <div id='annotationsMenu'  class='menu'>
+      <div id='annotationsLabel' class='menuLabel' style="margin-left:20px;font-size:14px;font-weight:bold">ANNOTATION(s)<button class="pull-right" title="dismiss" onclick="dismissAnnotations()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
+      </div>
+      <div id='annotations-list' class='panel-group row' style="background-color:transparent"> </div>
     </div>
-  </div></li>
+  </li>
 </ul>
 </div> <!-- channels filtering -->
 <!--

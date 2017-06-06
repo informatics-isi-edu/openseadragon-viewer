@@ -61,13 +61,11 @@ function sidebar_anno_slideOut() {
     return;
   }
 
-  // make sure it is displaying
-  var annoElm = document.getElementById('annotations');
-  annoElm.style.display = '';
-    
-  jQuery('#annoMenu', jQuery('.navigationLi')).stop().animate({
-    'marginLeft': '-2px'
-  }, 200);
+  var panelptr=$('#annotations');
+  var sidebarptr=$('#sidebar');
+  sidebarptr.css("display","");
+  panelptr.css("display","");
+  panelptr.removeClass('fade-out').addClass('fade-in');
 }
 
 function sidebar_anno_slideIn() {
@@ -77,11 +75,7 @@ function sidebar_anno_slideIn() {
     return;
   }
 
-  // make sure it is displaying
-  var annoElm = document.getElementById('annotations');
-  annoElm.style.display = '';
-    
-  jQuery('#annoMenu',jQuery('.navigationLi')).stop().animate({
-    'marginLeft': '-300px'
-  }, 200);
+  var panelptr=$('#annotations');
+  panelptr.removeClass('fade-in').addClass('fade-out');
+  panelptr.css("display","none");
 }
