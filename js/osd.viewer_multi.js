@@ -156,7 +156,12 @@ jQuery(document).ready(function() {
               if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
                 || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                  str=str.substr(1,str.length-2);
+
+              for(var j=logALIASNAME.length; j<logCHANNELNAME.length-1;j++) {
+                logALIASNAME.push(logCHANNELNAME[j]);
+              }
               logALIASNAME.push(str);
+
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
@@ -206,11 +211,19 @@ jQuery(document).ready(function() {
 //                   debugMode: true,
                    showNavigator: toShowNavigator,
                    showZoomControl: false,
+/*
+tileSources: {
+   type:'image',
+   buildPyramid: false,
+   url: logURL[0]
+},
+compositeOperation: 'lighter',
+*/
                    showHomeControl: false,
                    showFullPageControl: false,
                    constrainDuringPan: true,
+// FOR gudmap overlay
 //                   visibilityRatio:     1,
-
              });
      } else {
        myViewer = OpenSeadragon({
@@ -270,17 +283,18 @@ Currently supported property values are:
        url=logURL[i];
         
        if(url.indexOf('ImageProperties.xml')!= -1) {
-         _addURLLayer(url,i);
-         } else {  // accepting other annotator's annotation data in XML
-           if(url.indexOf('AnnotationData.xml')!= -1) {
-             _addDataLayer(url,i);
-             } else {
-                if(isSimpleURL) {
-                  _addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
-                } else {
-                alertify.error("URL needs to be either ImageProperties.xml or AnnotationData.xml or must be simple jpg/png");
-                }
-           }
+          _addURLLayer(url,i);
+       } else if(url.indexOf('.svg')!= -1) {
+               // accepting annotation data in svg xml 
+          _addSVGDataLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
+       } else if(url.indexOf('AnnotationData.xml')!= -1) {
+               // accepting other annotator's annotation data in XML
+          _addDataLayer(url,i);
+       } else if(isSimpleURL) {
+               // other image data in simple jpg/png format
+          _addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
+       } else {
+          alertify.error("URL needs to be either ImageProperties.xml, AnnotationData.xml, svg file or  must be simple jpg/png");
        }
     }
     // setup the filtering's tracking
@@ -479,22 +493,31 @@ function _addDataLayer(url, i) {
   extractDataXML(e);
 }
 
-function _addSimpleURLLayer(url, i, channelname, aliasname) {
+function _addSVGDataLayer(url, i, channelname, aliasname) {
+  var e = ckExist(url);
+  if(e==null) {
+    alertify.error("Error: Unable to load url, "+url);
+    return;
+  }
+  var _name=channelname;
+  var cname=_name.replace(/ +/g, "");
+  if(aliasname)
+    cname = aliasname.replace(/ +/g, "");
+  extractSVGDataXML(i,cname, e);
+}
 
-    var r= {
-           channelname:channelname,
-           alpha:null,
-           rgb:null,
-           dir:"",
-           tilewidth:1024,
-           tileheight:1024 };
+function _addSimpleURLLayer(url, i, channelname, aliasname) {
+window.console.log("... in addSimple URL >> ", url);
 
     var _name=channelname;
+    var cname = _name.replace(/ +/g, "");
+    if(aliasname)
+       cname = aliasname.replace(/ +/g, "");
+
     var _alpha=null;
     var _rgb=null;
     var _dir=".";
 
-    var cname = _name.replace(/ +/g, "");
     var op=presetOpacity(_alpha,i);
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
@@ -502,10 +525,12 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     var gamma=presetGamma(i,_name);
     var options = {
                   tileSource: {
+                     tileWidth: 457,
+                     tileHeight: 640,
                     type:'image',
                     url:url
-                   },
-                   compositeOperation: 'lighter',
+                  },
+                  compositeOperation: 'lighter'
                   };
     myViewer.addTiledImage( options );
 

@@ -72,6 +72,11 @@ h3.page-header {
    margin: 5px;
 }
 
+#layers-list {
+   width: 85%;
+   margin: 5px;
+}
+
 #annotations-list {
    width: 85%;
    margin: 5px;
@@ -87,7 +92,21 @@ h3.page-header {
      zoom: 1;
      vertical-align: top;
      font-size: 12px;
-     margin: 10px 0;
+     margin: 10px 0 10px 10px;
+     width: 95%;
+}
+
+.layercontrol {
+     padding: 0px;
+     width: 90%;
+}
+
+.layercontrol .layer-slider {
+     display: inline-block;
+     zoom: 1;
+     vertical-align: top;
+     font-size: 12px;
+     margin: 10px 0 10px 10px;
      width: 95%;
 }
 
@@ -173,7 +192,7 @@ h3.page-header {
   transform: rotate(-45deg);
 }
 
-/* a filtering panel */
+/**XXX a filtering panel 
 .panel {
   margin: 15px 5px;
   border: none;
@@ -185,9 +204,6 @@ h3.page-header {
 }
 
 .panel-title {
-/*
-  font-weight:bold;
-*/
   color: #000;
   font-size: 14px;
 }
@@ -202,11 +218,12 @@ h3.page-header {
 
 .panel-heading .accordion-toggle:after {
     font-size: 14px;
-    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    font-family: 'Glyphicons Halflings';  
     content: "\e137";    
     float: left;        
     margin-right:10px;
     color: #337ab7;
 }
+**/
 
 

@@ -1,7 +1,5 @@
-
-
 /***
-   informations to setup,
+   AnnotationData.xml --> into json
 
    Can be more than 1 or more images,
    images : [
@@ -78,6 +76,8 @@ function xmlToJson(xml) {
   // Create the return object
   var obj = {};
 
+  var nodeType=xml.nodeType;
+
   if (xml.nodeType == 1) { // element
     // do attributes
     if (xml.attributes.length > 0) {
@@ -133,8 +133,6 @@ function addAShape(_d,_xscale,_yscale) {
      var _sn=JSON.stringify(item);
      _plist.push({name:_label, value:_sn});
   });
-
-  // properties
 
   saveOverlayShapes.push({ xscale:_xscale,
                          yscale:_yscale,
@@ -213,6 +211,84 @@ function extractDataXML(blob) {
     } else {
       if(_text != null) 
         addAText(_text,_xscale,_yscale);
+  }
+}
+
+/***
+   for data.svg
+
+<g id="#ffffffff">
+<path fill="#ffffff" opacity="1.00" d=" M 408.21 324.20 C 408.84 324.84 408.84 324.84 408.21 324.20 Z" />
+<path fill="#ffffff" opacity="1.00" d=" M 459.21 344.22 C 459.84 344.85 459.84 344.85 459.21 344.22 Z" />
+<path fill="#ffffff" opacity="1.00" d=" M 419.23 345.19 C 419.85 345.83 419.85 345.83 419.23 345.19 Z" />
+</g>
+<g id="#000000ff">
+<path fill="#000000" opacity="1.00" d=" M 151.92 234.39 C 158.34 232.60 164.92 231.27 171.01 228.49 C 175.06 228.53 179.62 227.38 183.20 229.81 C 188.45 232.64 194.74 231.81 200.22 233.97 C 206.61 236.06 213.35 238.94 217.19 244.76 C 219.84
+
+***/
+
+// track the user supplied overlay xml in json 
+// each svg file could have multiple groups
+// each group could have multiple paths
+var saveOverlayGroups=[]; 
+
+function addAGroup(layerid, gid, _g,_width,_height,_xscale,_yscale) {
+
+  var attr=_g['@attributes'];;
+  var _gid=attr.id;
+  // convert _g json to xml and attach 
+
+  var _paths=_g['path'];
+  var _plist=[];
+  if(_paths) {
+    _paths.forEach(function( item ) {
+       _plist.push(item['@attributes']);
+    });
+  }
+
+  saveOverlayGroups.push({ layerid, layerid,
+                           gname: gid, 
+                           width:_width,
+                           height:_height,
+                           xscale:_xscale,
+                           yscale:_yscale,
+                           paths:_plist });
+}
+
+
+// cname is unique name assigned to this url/blob
+function extractSVGDataXML(layerid, cname, blob) {
+
+  var _c=defaultColor[colorCounter++];
+  overlaySVGLayerList.push({layerid:layerid, layer:cname, opacity:1, color:_c});
+
+  var dataXml=getXML(blob);
+
+  var dataJson= xmlToJson(dataXml);
+
+//var _nn=JSON.stringify(dataJson);
+//window.console.log(_nn);
+
+  var _s=dataJson;
+  var _svg=_s['svg'][1]; // array of two
+  var _attr=_svg["@attributes"];
+  var _width=_attr.width;
+  var _height=_attr.height;
+  var _viewBox=_attr.viewBox;
+  var _xscale=1;
+  var _yscale=1;
+
+  var _g=_svg['g'];
+// if there is more than one of them
+  if( _g.constructor === Array) {
+    var glen=_g.length;
+    for(var idx=0; idx< glen; idx++) {
+      var _gg=_g[idx];
+      addAGroup(layerid, "gid_"+cname+"_"+idx, _gg,_width,_height,_xscale,_yscale);
+    }
+    } else {// just one of them
+      if(_g != null) 
+        addAGroup(layerid, "gid_"+cname+"_0", _g,_width,_height,_xscale,_yscale);
   }
 }
 

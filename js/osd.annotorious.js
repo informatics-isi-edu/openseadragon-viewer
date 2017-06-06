@@ -13,6 +13,8 @@ var INFO_EVENT_TYPE='INFO';
 // do localhost dump and loading -- in standalone mode
 var TEST_MODE=false;
 
+var annoToggle=false;
+
 function makeAnnoID(item) {
   var id='anno_'+getHash(item);
   return id;
@@ -71,9 +73,8 @@ function annoResizeMarkers() {
 
 function annoCtrlClick()
 {
-  var atog = document.getElementById('anno-toggle');
-  atog.classList.toggle( "active" );
-  if(isActive(atog)) {
+  annoToggle = !annoToggle;
+  if(annoToggle) {
     sidebar_anno_slideOut();
     $('#anno-toggle').removeClass('glyphicon-eye-open');
     $('#anno-toggle').addClass('glyphicon-eye-close');
@@ -83,6 +84,12 @@ function annoCtrlClick()
       $('#anno-toggle').removeClass('glyphicon-eye-close');
   }
 }
+
+
+function dismissAnnotations() {
+  annoCtrlClick();
+}
+
 
 
 // reuse the calls to be like annotorious_ui's

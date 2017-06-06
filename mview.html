@@ -7,8 +7,8 @@
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
 <link href="css/jquery-ui.min.css" rel="stylesheet">
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-theme.css" rel="stylesheet">
 <link href="css/annotorious/theme-dark/annotorious-dark.css" rel="stylesheet">
 <link href="css/viewer.css" rel="stylesheet">
 <link href="css/osd_viewer.css" rel="stylesheet">
@@ -60,7 +60,7 @@
 <div id="controls" class="row col-md-3 col-xs-3 control-block" style="opacity:0.95;position:absolute;top:0;left:0;" >
 <ul id="sidebar" class="navigation" style="display:none">
 <!-- for filtering control -->
-  <li id='channels' class='navigationLi row col-md-12 col-xs-12' style="background-color:#f9f9f9">
+  <li id='channels' class='navigationLi row col-md-12 col-xs-12' style="background-color:#f9f9f9; display:none;">
     <div id='channelsMenu' class='menu'>
       <div id='channelsLabel' class='menuLabel' style="margin-left:20px;font-size:14px;font-weight:bold">CHANNEL(s)<button class="pull-right" title="dismiss" onclick="dismissChannels()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
 </button>
@@ -69,13 +69,22 @@
       <div id='itemList' class='panel-group row' style="background-color:transparent"> </div>
     </div>
   </li>
-<!-- for annotation listing control -->
-  <li id='annotations' class='navigationLi' style='display:none;'><div id='annoMenu'  class='menu'>
-    <div id='annotationTabs' class='row'>
-      <div id='annotationLabel' class='menuLabel' style='margin:30px;'>Annotation(s)</div>
-        <div id="annotations-list"></div>
-
+<!-- for svg layer listing control -->
+  <li id='layers' class='navigationLi row col-md-12 col-xs-12' style="background-color:#f9f9f9;display:none">
+    <div id='layersMenu' class='menu'>
+      <div id='layersLabel' class='menuLabel' style="margin-left:20px;font-size:14px;font-weight:bold">LAYER(s)<button class="pull-right" title="dismiss" onclick="dismissLayers()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
+</button>
       </div>
+<!-- svg layer are added to here.. -->
+      <div id='layerList' class='panel-group row' style="background-color:transparent"> </div>
+    </div>
+  </li>
+<!-- for annotation listing control -->
+  <li id='annotations' class='navigationLi row col-md-12 col-xs-12' style="background-color:#f9f9f9;display:none">
+    <div id='annotationsMenu'  class='menu'>
+      <div id='annotationsLabel' class='menuLabel' style="margin-left:20px;font-size:14px;font-weight:bold">ANNOTATION(s)<button class="pull-right" title="dismiss" onclick="dismissAnnotations()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
+      </div>
+      <div id='annotations-list' class='panel-group row' style="background-color:transparent"> </div>
     </div>
   </li>
 </ul>
@@ -86,12 +95,13 @@
       <button id="osd-annotate-button" title="add annotation" style="top:10px;left:60px;opacity:0.7" onmouseover="annoBtnEnter()" onmouseout="annoBtnExit()" onclick="annotate()"></button>
 <button id="osd-overlay-button" title="add overlay" class="btn btn-default osd-control-btn" onclick='overlayClick()' style="top:10px;left:20px;opacity:0.6"><a id="overlay-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
 <button id="osd-jpg-control-button" title="Download image" class="btn btn-default osd-control-btn" style="top:10px;left:60px;opacity:0.6" onclick="jpgClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:green;"></a></button>
-<button id="osd-jpg-control-button" title="Download full image" class="btn btn-default osd-control-btn" style="top:10px;left:100px;opacity:0.6" onclick="jpgAllClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:red;"></a></button>
+<button id="osd-full-jpg-control-button" title="Download full image" class="btn btn-default osd-control-btn" style="top:10px;left:100px;opacity:0.6" onclick="jpgAllClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:red;"></a></button>
     </div>
 -->
 
     <div id="osd-control-panel" style="display:none;">
 <!-- for testing loading and unloading of annotations -->
+      <button id="osd-svg-button" title="svg overlay list" class="btn btn-default osd-control-btn" onclick='layersClick()'><a id="svg-toggle" class="glyphicon glyphicon-tasks" style="position:absolute; margin-top:8px;margin-left:-6px;color:blue;"></a></button>
       <button id="osd-overlay-button" title="add overlay" class="btn btn-default osd-control-btn" onclick='overlayClick()'><a id="overlay-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px;margin-left:-6px;color:blue;"></a></button>
       <button id="osd-saveAnno-button" title="dump,anno_list.json" class="btn btn-default osd-control-btn" onclick='saveAnno("anno_list.json")'><a id="saveAnno-toggle" class="glyphicon glyphicon-hand-up" style="position:absolute; margin-top:8px;margin-left:-6px;color:red;"></a></button>
       <button id="osd-loadAnno-button" title="load,anno_list.json" class="btn btn-default osd-control-btn" onclick='loadAnno("/data/anno_list.json")'><a id="loadAnno-toggle" class="glyphicon glyphicon-hand-down" style="position:absolute; margin-top:8px;margin-left:-6px;color:green;"></a></button>
@@ -105,7 +115,7 @@
       <button id="osd-zoomout-control-button" title="zoom out" class="btn btn-default osd-control-btn" onclick="zoomOutClick()"><a class="glyphicon glyphicon-minus" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
       <button id="osd-fullpage-control-button" title="full page" class="btn btn-default osd-control-btn" onclick="fullPageClick()"><a class="glyphicon glyphicon-fullscreen" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
       <button id="osd-jpg-control-button" title="download img" class="btn btn-default osd-control-btn" onclick="jpgClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
-      <button id="osd-jpgAll-control-button" title="download img+anno" class="btn btn-default osd-control-btn" onclick="jpgAllClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:purple;"></a></button>
+      <button id="osd-full-jpg-control-button" title="download img+anno" class="btn btn-default osd-control-btn" onclick="jpgAllClick(null)"><a id="jpg-toggle" class="glyphicon glyphicon-download" style="position:absolute; margin-top:8px;margin-left:-6px;color:purple;"></a></button>
       <button id="osd-anno-control-button" title="anno list" class="btn btn-default osd-control-btn" onclick="annoCtrlClick()"><a id="anno-toggle" class="glyphicon glyphicon-eye-open" style="position:absolute; margin-top:8px;margin-left:-6px;color:black;"></a></button>
       <button id="osd-channels-control-button" title="Channel filtering" class="btn btn-default osd-control-btn" onclick="channelsClick()"/>
              <a id="nav-toggle" href="#"><span></span></a></button>
