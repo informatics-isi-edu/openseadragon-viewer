@@ -106,6 +106,7 @@ function overlayClick() {
 /*****************************************************************/
 
 function addRectOverlays(name,_x,_y,_dx,_dy,_o,_c) {
+window.console.log("adding a Rect overlay..");
   var overlay=myViewer.svgOverlay();
   var d3Rect = d3.select(overlay.node()).append("rect")
                         .style('fill', _c)
@@ -123,6 +124,7 @@ function addRectOverlays(name,_x,_y,_dx,_dy,_o,_c) {
 
 // the _r is so small..
 function addCircleOverlays(name,_cx,_cy,_r,_o,_c) {
+window.console.log("adding a Circle overlay..");
   var overlay=myViewer.svgOverlay();
   var d3Circle=d3.select(overlay.node()).append("circle")
             .style('fill',"white")
@@ -165,6 +167,7 @@ window.console.log("over a circle..");
 
 
 function addLineOverlays(name, _x1,_y1,_x2,_y2,_t,_o,_c) {
+window.console.log("adding line overlay..");
   var overlay=myViewer.svgOverlay();
   var d3Line=d3.select(overlay.node()).append("line")
             .attr("id",name)
@@ -251,13 +254,17 @@ if(t.style.stroke =="red")
 }
 
 function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
+window.console.log("adding a Text overlay, _x and _y ", _x," ",_y);
+
+/* OLD ???
   var overlay=myViewer.svgOverlay();
-
   var outside=d3.select(overlay.node());
-
-window.console.log("_x and _y ", _x," ",_y);
-//;transform", function(d, i) { return "translate(0,0)"; });
   var d3Text=outside.append("text")
+*/
+
+//;transform", function(d, i) { return "translate(0,0)"; });
+  var overlay=myViewer.svgOverlay();
+  var d3Text=d3.select(overlay.node()).append("text")
                .attr("id",name)
                .attr("x", _x)
                .attr("y", _y)
