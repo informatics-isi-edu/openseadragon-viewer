@@ -58,7 +58,7 @@ function presetGamma(i,name) {
 }
 // preset
 function presetContrast(i) {
-  var presetContrastValue=0;
+  var presetContrastValue=100;
   return presetContrastValue;
 }
 
@@ -149,7 +149,7 @@ function makeSimpleProperty(name, cname, id) {
                   itemID: id,
                   opacity: 1,
                   hue: 240,
-                  contrast: 0,
+                  contrast: 100,
                   brightness: 100,
                   gamma: 1 };
    return simpleP;

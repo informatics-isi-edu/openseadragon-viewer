@@ -261,28 +261,25 @@ window.console.log(" in CONSTRAST filtering with factor.",factor);
                 callback();
             };
         },
-/*
+/*??
 a surface with R = 240 was believed to be a white object, and if 255 is 
 the count which corresponds to white, one could multiply all red values by 
 255/240. Doing analogously for green and blue
 */
         CONTRAST: function(adjustment) {
 window.console.log(" in CONTRAST white filtering with adjustment.",adjustment);
-            if (adjustment[0] < 0 || adjustment[0] > 255 ||
-                   adjustment[1] < 0 || adjustment[1] > 255 || 
-                      adjustment[2] < 0 || adjustment[2] > 255 ) { 
-                
+            if (adjustment < 0 || adjustment > 100) {
                 throw new Error(
-                        "white balance adjustment must be between -255 and 255.");
+                        "white balance adjustment must be between 0 and 255.");
             }
             return function(context, callback) {
                 var imgData = context.getImageData(
                         0, 0, context.canvas.width, context.canvas.height);
                 var pixels = imgData.data;
                 for (var i = 0; i < pixels.length; i += 4) {
-                    pixels[i] = (255/adjustment[0]) * pixels[i];
-                    pixels[i + 1] = (255/adjustment[1]) * pixels[i+1];
-                    pixels[i + 2] = (255/adjustment[2]) * pixels[i+2];
+                    pixels[i] = (255/adjustment) * pixels[i];
+                    pixels[i + 1] = (255/adjustment) * pixels[i+1];
+                    pixels[i + 2] = (255/adjustment) * pixels[i+2];
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();
