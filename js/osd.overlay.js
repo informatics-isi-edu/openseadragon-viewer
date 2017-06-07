@@ -695,7 +695,7 @@ _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse">';
 _nn+='<div class="panel-body">';
 
 _nn+='<div id=\''+sliderRDiv+'\' class="row col-md-12 col-xs-12">';
-_nn+='<button id=\''+_reset_slider_btn+'\' class="pull-right btn btn-xs btn-success" style="font-size:12; margin-bottom:10px; margin-right:-10px;" title="Reset opacity" onclick="resetLayer('+i+',\''+name+'\')">Reset</button></div>'; 
+_nn+='<button id=\''+_reset_slider_btn+'\' class="btn btn-xs btn-primary pull-right" style="font-size:12; margin-bottom:10px; margin-right:-10px;" title="Reset opacity" onclick="resetLayer('+i+',\''+name+'\')">Reset</button></div>'; 
 
 _nn+= '<div id=\''+sliderDiv+'\' class="layercontrol" style="display:none">';
 _nn+= '<div class="col-md-12 col-xs-12 layer-slider">';
