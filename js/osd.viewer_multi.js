@@ -156,7 +156,12 @@ jQuery(document).ready(function() {
               if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
                 || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                  str=str.substr(1,str.length-2);
+
+              for(var j=logALIASNAME.length; j<logCHANNELNAME.length-1;j++) {
+                logALIASNAME.push(logCHANNELNAME[j]);
+              }
               logALIASNAME.push(str);
+
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
@@ -495,7 +500,9 @@ function _addSVGDataLayer(url, i, channelname, aliasname) {
     return;
   }
   var _name=channelname;
-  var cname = _name.replace(/ +/g, "");
+  var cname=_name.replace(/ +/g, "");
+  if(aliasname)
+    cname = aliasname.replace(/ +/g, "");
   extractSVGDataXML(i,cname, e);
 }
 
@@ -503,11 +510,14 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
 window.console.log("... in addSimple URL >> ", url);
 
     var _name=channelname;
+    var cname = _name.replace(/ +/g, "");
+    if(aliasname)
+       cname = aliasname.replace(/ +/g, "");
+
     var _alpha=null;
     var _rgb=null;
     var _dir=".";
 
-    var cname = _name.replace(/ +/g, "");
     var op=presetOpacity(_alpha,i);
     var hue=presetHue(_rgb,_name);
     var contrast=presetContrast(i);
@@ -567,6 +577,7 @@ function updateHistory(state,newTitle) {
   saveHistoryTitle=newTitle;
   if(!isSafari) {
     /* hum.. https://forums.developer.apple.com/thread/36650 */
+    /* hum2.. https://forums.developer.apple.com/message/208015#208015 */
     } else {
       history.replaceState(state, 'Title', newTitle)
   }

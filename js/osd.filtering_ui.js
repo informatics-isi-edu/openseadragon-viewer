@@ -12,7 +12,7 @@ var redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTo
 var greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488']
 var blueColors = ['DAPI']
 
-//propertyList.push( { 'name': _name, 'cname':cname,  'itemID':i, 'opacity':1, 'hue':100, 'contrast': 10} );
+//propertyList.push( { 'name': _name, 'cname':cname, itemID':i, 'opacity':1, 'hue':100, 'contrast': 10} );
 var propertyList = [];
 var initPropertyList=[]; // the initial property list
 
@@ -318,10 +318,18 @@ window.onload = function() {
   }
 }
 
-// squeeze out all spaces in name
+// squeeze out all spaces in alias or n
+// 
 function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=null) {
-  var name = n.replace(/ +/g, "");
-  var _name=n;
+  var name;
+  var _name;
+  if(alias) {
+     name = alias.replace(/ +/g, "");
+     _name=alias;
+    } else {
+      name = n.replace(/ +/g, "");
+      _name=n;
+  }
 
   var _collapse_name=i+'_collapse';
   var _visible_name=i+'_item_visible';
@@ -348,11 +356,8 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
   var _gamma_init_value=gamma;
 
   var _nn='';
-//hue hint from http://hslpicker.com/#00e1ff
- var aname=name;
- if(alias != null)
-   aname=alias;
 
+//hue hint from http://hslpicker.com/#00e1ff
 _nn+='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
 
@@ -360,7 +365,7 @@ var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-
 
 var _bb='<button id="'+_opacity_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white;"  onClick="openTask('+i+',\''+_task_name+'\',\''+taskDiv+'\')" title="click to expand"><span id="'+_task_name+'" class="glyphicon glyphicon-tasks" style="color:#407CCA"></span> </button>';
 
-_nn+=_b+'<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand">'+_bb+'</a><p>'+name+'</p>';
+_nn+=_b+'<a class="accordion-toggle" data-toggle="collapse" data-parent="#itemList" href="#' +_collapse_name+'" title="click to expand">'+_bb+'</a><p>'+_name+'</p>';
 
 _nn+='</div></div>';
 _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse">';

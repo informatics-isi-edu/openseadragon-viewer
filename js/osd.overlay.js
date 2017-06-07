@@ -167,6 +167,7 @@ function overlayClick() {
 /*****************************************************************/
 
 function addRectOverlays(name,_x,_y,_dx,_dy,_o,_c) {
+window.console.log("adding a Rect overlay..");
   var overlay=myViewer.svgOverlay();
   var d3Rect = d3.select(overlay.node()).append("rect")
                         .style('fill', _c)
@@ -184,6 +185,7 @@ function addRectOverlays(name,_x,_y,_dx,_dy,_o,_c) {
 
 // the _r is so small..
 function addCircleOverlays(name,_cx,_cy,_r,_o,_c) {
+window.console.log("adding a Circle overlay..");
   var overlay=myViewer.svgOverlay();
   var d3Circle=d3.select(overlay.node()).append("circle")
             .style('fill',"white")
@@ -224,6 +226,7 @@ function addCircleOverlays(name,_cx,_cy,_r,_o,_c) {
 
 
 function addLineOverlays(name, _x1,_y1,_x2,_y2,_t,_o,_c) {
+window.console.log("adding line overlay..");
   var overlay=myViewer.svgOverlay();
   var d3Line=d3.select(overlay.node()).append("line")
             .attr("id",name)
@@ -322,8 +325,9 @@ if(t.style.stroke =="red")
 
 // add to <svg> instead of under the <g>
 function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
-  var overlay=myViewer.svgOverlay();
+window.console.log("adding a Text overlay, _x and _y ", _x," ",_y);
 
+  var overlay=myViewer.svgOverlay();
 //window.console.log("XX _fs is ",_fs);
 //window.console.log("XX _x is ", _x);
 //window.console.log("XX _y is ", _y);
@@ -691,7 +695,7 @@ _nn+=' <div id="'+_collapse_name+'" class="panel-collapse collapse">';
 _nn+='<div class="panel-body">';
 
 _nn+='<div id=\''+sliderRDiv+'\' class="row col-md-12 col-xs-12">';
-_nn+='<button id=\''+_reset_slider_btn+'\' class="pull-right btn btn-xs btn-success" style="font-size:12; margin-bottom:10px; margin-right:-10px;" title="Reset opacity" onclick="resetLayer('+i+',\''+name+'\')">Reset</button></div>'; 
+_nn+='<button id=\''+_reset_slider_btn+'\' class="btn btn-xs btn-primary pull-right" style="font-size:12; margin-bottom:10px; margin-right:-10px;" title="Reset opacity" onclick="resetLayer('+i+',\''+name+'\')">Reset</button></div>'; 
 
 _nn+= '<div id=\''+sliderDiv+'\' class="layercontrol" style="display:none">';
 _nn+= '<div class="col-md-12 col-xs-12 layer-slider">';
