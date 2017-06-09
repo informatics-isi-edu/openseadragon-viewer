@@ -77,9 +77,7 @@
             var rotation = this._viewer.viewport.getRotation();
             // TODO: Expose an accessor for _containerInnerSize in the OSD API so we don't have to use the private variable.
             var scale = this._viewer.viewport._containerInnerSize.x * zoom;
-window.console.log("XXX scale.. for x ",scale);
             var yscale = this._viewer.viewport._containerInnerSize.y * zoom;
-window.console.log("XXX scale.. for y ",yscale);
             this._node.setAttribute('transform',
                 'translate(' + p.x + ',' + p.y + ') scale(' + scale + ') rotate(' + rotation + ')');
         },

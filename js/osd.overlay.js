@@ -323,25 +323,50 @@ if(t.style.stroke =="red")
   overlayList.push("#"+name+"_inner");
 }
 
+// extract value associates with a label
+// translate(314.5610062893082,0) scale(392.8779874213837) rotate(0)
+function extractTransform(tstr,label) {
+// split on space
+//var re = new RegExp(label+'\(\w+\)');
+  var slist=tstr.split(' ');
+  for(var i=0; i<slist.length;i++) {
+    if(slist[i].match(label)) {
+      var str=slist[i];
+      var re=/[0-9.,]+/;
+      var nstr=re.exec(str);
+window.console.log(nstr[0]);
+      return nstr[0]; 
+    }
+  }
+
+}
+
+
 // add to <svg> instead of under the <g>
 function addTextOverlays(name,_x,_y,_t,_c,_ft,_fs) {
 window.console.log("adding a Text overlay, _x and _y ", _x," ",_y);
 
   var overlay=myViewer.svgOverlay();
-//window.console.log("XX _fs is ",_fs);
-//window.console.log("XX _x is ", _x);
-//window.console.log("XX _y is ", _y);
 
-  var d3Text = d3.select(overlay._svg).append("text")
+  var gnode=overlay.node();
+  var gtransform=gnode['attributes'][0]; // return obj type
+//window.console.log( typeof gtransform );
+  var sstr=extractTransform(gtransform.value,'scale');
+  var sval=parseFloat(sstr);
+  var descale=1/sval;
+
+// add a text group to descale it..
+  var transform="translate(0,0) scale("+descale+") rotate(0)";
+  var d3TextGroup=d3.select(overlay.node()).append("g").attr("transform", transform);
+  var d3Text = d3TextGroup.append("text")
                .attr("id",name)
                .attr("x", _x)
                .attr("y", _y)
                .text(_t)
                .attr("font-family", _ft)
-               .attr("font-size", _fs)
+               .attr("font-size", 72)
                .attr("fill", _c);
-// can not click on a text node because it includes the whole 
-// svg canvas area
+
 // how to figure out the bounding box of a text
 //  var dnode=d3Text.node();
 //  var bBox = dnode.getBBox();
