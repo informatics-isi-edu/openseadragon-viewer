@@ -43,8 +43,7 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 
 | Parameter | Value | Description |
 | --- | --- | --- |
-| **url** | URL | one or more input url to an ImageProperties.xml(DZI image pyramid), 
-AnnotationData.xml(third-party annotation data file), or  datafile.jpg(simple image jpg) |
+| **url** | URL | one or more input url to an ImageProperties.xml(DZI image pyramid), AnnotationData.xml(third-party annotation data file), or  datafile.jpg(simple image jpg) |
 | **x** | float | set initial X |
 | **y** | float | set initial Y |
 | **z** | float | set initial zoom |
@@ -144,18 +143,23 @@ View with a single DZI tiled pyramid
 mview.html?url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
 ```
 
+View with a single DZI tiled pyramid at a particular focus location  
+
+```
+mview.html?url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml&x=0.5&y=0.6452489905787349&z=1.7800585278719854
+```
+
+
 View with a multiple DZI tiled pyramids (multiple channels)  
 
 ```
-mview.html?url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
-XXXhttp://localhost/tiletiff/mview.html?url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
+pview.html?url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
 ```
 
 View with simple jpg file or files
 
 ```
 mview.html?url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c1-16bit.jpg&channelName=DAPI&meterScaleInPixels=378417.96875
-XXXhttp://localhost/tiletiff/mview.html?url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c1-16bit.jpg&channelName=DAPI&meterScaleInPixels=378417.96875
 ```
 
 View with tiled Images generate from simple images

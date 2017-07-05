@@ -303,17 +303,21 @@ Currently supported property values are:
     // if logX, logY, logZoom are not null
     if( (logX != null) && (logY != null) && (logZoom !=null)) {
       startState=true;
+window.console.log("XXX startState needs to be  update...");
     }
 
     // add handlers
     myViewer.addHandler('open', function(target) {
+window.console.log("in open handler");
       if(startState) {
+window.console.log("in OPEN..");
         goPosition(logX,logY,logZoom);
-        startSate=false;
+        startState=false;
       }
     });
 
     myViewer.addHandler('animation-finish', function(target) {
+window.console.log("in animation-end.. handler");
       savePosition();
 //  need to reprocess for the size of the visible marker..
       annoResizeMarkers();
