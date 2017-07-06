@@ -68,9 +68,9 @@
             var tile = event.tile;
             var image = event.image;
 
-window.console.log("In tileloadedHandler..");
-if(image===undefined)
-  window.console.log("image is not defined!!");
+//window.console.log("In tileloadedHandler..");
+//if(image===undefined)
+//  window.console.log("image is not defined!!");
 
             if (image !== undefined && image !== null) {
                 var canvas = document.createElement('canvas');
@@ -471,7 +471,7 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
         },
 // encoded = ((original / 255) ^ (1 / gamma)) * 255
         GAMMA: function(adjustment) {
-window.console.log(" in GAMMA filtering with adjustment", adjustment);
+//window.console.log(" in GAMMA filtering with adjustment", adjustment);
             if (adjustment < 0 || adjustment > 3) {
                 throw new Error(
                         "Gammf adjustment must be between 0 and 1.");

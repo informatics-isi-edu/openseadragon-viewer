@@ -401,7 +401,7 @@ _nn+= '<div class="col-md-12 col-xs-12 filter-slider"> <div class="menuLabel">Hu
 _nn+= '</div> </div> </div> <!-- panel-body --> </div> </div> <!-- panel -->';
 
   jQuery('#itemList').append(_nn);
-window.console.log('MM',_nn);
+//window.console.log('MM',_nn);
 }
 
 function openTask(i,name,taskDiv) {

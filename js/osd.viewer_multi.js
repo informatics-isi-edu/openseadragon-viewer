@@ -187,6 +187,9 @@ jQuery(document).ready(function() {
             }
         }
   }
+var xx=logX;
+var yy=logY;
+var zz=logZoom;
   if(logURL.length == null) {
     alertify.error("Error: Need to supply an url");
   } else {
@@ -303,21 +306,22 @@ Currently supported property values are:
     // if logX, logY, logZoom are not null
     if( (logX != null) && (logY != null) && (logZoom !=null)) {
       startState=true;
-window.console.log("XXX startState needs to be  update...");
     }
 
     // add handlers
-    myViewer.addHandler('open', function(target) {
-window.console.log("in open handler");
+/******
+   This is not being called properly in osd anymore and so
+   the startState is being set in savePosition
+     myViewer.addHandler('open', function(target) {
       if(startState) {
-window.console.log("in OPEN..");
+window.console.log("MEI in startState...");
         goPosition(logX,logY,logZoom);
         startState=false;
       }
     });
+******/
 
     myViewer.addHandler('animation-finish', function(target) {
-window.console.log("in animation-end.. handler");
       savePosition();
 //  need to reprocess for the size of the visible marker..
       annoResizeMarkers();
@@ -336,10 +340,12 @@ window.console.log("in animation-end.. handler");
     });
 */
 /* -- this is to test access to pixels on the viewport location */
-    myViewer.addHandler('canvas-click', function(target) {
-window.console.log('canvas got clicked..');
-      pointIt(target);
-    });
+    if(typeof(RUN_FOR_DEBUG) !== "undefined") {
+      myViewer.addHandler('canvas-click', function(target) {
+        window.console.log('canvas got clicked..');
+        pointIt(target);
+      });
+    }
 
     // only overlays that are being added are annotations
     myViewer.addHandler('add-overlay', function(target) {
@@ -648,6 +654,11 @@ function snapGo() {
 }
 
 function savePosition() {
+  if(startState) {
+    goPosition(logX,logY,logZoom);
+    startState=false;
+    return;
+  }
   if(myViewer === null) {
      alertify.error("viewer is not setup yet..");
      return;
@@ -1124,6 +1135,9 @@ function hiddenClick() {
 var TESTtoggle=true;
 // dump some info
 function testClick() {
+  var xx=logX;
+  var yy=logY;
+  var zz=logZoom;
   var vCenter = myViewer.viewport.getCenter(true);
   var tmpX=vCenter.x;
   var tmpY=vCenter.y;
@@ -1139,6 +1153,11 @@ function testClick() {
     annoShowAllAnnotations();
   }
   TESTtoggle=!TESTtoggle;
+
+// MEI, add one test..
+
+window.console.log("from testClick..");
+  checkIt();
 }
 
 function resetScalebar(value)
