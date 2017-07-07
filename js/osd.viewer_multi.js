@@ -109,7 +109,7 @@ var save_meterscaleinpixels;
 function saveScalebar(s) { save_meterscaleinpixels=s; }
 
 // false, if any of url is of ImageProperties.xml
-// need to process all the url for 'alais'
+// need to process all the url for 'alias'
 function isSimpleBaseImage() {
   for(var i=0; i<logURL.length; i++) {
      var url=logURL[i];
@@ -140,10 +140,20 @@ jQuery(document).ready(function() {
         {
           url=param.replace(new RegExp('/$'),'').trim();
           logURL.push(url);
-       } else {
+          logCHANNELNAME.push(null);
+          logALIASNAME.push(null);
+        } else {
             kvp = param.split('=');
             if(kvp[0].trim() == 'url') {
               url=kvp[1].replace(new RegExp('/$'),'').trim();
+              if(logURL.length > 0) {
+                if(logCHANNELNAME.length < logURL.length) 
+                  logCHANNELNAME.push(null);
+                if(logALIASNAME.length < logURL.length) { 
+                  var c=logCHANNELNAME.length-1;
+                  logALIASNAME.push(logCHANNELNAME[c]);
+                }
+              }
               logURL.push(url);
             } else if(kvp[0].trim() == 'channelName') {
               var str=kvp[1].trim(); // trim the ' or "
@@ -156,12 +166,7 @@ jQuery(document).ready(function() {
               if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
                 || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                  str=str.substr(1,str.length-2);
-
-              for(var j=logALIASNAME.length; j<logCHANNELNAME.length-1;j++) {
-                logALIASNAME.push(logCHANNELNAME[j]);
-              }
               logALIASNAME.push(str);
-
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
@@ -187,9 +192,13 @@ jQuery(document).ready(function() {
             }
         }
   }
-var xx=logX;
-var yy=logY;
-var zz=logZoom;
+// last case where there is no ending url
+  if(logCHANNELNAME.length < logURL.length) 
+    logCHANNELNAME.push(null);
+  if(logALIASNAME.length < logURL.length) { 
+    var c=logCHANNELNAME.length-1;
+    logALIASNAME.push(logCHANNELNAME[c]);
+  }
   if(logURL.length == null) {
     alertify.error("Error: Need to supply an url");
   } else {
@@ -199,12 +208,20 @@ var zz=logZoom;
     var toShowNavigator=true; // suppress navigator if it is simple jpg viewing
     if(isSimpleURL) {
       toShowNavigator=false;
+/* ??? not sure how to replace this
       var _alen=logALIASNAME.length;
       var _clen=logCHANNELNAME.length;
       if(_clen > 0 && _alen != _clen) {
         // copy over
         logALIASNAME=[];
         logALIASNAME=logCHANNELNAME;
+      }
+*/
+      var _alen=logALIASNAME.length;
+      var _clen=logCHANNELNAME.length;
+      for(var cidx=0; cidx < _clen; cidx++) {
+         if(logCHANNELNAME[cidx] != null && logALIASNAME[cidx]== null)
+           logALIASNAME[cidx]=logCHANNELNAME[cidx];
       }
     }
     if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") {
@@ -509,18 +526,30 @@ function _addSVGDataLayer(url, i, channelname, aliasname) {
     alertify.error("Error: Unable to load url, "+url);
     return;
   }
-  var _name=channelname;
-  var cname=_name.replace(/ +/g, "");
+  if(channelname == null && aliasname == null) {
+    alertify.error("Error: addSVGDataLayer, missing both channelname and aliasname");
+    return;
+  }
+  var cname=null;
+  if(channelname)
+    cname=channelname.replace(/ +/g, "");
   if(aliasname)
     cname = aliasname.replace(/ +/g, "");
   extractSVGDataXML(i,cname, e);
 }
 
 function _addSimpleURLLayer(url, i, channelname, aliasname) {
-window.console.log("... in addSimple URL >> ", url);
 
-    var _name=channelname;
-    var cname = _name.replace(/ +/g, "");
+    if(channelname == null && aliasname == null) {
+      alertify.error("Error: addSVGDataLayer, missing both channelname and aliasname");
+      return;
+    }
+    var cname = null;
+    var _name=null;
+    if(channelname) {
+       _name=channelname;
+       cname = _name.replace(/ +/g, "");
+    }
     if(aliasname)
        cname = aliasname.replace(/ +/g, "");
 
@@ -550,7 +579,7 @@ window.console.log("... in addSimple URL >> ", url);
       p['name']= aliasname;
     }
     var pp=JSON.stringify(p);
-window.console.log("new property list is..",pp);
+//window.console.log("new property list is..",pp);
     propertyList.push(p);
 }
 
@@ -1135,9 +1164,6 @@ function hiddenClick() {
 var TESTtoggle=true;
 // dump some info
 function testClick() {
-  var xx=logX;
-  var yy=logY;
-  var zz=logZoom;
   var vCenter = myViewer.viewport.getCenter(true);
   var tmpX=vCenter.x;
   var tmpY=vCenter.y;
