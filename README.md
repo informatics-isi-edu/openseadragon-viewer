@@ -50,6 +50,7 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 | **MeterScaleInPixels** | float | set scale, pixels in a meter, usually set within DZI's metadata |
 | **channelName** | chars | set channel name of the matching URL image.  The channel is either one of ('Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647') for red, one of ('FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488' ) for green, one of ('DAPI') for blue or one of ('TL Brightfield' or 'combo') for colorized RGB or if none specified.  This name can also be extracted from ImageProperties.xml |
 | **aliasName** | chars | set name to be used for pull-out listing for this URL image |
+| **waterMark** | chars | set watermark to add credit to snapshot jpg image |
 
 ## Example of ImageProperties.xml
 
@@ -141,6 +142,12 @@ View with a single DZI tiled pyramid
 
 ```
 mview.html?url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
+```
+
+View with a single DZI tiled pyramid and a watermark  
+
+```
+mview.html?url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml&waterMark='rebuildingakidney.org'
 ```
 
 View with a single DZI tiled pyramid at a particular focus location  

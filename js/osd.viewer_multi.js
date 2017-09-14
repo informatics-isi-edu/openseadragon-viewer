@@ -105,6 +105,27 @@ var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
+// gudmap.org or rebuildingakidney.org 
+var waterMark=null; // for downloaded image
+function saveWaterMark(s) { waterMark=s; }
+function addWaterMark2Canvas(canvas) {
+  var fsize=30;
+  var h=canvas.height;
+  var w=canvas.width;
+  var l=Math.floor(w/20);
+  if(l<fsize) // cap it at 30
+    fsize=l;
+  var ctx = canvas.getContext("2d");
+  ctx.save();
+  ctx.translate(fsize+10, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = "center";
+  ctx.font = fsize+"pt Sans-serif";
+  ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
+  ctx.fillText(waterMark,0,0);
+  ctx.restore();
+}
+
 var save_meterscaleinpixels;
 function saveScalebar(s) { save_meterscaleinpixels=s; }
 
@@ -170,6 +191,12 @@ jQuery(document).ready(function() {
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
+            } else if(kvp[0].trim() == 'waterMark') {
+              var str=kvp[1].trim(); // trim the ' or "
+              if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+                || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
+                 str=str.substr(1,str.length-2);
+              saveWaterMark(str);
             } else if(kvp[0].trim() == 'x') {
                 var t=parseFloat(kvp[1]);
                 if(!isNaN(t)) {
@@ -891,6 +918,9 @@ function jpgClick(fname) {
    var rawImg;
    if( hasScalebar() ) {
      canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
+     if(waterMark != null) {
+       addWaterMark2Canvas(canvas);
+     }
      rawImg = canvas.toDataURL("image/jpeg",1);
      } else {   
        canvas= myViewer.drawer.canvas;
@@ -904,9 +934,15 @@ function jpgClick(fname) {
          var newCtx = newCanvas.getContext("2d");
          newCtx.drawImage(canvas, 0,0, _width, _height,
                                   0,0, _width, _height);
+         if(waterMark != null) {
+           addWaterMark2Canvas(newCanvas);
+         }
          rawImg = newCanvas.toDataURL("image/jpeg",1);
 //window.open(rawImg);
          } else {
+            if(waterMark != null) {
+              addWaterMark2Canvas(canvas);
+            }
             rawImg = canvas.toDataURL("image/jpeg",1);
        }
    }
