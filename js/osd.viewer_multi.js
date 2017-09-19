@@ -109,15 +109,25 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
 var waterMark=null; // for downloaded image
 function saveWaterMark(s) { waterMark=s; }
 function addWaterMark2Canvas(canvas) {
-  var fsize=30;
+  var fsize=20;
   var h=canvas.height;
   var w=canvas.width;
   var l=Math.floor(w/20);
-  if(l<fsize) // cap it at 30
-    fsize=l;
   var ctx = canvas.getContext("2d");
+  if(l<fsize) // cap it at 20
+    fsize=l;
+  var s=myViewer.scalebarInstance;
+  if(s) { // if has scalebar, associate with it
+    var ss=s.getScalebarLocation();
+    var bb=s.barThickness;
+    var oo=s.divElt.offsetWidth;
+    wx=ss.x+oo-10;
+    fsize=oo/3;
+    } else {
+      wx=w-fsize;
+  }
   ctx.save();
-  ctx.translate(fsize+10, h/2);
+  ctx.translate(wx, h/2);
   ctx.rotate(-Math.PI/2);
   ctx.textAlign = "center";
   ctx.font = fsize+"pt Sans-serif";
