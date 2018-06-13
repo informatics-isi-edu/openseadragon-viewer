@@ -127,11 +127,14 @@ function addWaterMark2Canvas(canvas) {
       wx=w-fsize;
   }
   ctx.save();
-  ctx.translate(wx, h/2);
-  ctx.rotate(-Math.PI/2);
-  ctx.textAlign = "center";
+  //ctx.translate(wx, h/2);
+  ctx.translate(0, h);
+  //ctx.rotate(-Math.PI/2);
+  //ctx.textAlign = "center";
+  ctx.textAlign = "left";
   ctx.font = fsize+"pt Sans-serif";
-  ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
+  //ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
   ctx.fillText(waterMark,0,0);
   ctx.restore();
 }
