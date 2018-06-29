@@ -128,7 +128,7 @@ function addWaterMark2Canvas(canvas) {
   }
   ctx.save();
   //ctx.translate(wx, h/2);
-  ctx.translate(5, h-5);
+  ctx.translate(5, h-fsize/4-5);
   //ctx.rotate(-Math.PI/2);
   //ctx.textAlign = "center";
   ctx.textAlign = "left";
