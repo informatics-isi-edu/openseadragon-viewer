@@ -1,4 +1,4 @@
-/* 
+/*
  * This software was developed at the National Institute of Standards and
  * Technology by employees of the Federal Government in the course of
  * their official duties. Pursuant to title 17 Section 105 of the United
@@ -14,7 +14,23 @@
  *
  * @author Antoine Vandecreme <antoine.vandecreme@nist.gov>
  */
-(function($) {
+(function() {
+
+    'use strict';
+
+    var $ = window.OpenSeadragon;
+    if (!$) {
+        $ = require('openseadragon');
+        if (!$) {
+            throw new Error('OpenSeadragon is missing.');
+        }
+    }
+    // Requires OpenSeadragon >=2.1
+    if (!$.version || $.version.major < 2 ||
+        $.version.major === 2 && $.version.minor < 1) {
+        throw new Error(
+            'Filtering plugin requires OpenSeadragon version >= 2.1');
+    }
 
     $.Viewer.prototype.setFilterOptions = function(options) {
         if (!this.filterPluginInstance) {
@@ -28,7 +44,7 @@
 
     /**
      * @class FilterPlugin
-     * @param {Object} options
+     * @param {Object} options The options
      * @param {OpenSeadragon.Viewer} options.viewer The viewer to attach this
      * plugin to.
      * @param {String} [options.loadMode='async'] Set to sync to have the filters
@@ -44,14 +60,13 @@
     $.FilterPlugin = function(options) {
         options = options || {};
         if (!options.viewer) {
-            throw new Error("A viewer must be specified.");
+            throw new Error('A viewer must be specified.');
         }
         var self = this;
         this.viewer = options.viewer;
 
-        this.viewer.addHandler("tile-loaded", tileLoadedHandler);
-//{context: context, tile: this, rendered: rendered}
-        this.viewer.addHandler("tile-drawing", tileDrawingHandler);
+        this.viewer.addHandler('tile-loaded', tileLoadedHandler);
+        this.viewer.addHandler('tile-drawing', tileDrawingHandler);
 
         // filterIncrement allows to determine whether a tile contains the
         // latest filters results.
@@ -67,13 +82,8 @@
             }
             var tile = event.tile;
             var image = event.image;
-
-//window.console.log("In tileloadedHandler..");
-//if(image===undefined)
-//  window.console.log("image is not defined!!");
-
-            if (image !== undefined && image !== null) {
-                var canvas = document.createElement('canvas');
+            if (image !== null && image !== undefined) {
+                var canvas = window.document.createElement('canvas');
                 canvas.width = image.width;
                 canvas.height = image.height;
                 var context = canvas.getContext('2d');
@@ -142,14 +152,14 @@
                 rendered.putImageData(rendered._originalImageData, 0, 0);
             } else {
                 rendered._originalImageData = rendered.getImageData(
-                        0, 0, rendered.canvas.width, rendered.canvas.height);
+                    0, 0, rendered.canvas.width, rendered.canvas.height);
             }
 
             if (tile._renderedContext) {
                 if (tile._filterIncrement === self.filterIncrement) {
                     var imgData = tile._renderedContext.getImageData(0, 0,
-                            tile._renderedContext.canvas.width,
-                            tile._renderedContext.canvas.height);
+                        tile._renderedContext.canvas.width,
+                        tile._renderedContext.canvas.height);
                     rendered.putImageData(imgData, 0, 0);
                     delete tile._renderedContext;
                     delete tile._filterIncrement;
@@ -168,14 +178,14 @@
         options = options || {};
         var filters = options.filters;
         instance.filters = !filters ? [] :
-                ($.isArray(filters) ? filters : [filters]);
+            $.isArray(filters) ? filters : [filters];
         for (var i = 0; i < instance.filters.length; i++) {
             var filter = instance.filters[i];
             if (!filter.processors) {
-                throw new Error("Filter processors must be specified.");
+                throw new Error('Filter processors must be specified.');
             }
             filter.processors = $.isArray(filter.processors) ?
-                    filter.processors : [filter.processors];
+                filter.processors : [filter.processors];
         }
         instance.filterIncrement++;
 
@@ -189,19 +199,27 @@
                     itemsToReset = getAllItems(instance.viewer.world);
                     break;
                 }
-                for (var j = 0; j < filter.items.length; j++) {
-                    if (itemsToReset.indexOf(filter.items[j]) >= 0) {
-                        throw new Error("An item can not have filters assigned "
-                                + "multiple times.");
+                if ($.isArray(filter.items)) {
+                    for (var j = 0; j < filter.items.length; j++) {
+                        addItemToReset(filter.items[j], itemsToReset);
                     }
-                    itemsToReset.push(filter.items[j]);
+                } else {
+                    addItemToReset(filter.items, itemsToReset);
                 }
             }
             for (var i = 0; i < itemsToReset.length; i++) {
                 itemsToReset[i].reset();
             }
         }
-   }
+    }
+
+    function addItemToReset(item, itemsToReset) {
+        if (itemsToReset.indexOf(item) >= 0) {
+            throw new Error('An item can not have filters ' +
+                'assigned multiple times.');
+        }
+        itemsToReset.push(item);
+    }
 
     function getAllItems(world) {
         var result = [];
@@ -219,10 +237,10 @@
         var globalProcessors = null;
         for (var i = 0; i < instance.filters.length; i++) {
             var filter = instance.filters[i];
-            
             if (!filter.items) {
                 globalProcessors = filter.processors;
-            } else if (filter.items.indexOf(item) >= 0) {
+            } else if (filter.items === item ||
+                $.isArray(filter.items) && filter.items.indexOf(item) >= 0) {
                 return filter.processors;
             }
         }
@@ -230,148 +248,118 @@
     }
 
     $.Filters = {
-      //http://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently/3115178#3115178
-       OLDCONTRAST: function(factor) {
-window.console.log(" in CONSTRAST filtering with factor.",factor);
-            if (factor < 0 || factor > 100) {
-                throw new Error("CONTRAST factor must be within 0 to 100 range.");
-            }
-            factor = (100 + factor) / 100;
-            factor *= factor;
-
-            return function(context, callback) {
-                var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
-                var pixels = imgData.data;
-
-                for (var i = 0; i < pixels.length; i += 1) {
-                   var P = pixels[i];
-
-                   var Pixel = P / 255;
-
-                   Pixel = (((Pixel - 0.5) * factor) + 0.5) * 255;
-
-                   var iP = parseInt(Pixel);
-                   iP = iP > 255 ? 255 : iP;
-                   iP = iP < 0 ? 0 : iP;
-   
-                   pixels[i]=iP;
-                }
-                context.putImageData(imgData, 0, 0);
-                callback();
-            };
-        },
-/*??
-a surface with R = 240 was believed to be a white object, and if 255 is 
-the count which corresponds to white, one could multiply all red values by 
-255/240. Doing analogously for green and blue
-*/
-        CONTRAST: function(adjustment) {
-window.console.log(" in CONTRAST white filtering with adjustment.",adjustment);
-            if (adjustment < 0 || adjustment > 100) {
-                throw new Error(
-                        "white balance adjustment must be between 0 and 255.");
-            }
-            return function(context, callback) {
-                var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
-                var pixels = imgData.data;
-                for (var i = 0; i < pixels.length; i += 4) {
-                    pixels[i] = (255/adjustment) * pixels[i];
-                    pixels[i + 1] = (255/adjustment) * pixels[i+1];
-                    pixels[i + 2] = (255/adjustment) * pixels[i+2];
-                }
-                context.putImageData(imgData, 0, 0);
-                callback();
-            };
-        },
-        HUE: function(angle) { 
-//window.console.log(" in HUE filtering with angle.",angle);
-            if (angle < 0) {
-                throw new Error("HUE angle must be greater than 0.");
-            }
-            return function(context, callback) {
-                var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
-                var pixels = imgData.data;
-                for (var i = 0; i < pixels.length; i += 4) {
-                   var lum = pixels[i] / 255;
-                   col = _hsl2rgb(angle, 1, lum);
-
-                   pixels[i] = col.r;
-                   pixels[i+1] = col.g;
-                   pixels[i+2] = col.b;
-                }
-                context.putImageData(imgData, 0, 0);
-                callback();
-            };
-        },
-        RGB: function(rgb) { 
-            if (len(rgb) != 3) {
-                throw new Error("rgb must be 3 values.");
-            }
-            return function(context, callback) {
-                var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
-                var pixels = imgData.data;
-                for (var i = 0; i < pixels.length; i += 4) {
-
-                   pixels[i] = Math.min(Math.round(pixels[i] * rgb[0], 255));
-                   pixels[i+1] = Math.min(Math.round(pixels[i+1] * rgb[1], 255));
-                   pixels[i+2] = Math.min(Math.round(pixels[i+2] * rgb[2], 255));
-                }
-                context.putImageData(imgData, 0, 0);
-                callback();
-            };
-        },
         THRESHOLDING: function(threshold) {
             if (threshold < 0 || threshold > 255) {
-                throw new Error("Threshold must be between 0 and 255.");
+                throw new Error('Threshold must be between 0 and 255.');
             }
             return function(context, callback) {
                 var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
+                    0, 0, context.canvas.width, context.canvas.height);
                 var pixels = imgData.data;
                 for (var i = 0; i < pixels.length; i += 4) {
                     var r = pixels[i];
                     var g = pixels[i + 1];
                     var b = pixels[i + 2];
                     var v = (r + g + b) / 3;
-                    pixels[i] = pixels[i + 1] = pixels[i + 2]
-                            = v < threshold ? 0 : 255;
+                    pixels[i] = pixels[i + 1] = pixels[i + 2] =
+                        v < threshold ? 0 : 255;
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();
             };
         },
         BRIGHTNESS: function(adjustment) {
-window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
             if (adjustment < -255 || adjustment > 255) {
                 throw new Error(
-                        "Brightness adjustment must be between -255 and 255.");
+                    'Brightness adjustment must be between -255 and 255.');
+            }
+            var precomputedBrightness = [];
+            for (var i = 0; i < 256; i++) {
+                precomputedBrightness[i] = i + adjustment;
             }
             return function(context, callback) {
                 var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
+                    0, 0, context.canvas.width, context.canvas.height);
                 var pixels = imgData.data;
                 for (var i = 0; i < pixels.length; i += 4) {
-                    pixels[i] += adjustment;
-                    pixels[i + 1] += adjustment;
-                    pixels[i + 2] += adjustment;
+                    pixels[i] = precomputedBrightness[pixels[i]];
+                    pixels[i + 1] = precomputedBrightness[pixels[i + 1]];
+                    pixels[i + 2] = precomputedBrightness[pixels[i + 2]];
+                }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+        CONTRAST: function(adjustment) {
+            if (adjustment < 0) {
+                throw new Error('Contrast adjustment must be positive.');
+            }
+            var precomputedContrast = [];
+            for (var i = 0; i < 256; i++) {
+                precomputedContrast[i] = i * adjustment;
+            }
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                    0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+                for (var i = 0; i < pixels.length; i += 4) {
+                    pixels[i] = precomputedContrast[pixels[i]];
+                    pixels[i + 1] = precomputedContrast[pixels[i + 1]];
+                    pixels[i + 2] = precomputedContrast[pixels[i + 2]];
+                }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+        GAMMA: function(adjustment) {
+            if (adjustment < 0) {
+                throw new Error('Gamma adjustment must be positive.');
+            }
+            var precomputedGamma = [];
+            for (var i = 0; i < 256; i++) {
+                precomputedGamma[i] = Math.pow(i / 255, adjustment) * 255;
+            }
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                    0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+                for (var i = 0; i < pixels.length; i += 4) {
+                    pixels[i] = precomputedGamma[pixels[i]];
+                    pixels[i + 1] = precomputedGamma[pixels[i + 1]];
+                    pixels[i + 2] = precomputedGamma[pixels[i + 2]];
+                }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+        GREYSCALE: function() {
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                    0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+                for (var i = 0; i < pixels.length; i += 4) {
+                    var val = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+                    pixels[i] = val;
+                    pixels[i + 1] = val;
+                    pixels[i + 2] = val;
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();
             };
         },
         INVERT: function() {
+            var precomputedInvert = [];
+            for (var i = 0; i < 256; i++) {
+                precomputedInvert[i] = 255 - i;
+            }
             return function(context, callback) {
                 var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
+                    0, 0, context.canvas.width, context.canvas.height);
                 var pixels = imgData.data;
                 for (var i = 0; i < pixels.length; i += 4) {
-                    pixels[i] = 255 - pixels[i];
-                    pixels[i + 1] = 255 - pixels[i + 1];
-                    pixels[i + 2] = 255 - pixels[i + 2];
+                    pixels[i] = precomputedInvert[pixels[i]];
+                    pixels[i + 1] = precomputedInvert[pixels[i + 1]];
+                    pixels[i + 2] = precomputedInvert[pixels[i + 2]];
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();
@@ -379,19 +367,20 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
         },
         MORPHOLOGICAL_OPERATION: function(kernelSize, comparator) {
             if (kernelSize % 2 === 0) {
-                throw new Error("The kernel size must be an odd number.");
+                throw new Error('The kernel size must be an odd number.');
             }
             var kernelHalfSize = Math.floor(kernelSize / 2);
 
             if (!comparator) {
-                throw new Error("A comparator must be defined.");
+                throw new Error('A comparator must be defined.');
             }
 
             return function(context, callback) {
                 var width = context.canvas.width;
                 var height = context.canvas.height;
                 var imgData = context.getImageData(0, 0, width, height);
-                var originalPixels = context.getImageData(0, 0, width, height).data;
+                var originalPixels = context.getImageData(0, 0, width, height)
+                    .data;
                 var offset;
 
                 for (var y = 0; y < height; y++) {
@@ -405,11 +394,13 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
                                 var pixelX = x + i - kernelHalfSize;
                                 var pixelY = y + j - kernelHalfSize;
                                 if (pixelX >= 0 && pixelX < width &&
-                                        pixelY >= 0 && pixelY < height) {
+                                    pixelY >= 0 && pixelY < height) {
                                     offset = (pixelY * width + pixelX) * 4;
                                     r = comparator(originalPixels[offset], r);
-                                    g = comparator(originalPixels[offset + 1], g);
-                                    b = comparator(originalPixels[offset + 2], b);
+                                    g = comparator(
+                                        originalPixels[offset + 1], g);
+                                    b = comparator(
+                                        originalPixels[offset + 2], b);
                                 }
                             }
                         }
@@ -424,12 +415,12 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
         },
         CONVOLUTION: function(kernel) {
             if (!$.isArray(kernel)) {
-                throw new Error("The kernel must be an array.");
+                throw new Error('The kernel must be an array.');
             }
             var kernelSize = Math.sqrt(kernel.length);
             if ((kernelSize + 1) % 2 !== 0) {
-                throw new Error("The kernel must be a square matrix with odd" +
-                        "width and height.");
+                throw new Error('The kernel must be a square matrix with odd' +
+                    'width and height.');
             }
             var kernelHalfSize = (kernelSize - 1) / 2;
 
@@ -437,7 +428,8 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
                 var width = context.canvas.width;
                 var height = context.canvas.height;
                 var imgData = context.getImageData(0, 0, width, height);
-                var originalPixels = context.getImageData(0, 0, width, height).data;
+                var originalPixels = context.getImageData(0, 0, width, height)
+                    .data;
                 var offset;
 
                 for (var y = 0; y < height; y++) {
@@ -450,7 +442,7 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
                                 var pixelX = x + i - kernelHalfSize;
                                 var pixelY = y + j - kernelHalfSize;
                                 if (pixelX >= 0 && pixelX < width &&
-                                        pixelY >= 0 && pixelY < height) {
+                                    pixelY >= 0 && pixelY < height) {
                                     offset = (pixelY * width + pixelX) * 4;
                                     var weight = kernel[j * kernelSize + i];
                                     r += originalPixels[offset] * weight;
@@ -469,51 +461,33 @@ window.console.log(" in BRIGHTNESS filtering with adjustment.",adjustment);
                 callback();
             };
         },
-// encoded = ((original / 255) ^ (1 / gamma)) * 255
-        GAMMA: function(adjustment) {
-//window.console.log(" in GAMMA filtering with adjustment", adjustment);
-            if (adjustment < 0 || adjustment > 3) {
-                throw new Error(
-                        "Gammf adjustment must be between 0 and 1.");
+        COLORMAP: function(cmap, ctr) {
+            var resampledCmap = cmap.slice(0);
+            var diff = 255 - ctr;
+            for(var i = 0; i < 256; i++) {
+                var position = 0;
+                if(i > ctr) {
+                    position = Math.min((i - ctr) / diff * 128 + 128,255) | 0;
+                }else{
+                    position = Math.max(0, i / (ctr / 128)) | 0;
+                }
+                resampledCmap[i] = cmap[position];
             }
             return function(context, callback) {
                 var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
-                var pixels = imgData.data;
-                for (var i = 0; i < pixels.length; i ++) {
-                    pixels[i] = Math.round(Math.pow((pixels[i] / 255),adjustment) * 255);
+                    0, 0, context.canvas.width, context.canvas.height);
+                var pxl = imgData.data;
+                for (var i = 0; i < pxl.length; i += 4) {
+                    var v = (pxl[i] + pxl[i + 1] + pxl[i + 2]) / 3 | 0;
+                    var c = resampledCmap[v];
+                    pxl[i] = c[0];
+                    pxl[i + 1] = c[1];
+                    pxl[i + 2] = c[2];
                 }
-                context.putImageData(imgData, 0, 0);
-                callback();
-            };
-        },
-        NORMALIZE: function(minv, maxv) {
-window.console.log(" in NORMALIZE filtering.");
-            if (maxv < minv) {
-                throw new Error("NORMALIZE range must be greater than 0.");
-            }
-
-            return function(context, callback) {
-                var imgData = context.getImageData(
-                        0, 0, context.canvas.width, context.canvas.height);
-                var _max=0;
-                var _min=0;
-                var pixels = imgData.data;
-
-                var deno=maxv - minv;
-
-                for (var i = 0; i < pixels.length; i += 1) {
-                   var P = pixels[i];
-                   var Pixel = P - minv / deno;
-                   pixels[i]=Pixel;
-                   if(P > _max) _max=P;
-                   if(P < _in) _min=P;
-                }
-window.console.log("max is", _max,"min is",_min);
                 context.putImageData(imgData, 0, 0);
                 callback();
             };
         }
     };
 
-}(OpenSeadragon));
+}());
