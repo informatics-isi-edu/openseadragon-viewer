@@ -344,13 +344,25 @@
                 return new $.Point(x + this.xOffset, y - this.yOffset);
             }
         },
+        queryForRetina : function(canvas){
+            // query for various pixel ratios
+            var ctxt = canvas.getContext("2d");
+            var devicePixelRatio = window.devicePixelRatio || 1;
+            var backingStoreRatio = ctxt.webkitBackingStorePixelRatio ||
+                                    ctxt.mozBackingStorePixelRatio ||
+                                    ctxt.msBackingStorePixelRatio ||
+                                    ctxt.oBackingStorePixelRatio ||
+                                    ctxt.backingStorePixelRatio || 1;
+            var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
+            return pixelDensityRatio;
+        },
         /**
          * Get the rendered scalebar in a canvas.
          * @returns {Element} A canvas containing the scalebar representation
          */
         getAsCanvas: function() {
             var canvas = document.createElement("canvas");
-            var pixelDensityRatio=queryForRetina(canvas);
+            var pixelDensityRatio = this.queryForRetina(canvas);
             canvas.width = this.divElt.offsetWidth * pixelDensityRatio;
             canvas.height = this.divElt.offsetHeight * pixelDensityRatio;
             var context = canvas.getContext("2d");
@@ -383,7 +395,7 @@
          */
         getImageWithScalebarAsCanvas: function() {
             var imgCanvas = this.viewer.drawer.canvas;
-            var pixelDensityRatio=queryForRetina(imgCanvas);
+            var pixelDensityRatio= this.queryForRetina(imgCanvas);
             var newCanvas = document.createElement("canvas");
             var _width=imgCanvas.width;
             var _height=imgCanvas.height;
