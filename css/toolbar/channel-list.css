@@ -1,0 +1,15 @@
+/* Channel List */
+#menuContainer #navMenuContent .channelList{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+#navMenuContent .channelList .groups{
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 5px;
+    flex: 1;
+    overflow-y: auto;
+}

@@ -1,0 +1,113 @@
+/* Annotations item  */
+#menuContainer #navMenuContent .annotationItem{
+    position: relative;
+    float: left;
+    border-bottom: 1px solid #f2f2f2;
+    /* padding: 0 5px; */
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    cursor: pointer;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+#menuContainer #navMenuContent .annotationItem:hover{
+    background: #efefef;
+}
+
+#menuContainer #navMenuContent .annotationItem .content{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+#menuContainer #navMenuContent .annotationItem:first-child{
+    border-top: 1px solid #f2f2f2;
+}
+
+#menuContainer #navMenuContent .annotationItem input.edit{
+    position: relative;
+    float: left;
+    width: 100%;
+    margin: 0;
+    padding: 2px 3px;
+    background: transparent;
+    border: none;
+    color: #ddd;
+    outline: none;
+    box-sizing: border-box;
+}
+
+#menuContainer #navMenuContent .annotationItem textarea.edit{
+    display: inline-block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 20px;
+    padding: 2px 3px;
+    background: transparent;
+    min-height: 15px;
+    max-height: 50px;
+    color: #a2a2a2;
+    font-size: 10px;
+    resize: none;
+    border: none;
+    outline: none;
+}
+
+#menuContainer #navMenuContent .annotationItem .anatomy input.edit{
+    color: #5a93de;
+    font-size: 12px;
+}
+
+#menuContainer #navMenuContent .annotationItem input.edit:hover,
+#menuContainer #navMenuContent .annotationItem textarea.edit:hover{
+    color: #c1c1c1;
+}
+#menuContainer #navMenuContent .annotationItem .editRow{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#menuContainer #navMenuContent .annotationItem .editBtn{
+    padding: 2px;
+    /* background: #5e5e5e; */
+    border-radius: 2px;
+    margin: 2px;
+    /* width: 15px; */
+    /* text-align: center; */
+    color: #b0b0b0;
+    cursor: pointer;
+    font-size: 10px;
+    /* height: 15px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#menuContainer #navMenuContent .annotationItem .editBtn:hover{
+    color: #09c;
+}
+
+#menuContainer #navMenuContent .annotationItem .editBtn.disabled{
+    background: none;
+    color: #424242;
+    cursor: default;
+}
+
+#menuContainer #navMenuContent .annotationItem.current{
+    background: #407cca;
+}
+
+#menuContainer #navMenuContent .annotationItem.current input.edit{
+    color : #fff;
+}
+
+#menuContainer #navMenuContent .annotationItem.current .editBtn{
+    color: #fff;
+}
+
+#menuContainer #navMenuContent .annotationItem.current .editBtn:hover{
+    color: #aaa;
+}
