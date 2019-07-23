@@ -12,28 +12,19 @@ function ToolbarController(viewer, config){
 
     // Set current selecting annotation
     this.changeSelectingAnnotation = function(data){
-        this.annotationList.changeSelectingAnnotation(data.id);
+        this.annotationList.changeSelectingAnnotation(data);
     }
 
     // Dispatch event to Viewer
     this.dispatchEvent = function(type, data){
         switch(type){
-            // Change the visibility of annotation in Openseasdragon viewer
-            case "ChangeAnnotationVisibility":
-                this._viewer.changeAnnotationVisibility(data);
-                break;
-            // Change selecting annotation in Openseadragon viewer
-            case "ChangeSelectingAnnotation":
-                this._viewer.changeSelectingAnnotation(data);
-                break;
-            // Change annotation 'description' or 'anatomy' text
-            case "ChangeAnnotationDescription":
-            case "ChangeAnnotationAnatomy":
-                this._viewer.setAnnotationAttributes(data);
-                break;
-            // Change all the annotation groups visibility
-            case "ChangeOverlayVisibility":
-                this._viewer.changeOverlayVisibility(data.isDisplay);                
+            
+            case "ChangeAnnotationVisibility": // Change annotation group visibility
+            case "ChangeSelectingAnnotationGroup": // Change selecting annotation group
+            case "ChangeAllVisibility": // Change all annotations visibility
+            case "RemoveAnnotationGroup": // Remove an annotation group
+            case "SetGroupAttributes": // Change annotation 'description' or 'anatomy' text
+                this._viewer.dispatchSVGEvent(type, data);
                 break;
             // Change openseadragon item overlay visibility
             case "ChangeOsdItemVisibility":
@@ -42,24 +33,6 @@ function ToolbarController(viewer, config){
             // Change openseadragon item channel setting
             case "ChangeOsdItemChannelSetting":
                 this._viewer.setItemChannel(data);
-                break;
-            // Create a new annotation
-            case "CreateNewAnnotationGroup":
-                this._viewer.createAnnotationGroup();
-                break;
-            case "DrawAnnotationObject":
-                this._viewer.createAnnotationObject(data.type);
-                break;
-            // Locate a flag on openseadragon
-            // case "LocateAnnotationFlag":
-            //     this._viewer.locateAnnotationFlag(data);
-            //     break;
-            case "ExportSVG":
-                this._viewer.exportAnnotationsToSVG();
-                break;
-            // Remove the annotation in Openseasdragon viewer
-            case "RemoveAnnotation":
-                this._viewer.removeAnnotationById(data.id);
                 break;
             case "ZoomIn":
                 this._viewer.zoomIn();
@@ -92,7 +65,6 @@ function ToolbarController(viewer, config){
         // User cancel to create a new annotation and remove the annotation object created 
         if(this.selectingMenu == clickMenuType && clickMenuType != ""){
             this.selectingMenu = "";
-            this._viewer.destoryMouseTracker();
             return;
         }
 
@@ -112,24 +84,10 @@ function ToolbarController(viewer, config){
             case "zoomOut":
                 this.dispatchEvent("ZoomOut");
                 break;
-            case "drawLine":
-                this.dispatchEvent("DrawAnnotationObject", { type : "SCRIBBLE"});
-                break;
-            case "drawRectangle":
-                this.dispatchEvent("DrawAnnotationObject", { type : "RECT"});
-                break;
-            case "drawCircle":
-                this.dispatchEvent("DrawAnnotationObject", { type : "CIRCLE"});
-                break;
             case "exportSVG":
                 this.dispatchEvent("ExportSVG");
                 break;
         }
-    }
-
-    // Update the current selected menu and style
-    this.selectMenuType = function(type){
-        this.selectingMenu = type || ""; 
     }
 
     // Update the annotation from viewer

@@ -43,13 +43,7 @@ Base.prototype.highlight = function(highlightAttrs){
     for(var attr in highlightAttrs){
         this.svg.attr(attr, highlightAttrs[attr]);
     }
-    // this.svg
-    //     .attr("stroke", "black")
-    //     .attr("stroke-width", 0.0001)
-    //     .attr("fill", "yellow")
 }
-
-
 
 Base.prototype.getAttributes = function(attrs){
     var attr,
@@ -126,25 +120,6 @@ Base.prototype.renderSVG = function(){
                 break;
         }
     }
-}
-
-Base.prototype.toSVG = function(){
-    var svgContent = "",
-        attr;
-
-    svgContent += "<" + this._attrs.tag + " ";
-    for(attr in this._attrs){
-        switch(attr){
-            case "tag":
-                break;
-            default:
-                svgContent += (attr + '="' + this._attrs[attr] + '" ');
-                break;
-        }
-    }
-
-    svgContent += '></' + this._attrs.tag + '>';
-    return svgContent;
 }
 
 Base.prototype.unHighlight = function(){

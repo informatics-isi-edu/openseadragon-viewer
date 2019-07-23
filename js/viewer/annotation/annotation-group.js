@@ -1,8 +1,8 @@
-function AnnotationGroup(id, description, anatomy, parent){
+function AnnotationGroup(id, anatomy, description, parent){
     var _self = this;
     this.id = id || -1;
-    this.description = description || "type your description";
-    this.anatomy = anatomy || "Anatomy name";
+    this.description = description || "no description";
+    this.anatomy = anatomy || "Unknown Anatomy";
     this.annotations = [];
     // this.indicator = null;
     this.parent = parent;
@@ -19,17 +19,11 @@ function AnnotationGroup(id, description, anatomy, parent){
     this.isSelected = false;
     // this.isFlagShown = true;
 
-    this.onClickSelect = function(){
-        _self.dispatchEvent("OnClickChangeSelectingAnnotation");
-    }
-
     this.highlightAll = function(event){
-
-        var strokeWidth = this.parent.getStrokeWidth() || 0;
 
         _self.annotations.forEach(function(annotation){
             annotation.highlight({
-                "stroke-width" : strokeWidth * 1,
+                "stroke-width" : 2,
                 "stroke" : "yellow"
             });
         })
@@ -37,11 +31,6 @@ function AnnotationGroup(id, description, anatomy, parent){
 
     this.remove = function(){
         _self.svg.remove();
-        // _self.indicator.element.removeEventListener('mouseenter', _self.onMouseoverDisplayBoundary);
-        // _self.indicator.element.removeEventListener('mouseleave', _self.onMouseleaveDisplayBoundary);
-        // _self.indicator.element.removeEventListener('click', _self.onClickSelect);
-        // _self.parent.removeOverlay(_self.indicator.element);
-        // _self.indicator = null;
     }
 
     this.unHighlightAll = function(){
@@ -99,13 +88,9 @@ AnnotationGroup.prototype.changeOpacity= function(opacity){
 AnnotationGroup.prototype.dispatchEvent = function(type, data){
     
     switch(type){
-        case "UpdateIndicatorLocation":
-            this.updateDiagonalPoints();
-            // this.updateIndicatorLocation();
-            break;
         case "OnClickChangeSelectingAnnotation":
             this.parent.dispatchEvent(type, {
-                id : this.id
+                groupID : this.id
             })
             break;
         case "OnMouseoverShowTooltip":
@@ -129,11 +114,6 @@ AnnotationGroup.prototype.dispatchEvent = function(type, data){
             break;
     }
 }
-
-// AnnotationGroup.prototype.locateFlag = function(isLocate){
-//     this.isFlagShown = isLocate;
-//     // this.indicator.element.style.display = (isLocate) ? "block" : "none";
-// }
 
 AnnotationGroup.prototype.setAttributesByJSON = function(attrs){
     var attr,
@@ -163,66 +143,19 @@ AnnotationGroup.prototype.updateDiagonalPoints = function(){
     }
 }
 
-// AnnotationGroup.prototype.updateIndicatorLocation = function(){
-//     var x = (this.x1 && this.x2) ? (this.x2 + this.x1) / 2 : 0;
-//     var y = (this.y1 && this.y2) ? (this.y2 + this.y1) / 2 : 0;
-
-//     if(this.indicator == null){
-//         this.renderIndicator();
-//     }
-
-//     if(x !== 0 && y !== 0){
-//         this.indicator.element.style.display = "block";
-//     };
-
-//     this.indicator.update(new OpenSeadragon.Point(x, y));
-//     this.parent.redrawViewerContent();
-// }
-
 AnnotationGroup.prototype.render = function(){
 
-    var svg = d3.select(this.parent.getSVGOverlayContainer().firstChild)
+    var svg = d3.select(this.parent.svg)
         .append("g")
         .attr("annotation-id", this.id);
         
     this.svg = svg;
-    
-    // if(this.indicator == null){
-    //     this.renderIndicator();
-    // }
+
 }
-
-// AnnotationGroup.prototype.renderIndicator = function(){
-//     var x = (this.x1 && this.x2) ? (this.x2 + this.x1) / 2 : 0;
-//     var y = (this.y1 && this.y2) ? (this.y2 + this.y1) / 2 : 0;
-//     var indicatorElem = document.createElement("div");
-//     indicatorElem.setAttribute("class", "indicator");
-//     indicatorElem.innerHTML = "<i class='fa fa-tag'></i>";
-
-//     if(this.x2 == null || this.y2 == null){
-//         indicatorElem.style.display = "none";
-//     }
-
-//     this.indicator = this.parent.addOverlay(indicatorElem, new OpenSeadragon.Point(x, y))
-//     this.indicator.element.addEventListener('mouseenter', this.onMouseoverDisplayBoundary);
-//     this.indicator.element.addEventListener('mouseleave', this.onMouseleaveDisplayBoundary);
-//     this.indicator.element.addEventListener('click', this.onClickSelect);
-// }
 
 AnnotationGroup.prototype.setDisplay = function(isDisplay){
     var displayStyle = (isDisplay) ? "block" : "none";
 
     this.isDisplay = isDisplay ? isDisplay : this.isDisplay;
     this.svg.attr("display", displayStyle);
-}
-
-AnnotationGroup.prototype.toSVG = function(){
-    var svgContent = "";
-
-    svgContent += '<g annotation-id="' + this.id + '" description="'+ this.description+'" anatomy="'+ this.anatomy +'">';
-    for(i = 0; i < this.annotations.length; i++){
-        svgContent += this.annotations[i].toSVG();
-    };
-    svgContent += "</g>";
-    return svgContent;
 }

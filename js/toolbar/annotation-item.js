@@ -5,18 +5,22 @@ function AnnotationItem(data){
 
     this.id = data.id || "";
     this.className = "annotationItem";
-    this.description = data.description || "type your description";
-    this.anatomy = data.anatomy || "Anatomy name";
+    this.description = data.description || "no description";
+    this.anatomy = data.anatomy || "Unknown Anatomy";
     this.parent = data.parent || null;
     this.isDisplay = true;
     this.isFlagShown = true;
     this.isSelected = false;
+    this.svgID = data.svgID;
     this.elem = null;
 
     // Click to change to current annotation group 
     this.onClickToSelect = function(){
         var id = (_self.isSelected) ? null : _self.id
-        _self.parent.changeSelectingAnnotation(id);
+        _self.dispatchEvent("ChangeSelectingAnnotationGroup", {
+            groupID : _self.id,
+            svgID : _self.svgID
+        });
     }
 
     // Click edit button
@@ -26,13 +30,6 @@ function AnnotationItem(data){
         switch(type){
             case "toggleDisplay":
                 _self.onClickToChangeVisibility();
-                event.stopPropagation();
-                break;
-            // case "locateFlag":
-            //     _self.onClickToLocateFlag(this);
-            //     break;
-            case "moreInfo":
-                _self.onClickToInfoLink();
                 event.stopPropagation();
                 break;
             case "remove":
@@ -50,40 +47,18 @@ function AnnotationItem(data){
 
         _self.parent.dispatchEvent('ChangeAnnotationVisibility', {
             id: _self.id,
+            svgID : _self.svgID,
             isDisplay : _self.isDisplay
-        });
-
-        // _self.parent.dispatchEvent('LocateAnnotationFlag', {
-        //     id: _self.id,
-        //     isLocate : _self.isFlagShown
-        // });
-        
+        });        
         _self.updateMenuIconClass();
     };
-
-    // Click to go to external page
-    this.onClickToInfoLink = function(){
-        window.open("https://dev.rebuildingakidney.org/chaise/record/#2/Vocabulary:Anatomy/RID=14-4XFR", "_blank");
-    }
-
-    // Click to locate a flag on Openseadragon viewer
-    // this.onClickToLocateFlag = function(event){
-
-    //     _self.isFlagShown = !_self.isFlagShown;
-    //     _self.parent.dispatchEvent('LocateAnnotationFlag', {
-    //         id: _self.id,
-    //         isLocate : _self.isFlagShown
-    //     });
-
-    //     _self.updateMenuIconClass();
-    //     // event.stopPropagation();
-    // };
 
     // Change Description 
     this.onChangeDescription = function(event){
         _self.description = event.currentTarget.value;
-        _self.parent.dispatchEvent('ChangeAnnotationDescription', {
-            id: _self.id,
+        _self.parent.dispatchEvent('SetGroupAttributes', {
+            groupID: _self.id,
+            svgID : _self.svgID,
             description : _self.description
         });
         // event.stopPropagation();
@@ -92,8 +67,9 @@ function AnnotationItem(data){
     // Change Anatomy
     this.onChangeAnatomy = function(event){
         _self.anatomy = event.currentTarget.value;
-        _self.parent.dispatchEvent('ChangeAnnotationAnatomy', {
-            id: _self.id,
+        _self.parent.dispatchEvent('SetGroupAttributes', {
+            groupID: _self.id,
+            svgID : _self.svgID,
             anatomy : _self.anatomy
         });
         // event.stopPropagation();
@@ -124,13 +100,15 @@ function AnnotationItem(data){
     };
 }
 
+AnnotationItem.prototype.dispatchEvent = function(type, data){
+    this.parent.dispatchEvent(type, data);
+}
+
 AnnotationItem.prototype.getIconClass = function(type){
 
     switch(type){
         case "toggleDisplay":
             return (this.isDisplay) ? 'fa fa-eye' : 'fa fa-eye-slash';
-        case "locateFlag":
-            return (this.isFlagShown) ? 'fa fa-flag' : 'fa fa-flag-o';
         case "moreInfo":
             return 'fa fa-external-link';
         case "remove":
@@ -185,7 +163,6 @@ AnnotationItem.prototype.changeSelectedStyle = function(){
 AnnotationItem.prototype.updateMenuIconClass = function(){
     if(this.elem == null){ return;};
     this.elem.querySelector(".editBtn[data-type='toggleDisplay']").innerHTML = "<i class='"+this.getIconClass('toggleDisplay')+"'></i>";
-    // this.elem.querySelector(".editBtn[data-type='locateFlag']").innerHTML = "<i class='"+this.getIconClass('locateFlag')+"'></i>";
 }
 
 

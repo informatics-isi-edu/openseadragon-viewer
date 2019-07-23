@@ -11,17 +11,7 @@ function Scribble(attrs){
     this.svg = null;
     this.renderLine = null;
     this.dataPoints = [];
-    
-    // Drag start event to draw a scribble
-    this.drawStartHandler = function(newPoint){
-        this.addDataPoint(newPoint);
-        this.svg.attr("d", function (d) { return _self.renderLine(d); }) // Redraw the path:
-    };
 
-    // Drag end event to draw a scribble
-    this.drawEndHandler = function(){
-        this.parent.dispatchEvent('UpdateIndicatorLocation')
-    }
 }
 
 Scribble.prototype = Object.create(Base.prototype);

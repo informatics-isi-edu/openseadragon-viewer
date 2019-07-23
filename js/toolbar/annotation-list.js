@@ -2,23 +2,33 @@ function AnnotationList(parent){
 
     var _self = this;
     
-    this.elem = null;
+    
     this.collection = {};
+    this.elem = null;
     this.parent = parent || null;
-    this.selectingId = null;
+    this.svgIDs = [];
+    this.selectingID = null;
+    this.isDisplayAll = true;
 
     // Add new annotation items
     this.add = function(items){
         var id,
             item,
-            i;
+            i,
+            svgID;
             
         for(i = 0; i < items.length; i++){
-            id = items[i].id;
+            id = items[i].groupID;
+            svgID = items[i].svgID;
+
+            if(this.svgIDs.indexOf(svgID) == -1){
+                this.svgIDs.push(svgID);
+            }
 
             if(!this.collection.hasOwnProperty(id)){
                 item = new AnnotationItem({
                     id : id,
+                    svgID : svgID,
                     anatomy : items[i].anatomy,
                     description : items[i].description,
                     parent : this
@@ -52,35 +62,46 @@ function AnnotationList(parent){
     }
 
     // Change the selecting annotation item
-    this.changeSelectingAnnotation = function(annotationId){
+    this.changeSelectingAnnotation = function(data){
         
         var item;
-    
-        // remove style from the previous selected one
-        if(this.collection.hasOwnProperty(this.selectingId)){
-            item = this.collection[this.selectingId];
-            item.isSelected = false;
-            item.changeSelectedStyle();
-        };
+        
+        if(this.selectingID == data.groupID){
+            if(this.collection.hasOwnProperty(this.selectingID)){
+                item = this.collection[this.selectingID];
+                item.isSelected = false;
+                item.changeSelectedStyle();
+            };
+            this.selectingID = "";
+        }
+        else{
+            // remove style from the previous selected one
+            if(this.collection.hasOwnProperty(this.selectingID)){
+                item = this.collection[this.selectingID];
+                item.isSelected = false;
+                item.changeSelectedStyle();
+            };
 
-        // add current style to the new one
-        if(this.collection.hasOwnProperty(annotationId)){
-            item = this.collection[annotationId];
-            item.isSelected = true;
-            item.changeSelectedStyle();
-            this.adjustScrollView(item.elem);
-        };
+            // add current style to the new one
+            if(this.collection.hasOwnProperty(data.groupID)){
+                item = this.collection[data.groupID];
+                item.isSelected = true;
+                item.changeSelectedStyle();
+                this.adjustScrollView(item.elem);
+            };
+                    
+            this.selectingID = data.groupID;
+        }
         
-        this.dispatchEvent('ChangeSelectingAnnotation', {
-            id : annotationId
-        });
-        
-        this.selectingId = annotationId;
     }
     
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
         switch(type){
+            case "ChangeSelectingAnnotationGroup":
+                this.changeSelectingAnnotation(data);
+                this.parent.dispatchEvent(type,data);
+                break;
             default:
                 this.parent.dispatchEvent(type, data);
                 break;
@@ -88,29 +109,24 @@ function AnnotationList(parent){
         
     }
 
+    this.getIconClass = function(type){
+
+        switch(type){
+            case "displayAll":
+                return (this.isDisplayAll) ? 'fa fa-check-square-o' : 'fa fa-square-o';
+            case "displayNone":
+                return (!this.isDisplayAll) ? 'fa fa-check-square-o' : 'fa fa-square-o';
+        }
+    }
+
     // Hide annotations
     this.hideAll = function(){
-        _self.elem.querySelector(".overlayDisplayBtn[data-type='none']").click();
+        _self.elem.querySelector(".displayAllBtn[data-type='none']").click();
     }
 
     // Show annotations
     this.showAll = function(){
-        _self.elem.querySelector(".overlayDisplayBtn[data-type='all']").click();
-    }
-
-    // Update the annotation number 
-    this.updateDisplayNumber = function(){
-        var listLength = this.elem.querySelectorAll(".groups .annotationItem").length;
-        var total = Object.keys(this.collection).length;
-        this.elem.querySelector(".resultCount").innerHTML = [
-            "<span>Displaying "+listLength+" of "+total+" Annotations</span>"
-        ].join("");
-    }
-
-    // Update annotation list
-    this.updateList = function(data){
-        this.add(data);
-        this.updateDisplayNumber();
+        _self.elem.querySelector(".displayAllBtn[data-type='all']").click();
     }
 
     // Search annotation item that has matched keyword in its anatomy 
@@ -130,48 +146,32 @@ function AnnotationList(parent){
         _self.updateDisplayNumber();
     };
 
-    // Click to create a new annotation
-    this.onClickNewAnnotation = function(){
-        _self.parent.dispatchEvent('CreateNewAnnotationGroup');
-    };
-
     // Click to toggle overlay visibility in Openseadragon
-    this.onClickOverlayVisibility = function(){
+    this.onClickChangeAllVisibility = function(){
         // Get overlay toggle button type clicked by the user
         var displayType = this.getAttribute("data-type") || "",
-            isDisplay = (displayType == "all") ? true : false,
+            i,
             id,
             item;
+        
+        _self.isDisplayAll = (displayType == "all") ? true : false;
 
-        _self.elem.querySelector(".overlayDisplayBtn[data-type='all']").className = (displayType == "all") ? "overlayDisplayBtn selected" : "overlayDisplayBtn";
-        _self.elem.querySelector(".overlayDisplayBtn[data-type='none']").className = (displayType == "none") ? "overlayDisplayBtn selected" : "overlayDisplayBtn";
+        _self.elem.querySelector(".displayAllBtn[data-type='all'] i").className = _self.getIconClass('displayAll');
+        _self.elem.querySelector(".displayAllBtn[data-type='none'] i").className = _self.getIconClass('displayNone');
          
         for(id in _self.collection){
             item = _self.collection[id];
-            item.isDisplay = isDisplay;
-            item.isFlagShown = isDisplay;
+            item.isDisplay = _self.isDisplayAll;
             item.updateMenuIconClass();
         };
 
-        _self.parent.dispatchEvent('ChangeOverlayVisibility', {
-            isDisplay : isDisplay
-        });
-    }
-
-    // Remove annotation item
-    this.remove = function(id){
-
-        if(this.collection.hasOwnProperty(id)){
-            delete this.collection[id];
-
-            // Notify Viewer to remove the annotation
-            this.parent.dispatchEvent('RemoveAnnotation', {
-                id : id
+        for(i = 0; i < _self.svgIDs.length; i++){
+            _self.parent.dispatchEvent('ChangeAllVisibility', {
+                svgID : _self.svgIDs[i],
+                isDisplay : _self.isDisplayAll
             });
-
-            // Update the number of list
-            this.updateDisplayNumber();
-        };
+        }
+        
     }
 
     // Render the view 
@@ -186,9 +186,14 @@ function AnnotationList(parent){
         listElem.setAttribute("class", "annotationList");
         listElem.innerHTML = [
             "<span class='title'>Annotations</span>",
-            "<span class='row' data-type='overlayVisibility'>",
-                "<span class='overlayDisplayBtn' data-type='all'>Show All</span>",
-                "<span class='overlayDisplayBtn' data-type='none'>Hide All</span>",
+            "<span class='row filter' data-type='overlayVisibility'>",
+                "<span class='name'> Display : </span>",
+                "<span class='displayAllBtn' data-type='all'>",
+                    "<i class='fa fa-check-square-o'></i> All",
+                "</span>",
+                "<span class='displayAllBtn' data-type='none'>",
+                    "<i class='fa fa-square-o'></i> None",
+                "</span>",
             "</span>",
             // "<div class='addAnnotationGroupBtn'>",
             //     "<span><i class='fas fa-plus'></i>New Annotation</span>",
@@ -215,14 +220,29 @@ function AnnotationList(parent){
         this.elem.querySelector(".searchBar input.search").addEventListener('keyup', this.onKeyupSearch);
         
         // Change the overlay visibility button style
-        this.elem.querySelector(".overlayDisplayBtn[data-type='all']").className = (isOverlayVisible) ? "overlayDisplayBtn selected" : "overlayDisplayBtn";
-        this.elem.querySelector(".overlayDisplayBtn[data-type='none']").className = (!isOverlayVisible) ? "overlayDisplayBtn selected" : "overlayDisplayBtn";
-
+        _self.elem.querySelector(".displayAllBtn[data-type='all'] i").className = _self.getIconClass('displayAll');
+        _self.elem.querySelector(".displayAllBtn[data-type='none'] i").className = _self.getIconClass('displayNone');
+         
         // Binding events
         // this.elem.querySelector(".addAnnotationGroupBtn").addEventListener('click', this.onClickNewAnnotation);
-        this.elem.querySelectorAll(".overlayDisplayBtn").forEach(function(elem){
-            elem.addEventListener('click', this.onClickOverlayVisibility);
+        this.elem.querySelectorAll(".displayAllBtn").forEach(function(elem){
+            elem.addEventListener('click', this.onClickChangeAllVisibility);
         }.bind(this));
+    }
+
+    // Update the annotation number 
+    this.updateDisplayNumber = function(){
+        var listLength = this.elem.querySelectorAll(".groups .annotationItem").length;
+        var total = Object.keys(this.collection).length;
+        this.elem.querySelector(".resultCount").innerHTML = [
+            "<span>Displaying "+listLength+" of "+total+" Annotations</span>"
+        ].join("");
+    }
+
+    // Update annotation list
+    this.updateList = function(data){
+        this.add(data);
+        this.updateDisplayNumber();
     }
 }
 

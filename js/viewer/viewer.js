@@ -7,14 +7,16 @@ function Viewer() {
     this._toolbarController = null;
 
     this.channels = {};
-    this.annotationCollection = {};
-    this.currentMouseTracker = null;
-    this.currentAnnotationId = "";
+    this.current = {
+        svgID : "",
+        groupID : ""
+    };
     this.isInitLoad = false;
-    this.mouseTrackerDestroyTimeout = 300;
     this.overlayVisibility = true;
     this.osd = null;
     this.tooltipElem = null;
+    this.svg = null;
+    this.svgCollection = {};
 
     // Init 
     this.init = function (utils, config, toolbarController) {
@@ -26,6 +28,9 @@ function Viewer() {
         this._config = config;
         this._toolbarController = toolbarController;
 
+        // Add each image source into Openseadragon viewer
+        this.parameters = this._utils.getParameters();
+
         // Get config from scalebar and Openseadragon
         this.scalebarSetting = this.getConfig('scalebar');
         this.osdSetting = this.getConfig('osd');
@@ -33,15 +38,10 @@ function Viewer() {
         this.osd.scalebar(this.scalebarSetting);
         this.osd.svgOverlay();
 
-        // Customized SVG container
-        // var container = document.createElement("div")
-        // container.innerHTML = [
-        //     '<div id="annotationContainer" style="position: absolute; top:0; left:0; width: 100%; height: 100% "></div>'
-        // ].join("");
-        // document.querySelector(".openseadragon-canvas").append(container);
-
-        // Add each image source into Openseadragon viewer
-        this.parameters = this._utils.getParameters();
+        // SVG container to contain groups of annotations
+        this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.svg.setAttribute("id", "annotationContainer");
+        this.osd.svgOverlay().node().parentNode.insertBefore(this.svg, this.osd.svgOverlay().node());
 
         // Parse urls to load image and channels
         this.loadImages(this.parameters.images);
@@ -61,25 +61,16 @@ function Viewer() {
                 // Check if annotation svg exists
                 if(_self.parameters.svgs) {
                     _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                    _self.resizeSVG();
                 }
                 
-                _self.isInitLoad = true;                
+                _self.isInitLoad = true;  
             };
-
         });
   
-        // this.osd.addHandler('resize', function() {
-        //     var svg = (svg) ? svg : document.getElementById("annotation1");
-        //     if(svg){
-        //         var p1 = svg.getAttribute("p1").split(",");
-        //         var p2 = svg.getAttribute("p2").split(",");
-        //         var p1 = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+p1[0], +p1[1]), true);
-        //         var p2 = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+p2[0], +p2[1]), true);
-        //         svg.style.left = p1.x + "px";
-        //         svg.style.top = p1.y + "px";
-        //         svg.style.width = p2.x - p1.x + "px";
-        //     }
-        // });
+        this.osd.addHandler('resize', this.resizeSVG);
+
+        this.osd.addHandler('animation', this.resizeSVG);
 
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
@@ -94,24 +85,6 @@ function Viewer() {
             }
         });
     };
-
-    // Add the created annotation object to the collection
-    this.addAnnotation = function (annotation) {
-        var annotationId = annotation._attrs["annotation-id"];
-
-        // Check if annotation group id has already existed and create one if not
-        if (!this.annotationCollection.hasOwnProperty(annotationId)) {
-            this.createAnnotationGroup(annotationId);
-        }
-
-        this.annotationCollection[annotationId].add(annotation);
-    }
-
-    // Add overlay 
-    this.addOverlay = function (elem, location) {
-        this.osd.addOverlay(elem, location);
-        return this.osd.currentOverlays[this.osd.currentOverlays.length - 1];
-    }
 
     // Build a tilesource object for Openseadragon Config
     this.buildTileSource = function (xmlDoc, imgPath) {
@@ -151,131 +124,26 @@ function Viewer() {
         return tileSource;
     }
 
-    // Change overlay visibility (all annotations)
-    this.changeOverlayVisibility = function (visibility) {
-        var annotationId,
-            annotationGroup;
-
-        this.overlayVisibility = visibility;
-
-        for (annotationId in this.annotationCollection) {
-            annotationGroup = this.annotationCollection[annotationId];
-            annotationGroup.setDisplay(visibility);
-            // annotationGroup.locateFlag(visibility);
-        }
-    }
-
     // Set current selecting annotation
     this.changeSelectingAnnotation = function (data) {
-        if(this.annotationCollection.hasOwnProperty(this.currentAnnotationId)){
-            var group = this.annotationCollection[this.currentAnnotationId];
-            group.isSelected = false;
-            group.unHighlightAll();
+
+        if(this.current.svgID == data.svgID && this.current.groupID == data.groupID){
+            this.current.svgID = "";
+            this.current.groupID = "";
         }
+        else if(this.svgCollection.hasOwnProperty(data.svgID)){
+            if(data.x1 && data.x2 && data.y1 && data.y2){
+                var x1 = data.x1 * 0.980,
+                    y1 = data.y1 * 0.980,
+                    x2 = data.x2 * 1.020,
+                    y2 = data.y2 * 1.020;
 
-        if(this.annotationCollection.hasOwnProperty(data.id)){
-            var group = this.annotationCollection[data.id],
-                x1 = group.x1 * 0.990,
-                y1 = group.y1 * 0.990,
-                x2 = group.x2 * 1.010,
-                y2 = group.y2 * 1.010;
-
-            
-            // Bring up the element to the front
-            this.osd.svgOverlay().node().append(group.svg.node());
-
-            // Adjust Openseadragon viewer bounds to fit the group svg
-            this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
-
-            group.highlightAll();
-            group.isSelected = true;
-        }
-
-        this.currentAnnotationId = data.id;
-    }
-
-    // Change the annotation group visibility
-    this.changeAnnotationVisibility = function (data) {
-        var annotationGroup = this.getAnnotationGroupById(data.id);
-        annotationGroup.setDisplay(data.isDisplay);
-    }
-
-    // Create drawing area for grouping annotations with same id
-    this.createAnnotationGroup = function (id, description, anatomy) {
-        // Check if the area has created
-        id = id ? id : Date.parse(new Date());
-        var isGroupEmpty = this.annotationCollection.hasOwnProperty(id) ? false : true;
-        var group = null;
-
-        // Check if annotation id has already existed and create one if not
-        if (isGroupEmpty) {
-            group = new AnnotationGroup(id, description, anatomy, this);
-            group.render();
-
-            this.annotationCollection[id] = group
-            this.dispatchEvent('UpdateAnnotationList', [group]);
-
-            return group;
-        }
-    }
-
-    // Create a new line/rect/circle object for the user to draw
-    this.createAnnotationObject = function (type) {
-        var group = null,
-            annotation = null;
-
-        // Create a new group if none exists
-        group = (this.currentAnnotationId == "") ? this.createAnnotationGroup() : this.getAnnotationGroupById(this.currentAnnotationId);
-
-        // Set the current annotation id
-        this.currentAnnotationId = group.id;
-
-        // Create an annotation
-        annotation = group.addAnnotation(type);
-
-        // Start to draw
-        annotation.setAttributesByJSON({ 
-            "stroke" : "#000",
-            "stroke-width" : this.getStrokeWidth()
-        })
-        annotation.draw();
-    }
-
-    // Create a new mousetracker for creating new annotation object
-    this.createMouseTracker = function (element, userData) {
-
-        var isCreatingAnnotation = this.currentMouseTracker != null ? true : false;
-        // destroy the existing mousetracker before creating a new mousetracker
-        if (isCreatingAnnotation) {
-            this.destoryMouseTracker();
-            setTimeout(function () {
-                this.currentMouseTracker = new OpenSeadragon.MouseTracker({
-                    element: element,
-                    dragHandler: this.mouseDragHandler,
-                    dragEndHandler: this.mouseDragEndHandler,
-                    userData: userData
-                });
-            }.bind(this), this.mouseTrackerDestroyTimeout);
-        }
-        // creating a new mousetracker
-        else {
-            this.currentMouseTracker = new OpenSeadragon.MouseTracker({
-                element: element,
-                dragHandler: this.mouseDragHandler,
-                dragEndHandler: this.mouseDragEndHandler,
-                userData: userData
-            });
-        }
-    };
-
-    // Destroy the mousetracker created when user done creating the annotation object
-    this.destoryMouseTracker = function () {
-        setTimeout(function () {
-            if (this.currentMouseTracker != null) {
-                this.currentMouseTracker.destroy();
-                this.currentMouseTracker = null;
+                // Adjust Openseadragon viewer bounds to fit the group svg
+                this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
             }
-        }.bind(this), this.mouseTrackerDestroyTimeout)
+            this.current.svgID = data.svgID;
+            this.current.groupID = data.groupID;
+        }
     }
 
     // Handle events from children/ Dispatch events to toolbar
@@ -285,16 +153,8 @@ function Viewer() {
             /**
              * [Handle events from children]
              */
-            // Drawing annotation object
-            case "DrawAnnotation":
-                var drawArea = this.getSVGOverlayContainer();
-                this.createMouseTracker(drawArea, {
-                    annotation: data,
-                })
-                break;
-            // Show tooltip when mouse over the annotation svg
+            // Show group tooltip when mouse over
             case "OnMouseoverShowTooltip":
-                this.highlightAnnotationBorder(data.x1, data.y1, data.x2, data.y2);
                 this.onMouseoverShowTooltip(data);
                 break;
             // Adjust tooltip location when mouse move
@@ -304,59 +164,56 @@ function Viewer() {
             // Remove tooltip and border when mouse out of the svg
             case "OnMouseoutHideTooltip":
                 this.onMouseoutHideTooltip();
-                this.hideAnnotationBorder();
                 break;
             /**
              * [Dispatch events to Toolbar controller]
              */
-            // Change the selecting annotation 
+            // Change current selected annotation group from toolbar
             case "OnClickChangeSelectingAnnotation":
                 this.changeSelectingAnnotation(data);
-                this._toolbarController.changeSelectingAnnotation(data, false);
+                this._toolbarController.changeSelectingAnnotation(data);
                 break;
-            // Update the annotation list with data
+            // Send the updated annotation list to toolbar
             case "UpdateAnnotationList":
                 this._toolbarController.updateAnnotationList(data);
                 break;
-            // Update the channel list with data
+            // Send the updated channel list to toolbar
             case "UpdateChannelList":
                 this._toolbarController.updateChannelList(data);
                 break;
         }
-
     }
 
-    // [To Fix] Exporting the annotation collection into SVG file
-    this.exportAnnotationsToSVG = function () {
+    // Dispatch events to SVG objects
+    this.dispatchSVGEvent = function(type, data){
 
-        var transformAttr = this.osd.svgOverlay()._node.getAttribute("transform"),
-            annotationId,
-            annotationGroup,
-            annotationContent = "",
-            blob = null,
-            dataUrl,
-            svgContent = "",
-            rotation = this.osd.viewport.getRotation(),
-            scale = this.osd.viewport._containerInnerSize.x * 1;
+        if(!this.svgCollection.hasOwnProperty(data.svgID)){
+            return 
+        };
 
-        if (this.annotationCollection) {
-            console.log("No annotations to export to SVG currently");
-            return;
+        var svg = this.svgCollection[data.svgID];
+
+        switch(type){
+            // Change an annotation group's visibility
+            case "ChangeAnnotationVisibility":
+                svg.changeVisibility(data);
+                break;
+            // Change current selected annotation group
+            case "ChangeSelectingAnnotationGroup":
+                svg.changeSelectedGroup(data);
+                this.changeSelectingAnnotation(data);
+                break;
+            // Change all annotation groups visibility
+            case "ChangeAllVisibility":
+                svg.changeAllVisibility(data.isDisplay);
+                break;
+            // Set annotation groups attributes
+            case "SetGroupAttributes":
+                svg.setGroupAttributes(data);
+                break;
+            default:
+                break;
         }
-
-        for (annotationId in this.annotationCollection) {
-            annotationGroup = this.annotationCollection[annotationId];
-            annotationContent += annotationGroup.toSVG();
-        }
-
-        svgContent += '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
-        svgContent += '<g transform="translate(10,10) scale(' + scale + ') rotate(' + rotation + ')">'
-        svgContent += annotationContent;
-        svgContent += '</g></svg>';
-
-        blob = new Blob([svgContent], { type: "image/svg+xml" });
-        dataUrl = window.URL.createObjectURL(blob)
-        this._utils.downloadAsFile("Annotations", dataUrl);
     }
 
     // Exporting the Openseadragon view to a jpg file
@@ -397,29 +254,11 @@ function Viewer() {
         }
     }
 
-    // Get groups from annotation collection
-    this.getAnnotationItems = function () {
-        return this.annotationCollection;
-    }
-
     // Get channels
     this.getChannels = function () {
         return this.channels;
     }
 
-    // Get annotation group by annotation-id
-    this.getAnnotationGroupById = function (id) {
-        return this.annotationCollection[id] || null;
-    }
-
-    // Get stroke width 
-    this.getStrokeWidth = function () {
-        var p1 = this.osd.viewport.pointFromPixel(new OpenSeadragon.Point(0, 0)),
-            p2 = this.osd.viewport.pointFromPixel(new OpenSeadragon.Point(1, 1)),
-            strokeWidth = p2.x - p1.x;
-
-        return strokeWidth;
-    }
     // Get the overlay visibility (all annotations)
     this.getOverlayVisibility = function () {
         return this.overlayVisibility;
@@ -435,154 +274,18 @@ function Viewer() {
         }
     }
 
-    // Get the SVG Overlay container area
-    this.getSVGOverlayContainer = function (type) {
-        return this.osd.svgOverlay().node().parentNode;
-    }
-
-    // Get the conversion of coordinates
-    this.getRatioPerPixel = function (w, h, p1, p2) {
-
-        var xUnit = Math.abs(p2.x - p1.x) / w;
-        var yUnit = Math.abs(p2.y - p1.y) / h;
-
-        return {
-            x: xUnit,
-            y: yUnit
-        }
-    };
-
-    // Highlight border of annotation group
-    this.highlightAnnotationBorder = function (x1, y1, x2, y2) {
-
-        var strokeWidth = _self.getStrokeWidth() * 2,
-            w = x2 - x1,
-            h = y2 - y1;
-
-        d3.select(this.osd.svgOverlay().node())
-            .append("rect")
-            .attr("class", "groupBorder")
-            .attr("x", x1)
-            .attr("y", y1)
-            .attr("width", w)
-            .attr("height", h)
-            .attr("fill", "none")
-            .attr("stroke-width", strokeWidth)
-            .attr("stroke", "yellow")
-    }
-
-    // Hide border of annotation group
-    this.hideAnnotationBorder = function (x, y, w, h) {
-        d3.selectAll("rect.groupBorder")
-            .remove();
-    }
-
-    // // Load and import the unstructured SVG file into Openseadragon viewer
+    // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
 
         for(var i = 0; i < svgs.length; i++){
-            var svgFileLocation = svgs[i],
+            var id = Date.parse(new Date()) + parseInt(Math.random() * 1000),
+                svgFileLocation = svgs[i],
                 content = this._utils.getUrlContent(svgFileLocation),
                 svgParser = new DOMParser(),
                 svgFile = svgParser.parseFromString(content, "image/svg+xml"),
-                svgFile = svgFile.getElementsByTagName("svg")[0],
-                // SVG file width and height by pixel
-                svgWidth = +svgFile.getAttribute("viewBox").split(" ")[2],
-                svgHeight = +svgFile.getAttribute("viewBox").split(" ")[3],
-                svgStyleSheet = {},
-                styleSheet = {},
-                styleTags,
-                // Diagonal points correspond to image coordinates
-                diagnonalPoint1 = svgFile.getAttribute("p1").split(","),
-                diagnonalPoint2 = svgFile.getAttribute("p2").split(","),
-                // Convert diagonal points to Openseadragon Points
-                osdStartPoint = new OpenSeadragon.Point(+diagnonalPoint1[0], +diagnonalPoint1[1]),
-                osdEndPoint = new OpenSeadragon.Point(+diagnonalPoint2[0], +diagnonalPoint2[1]),
-                // Convert the ratio per pixel in Openseadragon coordinates
-                ratioPerPixel = this.getRatioPerPixel(svgWidth, svgHeight, osdStartPoint, osdEndPoint);
+                svgFile = svgFile.getElementsByTagName("svg")[0];
 
-            // Adjust Openseadragon viewer bounds to fit the loaded SVG
-            this.osd.viewport.fitBounds(new OpenSeadragon.Rect(osdStartPoint.x, osdStartPoint.y, osdEndPoint.x - osdStartPoint.x, osdEndPoint.y - osdStartPoint.y));
-
-            // Add SVG stylesheet to the document to get the css rules
-            document.getElementsByTagName("head")[0].append(svgFile.getElementsByTagName("style")[0])
-
-            // Get the SVG stylesheet rules and remove the style tag from document
-            svgStyleSheet = document.styleSheets[document.styleSheets.length - 1].cssRules;
-            styleTags = document.getElementsByTagName("style");
-            styleTags[styleTags.length - 1].remove()
-
-            // Parsing the css class rules
-            for (var j = 0; j < svgStyleSheet.length; j++) {
-                var className = svgStyleSheet[j].selectorText.replace(".", ""),
-                    index = 0,
-                    attr,
-                    value;
-
-                styleSheet[className] = {};
-                while (svgStyleSheet[j].style[index]) {
-                    attr = svgStyleSheet[j].style[index];
-                    value = svgStyleSheet[j].style[attr];
-                    styleSheet[className][attr] = value;
-                    index += 1;
-                }
-            }
-            // Parsing child nodes in SVG
-            this.parseSvgChildNodes(svgFile, osdStartPoint, ratioPerPixel, styleSheet);
-        }
-        
-        // Setting each group's boundary
-        for (var id in this.annotationCollection) {
-            var annotation = this.annotationCollection[id];
-            annotation.updateDiagonalPoints();
-            // annotation.updateIndicatorLocation();
-        } 
-    }
-
-    // Load and import the structured SVG file into Openseadragon viewer
-    this.importAnnotationSVG = function () {
-
-        var svgFileLocation = "data/Q-296R-test.svg",
-            content = this._utils.getUrlContent(svgFileLocation),
-            svgParser = new DOMParser(),
-            svgFile = svgParser.parseFromString(content, "image/svg+xml"),
-            annotationGroups = svgFile.getElementsByTagName("g"),
-            annotation = null,
-            annotationId = null,
-            annotationDesc = "",
-            annotationAnatomy = "",
-            tag,
-            tagName,
-            i,
-            j;
-
-        for (i = 0; i < annotationGroups.length; i++) {
-            annotationId = annotationGroups[i].getAttribute("annotation-id");
-            annotationDesc = annotationGroups[i].getAttribute("description");
-            annotationAnatomy = annotationGroups[i].getAttribute("anatomy");
-            if (!annotationId) { continue; }
-
-            this.createAnnotationGroup(annotationId, annotationDesc, annotationAnatomy);
-
-            for (j = 0; j < annotationGroups[i].children.length; j++) {
-                tag = annotationGroups[i].children[j];
-                tagName = tag.tagName;
-
-                switch (tagName.toUpperCase()) {
-                    case "PATH":
-                        annotation = new Scribble();
-                        break;
-                    case "CIRCLE":
-                        annotation = new Circle();
-                        break;
-                    case "RECT":
-                        annotation = new Rect();
-                        break;
-                }
-                annotation.setAttributesBySVG(tag);
-                annotation.renderSVG(this);
-                this.addAnnotation(annotation);
-            }
+            this.svgCollection[id] = new AnnotationSVG(id, svgFile, this);
         }
     }
 
@@ -647,28 +350,6 @@ function Viewer() {
         this.dispatchEvent('UpdateChannelList', channelList);
     }
 
-    // Locate annotation group by showing a flag on Openseadragon viewer
-    // this.locateAnnotationFlag = function (data) {
-    //     var annotationGroup = this.getAnnotationGroupById(data.id);
-    //     annotationGroup.locateFlag(data.isLocate);
-    // }
-
-    
-
-    // Drag event start handler 
-    this.mouseDragHandler = function (event) {
-        var annotation = event.userData.annotation;
-        var normalizedPoint = _self.osd.viewport.pointFromPixel(event.position);
-        annotation.drawStartHandler(normalizedPoint);
-    }
-
-    // Drag event stop handler 
-    this.mouseDragEndHandler = function (event) {
-        var annotation = event.userData.annotation;
-        annotation.drawEndHandler();
-        _self.destoryMouseTracker();
-    }
-
     // Show tooltip when mouse over the annotation on Openseadragon viewer 
     this.onMouseoverShowTooltip = function(data){
 
@@ -722,59 +403,7 @@ function Viewer() {
 
         _self.osd.viewport.applyConstraints();
     }
-    // Parsing SVG nodes into annotation groups
-    this.parseSvgChildNodes = function (svg, startPoint, ratioPerPixel, styleSheet, group) {
-        var svgElems = svg.childNodes || [],
-            i,
-            attrs,
-            anatomy,
-            annotation = null,
-            annotationId = Date.parse(new Date()) + parseInt(Math.random() * 1000),
-            className,
-            data,
-            node;
-
-        // Create a new group if none exists
-        group = (group) ? group : this.createAnnotationGroup(annotationId);
-
-        for (i = 0; i < svgElems.length; i++) {
-
-            if (!svgElems[i].getAttribute) { continue; }
-            
-            node = svgElems[i];
-            className = node.getAttribute("class") || "";
-            attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
-
-            switch (node.nodeName) {
-                case "a":
-                    this.parseSvgChildNodes(node, startPoint, ratioPerPixel, styleSheet, group);
-                    break;
-                case "g":
-                    annotationId = Date.parse(new Date()) + parseInt(Math.random() * 1000),
-                    anatomy = node.getAttribute("id");
-                    this.parseSvgChildNodes(node, startPoint, ratioPerPixel, styleSheet, this.createAnnotationGroup(annotationId, "", anatomy));
-                    break;
-                case "path":
-                    annotation = group.addAnnotation("SCRIBBLE")
-                    data = annotation.convertPathPixelToPoints(startPoint, ratioPerPixel, node.getPathData());
-                    node.setPathData(data);
-                    attrs["d"] = node.getAttribute("d");
-                    annotation.setAttributesByJSON(attrs);
-                    annotation.renderSVG(this);
-                    break;
-                case "rect":
-                    annotation = group.addAnnotation("RECT");
-                    attrs["height"] = +node.getAttribute("height") ? (+node.getAttribute("height") * ratioPerPixel.y) : null;
-                    attrs["width"] = +node.getAttribute("width") ? (+node.getAttribute("width") * ratioPerPixel.x) : null;
-                    attrs["x"] = (+node.getAttribute("x")) ? +node.getAttribute("x") * ratioPerPixel.x : startPoint.x;
-                    attrs["y"] = (+node.getAttribute("y")) ? +node.getAttribute("y") * ratioPerPixel.y : startPoint.y;
-                    annotation.setAttributesByJSON(attrs);
-                    annotation.renderSVG(this);
-                    break;
-            }
-        }
-    }
-
+   
     // Render annotation tooltip when user's mouse hover the annotation
     this.renderAnnotationTooltip = function () {
         var tooltipElem = "";
@@ -814,16 +443,26 @@ function Viewer() {
         this.osd.viewport.applyConstraints();
     }
 
-    // Remove the annotation group from collection by annotation-id
-    this.removeAnnotationById = function (id) {
-        if (this.annotationCollection.hasOwnProperty(id)) {
-            this.annotationCollection[id].remove();
-            delete this.annotationCollection[id];
+    // Resize Annotation SVGs
+    this.resizeSVG = function(){
+        var svgs = _self.svg.querySelectorAll(".annotationSVG"),
+            p1,
+            p2,
+            i;
 
-            if (this.currentAnnotationId == id) {
-                this.currentAnnotationId = "";
+        for(i = 0; i < svgs.length; i++){
+            p1 = svgs[i].getAttribute("p1").split(",") || [];
+            p2 = svgs[i].getAttribute("p2").split(",") || [];
+            if(p1.length == 0 || p2.length == 0){
+                continue;
             }
-        };
+            p1 = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+p1[0], +p1[1]), true);
+            p2 = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+p2[0], +p2[1]), true);
+            svgs[i].setAttribute("x", p1.x + "px");
+            svgs[i].setAttribute("y", p1.y + "px");
+            svgs[i].setAttribute("width", p2.x - p1.x + "px");
+            svgs[i].setAttribute("height", p2.y - p1.y + "px");
+        }
     }
 
     // Set Openseadragon viewer item visibility
@@ -853,18 +492,6 @@ function Viewer() {
             ]
         })
     }
-
-    // Set Openseadragon viewer annotation attribute values
-    this.setAnnotationAttributes = function (data) {
-
-        var annotationGroup = this.getAnnotationGroupById(data.id);
-        annotationGroup.setAttributesByJSON(data);
-    }
-
-    // Update overlay position
-    // this.redrawViewerContent = function () {
-    //     this.osd.forceRedraw();
-    // }
 
     // Zoom in 
     this.zoomIn = function () {
