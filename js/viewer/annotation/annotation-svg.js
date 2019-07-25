@@ -33,7 +33,9 @@ function AnnotationSVG(id, parent){
 
     // Change the group visibility
     this.changeVisibility = function(data){
+
         if(this.groups.hasOwnProperty(data.id)){
+            this.hideGroupBorder();
             var group = this.groups[data.id];
             group.setDisplay(data.isDisplay);
         }
@@ -104,10 +106,12 @@ function AnnotationSVG(id, parent){
                 this.parent.dispatchEvent(type, data);
                 break;
             case "OnMouseoverShowTooltip":
+                this.unHighlightCurrentGroup(data.groupID);
                 this.showGroupBorder(data);
                 this.parent.dispatchEvent(type, data);
                 break;
             case "OnMouseoutHideTooltip":
+                this.highlightCurrentGroup();
                 this.hideGroupBorder();
                 this.parent.dispatchEvent(type, data);
                 break;
@@ -116,6 +120,14 @@ function AnnotationSVG(id, parent){
                 break;
         }
         
+    }
+
+    // highlight current group when user leave the hovering group
+    this.highlightCurrentGroup = function(){
+        if(this.currentGroupID != ""){
+            var group = this.groups[this.currentGroupID];
+            group.highlightAll();
+        }
     }
 
     // Hide border of annotation group
@@ -292,6 +304,14 @@ function AnnotationSVG(id, parent){
         if(this.groups.hasOwnProperty(data.groupID)){
             var group = this.groups[data.groupID];
             group.setAttributesByJSON(data);
+        }
+    }
+
+    // Unhighlight current group when user hover on other group
+    this.unHighlightCurrentGroup = function(hoverGroupID){
+        if(this.currentGroupID != "" && this.currentGroupID != hoverGroupID){
+            var group = this.groups[this.currentGroupID];
+            group.unHighlightAll();
         }
     }
 }

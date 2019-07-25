@@ -66,6 +66,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 data["y1"] = this.y1;
                 data["x2"] = this.x2;
                 data["y2"] = this.y2;
+                data["groupID"] = this.id;
                 this.highlightAll();
                 this.parent.dispatchEvent(type, data);
                 break;

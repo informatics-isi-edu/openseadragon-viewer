@@ -68,7 +68,6 @@ function AnnotationItem(data){
 
     // Click to change to current annotation group 
     this.onClickToSelect = function(){
-        var id = (_self.isSelected) ? null : _self.id
         _self.dispatchEvent("ChangeSelectingAnnotationGroup", {
             groupID : _self.id,
             svgID : _self.svgID
@@ -96,7 +95,7 @@ function AnnotationItem(data){
 
         _self.isDisplay = !_self.isDisplay;
 
-        _self.parent.dispatchEvent('ChangeAnnotationVisibility', {
+        _self.dispatchEvent('ChangeAnnotationVisibility', {
             id: _self.id,
             svgID : _self.svgID,
             isDisplay : _self.isDisplay
@@ -107,23 +106,21 @@ function AnnotationItem(data){
     // Change Description 
     this.onChangeDescription = function(event){
         _self.description = event.currentTarget.value;
-        _self.parent.dispatchEvent('SetGroupAttributes', {
+        _self.dispatchEvent('SetGroupAttributes', {
             groupID: _self.id,
             svgID : _self.svgID,
             description : _self.description
         });
-        // event.stopPropagation();
     };
 
     // Change Anatomy
     this.onChangeAnatomy = function(event){
         _self.anatomy = event.currentTarget.value;
-        _self.parent.dispatchEvent('SetGroupAttributes', {
+        _self.dispatchEvent('SetGroupAttributes', {
             groupID: _self.id,
             svgID : _self.svgID,
             anatomy : _self.anatomy
         });
-        // event.stopPropagation();
     }
 
     // Click to remove the annotation group
