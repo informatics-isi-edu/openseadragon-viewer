@@ -38,13 +38,6 @@ Base.prototype.dispatchEvent = function(type, data){
     this.parent.dispatchEvent(type, data);
 }
 
-Base.prototype.highlight = function(highlightAttrs){
-
-    for(var attr in highlightAttrs){
-        this.svg.attr(attr, highlightAttrs[attr]);
-    }
-}
-
 Base.prototype.getAttributes = function(attrs){
     var attr,
         resAttr = {};
@@ -59,6 +52,42 @@ Base.prototype.getAttributes = function(attrs){
     }
     else{
         return this._attrs;
+    }
+}
+
+Base.prototype.highlight = function(highlightAttrs){
+
+    for(var attr in highlightAttrs){
+        this.svg.attr(attr, highlightAttrs[attr]);
+    }
+}
+
+Base.prototype.renderSVG = function(){
+    
+    var attr,
+        value;
+
+    if(this.svg == null){ 
+        this.svg = this.parent.svg
+            .append(this._attrs['tag'])
+            .attr("class", "annotation")
+        
+        this.svg.on("mouseover", this.onMouseoverShowTooltip)
+            .on("mousemove", this.onMousemoveShowTooltip)
+            .on("mouseout", this.onMouseoutHideTooltip)
+            .on('click', this.onClickToSelectAnnotation);
+    }
+
+    for(attr in this._attrs){
+        value = this._attrs[attr];
+
+        switch(attr){
+            case "tag":
+                break;
+            default:
+                this.svg.attr(attr, value);
+                break;
+        }
     }
 }
 
@@ -89,35 +118,6 @@ Base.prototype.setAttributesBySVG = function(elem){
                     break;
             }
             
-        }
-    }
-}
-
-Base.prototype.renderSVG = function(){
-    
-    var attr,
-        value;
-
-    if(this.svg == null){ 
-        this.svg = this.parent.svg
-            .append(this._attrs['tag'])
-            .attr("class", "annotation")
-        
-        this.svg.on("mouseover", this.onMouseoverShowTooltip)
-            .on("mousemove", this.onMousemoveShowTooltip)
-            .on("mouseout", this.onMouseoutHideTooltip)
-            .on('click', this.onClickToSelectAnnotation);
-    }
-
-    for(attr in this._attrs){
-        value = this._attrs[attr];
-
-        switch(attr){
-            case "tag":
-                break;
-            default:
-                this.svg.attr(attr, value);
-                break;
         }
     }
 }

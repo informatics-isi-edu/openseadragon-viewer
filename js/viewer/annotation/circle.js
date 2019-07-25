@@ -1,6 +1,4 @@
 function Circle(attrs){
-    var _self = this;
-
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);
     this._attrs["tag"] = "circle";

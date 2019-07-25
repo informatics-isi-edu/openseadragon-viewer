@@ -14,11 +14,24 @@ function ChannelItem(data){
     this.isExpand = true;
     this.elem = null;
 
+    this.getIconClass = function(type){
+        switch(type){
+            case "toggleDisplay":
+                return (this.isDisplay) ? 'fa fa-eye' : 'fa fa-eye-slash';
+            case "expandPanel":
+                return (this.isDisplay) ? 'fa fa-caret-down' : 'fa fa-caret-up';
+        }
+    }
+
+    this.getContrastText = function(){
+        return (this.contrast * 100).toFixed(0);
+    }
+
     // Click to expand/collapse the setting
     this.onClickToggleExpand = function(){
         _self.isExpand = !_self.isExpand;
         _self.elem.querySelector(".setting").className = _self.isExpand ? "setting" : "setting collapse";
-        this.querySelector(".toggleSetting").innerHTML = "<i class='"+_self.getExpandIconClass()+"'></i>";
+        this.querySelector(".toggleSetting").innerHTML = "<i class='"+_self.getIconClass("expandPanel")+"'></i>";
     };
 
     // Click to toggle overlay visibility
@@ -28,7 +41,7 @@ function ChannelItem(data){
             osdItemId : _self.osdItemId,
             isDisplay : _self.isDisplay
         })
-        this.innerHTML = "<i class='"+_self.getDisplayIconClass()+"'></i>";
+        this.innerHTML = "<i class='"+_self.getIconClass("toggleDisplay")+"'></i>";
         event.stopPropagation();
     };
 
@@ -62,95 +75,79 @@ function ChannelItem(data){
             value : value
         })
     };
-}
 
-ChannelItem.prototype.getDisplayIconClass = function(){
-    if(this.isDisplay){
-        return 'fa fa-eye';
-    }
-    else{
-        return 'fa fa-eye-slash';
-    }
-}
+    this.render = function(){
 
-ChannelItem.prototype.getExpandIconClass = function(){
-    if(this.isExpand){
-        return 'fa fa-caret-down';
-    }
-    else{
-        return 'fa fa-caret-up';
-    }
-}
-
-ChannelItem.prototype.getContrastText = function(){
-    return (this.contrast * 100).toFixed(0);
-}
-
-
-ChannelItem.prototype.render = function(){
-
-    var channeElem = document.createElement("div");
-    channeElem.setAttribute("class", "channelItem");
-    channeElem.setAttribute("item-id", this.osdItemId);
-
-    channeElem.innerHTML = [
-        "<div class='channelRow'>",
-            "<span class='toggleSetting' data-type='setting'><i class='"+this.getExpandIconClass()+"'></i></span>",
-            "<span class='channelName'>"+ this.name +"</span>",
-            "<span class='toggleVisibility' data-type='visibility'><i class='"+this.getDisplayIconClass()+"'></i></span>",
-        "</div>",
-        "<div class='setting expand'>",
-            "<span class='sliderContainer' data-type='contrast'>",
-                "<span class='attrRow'>",
-                    "<span class='name'>Contrast</span>",
-                    "<span class='value'>"+ this.getContrastText() +"</span>",
+        var channeElem = document.createElement("div");
+        channeElem.setAttribute("class", "channelItem");
+        channeElem.setAttribute("item-id", this.osdItemId);
+    
+        channeElem.innerHTML = [
+            "<div class='channelRow'>",
+                "<span class='toggleSetting' data-type='setting'><i class='"+this.getIconClass("expandPanel")+"'></i></span>",
+                "<span class='channelName'>"+ this.name +"</span>",
+                "<span class='toggleVisibility' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
+            "</div>",
+            "<div class='setting expand'>",
+                "<span class='sliderContainer' data-type='contrast'>",
+                    "<span class='attrRow'>",
+                        "<span class='name'>Contrast</span>",
+                        "<span class='value'>"+ this.getContrastText() +"</span>",
+                    "</span>",
+                    "<input type='range' class='slider' min='0' max='1' step='0.05' value='"+this.contrast+"'>",
                 "</span>",
-                "<input type='range' class='slider' min='0' max='1' step='0.05' value='"+this.contrast+"'>",
-            "</span>",
-            "<span class='sliderContainer' data-type='brightness'>",
-                "<span class='attrRow'>",
-                    "<span class='name'>Brightness</span>",
-                    "<span class='value'>"+ this.brightness +"</span>",
+                "<span class='sliderContainer' data-type='brightness'>",
+                    "<span class='attrRow'>",
+                        "<span class='name'>Brightness</span>",
+                        "<span class='value'>"+ this.brightness +"</span>",
+                    "</span>",
+                    "<input type='range' class='slider' min='-255' max='255' step='5' value='"+this.brightness+"'>",
                 "</span>",
-                "<input type='range' class='slider' min='-255' max='255' step='5' value='"+this.brightness+"'>",
-            "</span>",
-            "<span class='sliderContainer' data-type='gamma'>",
-                "<span class='attrRow'>",
-                    "<span class='name'>Gamma</span>",
-                    "<span class='value'>"+ this.gamma +"</span>",
+                "<span class='sliderContainer' data-type='gamma'>",
+                    "<span class='attrRow'>",
+                        "<span class='name'>Gamma</span>",
+                        "<span class='value'>"+ this.gamma +"</span>",
+                    "</span>",
+                    "<input type='range' class='slider' min='0' max='3' step='0.125' value='"+this.gamma+"'>",
                 "</span>",
-                "<input type='range' class='slider' min='0' max='3' step='0.125' value='"+this.gamma+"'>",
-            "</span>",
-            "<span class='sliderContainer' data-type='hue'>",
-                "<span class='attrRow'>",
-                    "<span class='name'>Hue</span>",
-                    "<span class='value'>"+ this.hue +"</span>",
+                "<span class='sliderContainer' data-type='hue'>",
+                    "<span class='attrRow'>",
+                        "<span class='name'>Hue</span>",
+                        "<span class='value'>"+ this.hue +"</span>",
+                    "</span>",
+                    "<input type='range' class='slider' min='0' max='360' step='1' value='"+this.hue+"'>",
                 "</span>",
-                "<input type='range' class='slider' min='0' max='360' step='1' value='"+this.hue+"'>",
-            "</span>",
-        "</div>",
-    ].join("");
-
-    if(this.hue == null){
-        channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
+            "</div>",
+        ].join("");
+    
+        if(this.hue == null){
+            channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
+        }
+        this.elem = channeElem;
+    
+        // Binding events
+    
+        // Change the visibility of Openseadragon items
+        this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
+            elem.addEventListener('click', this.onClickToggleDisplay);
+        }.bind(this));
+    
+        // Open/Close the setting panel
+        this.elem.querySelectorAll(".channelRow").forEach(function(elem){
+            elem.addEventListener('click', this.onClickToggleExpand);
+        }.bind(this));
+    
+        // Change the slider value
+        this.elem.querySelectorAll("input.slider").forEach(function(elem){
+            elem.addEventListener('change', this.onChangeSliderValue);
+        }.bind(this));
     }
-    this.elem = channeElem;
-
-    // Binding events
-
-    // Change the visibility of Openseadragon items
-    this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
-        elem.addEventListener('click', this.onClickToggleDisplay);
-    }.bind(this));
-
-    // Open/Close the setting panel
-    this.elem.querySelectorAll(".channelRow").forEach(function(elem){
-        elem.addEventListener('click', this.onClickToggleExpand);
-    }.bind(this));
-
-    // Change the slider value
-    this.elem.querySelectorAll("input.slider").forEach(function(elem){
-        elem.addEventListener('change', this.onChangeSliderValue);
-    }.bind(this));
 }
+
+
+
+
+
+
+
 

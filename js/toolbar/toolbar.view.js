@@ -21,69 +21,65 @@ function ToolbarView(controller, config){
         _self._toolbarController.onClickedMenuHandler(clickMenuType);
     }
 
-    // this.renderToolbarMenu();
-}
 
-// Render the toolbar menu 
-ToolbarView.prototype.renderToolbarMenu = function(){
-    for (key in this._types) {
-        type = this._types[key];
-        elem = '<div class="menuType" data-type="' + key + '" title="' + type.tooltip + '">' + type.iconElem + '</div>'
-        this._navMenuElem.innerHTML += elem;
+    // Render the toolbar menu 
+    this.renderToolbarMenu = function(){
+        for (key in this._types) {
+            type = this._types[key];
+            elem = '<div class="menuType" data-type="' + key + '" title="' + type.tooltip + '">' + type.iconElem + '</div>'
+            this._navMenuElem.innerHTML += elem;
+        }
+
+        this._navMenuElem.querySelectorAll(".menuType").forEach(function(elem){
+            elem.addEventListener('click', this.onClickMenuBtn);
+        }.bind(this))
     }
 
-    this._navMenuElem.querySelectorAll(".menuType").forEach(function(elem){
-        elem.addEventListener('click', this.onClickMenuBtn);
-    }.bind(this))
-}
+    // Render the annotation group menu
+    this.renderAnnotationGroupContent = function(annotationList){
 
-// Render the annotation group menu
-ToolbarView.prototype.renderAnnotationGroupContent = function(annotationList){
-
-    // Add 'expand' class to the menu content
-    // this._navMenuContentElem.className = (this._navMenuContentElem.classList.length == 0) ? "expand" : "";
-    // Clear menu content
-    this._navMenuContentElem.innerHTML = "";
-    // Render annotation list if it's null 
-    if(annotationList.elem == null){
-        annotationList.render();
+        // Clear menu content
+        this._navMenuContentElem.innerHTML = "";
+        // Render annotation list if it's null 
+        if(annotationList.elem == null){
+            annotationList.render();
+        }
+        // Append annotation list 
+        this._navMenuContentElem.appendChild(annotationList.elem);
     }
-    // Append annotation list 
-    this._navMenuContentElem.appendChild(annotationList.elem);
-}
 
-// Render the annotation group menu
-ToolbarView.prototype.renderChannelContent = function(channelList){
+    // Render the annotation group menu
+    this.renderChannelContent = function(channelList){
 
-    // Add 'expand' class to the menu content
-    // this._navMenuContentElem.className = (this._navMenuContentElem.classList.length == 0) ? "expand" : "";
-    // Clear menu content
-    this._navMenuContentElem.innerHTML = "";
-    // Render channel list if it's null 
-    if(channelList.elem == null){
-        channelList.render();
+        // Clear menu content
+        this._navMenuContentElem.innerHTML = "";
+        // Render channel list if it's null 
+        if(channelList.elem == null){
+            channelList.render();
+        }
+        // Append annotation list 
+        this._navMenuContentElem.appendChild(channelList.elem);
     }
-    // Append annotation list 
-    this._navMenuContentElem.appendChild(channelList.elem);
-}
 
-// Remove all the content from selected menu content
-ToolbarView.prototype.removeSelectedMenuContent = function(){
-    this._navMenuContentElem.children().remove();
-}
+    // Remove all the content from selected menu content
+    this.removeSelectedMenuContent = function(){
+        this._navMenuContentElem.children().remove();
+    }
 
-// Remove all the selected menu style from toolbar 
-ToolbarView.prototype.unselectMenuType = function(){
-    this._navMenuElem.querySelectorAll(".menuType").forEach(function(elem){
-        elem.className = "menuType";
-    })
-    // this._navMenuContentElem.className = "";
-}
+    // Set the selected menu style
+    this.selectMenuType = function(type){
+        this.unselectMenuType();
+        if(type){
+            this._navMenuElem.querySelector(".menuType[data-type='"+type+"']").className += " selected";
+        }
+    }
 
-// Set the selected menu style
-ToolbarView.prototype.selectMenuType = function(type){
-    this.unselectMenuType();
-    if(type){
-        this._navMenuElem.querySelector(".menuType[data-type='"+type+"']").className += " selected";
+    // Remove all the selected menu style from toolbar 
+    this.unselectMenuType = function(){
+        this._navMenuElem.querySelectorAll(".menuType").forEach(function(elem){
+            elem.className = "menuType";
+        })
     }
 }
+
+

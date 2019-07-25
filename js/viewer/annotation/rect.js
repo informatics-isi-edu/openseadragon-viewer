@@ -1,5 +1,4 @@
 function Rect(attrs){
-    var _self = this;
 
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);

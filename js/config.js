@@ -49,6 +49,9 @@ var _config = {
         }
     },
     viewer : {
+        svg: {
+            id : 'annotationContainer'
+        },
         osd: {
             id: 'openseadragonContainer',
             prefixUrl: "images/",

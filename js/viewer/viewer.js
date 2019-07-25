@@ -32,16 +32,14 @@ function Viewer() {
         this.parameters = this._utils.getParameters();
 
         // Get config from scalebar and Openseadragon
-        this.scalebarSetting = this.getConfig('scalebar');
-        this.osdSetting = this.getConfig('osd');
-        this.osd = OpenSeadragon(this.osdSetting);
-        this.osd.scalebar(this.scalebarSetting);
-        this.osd.svgOverlay();
+        this.osd = OpenSeadragon(this._config.osd);
+        this.osd.scalebar(this._config.scalebar);
+        // this.osd.svgOverlay();
 
-        // SVG container to contain groups of annotations
+        // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this.svg.setAttribute("id", "annotationContainer");
-        this.osd.svgOverlay().node().parentNode.insertBefore(this.svg, this.osd.svgOverlay().node());
+        this.svg.setAttribute("id", this._config.svg.id);
+        this.osd.canvas.append(this.svg);
 
         // Parse urls to load image and channels
         this.loadImages(this.parameters.images);
@@ -133,6 +131,7 @@ function Viewer() {
         }
         else if(this.svgCollection.hasOwnProperty(data.svgID)){
             if(data.x1 && data.x2 && data.y1 && data.y2){
+                // Add 20% padding to each side
                 var x1 = data.x1 * 0.980,
                     y1 = data.y1 * 0.980,
                     x2 = data.x2 * 1.020,
@@ -264,16 +263,6 @@ function Viewer() {
         return this.overlayVisibility;
     }
 
-    // Get config for openseadragon/scalebar
-    this.getConfig = function (type) {
-        switch (type.toUpperCase()) {
-            case "OSD":
-                return this._config.osd;
-            case "SCALEBAR":
-                return this._config.scalebar;
-        }
-    }
-
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
 
@@ -285,7 +274,8 @@ function Viewer() {
                 svgFile = svgParser.parseFromString(content, "image/svg+xml"),
                 svgFile = svgFile.getElementsByTagName("svg")[0];
 
-            this.svgCollection[id] = new AnnotationSVG(id, svgFile, this);
+            this.svgCollection[id] = new AnnotationSVG(id, this);
+            this.svgCollection[id].parseSVGFile(svgFile);
         }
     }
 
@@ -362,7 +352,7 @@ function Viewer() {
                     "</span>",
                 "</div>"
             ].join("");
-            document.querySelector("#" + this.osdSetting.id).insertAdjacentHTML('beforeend', tooltipElem);
+            document.querySelector("#" + this._config.osd.id).insertAdjacentHTML('beforeend', tooltipElem);
             this.tooltipElem = d3.select("div#annotationTooltip");
         }
          
@@ -495,14 +485,12 @@ function Viewer() {
 
     // Zoom in 
     this.zoomIn = function () {
-        var zoomPerClick = this.osdSetting.zoomPerClick;
         this.osd.viewport.zoomBy(2 / 1.0);
         this.osd.viewport.applyConstraints();
     }
 
     // Zoom out 
     this.zoomOut = function () {
-        var zoomPerClick = this.osdSetting.zoomPerClick;
         this.osd.viewport.zoomBy(1.0 / 2);
         this.osd.viewport.applyConstraints();
     }

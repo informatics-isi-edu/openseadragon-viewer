@@ -10,8 +10,6 @@ function Channel(osdItemID, tileSource) {
     this.gamma = 0.875;
     this.hue = null;
     this.meterScaleInPixels = tileSource["meterScaleInPixels"];
-    // this.tileSource = tileSource;
-    // this.isDisplay = true;
 
     // Set Default Values
     this.setDefaultHue();
