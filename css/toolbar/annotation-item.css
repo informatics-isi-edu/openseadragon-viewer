@@ -10,6 +10,7 @@
     cursor: pointer;
     background: #fff;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 #menuContainer #navMenuContent .annotationItem:hover{
@@ -44,7 +45,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 20px;
-    padding: 2px 3px;
+    padding: 2px 0px 2px 0;
     background: transparent;
     min-height: 15px;
     max-height: 50px;
@@ -55,9 +56,10 @@
     outline: none;
 }
 
-#menuContainer #navMenuContent .annotationItem .anatomy input.edit{
+#menuContainer #navMenuContent .annotationItem .anatomy{
     color: #5a93de;
     font-size: 12px;
+    padding: 5px 0 0 0;
 }
 
 #menuContainer #navMenuContent .annotationItem input.edit:hover,
@@ -72,18 +74,18 @@
 
 #menuContainer #navMenuContent .annotationItem .editBtn{
     padding: 2px;
-    /* background: #5e5e5e; */
     border-radius: 2px;
-    margin: 2px 8px 2px 2px;
-    /* width: 15px; */
-    /* text-align: center; */
+    margin: 2px;
     color: #b0b0b0;
     cursor: pointer;
-    font-size: 10px;
-    /* height: 15px; */
+    font-size: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#menuContainer #navMenuContent .annotationItem .editBtn:last-child{
+    margin-right: 8px;
 }
 
 #menuContainer #navMenuContent .annotationItem .editBtn:hover{
@@ -100,7 +102,8 @@
     background: #407cca;
 }
 
-#menuContainer #navMenuContent .annotationItem.current input.edit{
+#menuContainer #navMenuContent .annotationItem.current input.edit,
+#menuContainer #navMenuContent .annotationItem.current .anatomy{
     color : #fff;
 }
 
@@ -110,4 +113,8 @@
 
 #menuContainer #navMenuContent .annotationItem.current .editBtn:hover{
     color: #aaa;
+}
+
+#menuContainer #navMenuContent .annotationItem.current .editBtn i.highlight{
+    color: yellow;
 }

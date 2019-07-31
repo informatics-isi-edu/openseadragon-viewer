@@ -44,6 +44,7 @@
     font-size: 12px;
     display: flex;
     flex-wrap: wrap;
+    margin: 0;
 }
 
 #openseadragonContainer #annotationTooltip .row .name{

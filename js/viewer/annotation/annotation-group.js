@@ -17,6 +17,7 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.svg = null;
     this.isDisplay = true;
     this.isSelected = false;
+    this.isHighlight = false;
 
     // Add new annotation object (scribble/cirlce/rect)
     this.addAnnotation = function(type){
@@ -79,6 +80,16 @@ function AnnotationGroup(id, anatomy, description, parent){
             default:
                 this.parent.dispatchEvent(type, data);
                 break;
+        }
+    }
+
+    // Get box boundaries of the group
+    this.getBoxBoundaries = function(){
+        return {
+            x1 : this.x1,
+            y1 : this.y1,
+            x2 : this.x2,
+            y2 : this.y2
         }
     }
 

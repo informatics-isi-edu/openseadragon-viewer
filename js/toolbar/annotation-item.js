@@ -10,6 +10,7 @@ function AnnotationItem(data){
     this.parent = data.parent || null;
     this.isDisplay = true;
     this.isSelected = false;
+    this.isHighlight = false;
     this.svgID = data.svgID;
     this.elem = null;
 
@@ -17,6 +18,8 @@ function AnnotationItem(data){
     this.changeSelectedStyle = function(){
         if(this.elem == null){ return;};
         this.elem.className = (this.isSelected) ? this.className + " current" : this.className;
+        this.updateMenuIconClass();
+        this.updateTooltip();
     }
 
     // Dispatch events to parents
@@ -29,6 +32,18 @@ function AnnotationItem(data){
         switch(type){
             case "toggleDisplay":
                 return (this.isDisplay) ? 'fa fa-eye' : 'fa fa-eye-slash';
+            case "highlightGroup":
+                return (this.isSelected) ? "fa fa-tag highlight" : "fa fa-tag";
+        }
+    }
+
+    this.getTooltip = function(type){
+
+        switch(type){
+            case "toggleDisplay":
+                return (this.isDisplay) ? 'Hide annotation' : 'Show annotation';
+            case "highlightGroup":
+                return (this.isSelected) ? 'Unhighlight' : 'Highlight';
         }
     }
 
@@ -37,28 +52,39 @@ function AnnotationItem(data){
         var annotationGroupElem = document.createElement("div");
         annotationGroupElem.setAttribute("class", "annotationItem");
         annotationGroupElem.setAttribute("annotation-id", this.id);
-    
+
         annotationGroupElem.innerHTML = [
+            "<span class='editRow'>",
+                "<span class='editBtn' data-type='toggleDisplay' data-toggle='tooltip' data-placement='bottom' title='"+this.getTooltip('toggleDisplay')+"'>",
+                    "<i class='"+this.getIconClass('toggleDisplay')+"'></i>",
+                "</span>",
+                "<span class='editBtn' data-type='highlightGroup' data-toggle='tooltip' data-placement='bottom' title='"+this.getTooltip('highlightGroup')+"'>",
+                    "<i class='"+this.getIconClass('highlightGroup')+"'></i>",
+                "</span>",
+            "</span>",
             "<div class='content'>",
                 "<span class='anatomy'>",
-                    "<input class='edit' type='text' value='"+this.anatomy+"' data-type='anatomy'/>",
+                    this.anatomy,
                 "</span>",
                 "<span class='description'>",
                     "<textarea class='edit' data-type='description'>"+this.description+"</textarea>",
                 "</span>",
-            "</div>",
-            "<span class='editRow'>",
-                "<span class='editBtn' data-type='toggleDisplay'><i class='"+this.getIconClass('toggleDisplay')+"'></i></span>",
-            "</span>"
+            "</div>"
         ].join("");
     
         this.elem = annotationGroupElem;
-    
+
+        // Bootstrap create tooltips
+        $(annotationGroupElem).find("[data-toggle='tooltip']").tooltip({
+            container : "body",
+            boundary : 'window',
+            offset : 10
+        });
+
         // Binding events
         this.elem.addEventListener('click', this.onClickToSelect);
         this.elem.querySelector(".description textarea.edit").addEventListener('keyup', this.onAutosizeTextarea);
         this.elem.querySelector(".description textarea.edit").addEventListener('change', this.onChangeDescription);
-        this.elem.querySelector(".anatomy input.edit").addEventListener('change', this.onChangeAnatomy);
         this.elem.querySelectorAll(".editBtn").forEach(function(elem){
             elem.addEventListener('click', this.onClickEditBtn);
         }.bind(this));
@@ -94,13 +120,14 @@ function AnnotationItem(data){
     this.onClickToChangeVisibility = function(){
 
         _self.isDisplay = !_self.isDisplay;
-
+        
         _self.dispatchEvent('ChangeAnnotationVisibility', {
             id: _self.id,
             svgID : _self.svgID,
             isDisplay : _self.isDisplay
         });        
         _self.updateMenuIconClass();
+        _self.updateTooltip();
     };
 
     // Change Description 
@@ -113,16 +140,6 @@ function AnnotationItem(data){
         });
     };
 
-    // Change Anatomy
-    this.onChangeAnatomy = function(event){
-        _self.anatomy = event.currentTarget.value;
-        _self.dispatchEvent('SetGroupAttributes', {
-            groupID: _self.id,
-            svgID : _self.svgID,
-            anatomy : _self.anatomy
-        });
-    }
-
     // Click to remove the annotation group
     this.onClickToRemove = function(){
 
@@ -133,7 +150,6 @@ function AnnotationItem(data){
         }.bind(this));
         _self.elem.querySelector(".description textarea.edit").removeEventListener('keyup', _self.onAutosizeTextarea);
         _self.elem.querySelector(".description textarea.edit").removeEventListener('change', _self.onChangeDescription);
-        _self.elem.querySelector(".anatomy input.edit").removeEventListener('change', _self.onChangeAnatomy);
 
         // Remove the DOM element
         _self.elem.remove();
@@ -151,6 +167,16 @@ function AnnotationItem(data){
     this.updateMenuIconClass = function(){
         if(this.elem == null){ return;};
         this.elem.querySelector(".editBtn[data-type='toggleDisplay']").innerHTML = "<i class='"+this.getIconClass('toggleDisplay')+"'></i>";
+        this.elem.querySelector(".editBtn[data-type='highlightGroup']").innerHTML = "<i class='"+this.getIconClass('highlightGroup')+"'></i>";
+    }
+
+    // Update menu Bootstrap tooltip content
+    this.updateTooltip = function(){
+        if(this.elem == null){ return;};
+        this.elem.querySelector(".editBtn[data-type='toggleDisplay']").setAttribute("data-original-title", this.getTooltip('toggleDisplay'));
+        this.elem.querySelector(".editBtn[data-type='highlightGroup']").setAttribute("data-original-title", this.getTooltip('highlightGroup'));
+        
+        $(this.elem).find("[data-toggle='tooltip']").tooltip('hide');
     }
 }
 
