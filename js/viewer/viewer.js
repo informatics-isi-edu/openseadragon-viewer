@@ -131,14 +131,7 @@ function Viewer() {
         }
         else if(this.svgCollection.hasOwnProperty(data.svgID)){
             if(data.x1 && data.x2 && data.y1 && data.y2){
-                // Add 20% padding to each side
-                var x1 = data.x1 * 0.980,
-                    y1 = data.y1 * 0.980,
-                    x2 = data.x2 * 1.020,
-                    y2 = data.y2 * 1.020;
-
-                // Adjust Openseadragon viewer bounds to fit the group svg
-                this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
+                this.zoomInRectViewport(data)
             }
             this.current.svgID = data.svgID;
             this.current.groupID = data.groupID;
@@ -481,6 +474,20 @@ function Viewer() {
                 }
             ]
         })
+    }
+
+    // Zoom in to the given rectangle viewport 
+    this.zoomInRectViewport = function(data){
+        if(data == null){ return }
+
+        // Add 20% padding to each side
+        var x1 = data.x1 * 0.980,
+            y1 = data.y1 * 0.980,
+            x2 = data.x2 * 1.020,
+            y2 = data.y2 * 1.020;
+
+        // Adjust Openseadragon viewer bounds to fit the group svg
+        this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
     }
 
     // Zoom in 

@@ -48,6 +48,10 @@ function AnnotationSVG(id, parent){
             group = this.groups[groupID];
             group.setDisplay(isDisplay);
         }
+
+        if(!isDisplay){
+            this.hideGroupBorder();
+        }
     }
 
     this.changeSelectedGroup = function(data){
@@ -82,13 +86,17 @@ function AnnotationSVG(id, parent){
                 data["x2"] = this.p1.x + group["x2"] * this.xUnit;
                 data["y1"] = this.p1.y + group["y1"] * this.yUnit;
                 data["y2"] = this.p1.y + group["y2"] * this.yUnit;
-
-                this.showGroupBorder({
-                    x1 : group["x1"],
-                    y1 : group["y1"],
-                    x2 : group["x2"],
-                    y2 : group["y2"]
-                });
+                
+                    // Show border if the group's visibility set to true
+                if(group.isDisplay){
+                    this.showGroupBorder({
+                        x1 : group["x1"],
+                        y1 : group["y1"],
+                        x2 : group["x2"],
+                        y2 : group["y2"]
+                    });
+                }
+                
             } 
         }
         

@@ -17,7 +17,6 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.svg = null;
     this.isDisplay = true;
     this.isSelected = false;
-    this.isHighlight = false;
 
     // Add new annotation object (scribble/cirlce/rect)
     this.addAnnotation = function(type){
@@ -132,8 +131,7 @@ function AnnotationGroup(id, anatomy, description, parent){
 
     this.setDisplay = function(isDisplay){
         var displayStyle = (isDisplay) ? "block" : "none";
-    
-        this.isDisplay = isDisplay ? isDisplay : this.isDisplay;
+        this.isDisplay = isDisplay;
         this.svg.attr("display", displayStyle);
     }
     

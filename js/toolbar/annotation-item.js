@@ -109,6 +109,9 @@ function AnnotationItem(data){
                 _self.onClickToChangeVisibility();
                 event.stopPropagation();
                 break;
+            case "highlightGroup":
+                _self.onClickHighlight();
+                break;
             case "remove":
                 _self.onClickToRemove();
                 event.stopPropagation();
@@ -156,6 +159,14 @@ function AnnotationItem(data){
         _self.parent.remove(_self.id);
     };
 
+    // Click to highlight
+    this.onClickHighlight = function(){
+        // if isDisplay is false, set it to true in order to show and highlight the annotation
+        // if(!_self.isDisplay){
+        //     _self.onClickToChangeVisibility();
+        // }
+    }
+    
     // Keyup to autosize textarea's height
     this.onAutosizeTextarea = function(event){
         var elem = _self.elem.querySelector(".description textarea");
