@@ -7,11 +7,9 @@ var myApp = (function (_config) {
 
     var init = function(){
         viewer = new Viewer(this, _config.viewer);
-        // toolbar = new ToolbarController(this, _config.toolbar);
+        toolbar = new ToolbarController(this, _config.toolbar);
         
         viewer.init(utils);
-        // Show annotation list in default
-        // toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
     };
 
@@ -72,8 +70,8 @@ var myApp = (function (_config) {
                     toolbar && toolbar.showAnnotationList();
                     break;
                 case "openAnnotations":
-                        toolbar && toolbar.onClickedMenuHandler('annotationList');
-                        break;
+                    toolbar && toolbar.onClickedMenuHandler('annotationList');
+                    break;
                 case 'zoomInView':
                     viewer.zoomIn();
                     break;

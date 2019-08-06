@@ -5,8 +5,9 @@
 #navMenuContent .groups .channelItem .channelRow{
     display: flex;
     /* padding: 5px 0; */
-    color: #676767;
+    color: #407cca;
     height: 20px;
+    font-size: 14px;
     cursor: pointer;
 }
 
@@ -37,6 +38,7 @@
 #navMenuContent .groups .channelItem .toggleVisibility{
     display: flex;
     align-items: center;
+    color: #337ab7;
 }
 
 #navMenuContent .groups .channelItem .toggleVisibility:hover{
@@ -60,12 +62,12 @@
     display: flex;
     padding: 0 5px 5px;
     color: #808080;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 #navMenuContent .groups .channelItem .attrRow .name{
     flex: 1;
-    color: #979696;
+    color: #000;
 }
 
 #navMenuContent .groups .channelItem .sliderContainer{

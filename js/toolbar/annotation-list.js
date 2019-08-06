@@ -16,7 +16,10 @@ function AnnotationList(parent){
             item,
             i,
             svgID;
-            
+        
+        if(this.elem == null){
+            this.render();
+        }
         for(i = 0; i < items.length; i++){
             id = items[i].groupID;
             svgID = items[i].svgID;

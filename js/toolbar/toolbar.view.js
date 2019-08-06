@@ -74,6 +74,25 @@ function ToolbarView(controller, config){
         }
     }
 
+    // Toggle menu content 
+    this.toggleDisplayMenuContent = function(type, list){
+        
+        this._navMenuContentElem.className = (this._navMenuContentElem.className.indexOf("expand") >= 0) ? "" : "expand";
+
+        // if it's expand, insert the content
+        if(this._navMenuContentElem.className.indexOf("expand") >= 0){
+            switch(type){
+                case "channelList":
+                    this.renderChannelContent(list);
+                    break;
+                case "annotationList":
+                    this.renderAnnotationGroupContent(list);
+                    break;
+            }
+        }
+
+    }
+
     // Remove all the selected menu style from toolbar 
     this.unselectMenuType = function(){
         this._navMenuElem.querySelectorAll(".menuType").forEach(function(elem){

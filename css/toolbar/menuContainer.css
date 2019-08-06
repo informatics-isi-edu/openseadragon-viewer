@@ -3,6 +3,10 @@
     display:-webkit-flex;
     /* background: #3e3d3d; */
     flex-direction: row;
+    max-height: 50vh;
+    position: absolute;
+    opacity: 0.9;
+    z-index: 1;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */
@@ -41,13 +45,14 @@
     font-size: 12px;
     overflow: hidden;
     z-index: 1;
-    border-right: 1px solid #cfcfcf;
+    /* border-right: 1px solid #cfcfcf; */
 }
 
 #menuContainer #navMenuContent.expand{
-    width: 220px;
+    width: 240px;
     opacity: 1;
     display: flex;
+    box-shadow: 0 0 5px #a29f9f;
 }
 
 #menuContainer #navMenuContent .title{
@@ -55,7 +60,7 @@
     color: #407cca;
     font-size: 14px;
     padding: 5px 5px;
-    background: #f2f2f2;
+    /* background: #f2f2f2; */
 }
 
 #menuContainer #navMenuContent .subtitle{

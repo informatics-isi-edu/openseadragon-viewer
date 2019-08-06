@@ -7,7 +7,6 @@ function ToolbarController(parent, config){
     this._toolbarView = new ToolbarView(this, config);
     this.annotationList = new AnnotationList(this);
     this.channelList = new ChannelList(this);
-    this.selectingMenu = null;
 
     // Set current selecting annotation
     this.changeSelectingAnnotation = function(data){
@@ -37,21 +36,13 @@ function ToolbarController(parent, config){
     // Binding events when toolbar menu get clicked by the user
     this.onClickedMenuHandler = function(clickMenuType){
 
-        // User cancel to create a new annotation and remove the annotation object created 
-        if(this.selectingMenu == clickMenuType && clickMenuType != ""){
-            this.selectingMenu = "";
-            return;
-        }
-
-        this.selectingMenu = clickMenuType;
-
         // Trigger event handler for different menu type 
         switch (clickMenuType) {
             case "channelList":
-                this._toolbarView.renderChannelContent(this.channelList);
+                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.channelList);
                 break;
             case "annotationList":
-                this._toolbarView.renderAnnotationGroupContent(this.annotationList);
+                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.annotationList);
                 break;
             case "zoomIn":
                 this.dispatchEvent("zoomIn");
