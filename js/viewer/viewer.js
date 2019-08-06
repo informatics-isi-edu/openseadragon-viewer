@@ -1,32 +1,29 @@
-function Viewer() {
+function Viewer(parent, config) {
 
     var _self = this;
 
     this._utils = null;
-    this._config = null;
-    this._toolbarController = null;
+    this._config = config;
 
+    this.parent = parent;
     this.channels = {};
     this.current = {
         svgID : "",
         groupID : ""
     };
     this.isInitLoad = false;
-    this.overlayVisibility = true;
     this.osd = null;
     this.tooltipElem = null;
     this.svg = null;
     this.svgCollection = {};
 
     // Init 
-    this.init = function (utils, config, toolbarController) {
+    this.init = function (utils) {
 
-        if (!OpenSeadragon || !utils || !config) {
+        if (!OpenSeadragon || !utils) {
             return null;
         }
         this._utils = utils;
-        this._config = config;
-        this._toolbarController = toolbarController;
 
         // Add each image source into Openseadragon viewer
         this.parameters = this._utils.getParameters();
@@ -34,7 +31,6 @@ function Viewer() {
         // Get config from scalebar and Openseadragon
         this.osd = OpenSeadragon(this._config.osd);
         this.osd.scalebar(this._config.scalebar);
-        // this.osd.svgOverlay();
 
         // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -43,9 +39,6 @@ function Viewer() {
 
         // Parse urls to load image and channels
         this.loadImages(this.parameters.images);
-
-        // Show annotation list in default
-        _self._toolbarController.onClickedMenuHandler('annotationList');
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
         this.osd.addHandler('animation-finish', function (target) {
@@ -138,6 +131,13 @@ function Viewer() {
         }
     }
 
+    // Change all SVGs annotations visibility
+    this.changeAllAnnotationVisibility = function(isDisplay){
+        for(var svgID in this.svgCollection){
+            this.svgCollection[svgID].changeAllVisibility(isDisplay);
+        }
+    }
+
     // Handle events from children/ Dispatch events to toolbar
     this.dispatchEvent = function (type, data) {
 
@@ -146,32 +146,30 @@ function Viewer() {
              * [Handle events from children]
              */
             // Show group tooltip when mouse over
-            case "OnMouseoverShowTooltip":
+            case "onMouseoverShowTooltip":
                 this.onMouseoverShowTooltip(data);
                 break;
             // Adjust tooltip location when mouse move
-            case "OnMousemoveShowTooltip":
+            case "onMousemoveShowTooltip":
                 this.onMousemoveShowTooltip(data);
                 break;
             // Remove tooltip and border when mouse out of the svg
-            case "OnMouseoutHideTooltip":
+            case "onMouseoutHideTooltip":
                 this.onMouseoutHideTooltip();
                 break;
             /**
-             * [Dispatch events to Toolbar controller]
+             * [Dispatch events to App]
              */
             // Change current selected annotation group from toolbar
-            case "OnClickChangeSelectingAnnotation":
+            case "onClickChangeSelectingAnnotation":
                 this.changeSelectingAnnotation(data);
-                this._toolbarController.changeSelectingAnnotation(data);
+                this.parent.dispatchEvent(type, {
+                    svgID : data.svgID,
+                    groupID : data.groupID
+                });
                 break;
-            // Send the updated annotation list to toolbar
-            case "UpdateAnnotationList":
-                this._toolbarController.updateAnnotationList(data);
-                break;
-            // Send the updated channel list to toolbar
-            case "UpdateChannelList":
-                this._toolbarController.updateChannelList(data);
+            default:
+                this.parent.dispatchEvent(type, data);
                 break;
         }
     }
@@ -187,20 +185,20 @@ function Viewer() {
 
         switch(type){
             // Change an annotation group's visibility
-            case "ChangeAnnotationVisibility":
+            case "changeAnnotationVisibility":
                 svg.changeVisibility(data);
                 break;
             // Change current selected annotation group
-            case "ChangeSelectingAnnotationGroup":
+            case "highlightAnnotation":
                 svg.changeSelectedGroup(data);
                 this.changeSelectingAnnotation(data);
                 break;
             // Change all annotation groups visibility
-            case "ChangeAllVisibility":
+            case "changeAllVisibility":
                 svg.changeAllVisibility(data.isDisplay);
                 break;
             // Set annotation groups attributes
-            case "SetGroupAttributes":
+            case "setGroupAttributes":
                 svg.setGroupAttributes(data);
                 break;
             default:
@@ -249,11 +247,6 @@ function Viewer() {
     // Get channels
     this.getChannels = function () {
         return this.channels;
-    }
-
-    // Get the overlay visibility (all annotations)
-    this.getOverlayVisibility = function () {
-        return this.overlayVisibility;
     }
 
     // Load and import the unstructured SVG file into Openseadragon viewer
@@ -330,7 +323,7 @@ function Viewer() {
         }
 
         // Dispatch event to toolbar to update channel list
-        this.dispatchEvent('UpdateChannelList', channelList);
+        this.dispatchEvent('updateChannelList', channelList);
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer 

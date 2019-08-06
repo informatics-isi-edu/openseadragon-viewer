@@ -98,7 +98,7 @@ function AnnotationList(parent){
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
         switch(type){
-            case "ChangeSelectingAnnotationGroup":
+            case "highlightAnnotation":
                 this.changeSelectingAnnotation(data);
                 this.parent.dispatchEvent(type,data);
                 break;
@@ -166,7 +166,7 @@ function AnnotationList(parent){
         };
 
         for(i = 0; i < _self.svgIDs.length; i++){
-            _self.parent.dispatchEvent('ChangeAllVisibility', {
+            _self.parent.dispatchEvent('changeAllVisibility', {
                 svgID : _self.svgIDs[i],
                 isDisplay : _self.isDisplayAll
             });
@@ -180,8 +180,7 @@ function AnnotationList(parent){
         var id,
             collection = this.collection,
             listLength = Object.keys(collection).length || 0,
-            listElem = document.createElement("div"),
-            isOverlayVisible = this.parent.getOsdOverlayVisibility();
+            listElem = document.createElement("div");
 
         listElem.setAttribute("class", "annotationList");
         listElem.innerHTML = [

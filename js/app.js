@@ -6,14 +6,55 @@ var myApp = (function (_config) {
         toolbar = null;
 
     var init = function(){
-        viewer = new Viewer();
-        toolbar = new ToolbarController(viewer, _config.toolbar);
-        viewer.init(utils, _config.viewer, toolbar);
+        viewer = new Viewer(this, _config.viewer);
+        // toolbar = new ToolbarController(this, _config.toolbar);
+        
+        viewer.init(utils);
+        // Show annotation list in default
+        // toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
-
-        this.viewer = viewer;
-        this.toolbar = toolbar;
     };
+
+    var dispatchEvent = function(type, data){
+
+        switch(type){
+            // [Events from Toolbar]
+            case "changeAnnotationVisibility": // Change annotation group visibility
+            case "highlightAnnotation": // Highlight selecting annotation group
+            case "changeAllVisibility": // Change all annotations visibility
+            case "setGroupAttributes": // Change annotation 'description' or 'anatomy' text
+                viewer.dispatchSVGEvent(type, data);
+                break;
+            // Change openseadragon item overlay visibility
+            case "changeOsdItemVisibility":
+                viewer.setItemVisibility(data.osdItemId, data.isDisplay); 
+                break;
+            // Change openseadragon item channel setting
+            case "changeOsdItemChannelSetting":
+                viewer.setItemChannel(data);
+                break;
+            case "zoomIn":
+                viewer.zoomIn();
+                break;
+            case "zoomOut":
+                viewer.zoomOut();
+                break;
+            // [Events from Viewer]
+            // Send the updated annotation list to toolbar
+            case "updateAnnotationList":
+                toolbar && toolbar.updateAnnotationList(data);
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            // Send the updated channel list to toolbar
+            case "updateChannelList":
+                toolbar && toolbar.updateChannelList(data);
+                break;
+            case "onClickChangeSelectingAnnotation":
+                toolbar && toolbar.changeSelectingAnnotation(data);toolbar.changeSelectingAnnotation(data);
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+        }
+    }
 
     var receiveChaiseEvent = function(event){
 
@@ -22,8 +63,17 @@ var myApp = (function (_config) {
             var data = event.data.content;
             switch (messageType) {
                 case 'filterChannels':
-                    toolbar.onClickedMenuHandler('channelList');
+                    toolbar && toolbar.onClickedMenuHandler('channelList');
                     break;
+                case 'hideAllAnnotations':
+                    toolbar && toolbar.hideAnnotationList();
+                    break;
+                case 'showAllAnnotations':
+                    toolbar && toolbar.showAnnotationList();
+                    break;
+                case "openAnnotations":
+                        toolbar && toolbar.onClickedMenuHandler('annotationList');
+                        break;
                 case 'zoomInView':
                     viewer.zoomIn();
                     break;
@@ -33,17 +83,15 @@ var myApp = (function (_config) {
                 case 'homeView':
                     viewer.resetHomeView();
                     break;
-                case "openAnnotations":
-                    toolbar.onClickedMenuHandler('annotationList');
-                    break;
-                case 'hideAllAnnotations':
-                    toolbar.hideAnnotationList();
-                    break;
-                case 'showAllAnnotations':
-                    toolbar.showAnnotationList();
-                    break;
                 case 'downloadView':
                     viewer.exportViewToJPG(data);
+                    break;
+                case 'highlightAnnotation':
+                case 'changeAnnotationVisibility':
+                    viewer.dispatchSVGEvent(messageType, data);
+                    break;
+                case 'changeAllAnnotationVisibility':
+                    viewer.changeAllAnnotationVisibility(data.isDisplay);
                     break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);
@@ -104,7 +152,9 @@ var myApp = (function (_config) {
     }
 
     return {
-        init : init
+        init : init,
+        dispatchEvent : dispatchEvent,
+        receiveChaiseEvent : receiveChaiseEvent
     }
 }(_config));
 

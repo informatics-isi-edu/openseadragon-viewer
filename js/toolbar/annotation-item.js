@@ -94,7 +94,7 @@ function AnnotationItem(data){
 
     // Click to change to current annotation group 
     this.onClickToSelect = function(){
-        _self.dispatchEvent("ChangeSelectingAnnotationGroup", {
+        _self.dispatchEvent("highlightAnnotation", {
             groupID : _self.id,
             svgID : _self.svgID
         });
@@ -124,8 +124,8 @@ function AnnotationItem(data){
 
         _self.isDisplay = !_self.isDisplay;
         
-        _self.dispatchEvent('ChangeAnnotationVisibility', {
-            id: _self.id,
+        _self.dispatchEvent('changeAnnotationVisibility', {
+            groupID: _self.id,
             svgID : _self.svgID,
             isDisplay : _self.isDisplay
         });        
@@ -136,7 +136,7 @@ function AnnotationItem(data){
     // Change Description 
     this.onChangeDescription = function(event){
         _self.description = event.currentTarget.value;
-        _self.dispatchEvent('SetGroupAttributes', {
+        _self.dispatchEvent('setGroupAttributes', {
             groupID: _self.id,
             svgID : _self.svgID,
             description : _self.description

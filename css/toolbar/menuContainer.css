@@ -1,7 +1,7 @@
 #menuContainer{
     display: flex;
     display:-webkit-flex;
-    background: #3e3d3d;
+    /* background: #3e3d3d; */
     flex-direction: row;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */

@@ -37,7 +37,7 @@ function ChannelItem(data){
     // Click to toggle overlay visibility
     this.onClickToggleDisplay = function(event){
         _self.isDisplay = !_self.isDisplay;
-        _self.parent.dispatchEvent('ChangeOsdItemVisibility', {
+        _self.parent.dispatchEvent('changeOsdItemVisibility', {
             osdItemId : _self.osdItemId,
             isDisplay : _self.isDisplay
         })
@@ -69,7 +69,7 @@ function ChannelItem(data){
                 break;
         };
 
-        _self.parent.dispatchEvent('ChangeOsdItemChannelSetting', {
+        _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
             type : type,
             value : value

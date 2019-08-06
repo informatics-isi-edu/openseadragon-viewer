@@ -54,12 +54,12 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.dispatchEvent = function(type, data){
         
         switch(type){
-            case "OnClickChangeSelectingAnnotation":
+            case "onClickChangeSelectingAnnotation":
                 this.parent.dispatchEvent(type, {
                     groupID : this.id
                 })
                 break;
-            case "OnMouseoverShowTooltip":
+            case "onMouseoverShowTooltip":
                 data["anatomy"] = this.anatomy;
                 data["description"] = this.description;
                 data["x1"] = this.x1;
@@ -70,7 +70,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 this.highlightAll();
                 this.parent.dispatchEvent(type, data);
                 break;
-            case "OnMouseoutHideTooltip":
+            case "onMouseoutHideTooltip":
                 if(!this.isSelected){
                     this.unHighlightAll();
                 }

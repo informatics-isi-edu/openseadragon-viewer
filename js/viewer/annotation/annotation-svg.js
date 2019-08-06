@@ -21,7 +21,7 @@ function AnnotationSVG(id, parent){
             group = new AnnotationGroup(id, anatomy, description, this);
             group.render();
             this.groups[id] = group;
-            this.dispatchEvent('UpdateAnnotationList', [{
+            this.dispatchEvent('updateAnnotationList', [{
                 svgID : this.id,
                 groupID : id,
                 anatomy : anatomy,
@@ -34,9 +34,9 @@ function AnnotationSVG(id, parent){
     // Change the group visibility
     this.changeVisibility = function(data){
 
-        if(this.groups.hasOwnProperty(data.id)){
+        if(this.groups.hasOwnProperty(data.groupID)){
             this.hideGroupBorder();
-            var group = this.groups[data.id];
+            var group = this.groups[data.groupID];
             group.setDisplay(data.isDisplay);
         }
     }
@@ -102,23 +102,23 @@ function AnnotationSVG(id, parent){
         
         
         data["svgID"] = this.id;
-        data["groupID"] = this.currentGroupID;
+        // data["groupID"] = this.currentGroupID;
 
     }
 
     this.dispatchEvent = function(type, data){
         switch(type){
             // Change the selecting annotation 
-            case "OnClickChangeSelectingAnnotation":
+            case "onClickChangeSelectingAnnotation":
                 this.changeSelectedGroup(data);
                 this.parent.dispatchEvent(type, data);
                 break;
-            case "OnMouseoverShowTooltip":
+            case "onMouseoverShowTooltip":
                 this.unHighlightCurrentGroup(data.groupID);
                 this.showGroupBorder(data);
                 this.parent.dispatchEvent(type, data);
                 break;
-            case "OnMouseoutHideTooltip":
+            case "onMouseoutHideTooltip":
                 this.highlightCurrentGroup();
                 this.hideGroupBorder();
                 this.parent.dispatchEvent(type, data);

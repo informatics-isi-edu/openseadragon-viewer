@@ -11,26 +11,26 @@ function Base(attrs){
     }
 
     this.onClickToSelectAnnotation = function(){
-        _self.dispatchEvent("OnClickChangeSelectingAnnotation");
+        _self.dispatchEvent("onClickChangeSelectingAnnotation");
     };
 
     this.onMouseoverShowTooltip = function(){
 
-        _self.dispatchEvent("OnMouseoverShowTooltip", {
+        _self.dispatchEvent("onMouseoverShowTooltip", {
             x : d3.event.pageX,
             y : d3.event.pageY
         })
     };
 
     this.onMousemoveShowTooltip = function(){
-        _self.dispatchEvent("OnMousemoveShowTooltip", {
+        _self.dispatchEvent("onMousemoveShowTooltip", {
             x : d3.event.pageX,
             y : d3.event.pageY
         })
     };
 
     this.onMouseoutHideTooltip = function(){
-        _self.dispatchEvent("OnMouseoutHideTooltip");
+        _self.dispatchEvent("onMouseoutHideTooltip");
     };
 }
 

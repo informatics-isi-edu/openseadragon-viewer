@@ -1,11 +1,10 @@
-function ToolbarController(viewer, config){
+function ToolbarController(parent, config){
     
-    if(!viewer || !config){ return null; };
+    if(!config){ return null; };
 
     var _self = this;
-
+    this.parent = parent;
     this._toolbarView = new ToolbarView(this, config);
-    this._viewer = viewer;
     this.annotationList = new AnnotationList(this);
     this.channelList = new ChannelList(this);
     this.selectingMenu = null;
@@ -18,35 +17,11 @@ function ToolbarController(viewer, config){
     // Dispatch event to Viewer
     this.dispatchEvent = function(type, data){
         switch(type){
-            
-            case "ChangeAnnotationVisibility": // Change annotation group visibility
-            case "ChangeSelectingAnnotationGroup": // Change selecting annotation group
-            case "ChangeAllVisibility": // Change all annotations visibility
-            case "RemoveAnnotationGroup": // Remove an annotation group
-            case "SetGroupAttributes": // Change annotation 'description' or 'anatomy' text
-                this._viewer.dispatchSVGEvent(type, data);
-                break;
-            // Change openseadragon item overlay visibility
-            case "ChangeOsdItemVisibility":
-                this._viewer.setItemVisibility(data.osdItemId, data.isDisplay); 
-                break;
-            // Change openseadragon item channel setting
-            case "ChangeOsdItemChannelSetting":
-                this._viewer.setItemChannel(data);
-                break;
-            case "ZoomIn":
-                this._viewer.zoomIn();
-                break;
-            case "ZoomOut":
-                this._viewer.zoomOut();
+            default:
+                this.parent.dispatchEvent(type, data);
                 break;
             
         }
-    }
-
-    // Get overlay visibility in Openseadragon viewer
-    this.getOsdOverlayVisibility = function(){
-        return this._viewer.getOverlayVisibility();
     }
 
     // Hide annotation list
@@ -79,13 +54,10 @@ function ToolbarController(viewer, config){
                 this._toolbarView.renderAnnotationGroupContent(this.annotationList);
                 break;
             case "zoomIn":
-                this.dispatchEvent("ZoomIn");
+                this.dispatchEvent("zoomIn");
                 break;
             case "zoomOut":
-                this.dispatchEvent("ZoomOut");
-                break;
-            case "exportSVG":
-                this.dispatchEvent("ExportSVG");
+                this.dispatchEvent("zoomOut");
                 break;
         }
     }
