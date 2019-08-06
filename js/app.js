@@ -50,7 +50,7 @@ var myApp = (function (_config) {
                 toolbar && toolbar.updateChannelList(data);
                 break;
             case "onClickChangeSelectingAnnotation":
-                toolbar && toolbar.changeSelectingAnnotation(data);toolbar.changeSelectingAnnotation(data);
+                toolbar && toolbar.changeSelectingAnnotation(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
         }
