@@ -52,7 +52,7 @@ Utils.prototype.getParameters = function(){
         type,
         parameters = {};
 
-    args = args[1].split("&");
+    args = args[1] ? args[1].split("&") : [];
     for(var i = 0; i < args.length; i++){
         type = args[i].split("=")[0];
         value = args[i].split("=")[1];
