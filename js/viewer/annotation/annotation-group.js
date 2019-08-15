@@ -18,13 +18,19 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.isDisplay = true;
     this.isSelected = false;
 
-    // Add new annotation object (scribble/cirlce/rect)
+    // Add new annotation object (path/cirlce/rect)
     this.addAnnotation = function(type){
         var annotation = null;
 
         switch (type.toUpperCase()) {
-            case "SCRIBBLE":
-                annotation = new Scribble({
+            case "PATH":
+                annotation = new Path({
+                    "annotation-id" : this.id,
+                    "parent" : this
+                }); 
+                break;
+            case "POLYLINE":
+                annotation = new Polyline({
                     "annotation-id" : this.id,
                     "parent" : this
                 }); 

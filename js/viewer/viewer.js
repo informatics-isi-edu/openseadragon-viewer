@@ -16,6 +16,7 @@ function Viewer(parent, config) {
     this.tooltipElem = null;
     this.svg = null;
     this.svgCollection = {};
+    this.scale = null;
 
     // Init 
     this.init = function (utils) {
@@ -252,6 +253,10 @@ function Viewer(parent, config) {
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
 
+        var scale = this.scale,
+            imgWidth = this.channels[0].width,
+            imgHeight = this.channels[0].height;
+
         for(var i = 0; i < svgs.length; i++){
             var id = Date.parse(new Date()) + parseInt(Math.random() * 1000),
                 svgFileLocation = svgs[i],
@@ -260,7 +265,7 @@ function Viewer(parent, config) {
                 svgFile = svgParser.parseFromString(content, "image/svg+xml"),
                 svgFile = svgFile.getElementsByTagName("svg")[0];
 
-            this.svgCollection[id] = new AnnotationSVG(id, this);
+            this.svgCollection[id] = new AnnotationSVG(this, id, scale, imgWidth, imgHeight);
             this.svgCollection[id].parseSVGFile(svgFile);
         }
     }
@@ -308,6 +313,7 @@ function Viewer(parent, config) {
 
             meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
             meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
+            this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
             this.resetScalebar(meterScaleInPixels);
             this.osd.addTiledImage(option);
 
@@ -422,22 +428,22 @@ function Viewer(parent, config) {
     // Resize Annotation SVGs
     this.resizeSVG = function(){
         var svgs = _self.svg.querySelectorAll(".annotationSVG"),
-            p1,
-            p2,
+            upperLeftPoint,
+            bottomRightPoint,
             i;
 
         for(i = 0; i < svgs.length; i++){
-            p1 = svgs[i].getAttribute("p1").split(",") || [];
-            p2 = svgs[i].getAttribute("p2").split(",") || [];
-            if(p1.length == 0 || p2.length == 0){
+            upperLeftPoint = svgs[i].getAttribute("upperLeftPoint").split(",") || [];
+            bottomRightPoint = svgs[i].getAttribute("bottomRightPoint").split(",") || [];
+            if(upperLeftPoint.length == 0 || bottomRightPoint.length == 0){
                 continue;
             }
-            p1 = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+p1[0], +p1[1]), true);
-            p2 = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+p2[0], +p2[1]), true);
-            svgs[i].setAttribute("x", p1.x + "px");
-            svgs[i].setAttribute("y", p1.y + "px");
-            svgs[i].setAttribute("width", p2.x - p1.x + "px");
-            svgs[i].setAttribute("height", p2.y - p1.y + "px");
+            upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
+            bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
+            svgs[i].setAttribute("x", upperLeftPoint.x + "px");
+            svgs[i].setAttribute("y", upperLeftPoint.y + "px");
+            svgs[i].setAttribute("width", bottomRightPoint.x - upperLeftPoint.x + "px");
+            svgs[i].setAttribute("height", bottomRightPoint.y - upperLeftPoint.y + "px");
         }
     }
 

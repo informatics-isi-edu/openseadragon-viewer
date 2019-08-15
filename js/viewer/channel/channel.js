@@ -5,6 +5,8 @@ function Channel(osdItemID, tileSource) {
     this.name = tileSource["channelName"] || "";
     this.rgb = tileSource["channelRGB"] || null;
     this.opacity = tileSource["channelAlpha"] || 1;;
+    this.width = +tileSource["width"] || 0;
+    this.height = +tileSource["height"] || 0;
     this.contrast = 1;
     this.brightness = 0;
     this.gamma = 0.875;

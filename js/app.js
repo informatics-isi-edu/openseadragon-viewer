@@ -11,6 +11,9 @@ var myApp = (function (_config) {
         
         viewer.init(utils);
         window.addEventListener('message', receiveChaiseEvent);
+
+        this.viewer = viewer;
+        this.toolbar = toolbar;
     };
 
     var dispatchEvent = function(type, data){

@@ -7,7 +7,8 @@ function Base(attrs){
         "tag" : attrs["tag"] || "",
         "fill" : attrs["fill"] || "none",
         "stroke" :  attrs["stroke"] || "",
-        "stroke-width" : attrs["stroke-width"] || ""
+        "stroke-width" : attrs["stroke-width"] || "",
+        "style" : ""
     }
 
     this.onClickToSelectAnnotation = function(){
@@ -106,13 +107,21 @@ Base.prototype.setAttributesByJSON = function(attrs){
 Base.prototype.setAttributesBySVG = function(elem){
     
     var attr,
-        value;
+        value,
+        styleArr;
 
     for(attr in this._attrs){
         value = elem.getAttribute(attr);
         if(value != null){
-
             switch(attr){
+                case "style":
+                    styleArr = value.split(";");
+                    for(var i = 0; i < styleArr.length; i++){
+                        var attrName = styleArr[i].split(":")[0];
+                        var attrValue = styleArr[i].split(":")[1];
+                        this._attrs[attrName] = attrValue;
+                    }
+                    break;
                 default:
                     this._attrs[attr] = value;
                     break;

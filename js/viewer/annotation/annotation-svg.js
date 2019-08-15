@@ -1,10 +1,13 @@
-function AnnotationSVG(id, parent){
+function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
     this.id = id;
     this.svg = null;
     this.parent = parent;
+    this.scale = scale;
+    this.imgWidth = imgWidth;
+    this.imgHeight = imgHeight;
     // reference point to the actual images
-    this.p1 = null;
-    this.p2 = null;
+    this.upperLeftPoint = null;
+    this.bottomRightPoint = null;
     this.groups = {};
     this.isSelected = false;
     this.currentGroupID = "";
@@ -82,10 +85,10 @@ function AnnotationSVG(id, parent){
                 // Bring up the element to the front
                 this.svg.append(group.svg.node());
         
-                data["x1"] = this.p1.x + group["x1"] * this.xUnit;
-                data["x2"] = this.p1.x + group["x2"] * this.xUnit;
-                data["y1"] = this.p1.y + group["y1"] * this.yUnit;
-                data["y2"] = this.p1.y + group["y2"] * this.yUnit;
+                data["x1"] = this.upperLeftPoint.x + group["x1"] * this.xUnit;
+                data["x2"] = this.upperLeftPoint.x + group["x2"] * this.xUnit;
+                data["y1"] = this.upperLeftPoint.y + group["y1"] * this.yUnit;
+                data["y2"] = this.upperLeftPoint.y + group["y2"] * this.yUnit;
                 
                     // Show border if the group's visibility set to true
                 if(group.isDisplay){
@@ -149,52 +152,64 @@ function AnnotationSVG(id, parent){
 
         if(!svgFile){ return; }
 
-        this.viewBox = svgFile.getAttribute("viewBox");
-        this.width = +this.viewBox.split(" ")[2];
-        this.height = +this.viewBox.split(" ")[3];
-        this.x = svgFile.getAttribute("x");
-        this.y = svgFile.getAttribute("y");
-        this.p1 = svgFile.getAttribute("p1").split(",");
-        this.p2 = svgFile.getAttribute("p2").split(",");
-        this.p1 = new OpenSeadragon.Point(+this.p1[0], +this.p1[1]);
-        this.p2 = new OpenSeadragon.Point(+this.p2[0], +this.p2[1]);
-        this.xUnit = Math.abs(this.p2.x - this.p1.x) / this.width;
-        this.yUnit = Math.abs(this.p2.y - this.p1.y) / this.height;
+        this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(function(num){ return +num });
+        
+        if(this.viewBox.length != 4 || this.scale == null){ 
+            console.log("SVG file miss viewBox attribute");
+            return ; 
+        }
+
+        var totalPixels = (this.imgHeight < this.imgWidth) ? this.imgWidth : this.imgHeight;
+        this.upperLeftPoint = {
+            x : (this.viewBox[0] / this.scale) / totalPixels, 
+            y : (this.viewBox[1] / this.scale) / totalPixels
+        };
+        this.bottomRightPoint = {
+            x : ((this.viewBox[0] + this.viewBox[2]) / this.scale) / totalPixels, 
+            y : ((this.viewBox[1] + this.viewBox[3]) / this.scale) / totalPixels
+        };
+
+        this.x = svgFile.getAttribute("x") || 0;
+        this.y = svgFile.getAttribute("y") || 0;
+        // console.log(this.upperLeftPoint, this.bottomRightPoint);
+        this.xUnit = Math.abs(this.bottomRightPoint.x - this.upperLeftPoint.x) / this.viewBox[2];
+        this.yUnit = Math.abs(this.bottomRightPoint.y - this.upperLeftPoint.y) / this.viewBox[3];
 
         this.render();
 
         // Add SVG stylesheet to the document to get the css rules
-        document.getElementsByTagName("head")[0].append(svgFile.getElementsByTagName("style")[0])
-
-        // Get the SVG stylesheet rules and remove the style tag from document
         var styleSheet = {}
-        var svgStyleSheet = document.styleSheets[document.styleSheets.length - 1].cssRules;
-        var styleTags = document.getElementsByTagName("style");
-        styleTags[styleTags.length - 1].remove();
+        if(svgFile.getElementsByTagName("style").length > 0){
+            document.getElementsByTagName("head")[0].append(svgFile.getElementsByTagName("style")[0])
+            // Get the SVG stylesheet rules and remove the style tag from document
+            var svgStyleSheet = document.styleSheets[document.styleSheets.length - 1].cssRules;
+            var styleTags = document.getElementsByTagName("style");
+            styleTags[styleTags.length - 1].remove();
 
-        // Parsing the css class rules
-        for (var j = 0; j < svgStyleSheet.length; j++) {
-            var className = svgStyleSheet[j].selectorText.replace(".", ""),
-                index = 0,
-                attr,
-                value;
+            // Parsing the css class rules
+            for (var j = 0; j < svgStyleSheet.length; j++) {
+                var className = svgStyleSheet[j].selectorText.replace(".", ""),
+                    index = 0,
+                    attr,
+                    value;
 
-            styleSheet[className] = {};
-            while (svgStyleSheet[j].style[index]) {
-                attr = svgStyleSheet[j].style[index];
-                value = svgStyleSheet[j].style[attr];
-                styleSheet[className][attr] = value;
-                index += 1;
+                styleSheet[className] = {};
+                while (svgStyleSheet[j].style[index]) {
+                    attr = svgStyleSheet[j].style[index];
+                    value = svgStyleSheet[j].style[attr];
+                    styleSheet[className][attr] = value;
+                    index += 1;
+                }
             }
         }
-
+        
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
 
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
-            if (svgElems[i].getAttribute("id") == null) { continue; }
+            // if (svgElems[i].getAttribute("id") == null) { continue; }
 
             var node = svgElems[i];
             var groupID = svgElems[i].getAttribute("id") || Date.parse(new Date()) + parseInt(Math.random() * 1000);
@@ -208,18 +223,18 @@ function AnnotationSVG(id, parent){
                     this.parseSVGNodes(node.childNodes, styleSheet, group);
                     break;
                 case "path":
-                    annotation = group.addAnnotation("SCRIBBLE")
-                    attrs["d"] = node.getAttribute("d");
-                    annotation.setAttributesByJSON(attrs);
+                    annotation = group.addAnnotation("PATH")
+                    annotation.setAttributesBySVG(node);
+                    annotation.renderSVG(this);
+                    break;
+                case "polyline":
+                    annotation = group.addAnnotation(node.nodeName)
+                    annotation.setAttributesBySVG(node);
                     annotation.renderSVG(this);
                     break;
                 case "rect":
                     annotation = group.addAnnotation("RECT");
-                    attrs["height"] = +node.getAttribute("height");
-                    attrs["width"] = +node.getAttribute("width");
-                    attrs["x"] = +node.getAttribute("x");
-                    attrs["y"] = +node.getAttribute("y");
-                    annotation.setAttributesByJSON(attrs);
+                    annotation.setAttributesBySVG(node);
                     annotation.renderSVG(this);
                     break;
             }
@@ -248,18 +263,18 @@ function AnnotationSVG(id, parent){
                     this.parseSVGNodes(node.childNodes, styleSheet, group);
                     break;
                 case "path":
-                    annotation = group.addAnnotation("SCRIBBLE")
-                    attrs["d"] = node.getAttribute("d");
-                    annotation.setAttributesByJSON(attrs);
+                    annotation = group.addAnnotation(node.nodeName)
+                    annotation.setAttributesBySVG(node);
+                    annotation.renderSVG(this);
+                    break;
+                case "polyline":
+                    annotation = group.addAnnotation(node.nodeName)
+                    annotation.setAttributesBySVG(node);
                     annotation.renderSVG(this);
                     break;
                 case "rect":
-                    annotation = group.addAnnotation("RECT");
-                    attrs["height"] = +node.getAttribute("height");
-                    attrs["width"] = +node.getAttribute("width");
-                    attrs["x"] = +node.getAttribute("x");
-                    attrs["y"] = +node.getAttribute("y");
-                    annotation.setAttributesByJSON(attrs);
+                    annotation = group.addAnnotation(node.nodeName);
+                    annotation.setAttributesBySVG(node);
                     annotation.renderSVG(this);
                     break;
             }
@@ -276,11 +291,11 @@ function AnnotationSVG(id, parent){
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
         svg.setAttribute("class", "annotationSVG");
-        svg.setAttribute("viewBox", this.viewBox);
+        svg.setAttribute("viewBox", this.viewBox.join(" "));
         svg.setAttribute("x", this.x);
         svg.setAttribute("y", this.y);
-        svg.setAttribute("p1", this.p1.x + ","+ this.p1.y);
-        svg.setAttribute("p2", this.p2.x + ","+ this.p2.y);
+        svg.setAttribute("upperLeftPoint", this.upperLeftPoint.x + ","+ this.upperLeftPoint.y);
+        svg.setAttribute("bottomRightPoint", this.bottomRightPoint.x + ","+ this.bottomRightPoint.y);
 
         if(this.parent.svg){
             this.parent.svg.append(svg);
