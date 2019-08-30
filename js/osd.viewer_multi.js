@@ -502,6 +502,12 @@ window.console.log("MEI in startState...");
         annoReady();
     }
 
+    if(isIIIFURL) {
+        resetScalebar(save_meterscaleinpixels);
+        if (logURL.length > 1) {
+            myViewer.scalebar({stayInsideImage: false});
+        }
+    }
 // http://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
 
 /*
