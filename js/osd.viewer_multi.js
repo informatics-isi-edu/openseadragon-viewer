@@ -294,6 +294,7 @@ jQuery(document).ready(function() {
     	              constrainDuringPan: true,
     	              ajaxWithCredentials : true,
     	              maxZoomPixelRatio: 1,
+    	              crossOriginPolicy: "Anonymous",
     	              tileSources: logURL
     	        });
     		} else {
@@ -309,6 +310,7 @@ jQuery(document).ready(function() {
 	              maxZoomPixelRatio: 1,
 	              collectionMode: true,
 	              collectionRows: 1,
+	              crossOriginPolicy: "Anonymous",
 	              tileSources: logURL
 	        });
     		}
