@@ -66,6 +66,10 @@ Utils.prototype.getParameters = function(){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value); 
                 }
+                else if(value.indexOf("info.json") != -1){
+                    parameters.info = parameters.info || [];
+                    parameters.info.push(value); 
+                } 
                 break;
             case "channelName":
             case "aliasName":

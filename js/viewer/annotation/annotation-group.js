@@ -35,6 +35,12 @@ function AnnotationGroup(id, anatomy, description, parent){
                     "parent" : this
                 }); 
                 break;
+            case "POLYGON":
+                annotation = new Polygon({
+                    "annotation-id" : this.id,
+                    "parent" : this
+                }); 
+                break;
             case "RECT":
                 annotation = new Rect({
                     "annotation-id" : this.id,

@@ -30,6 +30,8 @@ function Viewer(parent, config) {
         this.parameters = this._utils.getParameters();
 
         // Get config from scalebar and Openseadragon
+        console.log(this.parameters.info);
+        this._config.osd.tileSources = this.parameters.info;
         this.osd = OpenSeadragon(this._config.osd);
         this.osd.scalebar(this._config.scalebar);
 
@@ -39,26 +41,11 @@ function Viewer(parent, config) {
         this.osd.canvas.append(this.svg);
 
         // Parse urls to load image and channels
-        this.loadImages(this.parameters.images);
+        // this.loadImages(this.parameters.images);
+        this.osd.addHandler('open', this.loadAfterOSDInit);
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
-        this.osd.addHandler('animation-finish', function (target) {
-            // Only execute it once when Openseadragon is done loading
-            if (!_self.isInitLoad) {
-                // Check if need to pan to a specific location (if x, y, z are not null)
-                if (_self.parameters.x && _self.parameters.y && _self.parameters.z) {
-                    _self.panTo(_self.parameters.x, _self.parameters.y, _self.parameters.x, _self.parameters.z);
-                }
-
-                // Check if annotation svg exists
-                if(_self.parameters.svgs) {
-                    _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
-                    _self.resizeSVG();
-                }
-                
-                _self.isInitLoad = true;  
-            };
-        });
+        this.osd.addHandler('animation-finish', this.loadAfterOSDInit);
   
         this.osd.addHandler('resize', this.resizeSVG);
 
@@ -253,9 +240,9 @@ function Viewer(parent, config) {
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
 
-        var scale = this.scale,
-            imgWidth = this.channels[0].width,
-            imgHeight = this.channels[0].height;
+        var scale = 100000 / 4555361.363636,
+            imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
+            imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
 
         for(var i = 0; i < svgs.length; i++){
             var id = Date.parse(new Date()) + parseInt(Math.random() * 1000),
@@ -268,6 +255,25 @@ function Viewer(parent, config) {
             this.svgCollection[id] = new AnnotationSVG(this, id, scale, imgWidth, imgHeight);
             this.svgCollection[id].parseSVGFile(svgFile);
         }
+    }
+
+    // Load after Openseadragon initialized
+    this.loadAfterOSDInit = function(){
+        // Only execute it once when Openseadragon is done loading
+        if (!_self.isInitLoad) {
+            // Check if need to pan to a specific location (if x, y, z are not null)
+            if (_self.parameters.x && _self.parameters.y && _self.parameters.z) {
+                _self.panTo(_self.parameters.x, _self.parameters.y, _self.parameters.x, _self.parameters.z);
+            }
+
+            // Check if annotation svg exists
+            if(_self.parameters.svgs) {
+                _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                _self.resizeSVG();
+            }
+            
+            _self.isInitLoad = true;  
+        };
     }
 
     // Load Image and Channel information
@@ -430,20 +436,24 @@ function Viewer(parent, config) {
         var svgs = _self.svg.querySelectorAll(".annotationSVG"),
             upperLeftPoint,
             bottomRightPoint,
-            i;
+            i,
+            w = _self.osd.world.getItemAt(0),
+            size = w.getContentSize();
 
         for(i = 0; i < svgs.length; i++){
-            upperLeftPoint = svgs[i].getAttribute("upperLeftPoint").split(",") || [];
-            bottomRightPoint = svgs[i].getAttribute("bottomRightPoint").split(",") || [];
-            if(upperLeftPoint.length == 0 || bottomRightPoint.length == 0){
-                continue;
-            }
-            upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
-            bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
-            svgs[i].setAttribute("x", upperLeftPoint.x + "px");
-            svgs[i].setAttribute("y", upperLeftPoint.y + "px");
-            svgs[i].setAttribute("width", bottomRightPoint.x - upperLeftPoint.x + "px");
-            svgs[i].setAttribute("height", bottomRightPoint.y - upperLeftPoint.y + "px");
+            // upperLeftPoint = svgs[i].getAttribute("upperLeftPoint").split(",") || [];
+            // bottomRightPoint = svgs[i].getAttribute("bottomRightPoint").split(",") || [];
+            // if(upperLeftPoint.length == 0 || bottomRightPoint.length == 0){
+            //     continue;
+            // }
+            // upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
+            // bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
+            var topLeft = w.imageToWindowCoordinates(new OpenSeadragon.Point(0,0));
+            var bottomRight = w.imageToWindowCoordinates(new OpenSeadragon.Point(size.x, size.y));
+            svgs[i].setAttribute("x", topLeft.x + "px");
+            svgs[i].setAttribute("y", topLeft.y + "px");
+            svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
+            svgs[i].setAttribute("height", bottomRight.y - topLeft.y + "px");
         }
     }
 

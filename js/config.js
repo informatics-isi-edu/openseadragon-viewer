@@ -11,7 +11,11 @@ var _config = {
         },
         osd: {
             id: 'openseadragonContainer',
-            prefixUrl: "images/",
+            // prefixUrl: "images/",
+            collectionRows: 1,
+            ajaxWithCredentials : true,
+        	maxZoomPixelRatio: 1,
+        	// prefixUrl: "/openseadragon/images/",
             showNavigator: true,
             showZoomControl: false,
             showHomeControl: false,
@@ -19,6 +23,8 @@ var _config = {
             panHorizontal: true,
             panVertical: true,
             zoomPerClick : 1,
+            constrainDuringPan: true,
+            collectionMode: true,
             // tileSources : {}
         },
         scalebar : {

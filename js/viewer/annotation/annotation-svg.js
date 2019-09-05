@@ -155,11 +155,12 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
         this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(function(num){ return +num });
         
         if(this.viewBox.length != 4 || this.scale == null){ 
-            console.log("SVG file miss viewBox attribute");
+            console.log("SVG file is missing viewBox attributes");
             return ; 
         }
 
         var totalPixels = (this.imgHeight < this.imgWidth) ? this.imgWidth : this.imgHeight;
+        this.fileID = svgFile.getAttribute("id")
         this.upperLeftPoint = {
             x : (this.viewBox[0] / this.scale) / totalPixels, 
             y : (this.viewBox[1] / this.scale) / totalPixels
@@ -205,6 +206,7 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
         
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
+        var group = this.createAnnotationGroup(groupID, anatomy);
 
         for (var i = 0; i < svgElems.length; i++) {
 
@@ -216,24 +218,18 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
             var className = node.getAttribute("class") || "";
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
             var anatomy = node.getAttribute("id");
-            var group = this.createAnnotationGroup(groupID, anatomy);
+            // var group = this.createAnnotationGroup(groupID, anatomy);
 
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, group);
                     break;
                 case "path":
-                    annotation = group.addAnnotation("PATH")
-                    annotation.setAttributesBySVG(node);
-                    annotation.renderSVG(this);
-                    break;
+                case "circle":
                 case "polyline":
-                    annotation = group.addAnnotation(node.nodeName)
-                    annotation.setAttributesBySVG(node);
-                    annotation.renderSVG(this);
-                    break;
+                case "polygon":
                 case "rect":
-                    annotation = group.addAnnotation("RECT");
+                    annotation = group.addAnnotation(node.nodeName);
                     annotation.setAttributesBySVG(node);
                     annotation.renderSVG(this);
                     break;
