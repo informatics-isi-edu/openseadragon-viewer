@@ -147,10 +147,20 @@ function saveScalebar(s) { save_meterscaleinpixels=s; }
 function isSimpleBaseImage() {
   for(var i=0; i<logURL.length; i++) {
      var url=logURL[i];
-     if(url.indexOf('ImageProperties.xml')!= -1) 
+     if(url.indexOf('ImageProperties.xml')!= -1 || url.startsWith('/iiif/')) 
        return false;
   }
   return true;
+}
+
+// true, if any of the url starts with "/iiif/"
+function isIIIFImage() {
+for(var i=0; i<logURL.length; i++) {
+  var url=logURL[i];
+  if(url.startsWith('/iiif/')) 
+    return true;
+}
+return false;
 }
 
 // ...MAIN...
@@ -168,7 +178,10 @@ jQuery(document).ready(function() {
   var params = args[1].split('&');
   for (var i=0; i < params.length; i++)
       {
-        param = unescape(params[i]);
+	  	param = params[i];
+	  	if (param.indexOf('/iiif/') == -1) {
+	        param = unescape(params[i]);
+	  	}
 
         if (param.indexOf('=') == -1)
         {
@@ -244,6 +257,7 @@ jQuery(document).ready(function() {
   } else {
 
     var isSimpleURL=isSimpleBaseImage();
+    var isIIIFURL=isIIIFImage();
     // setup the channel alias names, only for simple url 
     var toShowNavigator=true; // suppress navigator if it is simple jpg viewing
     if(isSimpleURL) {
@@ -264,7 +278,43 @@ jQuery(document).ready(function() {
            logALIASNAME[cidx]=logCHANNELNAME[cidx];
       }
     }
+    if(isIIIFURL) {
+    	toShowNavigator=false;
+    }
     if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") {
+    	if (isIIIFURL) {
+    		if (logURL.length == 1) {
+    	  	      myViewer = OpenSeadragon({
+    	              id: "openseadragon",
+    	              prefixUrl: "images/",
+    	              showNavigator: toShowNavigator,
+    	              showZoomControl: false,
+    	              showHomeControl: false,
+    	              showFullPageControl: false,
+    	              constrainDuringPan: true,
+    	              ajaxWithCredentials : true,
+    	              maxZoomPixelRatio: 1,
+    	              crossOriginPolicy: "Anonymous",
+    	              tileSources: logURL
+    	        });
+    		} else {
+  	  	      myViewer = OpenSeadragon({
+	              id: "openseadragon",
+	              prefixUrl: "images/",
+	              showNavigator: toShowNavigator,
+	              showZoomControl: false,
+	              showHomeControl: false,
+	              showFullPageControl: false,
+	              constrainDuringPan: true,
+	              ajaxWithCredentials : true,
+	              maxZoomPixelRatio: 1,
+	              collectionMode: true,
+	              collectionRows: 1,
+	              crossOriginPolicy: "Anonymous",
+	              tileSources: logURL
+	        });
+    		}
+    	} else {
       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
@@ -285,6 +335,7 @@ compositeOperation: 'lighter',
 // FOR gudmap overlay
 //                   visibilityRatio:     1,
              });
+    	}
      } else {
        myViewer = OpenSeadragon({
                    id: "openseadragon",
@@ -350,6 +401,9 @@ Currently supported property values are:
        } else if(url.indexOf('AnnotationData.xml')!= -1) {
                // accepting other annotator's annotation data in XML
           _addDataLayer(url,i);
+       } else if(isIIIFURL) {
+           // IIIF image data 
+           //_addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
        } else if(isSimpleURL) {
                // other image data in simple jpg/png format
           _addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
@@ -450,6 +504,12 @@ window.console.log("MEI in startState...");
         annoReady();
     }
 
+    if(isIIIFURL) {
+        resetScalebar(save_meterscaleinpixels);
+        if (logURL.length > 1) {
+            myViewer.scalebar({stayInsideImage: false});
+        }
+    }
 // http://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
 
 /*
