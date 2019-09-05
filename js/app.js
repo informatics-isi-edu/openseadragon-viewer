@@ -10,7 +10,7 @@ var myApp = (function (_config) {
         toolbar = new ToolbarController(this, _config.toolbar);
         
         viewer.init(utils);
-        // toolbar.onClickedMenuHandler('annotationList');
+        toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
 
         this.viewer = viewer;

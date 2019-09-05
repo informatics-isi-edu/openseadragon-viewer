@@ -206,19 +206,19 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
         
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-        var group = this.createAnnotationGroup(groupID, anatomy);
+        // var group = this.createAnnotationGroup(groupID, anatomy);
 
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
-            // if (svgElems[i].getAttribute("id") == null) { continue; }
+            if (svgElems[i].getAttribute("id") == null) { continue; }
 
             var node = svgElems[i];
             var groupID = svgElems[i].getAttribute("id") || Date.parse(new Date()) + parseInt(Math.random() * 1000);
             var className = node.getAttribute("class") || "";
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
             var anatomy = node.getAttribute("id");
-            // var group = this.createAnnotationGroup(groupID, anatomy);
+            var group = this.createAnnotationGroup(groupID, anatomy);
 
             switch (node.nodeName) {
                 case "g":
@@ -259,15 +259,9 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
                     this.parseSVGNodes(node.childNodes, styleSheet, group);
                     break;
                 case "path":
-                    annotation = group.addAnnotation(node.nodeName)
-                    annotation.setAttributesBySVG(node);
-                    annotation.renderSVG(this);
-                    break;
+                case "circle":
                 case "polyline":
-                    annotation = group.addAnnotation(node.nodeName)
-                    annotation.setAttributesBySVG(node);
-                    annotation.renderSVG(this);
-                    break;
+                case "polygon":
                 case "rect":
                     annotation = group.addAnnotation(node.nodeName);
                     annotation.setAttributesBySVG(node);

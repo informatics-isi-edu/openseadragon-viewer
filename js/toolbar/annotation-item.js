@@ -58,9 +58,9 @@ function AnnotationItem(data){
                 "<span class='editBtn' data-type='toggleDisplay' data-toggle='tooltip' data-placement='bottom' title='"+this.getTooltip('toggleDisplay')+"'>",
                     "<i class='"+this.getIconClass('toggleDisplay')+"'></i>",
                 "</span>",
-                "<span class='editBtn' data-type='highlightGroup' data-toggle='tooltip' data-placement='bottom' title='"+this.getTooltip('highlightGroup')+"'>",
-                    "<i class='"+this.getIconClass('highlightGroup')+"'></i>",
-                "</span>",
+                // "<span class='editBtn' data-type='highlightGroup' data-toggle='tooltip' data-placement='bottom' title='"+this.getTooltip('highlightGroup')+"'>",
+                //     "<i class='"+this.getIconClass('highlightGroup')+"'></i>",
+                // "</span>",
             "</span>",
             "<div class='content'>",
                 "<span class='anatomy'>",
@@ -82,7 +82,7 @@ function AnnotationItem(data){
         });
 
         // Binding events
-        this.elem.addEventListener('click', this.onClickToSelect);
+        // this.elem.addEventListener('click', this.onClickToSelect);
         this.elem.querySelector(".description textarea.edit").addEventListener('keyup', this.onAutosizeTextarea);
         this.elem.querySelector(".description textarea.edit").addEventListener('change', this.onChangeDescription);
         this.elem.querySelectorAll(".editBtn").forEach(function(elem){
@@ -109,9 +109,10 @@ function AnnotationItem(data){
                 _self.onClickToChangeVisibility();
                 event.stopPropagation();
                 break;
-            case "highlightGroup":
-                _self.onClickHighlight();
-                break;
+            // case "highlightGroup":
+            //     _self.onClickHighlight();
+            //     event.stopPropagation();
+            //     break;
             case "remove":
                 _self.onClickToRemove();
                 event.stopPropagation();
@@ -162,9 +163,9 @@ function AnnotationItem(data){
     // Click to highlight
     this.onClickHighlight = function(){
         // if isDisplay is false, set it to true in order to show and highlight the annotation
-        // if(!_self.isDisplay){
-        //     _self.onClickToChangeVisibility();
-        // }
+        if(!_self.isDisplay){
+            _self.onClickToChangeVisibility();
+        }
     }
     
     // Keyup to autosize textarea's height
@@ -178,14 +179,14 @@ function AnnotationItem(data){
     this.updateMenuIconClass = function(){
         if(this.elem == null){ return;};
         this.elem.querySelector(".editBtn[data-type='toggleDisplay']").innerHTML = "<i class='"+this.getIconClass('toggleDisplay')+"'></i>";
-        this.elem.querySelector(".editBtn[data-type='highlightGroup']").innerHTML = "<i class='"+this.getIconClass('highlightGroup')+"'></i>";
+        // this.elem.querySelector(".editBtn[data-type='highlightGroup']").innerHTML = "<i class='"+this.getIconClass('highlightGroup')+"'></i>";
     }
 
     // Update menu Bootstrap tooltip content
     this.updateTooltip = function(){
         if(this.elem == null){ return;};
         this.elem.querySelector(".editBtn[data-type='toggleDisplay']").setAttribute("data-original-title", this.getTooltip('toggleDisplay'));
-        this.elem.querySelector(".editBtn[data-type='highlightGroup']").setAttribute("data-original-title", this.getTooltip('highlightGroup'));
+        // this.elem.querySelector(".editBtn[data-type='highlightGroup']").setAttribute("data-original-title", this.getTooltip('highlightGroup'));
         
         $(this.elem).find("[data-toggle='tooltip']").tooltip('hide');
     }

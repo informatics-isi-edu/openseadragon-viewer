@@ -76,7 +76,7 @@ Base.prototype.renderSVG = function(){
         this.svg.on("mouseover", this.onMouseoverShowTooltip)
             .on("mousemove", this.onMousemoveShowTooltip)
             .on("mouseout", this.onMouseoutHideTooltip)
-            .on('click', this.onClickToSelectAnnotation);
+            // .on('click', this.onClickToSelectAnnotation);
     }
 
     for(attr in this._attrs){

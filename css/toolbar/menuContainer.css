@@ -3,8 +3,8 @@
     display:-webkit-flex;
     /* background: #3e3d3d; */
     flex-direction: row;
-    max-height: 50vh;
-    position: absolute;
+    /* max-height: 50vh; */
+    /* position: absolute; */
     opacity: 0.9;
     z-index: 1;
     -webkit-user-select: none;  /* Chrome all / Safari all */

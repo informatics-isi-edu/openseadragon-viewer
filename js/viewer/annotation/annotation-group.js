@@ -79,7 +79,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 data["x2"] = this.x2;
                 data["y2"] = this.y2;
                 data["groupID"] = this.id;
-                this.highlightAll();
+                // this.highlightAll();
                 this.parent.dispatchEvent(type, data);
                 break;
             case "onMouseoutHideTooltip":

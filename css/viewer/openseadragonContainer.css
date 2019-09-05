@@ -22,16 +22,18 @@
 
 #openseadragonContainer #annotationTooltip{
     position: absolute;
-    width: 150px;
+    width: 180px;
     background: #2c2c2c;
     border-radius: 2px;
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
+    text-overflow: ellipsis;
     padding: 5px;
     box-sizing: border-box;
     box-shadow: 0 0 2px 1px #7e7e7e;
     display: none;
+    overflow-wrap: break-word;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */

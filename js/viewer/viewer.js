@@ -111,9 +111,9 @@ function Viewer(parent, config) {
             this.current.groupID = "";
         }
         else if(this.svgCollection.hasOwnProperty(data.svgID)){
-            if(data.x1 && data.x2 && data.y1 && data.y2){
-                this.zoomInRectViewport(data)
-            }
+            // if(data.x1 && data.x2 && data.y1 && data.y2){
+            //     this.zoomInRectViewport(data)
+            // }
             this.current.svgID = data.svgID;
             this.current.groupID = data.groupID;
         }
@@ -448,8 +448,8 @@ function Viewer(parent, config) {
             // }
             // upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
             // bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
-            var topLeft = w.imageToWindowCoordinates(new OpenSeadragon.Point(0,0));
-            var bottomRight = w.imageToWindowCoordinates(new OpenSeadragon.Point(size.x, size.y));
+            var topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(0,0));
+            var bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(size.x, size.y));
             svgs[i].setAttribute("x", topLeft.x + "px");
             svgs[i].setAttribute("y", topLeft.y + "px");
             svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
