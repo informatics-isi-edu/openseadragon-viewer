@@ -403,7 +403,7 @@ Currently supported property values are:
           _addDataLayer(url,i);
        } else if(isIIIFURL) {
            // IIIF image data 
-           //_addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
+    	   _addIIIFURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
        } else if(isSimpleURL) {
                // other image data in simple jpg/png format
           _addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
@@ -491,7 +491,7 @@ window.console.log("MEI in startState...");
 
     myViewer.world.addHandler('add-item', function openHandler() {
 // when propertyList matches with total cnt..
-       if( propertyList.length == myViewer.world.getItemCount()) {
+       if( propertyList.length == myViewer.world.getItemCount() && !isIIIFURL) {
          resetScalebar(save_meterscaleinpixels);
          showFilters=true;
          _addFilters();
@@ -680,6 +680,39 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     }
     var pp=JSON.stringify(p);
 //window.console.log("new property list is..",pp);
+    propertyList.push(p);
+}
+
+
+function _addIIIFURLLayer(url, i, channelname, aliasname) {
+
+    if(channelname == null && aliasname == null) {
+      return;
+    }
+    var cname = null;
+    var _name=null;
+    if(channelname) {
+       _name=channelname;
+       cname = _name.replace(/ +/g, "");
+    }
+    if(aliasname)
+       cname = aliasname.replace(/ +/g, "");
+
+    var _alpha=null;
+    var _rgb=null;
+    var _dir=".";
+
+    var op=presetOpacity(_alpha,i);
+    var hue=presetHue(_rgb,_name);
+    var contrast=presetContrast(i);
+    var brightness=presetBrightness(i);
+    var gamma=presetGamma(i,_name);
+
+    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma}; 
+    if(aliasname != null) {
+      p['name']= aliasname;
+    }
     propertyList.push(p);
 }
 
