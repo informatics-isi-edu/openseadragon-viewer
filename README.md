@@ -51,6 +51,8 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 | **channelName** | chars | set channel name of the matching URL image.  The channel is either one of ('Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647') for red, one of ('FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488' ) for green, one of ('DAPI') for blue or one of ('TL Brightfield' or 'combo') for colorized RGB or if none specified.  This name can also be extracted from ImageProperties.xml |
 | **aliasName** | chars | set name to be used for pull-out listing for this URL image |
 | **waterMark** | chars | set watermark to add credit to snapshot jpg image |
+| **ignoreReferencePoint** | boolean | set `true` (default) to ignore the reference point in the svg `viewBox`, which the upper-left point will be `0,0`. set to `false` to honor the provided upper-left point. If set to `false` and `MeterScaleInPixels` is provided, the reference point will be converted based on the provided scale. 
+| **ignoreDimension** | boolean | set `true` (default) to ignore the provided width and height in the svg `viewBox`, which the bottom-right point will be the size of `tif` image width and height. set `false` to honor the provided bottom-right point. If set to `false` and `MeterScaleInPixels` is provided, the bottom-right point will be converted based on the provided scale.
 
 ## Example of ImageProperties.xml
 
