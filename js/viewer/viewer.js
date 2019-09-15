@@ -107,6 +107,9 @@ function Viewer(parent, config) {
     this.changeSelectingAnnotation = function (data) {
 
         if(this.current.svgID == data.svgID && this.current.groupID == data.groupID){
+            if(this.svgCollection.hasOwnProperty(this.current.svgID)){
+                this.svgCollection[this.current.svgID].changeSelectedGroup(this.current);
+            }
             this.current.svgID = "";
             this.current.groupID = "";
         }
@@ -114,9 +117,16 @@ function Viewer(parent, config) {
             // if(data.x1 && data.x2 && data.y1 && data.y2){
             //     this.zoomInRectViewport(data)
             // }
+            if(this.svgCollection.hasOwnProperty(this.current.svgID)){
+                this.svgCollection[this.current.svgID].changeSelectedGroup(this.current);
+            }
             this.current.svgID = data.svgID;
             this.current.groupID = data.groupID;
+
+            this.svgCollection[data.svgID].changeSelectedGroup(data);
+            this.svg.append(this.svgCollection[data.svgID].svg)
         }
+        
     }
 
     // Change all SVGs annotations visibility
@@ -178,7 +188,6 @@ function Viewer(parent, config) {
                 break;
             // Change current selected annotation group
             case "highlightAnnotation":
-                svg.changeSelectedGroup(data);
                 this.changeSelectingAnnotation(data);
                 break;
             // Change all annotation groups visibility
@@ -240,7 +249,8 @@ function Viewer(parent, config) {
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
 
-        var scale = 100000 / 4555361.363636,
+        var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
+            ignoreDimension = this.parameters.ignoreDimension,
             imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
             imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
 
@@ -252,7 +262,7 @@ function Viewer(parent, config) {
                 svgFile = svgParser.parseFromString(content, "image/svg+xml"),
                 svgFile = svgFile.getElementsByTagName("svg")[0];
 
-            this.svgCollection[id] = new AnnotationSVG(this, id, scale, imgWidth, imgHeight);
+            this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
             this.svgCollection[id].parseSVGFile(svgFile);
         }
     }
@@ -264,6 +274,19 @@ function Viewer(parent, config) {
             // Check if need to pan to a specific location (if x, y, z are not null)
             if (_self.parameters.x && _self.parameters.y && _self.parameters.z) {
                 _self.panTo(_self.parameters.x, _self.parameters.y, _self.parameters.x, _self.parameters.z);
+            }
+
+            // Check if `scale` is provided  
+            // if(_self.parameters.scale) {
+            //     _self.scale = _self.parameters.scale;
+            // }
+
+            // Check if `meterScaleInPixels` if provided
+            if(_self.parameters.meterScaleInPixels){
+                var meterScaleInPixels = _self.parameters.meterScaleInPixels;
+                _self.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+                _self.resetScalebar(meterScaleInPixels);
+                _self.osd.scalebar({stayInsideImage: false});
             }
 
             // Check if annotation svg exists
@@ -357,7 +380,7 @@ function Viewer(parent, config) {
         this.tooltipElem
             .style("display", "flex")
             .transition()
-            .duration(500)
+            .duration(300)
             .style("opacity", 0.9)
             .style("left", (data.x + 20) + "px")		
             .style("top", (data.y + 20) + "px");	
@@ -374,8 +397,8 @@ function Viewer(parent, config) {
     this.onMouseoutHideTooltip = function(){
 
         this.tooltipElem
-            .transition()
-            .duration(500)
+            // .transition()
+            // .duration(300)
             .style("opacity", 0)
             .remove();
     }
@@ -434,8 +457,8 @@ function Viewer(parent, config) {
     // Resize Annotation SVGs
     this.resizeSVG = function(){
         var svgs = _self.svg.querySelectorAll(".annotationSVG"),
-            upperLeftPoint,
-            bottomRightPoint,
+            // upperLeftPoint,
+            // bottomRightPoint,
             i,
             w = _self.osd.world.getItemAt(0),
             size = w.getContentSize();
@@ -448,8 +471,29 @@ function Viewer(parent, config) {
             // }
             // upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
             // bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
-            var topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(0,0));
-            var bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(size.x, size.y));
+            
+            var ignoreReferencePoint = svgs[i].getAttribute("ignoreReferencePoint") == "false" ? false : true;
+            var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
+            var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
+            var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
+            var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
+            var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
+            
+            // not ignoring the reference point and the scale is provided
+            if(scale){
+                if(!ignoreReferencePoint){
+                    topLeft.x = topLeft.x / scale;
+                    topLeft.y = topLeft.y / scale;
+                }
+                if(!ignoreDimension){
+                    bottomRight.x = bottomRight.x / scale;
+                    bottomRight.y = bottomRight.y / scale;
+                }   
+            }
+
+            topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
+            bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
+
             svgs[i].setAttribute("x", topLeft.x + "px");
             svgs[i].setAttribute("y", topLeft.y + "px");
             svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");

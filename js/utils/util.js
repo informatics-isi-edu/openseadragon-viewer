@@ -88,6 +88,10 @@ Utils.prototype.getParameters = function(){
                     parameters[type] = value;
                 }
                 break;
+            case "ignoreReferencePoint":
+            case "ignoreDimension":
+                parameters[type] = (value.toLocaleLowerCase() === "true") ? true : false;
+                break;
         }
     }
     // console.log(parameters);

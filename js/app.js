@@ -10,7 +10,7 @@ var myApp = (function (_config) {
         toolbar = new ToolbarController(this, _config.toolbar);
         
         viewer.init(utils);
-        toolbar.onClickedMenuHandler('annotationList');
+        // toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
 
         this.viewer = viewer;
@@ -44,7 +44,7 @@ var myApp = (function (_config) {
             // [Events from Viewer]
             // Send the updated annotation list to toolbar
             case "updateAnnotationList":
-                toolbar && toolbar.updateAnnotationList(data);
+                // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             // Send the updated channel list to toolbar
@@ -52,7 +52,7 @@ var myApp = (function (_config) {
                 toolbar && toolbar.updateChannelList(data);
                 break;
             case "onClickChangeSelectingAnnotation":
-                toolbar && toolbar.changeSelectingAnnotation(data);
+                // toolbar && toolbar.changeSelectingAnnotation(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
         }

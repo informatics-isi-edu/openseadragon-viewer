@@ -1,4 +1,4 @@
-function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
+function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePoint, ignoreDimension){
     this.id = id;
     this.svg = null;
     this.parent = parent;
@@ -6,6 +6,8 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
     this.imgWidth = imgWidth;
     this.imgHeight = imgHeight;
     // reference point to the actual images
+    this.ignoreReferencePoint = ignoreReferencePoint;
+    this.ignoreDimension = ignoreDimension;
     this.upperLeftPoint = null;
     this.bottomRightPoint = null;
     this.groups = {};
@@ -85,10 +87,10 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
                 // Bring up the element to the front
                 this.svg.append(group.svg.node());
         
-                data["x1"] = this.upperLeftPoint.x + group["x1"] * this.xUnit;
-                data["x2"] = this.upperLeftPoint.x + group["x2"] * this.xUnit;
-                data["y1"] = this.upperLeftPoint.y + group["y1"] * this.yUnit;
-                data["y2"] = this.upperLeftPoint.y + group["y2"] * this.yUnit;
+                // data["x1"] = this.upperLeftPoint.x + group["x1"] * this.xUnit;
+                // data["x2"] = this.upperLeftPoint.x + group["x2"] * this.xUnit;
+                // data["y1"] = this.upperLeftPoint.y + group["y1"] * this.yUnit;
+                // data["y2"] = this.upperLeftPoint.y + group["y2"] * this.yUnit;
                 
                     // Show border if the group's visibility set to true
                 if(group.isDisplay){
@@ -113,7 +115,7 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
         switch(type){
             // Change the selecting annotation 
             case "onClickChangeSelectingAnnotation":
-                this.changeSelectedGroup(data);
+                data.svgID = this.id;
                 this.parent.dispatchEvent(type, data);
                 break;
             case "onMouseoverShowTooltip":
@@ -152,29 +154,16 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
 
         if(!svgFile){ return; }
 
-        this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(function(num){ return +num });
+        this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
+            function(num){ 
+                return +num;
+            }
+        );
         
-        if(this.viewBox.length != 4 || this.scale == null){ 
-            console.log("SVG file is missing viewBox attributes");
+        if(this.viewBox.length != 4){ 
+            console.log("SVG file is missing the viewBox attribute");
             return ; 
         }
-
-        var totalPixels = (this.imgHeight < this.imgWidth) ? this.imgWidth : this.imgHeight;
-        this.fileID = svgFile.getAttribute("id")
-        this.upperLeftPoint = {
-            x : (this.viewBox[0] / this.scale) / totalPixels, 
-            y : (this.viewBox[1] / this.scale) / totalPixels
-        };
-        this.bottomRightPoint = {
-            x : ((this.viewBox[0] + this.viewBox[2]) / this.scale) / totalPixels, 
-            y : ((this.viewBox[1] + this.viewBox[3]) / this.scale) / totalPixels
-        };
-
-        this.x = svgFile.getAttribute("x") || 0;
-        this.y = svgFile.getAttribute("y") || 0;
-        // console.log(this.upperLeftPoint, this.bottomRightPoint);
-        this.xUnit = Math.abs(this.bottomRightPoint.x - this.upperLeftPoint.x) / this.viewBox[2];
-        this.yUnit = Math.abs(this.bottomRightPoint.y - this.upperLeftPoint.y) / this.viewBox[3];
 
         this.render();
 
@@ -206,7 +195,6 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
         
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-        // var group = this.createAnnotationGroup(groupID, anatomy);
 
         for (var i = 0; i < svgElems.length; i++) {
 
@@ -269,8 +257,6 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
                     break;
             }
         }
-
-        
     }
 
     this.render = function(){
@@ -282,10 +268,9 @@ function AnnotationSVG(parent, id, scale, imgWidth, imgHeight){
 
         svg.setAttribute("class", "annotationSVG");
         svg.setAttribute("viewBox", this.viewBox.join(" "));
-        svg.setAttribute("x", this.x);
-        svg.setAttribute("y", this.y);
-        svg.setAttribute("upperLeftPoint", this.upperLeftPoint.x + ","+ this.upperLeftPoint.y);
-        svg.setAttribute("bottomRightPoint", this.bottomRightPoint.x + ","+ this.bottomRightPoint.y);
+        svg.setAttribute("scale", this.scale);
+        svg.setAttribute("ignoreReferencePoint", this.ignoreReferencePoint);
+        svg.setAttribute("ignoreDimension", this.ignoreDimension);
 
         if(this.parent.svg){
             this.parent.svg.append(svg);

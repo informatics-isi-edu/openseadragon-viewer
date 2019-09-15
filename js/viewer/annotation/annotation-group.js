@@ -79,7 +79,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 data["x2"] = this.x2;
                 data["y2"] = this.y2;
                 data["groupID"] = this.id;
-                // this.highlightAll();
+                this.highlightAll();
                 this.parent.dispatchEvent(type, data);
                 break;
             case "onMouseoutHideTooltip":
@@ -108,8 +108,9 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.highlightAll = function(event){
 
         _self.annotations.forEach(function(annotation){
+            var strokeWidth = annotation._attrs["stroke-width"] ? +annotation._attrs["stroke-width"] * 1.25 : 10;
             annotation.highlight({
-                "stroke-width" : 2,
+                "stroke-width" : strokeWidth === 0 ? 10 : strokeWidth,
                 "stroke" : "yellow"
             });
         })
