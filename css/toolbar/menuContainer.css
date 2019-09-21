@@ -1,18 +1,18 @@
 #menuContainer{
-    display: flex;
-    display:-webkit-flex;
-    /* background: #3e3d3d; */
-    flex-direction: row;
-    max-height: 50vh;
+    /* display: flex; */
+    /* display:-webkit-flex; */
+    background: #2f2f2f;
+    /* flex-direction: row; */
+    max-height: 50vw;
     position: absolute;
-    top: 40px;
-    left: 10px;
+    top: 0;
+    left: 5px;
     opacity: 0.9;
     z-index: 1;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */
-    user-select: none;          /* Likely future */ 
+    user-select: none;          /* Likely future */
 }
 
 #menuContainer #navMenu{
@@ -40,7 +40,7 @@
     display: inline-block;
     width: 0;
     opacity: 0;
-    background: #fff;
+    /* background: #fff; */
     transition: width 0.3s;
     font-family: sans-serif;
     flex-direction: column;
@@ -54,7 +54,7 @@
     width: 240px;
     opacity: 1;
     display: flex;
-    box-shadow: 0 0 5px #a29f9f;
+    /* box-shadow: 0 0 5px #a29f9f; */
 }
 
 #menuContainer #navMenuContent .title{

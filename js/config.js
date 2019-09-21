@@ -23,6 +23,7 @@ var _config = {
             panHorizontal: true,
             panVertical: true,
             zoomPerClick : 1,
+            crossOriginPolicy: "Anonymous",
             constrainDuringPan: true,
             collectionMode: true,
             // tileSources : {}

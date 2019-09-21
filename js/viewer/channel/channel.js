@@ -1,17 +1,16 @@
-function Channel(osdItemID, tileSource) {
+function Channel(osdItemID, options) {
 
     var _self = this;
     this.id = osdItemID;
-    this.name = tileSource["channelName"] || "";
-    this.rgb = tileSource["channelRGB"] || null;
-    this.opacity = tileSource["channelAlpha"] || 1;;
-    this.width = +tileSource["width"] || 0;
-    this.height = +tileSource["height"] || 0;
+    this.name = options["channelName"] || "";
+    this.rgb = options["channelRGB"] || null;
+    this.opacity = options["channelAlpha"] || 1;;
+    this.width = +options["width"] || 0;
+    this.height = +options["height"] || 0;
     this.contrast = 1;
     this.brightness = 0;
     this.gamma = 0.875;
     this.hue = null;
-    this.meterScaleInPixels = tileSource["meterScaleInPixels"];
 
     // Set Default Values
     this.setDefaultHue();

@@ -277,14 +277,13 @@ function Viewer(parent, config) {
             }
 
             // Check if `scale` is provided  
-            // if(_self.parameters.scale) {
-            //     _self.scale = _self.parameters.scale;
-            // }
+            if(_self.parameters.scale) {
+                _self.scale = _self.parameters.scale;
+            }
 
             // Check if `meterScaleInPixels` if provided
             if(_self.parameters.meterScaleInPixels){
                 var meterScaleInPixels = _self.parameters.meterScaleInPixels;
-                _self.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
                 _self.resetScalebar(meterScaleInPixels);
                 _self.osd.scalebar({stayInsideImage: false});
             }
@@ -293,6 +292,31 @@ function Viewer(parent, config) {
             if(_self.parameters.svgs) {
                 _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
                 _self.resizeSVG();
+            }
+
+            // Check if channelName is provided
+            if(_self.parameters.channelName){
+                var channelsParams = _self.parameters.channelName;
+                var channelList = [];
+
+                for(var i = 0; i < channelsParams.length; i++){
+                    channel = new Channel(i, {
+                        channelName : channelsParams[i]
+                    });
+
+                    _self.channels[i] = channel;
+                    channelList.push({
+                        name: channel.name,
+                        contrast: channel["contrast"],
+                        brightness: channel["brightness"],
+                        gamma: channel["gamma"],
+                        hue : channel["hue"],
+                        osdItemId: channel["id"]
+                    });
+                }
+
+                // Dispatch event to toolbar to update channel list
+                _self.dispatchEvent('updateChannelList', channelList);
             }
             
             _self.isInitLoad = true;  

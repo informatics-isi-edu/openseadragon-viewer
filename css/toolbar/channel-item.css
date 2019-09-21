@@ -1,5 +1,5 @@
 #navMenuContent .groups .channelItem{
-    border-bottom: 1px solid #cecece;
+    /* border-bottom: 1px solid #cecece; */
 }
 
 #navMenuContent .groups .channelItem .channelRow{
@@ -12,7 +12,7 @@
 }
 
 #navMenuContent .groups .channelItem .channelRow:hover{
-    color: #3c69a1;
+    color: #d0dcea;
 }
 
 #navMenuContent .groups .channelItem .toggleSetting{
@@ -41,9 +41,7 @@
     color: #337ab7;
 }
 
-#navMenuContent .groups .channelItem .toggleVisibility:hover{
-    opacity: 0.5;
-}
+#navMenuContent .groups .channelItem .toggleVisibility:hover{color: #ddd;}
 
 #navMenuContent .groups .channelItem .setting{
     display: flex;
@@ -61,13 +59,13 @@
 #navMenuContent .groups .channelItem .attrRow{
     display: flex;
     padding: 0 5px 5px;
-    color: #808080;
+    /* color: #808080; */
     font-size: 12px;
 }
 
 #navMenuContent .groups .channelItem .attrRow .name{
     flex: 1;
-    color: #000;
+    /* color: #000; */
 }
 
 #navMenuContent .groups .channelItem .sliderContainer{

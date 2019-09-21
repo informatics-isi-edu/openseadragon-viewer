@@ -50,7 +50,7 @@ function ChannelList(parent){
 
         listElem.setAttribute("class", "channelList");
         listElem.innerHTML = [
-            "<span class='title'>Channels</span>",
+            // "<span class='title'>Channels</span>",
             "<div class='groups'>",
             "</div>"
         ].join("");

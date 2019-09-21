@@ -71,7 +71,6 @@ Utils.prototype.getParameters = function(){
                     parameters.info.push(value); 
                 } 
                 break;
-            case "channelName":
             case "aliasName":
             case "waterMark":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
@@ -79,7 +78,17 @@ Utils.prototype.getParameters = function(){
                 }  
                 parameters[type] = decodeURI(value);
                 break;
+            case "channelName":
+                if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
+                    value = value.substr(1,value.length-2);
+                }  
+                if(!parameters[type]){
+                    parameters[type] = [];
+                }
+                parameters[type].push(decodeURI(value));
+                break;
             case "meterScaleInPixels":
+            case "scale":
             case "x":
             case "y":
             case "z":
