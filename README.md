@@ -52,8 +52,8 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 | **aliasName** | chars | set name to be used for pull-out listing for this URL image |
 | **waterMark** | chars | set watermark to add credit to snapshot jpg image |
 | **scale** | float | This scale corresponds to the unit used in the provided SVG. For example, a given `viewBox (0, 0, 3830.84, 4059.58)` and a `scale=0.21951` will convert to `width = 17451` and `height=18493`
-| **ignoreReferencePoint** | boolean | set `true` (default) to ignore the reference point in the svg `viewBox`, which the upper-left point will be `0,0`. set to `false` to honor the provided upper-left point. If set to `false` and `MeterScaleInPixels` is provided, the reference point will be converted based on the provided scale. 
-| **ignoreDimension** | boolean | set `true` (default) to ignore the provided width and height in the svg `viewBox`, which the bottom-right point will be the size of `tif` image width and height. set `false` to honor the provided bottom-right point. If set to `false` and `MeterScaleInPixels` is provided, the bottom-right point will be converted based on the provided scale.
+| **ignoreReferencePoint** | boolean | set `true` (default) to ignore the reference point in the svg `viewBox`, which the upper-left point will be `0,0`. set to `false` to honor the provided upper-left point. If set to `false` and `scale` is provided, the reference point will be converted based on the provided scale. 
+| **ignoreDimension** | boolean | set `true` (default) to ignore the provided width and height in the svg `viewBox`, which the bottom-right point will be the size of `tif` image width and height. set `false` to honor the provided bottom-right point. If set to `false` and `scale` is provided, the bottom-right point will be converted based on the provided scale.
 
 ## Usage of the `scale`, `ignoreReferencePoint`, `ignoreDimension` parameters
 
