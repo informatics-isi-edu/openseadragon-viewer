@@ -195,65 +195,71 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-
+        
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
-            if (svgElems[i].getAttribute("id") == null) { continue; }
+            // if (svgElems[i].getAttribute("id") == null) { continue; }
 
             var node = svgElems[i];
-            var groupID = svgElems[i].getAttribute("id") || Date.parse(new Date()) + parseInt(Math.random() * 1000);
+            // var groupID = svgElems[i].getAttribute("id") || Date.parse(new Date()) + parseInt(Math.random() * 1000);
             var className = node.getAttribute("class") || "";
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
-            var anatomy = node.getAttribute("id");
-            var group = this.createAnnotationGroup(groupID, anatomy);
+            // var anatomy = node.getAttribute("id");
+            // var group = this.createAnnotationGroup(groupID, anatomy);
 
             switch (node.nodeName) {
                 case "g":
-                    this.parseSVGNodes(node.childNodes, styleSheet, group);
+                    this.parseSVGNodes(node.childNodes, styleSheet);
                     break;
                 case "path":
                 case "circle":
                 case "polyline":
                 case "polygon":
                 case "rect":
-                    annotation = group.addAnnotation(node.nodeName);
-                    annotation.setAttributesBySVG(node);
-                    annotation.renderSVG(this);
+                    this.parseSVGNodes([node]);
+                    // annotation = group.addAnnotation(node.nodeName);
+                    // annotation.setAttributesBySVG(node);
+                    // annotation.renderSVG(this);
                     break;
             }
 
             // Setting each group's boundary
-            for (var id in this.groups) {
-                var group = this.groups[id];
-                group.updateDiagonalPoints();
-            };
+            // for (var id in this.groups) {
+            //     var group = this.groups[id];
+            //     group.updateDiagonalPoints();
+            // };
         }
     }
 
-    this.parseSVGNodes = function(nodes, styleSheet, group){
-        if (group == null) { return }
+    this.parseSVGNodes = function(nodes, styleSheet){
+        // if (group == null) { return }
 
         for (var i = 0; i < nodes.length; i++) {
 
             if (!nodes[i].getAttribute) { continue; }
 
             var node = nodes[i];
+            var id = node.getAttribute("name") || "default";
             var className = node.getAttribute("class") || "";
-            var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
+            var group = null;
+            // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
 
             switch (node.nodeName) {
                 case "g":
-                    this.parseSVGNodes(node.childNodes, styleSheet, group);
+                    this.parseSVGNodes(node.childNodes, styleSheet);
                     break;
                 case "path":
                 case "circle":
                 case "polyline":
                 case "polygon":
                 case "rect":
-                    annotation = group.addAnnotation(node.nodeName);
-                    annotation.setAttributesBySVG(node);
-                    annotation.renderSVG(this);
+                    if(id !== "undefined"){
+                        group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, id);
+                        annotation = group.addAnnotation(node.nodeName);
+                        annotation.setAttributesBySVG(node);
+                        annotation.renderSVG(this);
+                    }
                     break;
             }
         }
