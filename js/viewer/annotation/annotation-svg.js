@@ -240,7 +240,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             if (!nodes[i].getAttribute) { continue; }
 
             var node = nodes[i];
-            var id = node.getAttribute("name") || "default";
+            var id = node.getAttribute("name") || "Unknown Anatomy";
             var className = node.getAttribute("class") || "";
             var group = null;
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
