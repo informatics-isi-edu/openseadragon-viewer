@@ -95,6 +95,9 @@ var myApp = (function (_config) {
                 case 'changeAllAnnotationVisibility':
                     viewer.changeAllAnnotationVisibility(data.isDisplay);
                     break;
+                case 'changeStrokeScale':
+                    viewer.changeStrokeScale(data);
+                    break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);
                 //     break;

@@ -104,14 +104,21 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
     }
 
+    this.getStrokeScale = function(){
+        return this.parent.getStrokeScale();
+    }
+
     // Highlight annotation objects
     this.highlightAll = function(event){
+        var strokeScale = this.getStrokeScale() || 1;
+        var strokeWidth = 1;
 
         _self.annotations.forEach(function(annotation){
-            var strokeWidth = annotation._attrs["stroke-width"] ? +annotation._attrs["stroke-width"] * 1.25 : 10;
+            strokeWidth = parseInt(annotation._attrs["stroke-width"]) || 1;
+            strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
             annotation.highlight({
-                "stroke-width" : strokeWidth === 0 ? 10 : strokeWidth,
-                "stroke" : "yellow"
+                "stroke-width" : strokeWidth === 0 ? 5 : strokeWidth,
+                "stroke" : "yellow",
             });
         })
     }
@@ -159,6 +166,12 @@ function AnnotationGroup(id, anatomy, description, parent){
             this.x2 = (bbox.x + bbox.width > this.x2) ? bbox.x + bbox.width : this.x2;
             this.y2 = (bbox.y + bbox.height > this.y2) ? bbox.y + bbox.height : this.y2;
         }
+    }
+
+    this.updateStrokeWidth = function(){
+        _self.annotations.forEach(function(annotation){
+            annotation.renderSVG();
+        })
     }
 
     this.unHighlightAll = function(){

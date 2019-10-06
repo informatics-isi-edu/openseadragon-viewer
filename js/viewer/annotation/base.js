@@ -66,7 +66,8 @@ Base.prototype.highlight = function(highlightAttrs){
 Base.prototype.renderSVG = function(){
     
     var attr,
-        value;
+        value,
+        strokeScale = this.parent.getStrokeScale() || 1;
 
     if(this.svg == null){ 
         this.svg = this.parent.svg
@@ -81,9 +82,13 @@ Base.prototype.renderSVG = function(){
 
     for(attr in this._attrs){
         value = this._attrs[attr];
-
+        
         switch(attr){
             case "tag":
+                break;
+            case "stroke-width":
+                value = parseInt(value) || 1;
+                this.svg.attr(attr, value * strokeScale);
                 break;
             default:
                 this.svg.attr(attr, value);
@@ -132,10 +137,13 @@ Base.prototype.setAttributesBySVG = function(elem){
 }
 
 Base.prototype.unHighlight = function(){
+    var strokeScale = this.parent.getStrokeScale() || 1;
+    var strokeWidth = parseInt(this._attrs["stroke-width"]) || 1;
+
     this.svg
         .attr("fill", this._attrs["fill"] || "")
         .attr("stroke", this._attrs["stroke"] || "")
-        .attr("stroke-width", this._attrs["stroke-width"] || "")
+        .attr("stroke-width", strokeWidth * strokeScale)
 }
 
 

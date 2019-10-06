@@ -17,6 +17,7 @@ function Viewer(parent, config) {
     this.svg = null;
     this.svgCollection = {};
     this.scale = null;
+    this.strokeScale = 1;
 
     // Init 
     this.init = function (utils) {
@@ -136,6 +137,14 @@ function Viewer(parent, config) {
         }
     }
 
+    // Change scale stroke width
+    this.changeStrokeScale = function(strokeScale){
+        this.strokeScale = strokeScale;
+        for(var svgID in this.svgCollection){
+            this.svgCollection[svgID].changeStrokeScale();
+        }
+    }
+
     // Handle events from children/ Dispatch events to toolbar
     this.dispatchEvent = function (type, data) {
 
@@ -185,6 +194,10 @@ function Viewer(parent, config) {
             // Change an annotation group's visibility
             case "changeAnnotationVisibility":
                 svg.changeVisibility(data);
+                break;
+            // Change stroke scale
+            case "changeStrokeScale":
+                svg.changeStrokeScale(data);
                 break;
             // Change current selected annotation group
             case "highlightAnnotation":
@@ -244,6 +257,10 @@ function Viewer(parent, config) {
     // Get channels
     this.getChannels = function () {
         return this.channels;
+    }
+
+    this.getStrokeScale = function(){
+        return this.strokeScale;
     }
 
     // Load and import the unstructured SVG file into Openseadragon viewer

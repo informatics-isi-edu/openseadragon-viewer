@@ -111,6 +111,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
     }
 
+    this.changeStrokeScale = function(data){
+        for(var groupID in this.groups){
+            this.groups[groupID].updateStrokeWidth();
+        }
+    }
+
     this.dispatchEvent = function(type, data){
         switch(type){
             // Change the selecting annotation 
@@ -133,6 +139,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 break;
         }
         
+    }
+
+    this.getStrokeScale = function(){
+        return this.parent.getStrokeScale();
     }
 
     // highlight current group when user leave the hovering group
@@ -241,6 +251,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
             var node = nodes[i];
             var id = node.getAttribute("name") || "Unknown Anatomy";
+            var anatomy = id.split(",").length > 1 ? id.split(",")[1] + " ("+id.split(",")[0]+")" : id;
             var className = node.getAttribute("class") || "";
             var group = null;
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
@@ -255,7 +266,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polygon":
                 case "rect":
                     if(id !== "undefined"){
-                        group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, id);
+                        group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName);
                         annotation.setAttributesBySVG(node);
                         annotation.renderSVG(this);
