@@ -137,9 +137,10 @@ function addWaterMark2Canvas(canvas) {
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
   ctx.fillText(waterMark,0,0);
   ctx.restore();
+  window.console.log('Added watermark: ' + waterMark);
 }
 
-var save_meterscaleinpixels;
+var save_meterscaleinpixels = null;
 function saveScalebar(s) { save_meterscaleinpixels=s; }
 
 // false, if any of url is of ImageProperties.xml
@@ -244,6 +245,9 @@ jQuery(document).ready(function() {
                 alertify.error("Error: Unable to handle param type, "+_utype);
             }
         }
+  }
+  if (isIIIFImage() && save_meterscaleinpixels == null) {
+	  saveScalebar(0);
   }
 // last case where there is no ending url
   if(logCHANNELNAME.length < logURL.length) 
