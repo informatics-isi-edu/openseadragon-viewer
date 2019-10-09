@@ -126,6 +126,9 @@ function addWaterMark2Canvas(canvas) {
     } else {
       wx=w-fsize;
   }
+  if (fsize == 0) {
+	  fsize = 20;
+  }
   ctx.save();
   //ctx.translate(wx, h/2);
   ctx.translate(5, h-fsize/3-5);
