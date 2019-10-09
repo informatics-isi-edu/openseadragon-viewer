@@ -117,7 +117,7 @@ function addWaterMark2Canvas(canvas) {
   if(l<fsize) // cap it at 20
     fsize=l;
   var s=myViewer.scalebarInstance;
-  if(s) { // if has scalebar, associate with it
+  if(s && save_meterscaleinpixels != 0) { // if has scalebar, associate with it
     var ss=s.getScalebarLocation();
     var bb=s.barThickness;
     var oo=s.divElt.offsetWidth;
@@ -125,9 +125,6 @@ function addWaterMark2Canvas(canvas) {
     fsize=oo/3;
     } else {
       wx=w-fsize;
-  }
-  if (fsize == 0) {
-	  fsize = 20;
   }
   ctx.save();
   //ctx.translate(wx, h/2);
