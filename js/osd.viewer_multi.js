@@ -50,6 +50,10 @@ var blueColors = ['DAPI']
 colorized : 'combo' or "TL Brightfield"
 */
 
+const DEFAULT_FONT_SIZE=20;
+var isCantaloupe = false;
+var cantaloupe_meterscaleinpixels = 0;
+
 var myViewer=null;
 
 // A flag to track whether OpenSeadragon/Annotorious is
@@ -109,14 +113,16 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
 var waterMark=null; // for downloaded image
 function saveWaterMark(s) { waterMark=s; }
 function addWaterMark2Canvas(canvas) {
-  var fsize=20;
+  var fsize=DEFAULT_FONT_SIZE;
   var h=canvas.height;
   var w=canvas.width;
   var l=Math.floor(w/20);
   var ctx = canvas.getContext("2d");
   if(l<fsize) // cap it at 20
     fsize=l;
+  /*
   var s=myViewer.scalebarInstance;
+  // make sure the scale is not 0, as otherwise the font size becomes 0
   if(s && save_meterscaleinpixels != 0) { // if has scalebar, associate with it
     var ss=s.getScalebarLocation();
     var bb=s.barThickness;
@@ -126,6 +132,7 @@ function addWaterMark2Canvas(canvas) {
     } else {
       wx=w-fsize;
   }
+  */
   ctx.save();
   //ctx.translate(wx, h/2);
   ctx.translate(5, h-fsize/3-5);
@@ -140,10 +147,10 @@ function addWaterMark2Canvas(canvas) {
   window.console.log('Added watermark: ' + waterMark);
 }
 
-var save_meterscaleinpixels = null;
+var save_meterscaleinpixels;
 function saveScalebar(s) { save_meterscaleinpixels=s; }
 
-// false, if any of url is of ImageProperties.xml
+// false, if any of url is of ImageProperties.xml or "/iiif/"
 // need to process all the url for 'alias'
 function isSimpleBaseImage() {
   for(var i=0; i<logURL.length; i++) {
@@ -155,6 +162,7 @@ function isSimpleBaseImage() {
 }
 
 // true, if any of the url starts with "/iiif/"
+// this for images that will be handled by cantaloupe
 function isIIIFImage() {
 for(var i=0; i<logURL.length; i++) {
   var url=logURL[i];
@@ -180,6 +188,7 @@ jQuery(document).ready(function() {
   for (var i=0; i < params.length; i++)
       {
 	  	param = params[i];
+	  	// cantaloupe parameters should not be escaped
 	  	if (param.indexOf('/iiif/') == -1) {
 	        param = unescape(params[i]);
 	  	}
@@ -202,6 +211,9 @@ jQuery(document).ready(function() {
                   logALIASNAME.push(logCHANNELNAME[c]);
                 }
               }
+              if (url.startsWith('/iiif/') && isCantaloupe == false) {
+            	  isCantaloupe = true;
+              }
               logURL.push(url);
             } else if(kvp[0].trim() == 'channelName') {
               var str=kvp[1].trim(); // trim the ' or "
@@ -218,6 +230,9 @@ jQuery(document).ready(function() {
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
+              if (isCantaloupe == true) {
+            	  cantaloupe_meterscaleinpixels = m;
+              }
             } else if(kvp[0].trim() == 'waterMark') {
               var str=kvp[1].trim(); // trim the ' or "
               if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
@@ -247,6 +262,7 @@ jQuery(document).ready(function() {
         }
   }
   if (isIIIFImage() && save_meterscaleinpixels == null) {
+	  // make sure that for the cantaloupe images w/o scale we set the value 0
 	  saveScalebar(0);
   }
 // last case where there is no ending url
@@ -283,10 +299,16 @@ jQuery(document).ready(function() {
       }
     }
     if(isIIIFURL) {
+    	// we don't show the navigator for the cantaloupe images
     	toShowNavigator=false;
     }
     if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") {
     	if (isIIIFURL) {
+    		// the cantaloupe images needs some special options: 
+    		// ajaxWithCredentials: for AJAX requests 
+    		// maxZoomPixelRatio: for zoom-in (the default is 1.1)
+    		// crossOriginPolicy: for canvas requests to use cantaloupe server
+    		// tileSources: an array with the scenes URLs
     		if (logURL.length == 1) {
     	  	      myViewer = OpenSeadragon({
     	              id: "openseadragon",
@@ -302,6 +324,10 @@ jQuery(document).ready(function() {
     	              tileSources: logURL
     	        });
     		} else {
+    			// for multi scenes additonal parameters:
+    			// collectionMode: arrange your TiledImages in a grid or line
+    			// collectionRows: all the scenes will be arranged on a single row
+    			
   	  	      myViewer = OpenSeadragon({
 	              id: "openseadragon",
 	              prefixUrl: "images/",
@@ -407,6 +433,7 @@ Currently supported property values are:
           _addDataLayer(url,i);
        } else if(isIIIFURL) {
            // IIIF image data 
+    	   // for now, add just the channel in the property list
     	   _addIIIFURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
        } else if(isSimpleURL) {
                // other image data in simple jpg/png format
@@ -509,7 +536,8 @@ window.console.log("MEI in startState...");
     }
 
     if(isIIIFURL) {
-        resetScalebar(save_meterscaleinpixels);
+    	// for cantaloupe image set the scale bar
+        resetScalebar(cantaloupe_meterscaleinpixels);
         if (logURL.length > 1) {
             myViewer.scalebar({stayInsideImage: false});
         }
