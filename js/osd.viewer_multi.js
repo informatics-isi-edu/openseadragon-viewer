@@ -133,15 +133,23 @@ function addWaterMark2Canvas(canvas) {
       wx=w-fsize;
   }
   */
+  var y_translation = h-fsize/3-5;
+  var s=myViewer.scalebarInstance;
+  if (s && s.pixelsPerMeter != 0) {
+	  var ss=s.getScalebarLocation();
+	  y_translation = Math.floor(ss.y) + fsize;
+  }
   ctx.save();
   //ctx.translate(wx, h/2);
-  ctx.translate(5, h-fsize/3-5);
+  //ctx.translate(5, h-fsize/3-5);
+  ctx.translate(5, y_translation);
   //ctx.rotate(-Math.PI/2);
   //ctx.textAlign = "center";
   ctx.textAlign = "left";
   ctx.font = fsize+"pt Sans-serif";
   //ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  //ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
   ctx.fillText(waterMark,0,0);
   ctx.restore();
   window.console.log('Added watermark: ' + waterMark);
@@ -1078,10 +1086,18 @@ function jpgClick(fname) {
          rawImg = newCanvas.toDataURL("image/jpeg",1);
 //window.open(rawImg);
          } else {
+             var newCanvas = document.createElement("canvas");
+             var _width=canvas.width;
+             var _height=canvas.height;
+             newCanvas.width = _width;
+             newCanvas.height = _height;
+             var newCtx = newCanvas.getContext("2d");
+             newCtx.drawImage(canvas, 0,0, _width, _height,
+                                      0,0, _width, _height);
             if(waterMark != null) {
-              addWaterMark2Canvas(canvas);
+              addWaterMark2Canvas(newCanvas);
             }
-            rawImg = canvas.toDataURL("image/jpeg",1);
+            rawImg = newCanvas.toDataURL("image/jpeg",1);
        }
    }
 
