@@ -133,23 +133,46 @@ function addWaterMark2Canvas(canvas) {
       wx=w-fsize;
   }
   */
+  
+  // the watermark will be placed at the right bottom corner if the scalebar is missing
+  // make a translation transformation to the current matrix by moving the canvas and its origin x units horizontally and y units vertically on the grid
+  // the translation will be the right bottom corner
   var y_translation = h-fsize/3-5;
+  var x_translation = w;
+  var scale_xOffset = 5;
+  var scale_yOffset = 10;
   var s=myViewer.scalebarInstance;
   if (s && s.pixelsPerMeter != 0) {
+	  // in case we have a scalebar, adjust the translation values based on the scalebar coordinates
+	  // the watermark will be placed next to the scalebar
 	  var ss=s.getScalebarLocation();
 	  y_translation = Math.floor(ss.y) + fsize;
+	  x_translation = Math.floor(ss.x);
+	  scale_xOffset = s.xOffset;
+	  scale_yOffset = s.yOffset;
   }
   ctx.save();
+  
+  // compute the rectangle width which will be the background for the watermark
+  ctx.font = fsize+"pt Sans-serif";
+  var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
+  
   //ctx.translate(wx, h/2);
   //ctx.translate(5, h-fsize/3-5);
-  ctx.translate(5, y_translation);
+  ctx.translate(x_translation, y_translation);
   //ctx.rotate(-Math.PI/2);
   //ctx.textAlign = "center";
-  ctx.textAlign = "left";
+  
+  // fill a black rectangle as a background for the watermark
+  ctx.fillStyle = 'black';
+  ctx.fillRect(-rectWidth - scale_xOffset, -fsize-scale_yOffset, rectWidth, fsize+scale_yOffset+5)
+  //ctx.textAlign = "left";
+  
+  ctx.textAlign = "right";
   ctx.font = fsize+"pt Sans-serif";
   //ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
-  //ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  //ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
   ctx.fillText(waterMark,0,0);
   ctx.restore();
   window.console.log('Added watermark: ' + waterMark);
