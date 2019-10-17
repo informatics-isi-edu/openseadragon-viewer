@@ -51,6 +51,9 @@ var myApp = (function (_config) {
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
                 break;
+            case "onChangeStrokeScale":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
             case "onClickChangeSelectingAnnotation":
                 // toolbar && toolbar.changeSelectingAnnotation(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);

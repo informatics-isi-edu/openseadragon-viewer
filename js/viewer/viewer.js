@@ -18,6 +18,9 @@ function Viewer(parent, config) {
     this.svgCollection = {};
     this.scale = null;
     this.strokeScale = 1;
+    this.strokeWidthScale = null;
+    this.strokeMinScale = 1.5;
+    this.strokeMaxScale = 3.5;
 
     // Init 
     this.init = function (utils) {
@@ -288,6 +291,7 @@ function Viewer(parent, config) {
     this.loadAfterOSDInit = function(){
         // Only execute it once when Openseadragon is done loading
         if (!_self.isInitLoad) {
+
             // Check if need to pan to a specific location (if x, y, z are not null)
             if (_self.parameters.x && _self.parameters.y && _self.parameters.z) {
                 _self.panTo(_self.parameters.x, _self.parameters.y, _self.parameters.x, _self.parameters.z);
@@ -335,7 +339,6 @@ function Viewer(parent, config) {
                 // Dispatch event to toolbar to update channel list
                 _self.dispatchEvent('updateChannelList', channelList);
             }
-            
             _self.isInitLoad = true;  
         };
     }
@@ -502,7 +505,21 @@ function Viewer(parent, config) {
             // bottomRightPoint,
             i,
             w = _self.osd.world.getItemAt(0),
-            size = w.getContentSize();
+            size = w.getContentSize(),
+            strokeScale = null;
+
+        if(_self.strokeWidthScale == null){
+            _self.strokeWidthScale = d3.scaleLinear()
+                .domain([_self.osd.viewport.getMinZoom(), _self.osd.viewport.getMaxZoom()])
+                .range([_self.strokeMaxScale, _self.strokeMinScale])
+                .nice();
+        }
+
+        strokeScale = _self.strokeWidthScale(_self.osd.viewport.getZoom())
+        _self.changeStrokeScale(strokeScale);
+        _self.dispatchEvent("onChangeStrokeScale", {
+            "strokeScale" : strokeScale
+        });
 
         for(i = 0; i < svgs.length; i++){
             // upperLeftPoint = svgs[i].getAttribute("upperLeftPoint").split(",") || [];
