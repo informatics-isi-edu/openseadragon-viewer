@@ -223,7 +223,7 @@ function Viewer(parent, config) {
     this.exportViewToJPG = function (fileName) {
         fileName = (fileName) ? fileName + ".jpg" : "osd_" + Date.parse(new Date()) + ".jpg";
 
-        var isScalebarExist = (this.osd.scalebarInstance.pixelsPerMeter !== 0) ? true : false,
+        var isScalebarExist = (this.osd.scalebarInstance.pixelsPerMeter) ? true : false,
             canvas,
             newCanvas,
             newCtx,
