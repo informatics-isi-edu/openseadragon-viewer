@@ -47,7 +47,7 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 | **x** | float | set initial X |
 | **y** | float | set initial Y |
 | **z** | float | set initial zoom |
-| **MeterScaleInPixels** | float | set scale, pixels in a meter, usually set within DZI's metadata |
+| **meterScaleInPixels** | float | set scale, pixels in a meter, usually set within DZI's metadata |
 | **channelName** | chars | set channel name of the matching URL image.  The channel is either one of ('Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647') for red, one of ('FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488' ) for green, one of ('DAPI') for blue or one of ('TL Brightfield' or 'combo') for colorized RGB or if none specified.  This name can also be extracted from ImageProperties.xml |
 | **aliasName** | chars | set name to be used for pull-out listing for this URL image |
 | **waterMark** | chars | set watermark to add credit to snapshot jpg image |
