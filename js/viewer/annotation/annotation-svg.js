@@ -112,8 +112,13 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     this.changeStrokeScale = function(data){
+        
         for(var groupID in this.groups){
             this.groups[groupID].updateStrokeWidth();
+            
+            if(this.currentGroupID == groupID){
+                this.groups[groupID].highlightAll();
+            }
         }
     }
 
