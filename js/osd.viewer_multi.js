@@ -120,60 +120,44 @@ function addWaterMark2Canvas(canvas) {
   var ctx = canvas.getContext("2d");
   if(l<fsize) // cap it at 20
     fsize=l;
-  /*
-  var s=myViewer.scalebarInstance;
-  // make sure the scale is not 0, as otherwise the font size becomes 0
-  if(s && save_meterscaleinpixels != 0) { // if has scalebar, associate with it
-    var ss=s.getScalebarLocation();
-    var bb=s.barThickness;
-    var oo=s.divElt.offsetWidth;
-    wx=ss.x+oo-10;
-    fsize=oo/3;
-    } else {
-      wx=w-fsize;
+
+   ctx.save();
+  
+  // from the scalebarInstance get the coordinates for the BOTTOM_LEFT
+  var myScalebarInstance = myViewer.scalebarInstance;
+  var barHeight = myScalebarInstance.divElt.offsetHeight;
+  var container = myScalebarInstance.viewer.container;
+  var x = 0;
+  var y = container.offsetHeight - barHeight;
+  var pixel = myScalebarInstance.viewer.viewport.pixelFromPoint(
+          new OpenSeadragon.Point(0, 1 / myScalebarInstance.viewer.source.aspectRatio),
+          true);
+  if (!myScalebarInstance.viewer.wrapHorizontal) {
+      x = Math.max(x, pixel.x);
   }
-  */
-  
-  // the watermark will be placed at the right bottom corner if the scalebar is missing
-  // make a translation transformation to the current matrix by moving the canvas and its origin x units horizontally and y units vertically on the grid
-  // the translation will be the right bottom corner
-  var y_translation = h-fsize/3-5;
-  var x_translation = w;
-  var scale_xOffset = 5;
-  var scale_yOffset = 10;
-  var s=myViewer.scalebarInstance;
-  if (s && s.pixelsPerMeter != 0) {
-	  // in case we have a scalebar, adjust the translation values based on the scalebar coordinates
-	  // the watermark will be placed next to the scalebar
-	  var ss=s.getScalebarLocation();
-	  y_translation = Math.floor(ss.y) + fsize;
-	  x_translation = Math.floor(ss.x);
-	  scale_xOffset = s.xOffset;
-	  scale_yOffset = s.yOffset;
+  if (!myScalebarInstance.viewer.wrapVertical) {
+      y = Math.min(y, pixel.y - barHeight);
   }
-  ctx.save();
   
-  // compute the rectangle width which will be the background for the watermark
-  ctx.font = fsize+"pt Sans-serif";
-  var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
-  
-  //ctx.translate(wx, h/2);
-  //ctx.translate(5, h-fsize/3-5);
-  ctx.translate(x_translation, y_translation);
-  //ctx.rotate(-Math.PI/2);
-  //ctx.textAlign = "center";
+  // for the retina case get the pixel density ratio
+  // for non retina, this value is 1
+  var pixelDensityRatio=queryForRetina(canvas);
+  x = x*pixelDensityRatio;
+  y = y*pixelDensityRatio;
+  x = x + myScalebarInstance.xOffset;
+  y = y - myScalebarInstance.yOffset;
   
   // fill a black rectangle as a background for the watermark
-  ctx.fillStyle = 'black';
-  ctx.fillRect(-rectWidth - scale_xOffset, -fsize-scale_yOffset, rectWidth, fsize+scale_yOffset+5)
-  //ctx.textAlign = "left";
-  
-  ctx.textAlign = "right";
   ctx.font = fsize+"pt Sans-serif";
-  //ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
+  var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
+  ctx.fillStyle = 'black';
+  ctx.fillRect(x, y-myScalebarInstance.yOffset, rectWidth, fsize+myScalebarInstance.yOffset);
+  
+  // fill the watermark in the rectangle
+  ctx.textAlign = "left";
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  //ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
-  ctx.fillText(waterMark,0,0);
+  ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
+  
   ctx.restore();
   window.console.log('Added watermark: ' + waterMark);
 }
