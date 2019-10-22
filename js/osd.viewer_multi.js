@@ -150,12 +150,12 @@ function addWaterMark2Canvas(canvas) {
   // fill a black rectangle as a background for the watermark
   ctx.font = fsize+"pt Sans-serif";
   var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = 'rgb(208, 224, 240)';
   ctx.fillRect(x, y-myScalebarInstance.yOffset, rectWidth, fsize+myScalebarInstance.yOffset);
   
   // fill the watermark in the rectangle
   ctx.textAlign = "left";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.fillStyle = "rgba(51, 51, 51)";
   ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
   
   ctx.restore();
