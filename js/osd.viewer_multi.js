@@ -155,7 +155,7 @@ function addWaterMark2Canvas(canvas) {
   
   // fill the watermark in the rectangle
   ctx.textAlign = "left";
-  ctx.fillStyle = "rgba(51, 51, 51)";
+  ctx.fillStyle = "rgb(51, 51, 51)";
   ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
   
   ctx.restore();
