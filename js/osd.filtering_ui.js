@@ -361,7 +361,7 @@ function addItemListEntry(n,i,dir,hue,contrast,brightness,opacity,gamma,alias=nu
 _nn+='<div class="panel panel-default col-md-12 col-xs-12">';
 _nn+='<div class="panel-heading"><div class="row panel-title" style="background-color:transparent;">'
 
-var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\'eye_'+name+'\',\''+_opacity_name+'\',\''+_task_name+'\',\''+_collapse_name+'\')" title="hide or show channel"><span id="eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+var _b='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleItem('+i+',\''+i+'_eye_'+name+'\',\''+_opacity_name+'\',\''+_task_name+'\',\''+_collapse_name+'\')" title="hide or show channel"><span id="'+i+'_eye_'+name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
 
 var _bb='<button id="'+_opacity_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white;"  onClick="openTask('+i+',\''+_task_name+'\',\''+taskDiv+'\')" title="click to expand"><span id="'+_task_name+'" class="glyphicon glyphicon-tasks" style="color:#407CCA"></span> </button>';
 
