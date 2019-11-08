@@ -50,6 +50,10 @@ var blueColors = ['DAPI']
 colorized : 'combo' or "TL Brightfield"
 */
 
+const DEFAULT_FONT_SIZE=20;
+var isCantaloupe = false;
+var cantaloupe_meterscaleinpixels = 0;
+
 var myViewer=null;
 
 // A flag to track whether OpenSeadragon/Annotorious is
@@ -109,48 +113,78 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
 var waterMark=null; // for downloaded image
 function saveWaterMark(s) { waterMark=s; }
 function addWaterMark2Canvas(canvas) {
-  var fsize=20;
+  var fsize=DEFAULT_FONT_SIZE;
   var h=canvas.height;
   var w=canvas.width;
   var l=Math.floor(w/20);
   var ctx = canvas.getContext("2d");
   if(l<fsize) // cap it at 20
     fsize=l;
-  var s=myViewer.scalebarInstance;
-  if(s) { // if has scalebar, associate with it
-    var ss=s.getScalebarLocation();
-    var bb=s.barThickness;
-    var oo=s.divElt.offsetWidth;
-    wx=ss.x+oo-10;
-    fsize=oo/3;
-    } else {
-      wx=w-fsize;
+
+   ctx.save();
+  
+  // from the scalebarInstance get the coordinates for the BOTTOM_LEFT
+  var myScalebarInstance = myViewer.scalebarInstance;
+  var barHeight = myScalebarInstance.divElt.offsetHeight;
+  var container = myScalebarInstance.viewer.container;
+  var x = 0;
+  var y = container.offsetHeight - barHeight;
+  var pixel = myScalebarInstance.viewer.viewport.pixelFromPoint(
+          new OpenSeadragon.Point(0, 1 / myScalebarInstance.viewer.source.aspectRatio),
+          true);
+  if (!myScalebarInstance.viewer.wrapHorizontal) {
+      x = Math.max(x, pixel.x);
   }
-  ctx.save();
-  //ctx.translate(wx, h/2);
-  ctx.translate(5, h-fsize/3-5);
-  //ctx.rotate(-Math.PI/2);
-  //ctx.textAlign = "center";
-  ctx.textAlign = "left";
+  if (!myScalebarInstance.viewer.wrapVertical) {
+      y = Math.min(y, pixel.y - barHeight);
+  }
+  
+  // for the retina case get the pixel density ratio
+  // for non retina, this value is 1
+  var pixelDensityRatio=queryForRetina(canvas);
+  x = x*pixelDensityRatio;
+  y = y*pixelDensityRatio;
+  x = x + myScalebarInstance.xOffset;
+  y = y - myScalebarInstance.yOffset;
+  
+  // fill a black rectangle as a background for the watermark
   ctx.font = fsize+"pt Sans-serif";
-  //ctx.fillStyle = "rgba(51, 122, 83, 0.5)";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.fillText(waterMark,0,0);
+  var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
+  ctx.fillStyle = 'rgb(208, 224, 240)';
+  ctx.fillRect(x, y-myScalebarInstance.yOffset, rectWidth, fsize+myScalebarInstance.yOffset);
+  
+  // fill the watermark in the rectangle
+  ctx.textAlign = "left";
+  ctx.fillStyle = "rgb(51, 51, 51)";
+  ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
+  
   ctx.restore();
+  window.console.log('Added watermark: ' + waterMark);
 }
 
 var save_meterscaleinpixels;
 function saveScalebar(s) { save_meterscaleinpixels=s; }
 
-// false, if any of url is of ImageProperties.xml
+// false, if any of url is of ImageProperties.xml or "/iiif/"
 // need to process all the url for 'alias'
 function isSimpleBaseImage() {
   for(var i=0; i<logURL.length; i++) {
      var url=logURL[i];
-     if(url.indexOf('ImageProperties.xml')!= -1) 
+     if(url.indexOf('ImageProperties.xml')!= -1 || url.startsWith('/iiif/')) 
        return false;
   }
   return true;
+}
+
+// true, if any of the url starts with "/iiif/"
+// this for images that will be handled by cantaloupe
+function isIIIFImage() {
+for(var i=0; i<logURL.length; i++) {
+  var url=logURL[i];
+  if(url.startsWith('/iiif/')) 
+    return true;
+}
+return false;
 }
 
 // ...MAIN...
@@ -168,7 +202,11 @@ jQuery(document).ready(function() {
   var params = args[1].split('&');
   for (var i=0; i < params.length; i++)
       {
-        param = unescape(params[i]);
+	  	param = params[i];
+	  	// cantaloupe parameters should not be escaped
+	  	if (param.indexOf('/iiif/') == -1) {
+	        param = unescape(params[i]);
+	  	}
 
         if (param.indexOf('=') == -1)
         {
@@ -188,6 +226,9 @@ jQuery(document).ready(function() {
                   logALIASNAME.push(logCHANNELNAME[c]);
                 }
               }
+              if (url.startsWith('/iiif/') && isCantaloupe == false) {
+            	  isCantaloupe = true;
+              }
               logURL.push(url);
             } else if(kvp[0].trim() == 'channelName') {
               var str=kvp[1].trim(); // trim the ' or "
@@ -204,6 +245,9 @@ jQuery(document).ready(function() {
             } else if(kvp[0].trim() == 'meterScaleInPixels') {
               var m=parseFloat(kvp[1]);
               saveScalebar(m);
+              if (isCantaloupe == true) {
+            	  cantaloupe_meterscaleinpixels = m;
+              }
             } else if(kvp[0].trim() == 'waterMark') {
               var str=kvp[1].trim(); // trim the ' or "
               if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
@@ -232,6 +276,10 @@ jQuery(document).ready(function() {
             }
         }
   }
+  if (isIIIFImage() && save_meterscaleinpixels == null) {
+	  // make sure that for the cantaloupe images w/o scale we set the value 0
+	  saveScalebar(0);
+  }
 // last case where there is no ending url
   if(logCHANNELNAME.length < logURL.length) 
     logCHANNELNAME.push(null);
@@ -244,6 +292,7 @@ jQuery(document).ready(function() {
   } else {
 
     var isSimpleURL=isSimpleBaseImage();
+    var isIIIFURL=isIIIFImage();
     // setup the channel alias names, only for simple url 
     var toShowNavigator=true; // suppress navigator if it is simple jpg viewing
     if(isSimpleURL) {
@@ -264,7 +313,53 @@ jQuery(document).ready(function() {
            logALIASNAME[cidx]=logCHANNELNAME[cidx];
       }
     }
+    if(isIIIFURL) {
+    	// we don't show the navigator for the cantaloupe images
+    	toShowNavigator=false;
+    }
     if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") {
+    	if (isIIIFURL) {
+    		// the cantaloupe images needs some special options: 
+    		// ajaxWithCredentials: for AJAX requests 
+    		// maxZoomPixelRatio: for zoom-in (the default is 1.1)
+    		// crossOriginPolicy: for canvas requests to use cantaloupe server
+    		// tileSources: an array with the scenes URLs
+    		if (logURL.length == 1) {
+    	  	      myViewer = OpenSeadragon({
+    	              id: "openseadragon",
+    	              prefixUrl: "images/",
+    	              showNavigator: toShowNavigator,
+    	              showZoomControl: false,
+    	              showHomeControl: false,
+    	              showFullPageControl: false,
+    	              constrainDuringPan: true,
+    	              ajaxWithCredentials : true,
+    	              maxZoomPixelRatio: 1,
+    	              crossOriginPolicy: "Anonymous",
+    	              tileSources: logURL
+    	        });
+    		} else {
+    			// for multi scenes additonal parameters:
+    			// collectionMode: arrange your TiledImages in a grid or line
+    			// collectionRows: all the scenes will be arranged on a single row
+    			
+  	  	      myViewer = OpenSeadragon({
+	              id: "openseadragon",
+	              prefixUrl: "images/",
+	              showNavigator: toShowNavigator,
+	              showZoomControl: false,
+	              showHomeControl: false,
+	              showFullPageControl: false,
+	              constrainDuringPan: true,
+	              ajaxWithCredentials : true,
+	              maxZoomPixelRatio: 1,
+	              collectionMode: true,
+	              collectionRows: 1,
+	              crossOriginPolicy: "Anonymous",
+	              tileSources: logURL
+	        });
+    		}
+    	} else {
       myViewer = OpenSeadragon({
                    id: "openseadragon",
                    prefixUrl: "images/",
@@ -285,6 +380,7 @@ compositeOperation: 'lighter',
 // FOR gudmap overlay
 //                   visibilityRatio:     1,
              });
+    	}
      } else {
        myViewer = OpenSeadragon({
                    id: "openseadragon",
@@ -350,6 +446,10 @@ Currently supported property values are:
        } else if(url.indexOf('AnnotationData.xml')!= -1) {
                // accepting other annotator's annotation data in XML
           _addDataLayer(url,i);
+       } else if(isIIIFURL) {
+           // IIIF image data 
+    	   // for now, add just the channel in the property list
+    	   _addIIIFURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
        } else if(isSimpleURL) {
                // other image data in simple jpg/png format
           _addSimpleURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
@@ -437,7 +537,7 @@ window.console.log("MEI in startState...");
 
     myViewer.world.addHandler('add-item', function openHandler() {
 // when propertyList matches with total cnt..
-       if( propertyList.length == myViewer.world.getItemCount()) {
+       if( propertyList.length == myViewer.world.getItemCount() && !isIIIFURL) {
          resetScalebar(save_meterscaleinpixels);
          showFilters=true;
          _addFilters();
@@ -450,6 +550,13 @@ window.console.log("MEI in startState...");
         annoReady();
     }
 
+    if(isIIIFURL) {
+    	// for cantaloupe image set the scale bar
+        resetScalebar(cantaloupe_meterscaleinpixels);
+        if (logURL.length > 1) {
+            myViewer.scalebar({stayInsideImage: false});
+        }
+    }
 // http://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
 
 /*
@@ -620,6 +727,39 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     }
     var pp=JSON.stringify(p);
 //window.console.log("new property list is..",pp);
+    propertyList.push(p);
+}
+
+
+function _addIIIFURLLayer(url, i, channelname, aliasname) {
+
+    if(channelname == null && aliasname == null) {
+      return;
+    }
+    var cname = null;
+    var _name=null;
+    if(channelname) {
+       _name=channelname;
+       cname = _name.replace(/ +/g, "");
+    }
+    if(aliasname)
+       cname = aliasname.replace(/ +/g, "");
+
+    var _alpha=null;
+    var _rgb=null;
+    var _dir=".";
+
+    var op=presetOpacity(_alpha,i);
+    var hue=presetHue(_rgb,_name);
+    var contrast=presetContrast(i);
+    var brightness=presetBrightness(i);
+    var gamma=presetGamma(i,_name);
+
+    addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma}; 
+    if(aliasname != null) {
+      p['name']= aliasname;
+    }
     propertyList.push(p);
 }
 
@@ -953,10 +1093,18 @@ function jpgClick(fname) {
          rawImg = newCanvas.toDataURL("image/jpeg",1);
 //window.open(rawImg);
          } else {
+             var newCanvas = document.createElement("canvas");
+             var _width=canvas.width;
+             var _height=canvas.height;
+             newCanvas.width = _width;
+             newCanvas.height = _height;
+             var newCtx = newCanvas.getContext("2d");
+             newCtx.drawImage(canvas, 0,0, _width, _height,
+                                      0,0, _width, _height);
             if(waterMark != null) {
-              addWaterMark2Canvas(canvas);
+              addWaterMark2Canvas(newCanvas);
             }
-            rawImg = canvas.toDataURL("image/jpeg",1);
+            rawImg = newCanvas.toDataURL("image/jpeg",1);
        }
    }
 
