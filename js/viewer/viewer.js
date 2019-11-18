@@ -22,7 +22,7 @@ function Viewer(parent, config) {
     this.strokeMinScale = 1.5;
     this.strokeMaxScale = 3.5;
 
-    // Init 
+    // Init
     this.init = function (utils) {
 
         if (!OpenSeadragon || !utils) {
@@ -50,7 +50,7 @@ function Viewer(parent, config) {
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
         this.osd.addHandler('animation-finish', this.loadAfterOSDInit);
-  
+
         this.osd.addHandler('resize', this.resizeSVG);
 
         this.osd.addHandler('animation', this.resizeSVG);
@@ -130,7 +130,7 @@ function Viewer(parent, config) {
             this.svgCollection[data.svgID].changeSelectedGroup(data);
             this.svg.append(this.svgCollection[data.svgID].svg)
         }
-        
+
     }
 
     // Change all SVGs annotations visibility
@@ -188,7 +188,7 @@ function Viewer(parent, config) {
     this.dispatchSVGEvent = function(type, data){
 
         if(!this.svgCollection.hasOwnProperty(data.svgID)){
-            return 
+            return
         };
 
         var svg = this.svgCollection[data.svgID];
@@ -297,7 +297,7 @@ function Viewer(parent, config) {
                 _self.panTo(_self.parameters.x, _self.parameters.y, _self.parameters.x, _self.parameters.z);
             }
 
-            // Check if `scale` is provided  
+            // Check if `scale` is provided
             if(_self.parameters.scale) {
                 _self.scale = _self.parameters.scale;
             }
@@ -313,6 +313,9 @@ function Viewer(parent, config) {
             if(_self.parameters.svgs) {
                 _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
                 _self.resizeSVG();
+                _self.dispatchEvent('disableAnnotationList', false);
+            } else {
+              _self.dispatchEvent('disableAnnotationList', true);
             }
 
             // Check if channelName is provided
@@ -335,11 +338,15 @@ function Viewer(parent, config) {
                         osdItemId: channel["id"]
                     });
                 }
-
-                // Dispatch event to toolbar to update channel list
-                _self.dispatchEvent('updateChannelList', channelList);
+                if (channelList.length == 0) {
+                  // Dispatch event to toolbar to update channel list
+                  _self.dispatchEvent('disableChannelList');
+                } else {
+                  // Dispatch event to toolbar to update channel list
+                  _self.dispatchEvent('updateChannelList', channelList);
+                }
             }
-            _self.isInitLoad = true;  
+            _self.isInitLoad = true;
         };
     }
 
@@ -405,7 +412,7 @@ function Viewer(parent, config) {
         this.dispatchEvent('updateChannelList', channelList);
     }
 
-    // Show tooltip when mouse over the annotation on Openseadragon viewer 
+    // Show tooltip when mouse over the annotation on Openseadragon viewer
     this.onMouseoverShowTooltip = function(data){
 
         if(document.querySelector("#annotationTooltip") == null){
@@ -420,24 +427,24 @@ function Viewer(parent, config) {
             document.querySelector("#" + this._config.osd.id).insertAdjacentHTML('beforeend', tooltipElem);
             this.tooltipElem = d3.select("div#annotationTooltip");
         }
-         
+
         this.tooltipElem
             .style("display", "flex")
             .transition()
             .duration(300)
             .style("opacity", 0.9)
-            .style("left", (data.x + 20) + "px")		
-            .style("top", (data.y + 20) + "px");	
+            .style("left", (data.x + 20) + "px")
+            .style("top", (data.y + 20) + "px");
     }
 
-    // Move annotation tooltip when mouse move on Openseadragon viewer 
+    // Move annotation tooltip when mouse move on Openseadragon viewer
     this.onMousemoveShowTooltip = function(data){
         this.tooltipElem
-            .style("left", (data.x + 20) + "px")		
-            .style("top", (data.y + 20) + "px");	
+            .style("left", (data.x + 20) + "px")
+            .style("top", (data.y + 20) + "px");
     }
 
-    // Hide annotation tooltip when mouse out of the annotation on Openseadragon viewer 
+    // Hide annotation tooltip when mouse out of the annotation on Openseadragon viewer
     this.onMouseoutHideTooltip = function(){
 
         this.tooltipElem
@@ -458,7 +465,7 @@ function Viewer(parent, config) {
 
         _self.osd.viewport.applyConstraints();
     }
-   
+
     // Render annotation tooltip when user's mouse hover the annotation
     this.renderAnnotationTooltip = function () {
         var tooltipElem = "";
@@ -529,14 +536,14 @@ function Viewer(parent, config) {
             // }
             // upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
             // bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
-            
+
             var ignoreReferencePoint = svgs[i].getAttribute("ignoreReferencePoint") == "false" ? false : true;
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
             var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
             var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
             var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
-            
+
             // not ignoring the reference point and the scale is provided
             if(scale){
                 if(!ignoreReferencePoint){
@@ -546,7 +553,7 @@ function Viewer(parent, config) {
                 if(!ignoreDimension){
                     bottomRight.x = bottomRight.x / scale;
                     bottomRight.y = bottomRight.y / scale;
-                }   
+                }
             }
 
             topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
@@ -587,7 +594,7 @@ function Viewer(parent, config) {
         })
     }
 
-    // Zoom in to the given rectangle viewport 
+    // Zoom in to the given rectangle viewport
     this.zoomInRectViewport = function(data){
         if(data == null){ return }
 
@@ -601,29 +608,15 @@ function Viewer(parent, config) {
         this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
     }
 
-    // Zoom in 
+    // Zoom in
     this.zoomIn = function () {
         this.osd.viewport.zoomBy(2 / 1.0);
         this.osd.viewport.applyConstraints();
     }
 
-    // Zoom out 
+    // Zoom out
     this.zoomOut = function () {
         this.osd.viewport.zoomBy(1.0 / 2);
         this.osd.viewport.applyConstraints();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -8,7 +8,7 @@ var myApp = (function (_config) {
     var init = function(){
         viewer = new Viewer(this, _config.viewer);
         toolbar = new ToolbarController(this, _config.toolbar);
-        
+
         viewer.init(utils);
         // toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
@@ -29,7 +29,7 @@ var myApp = (function (_config) {
                 break;
             // Change openseadragon item overlay visibility
             case "changeOsdItemVisibility":
-                viewer.setItemVisibility(data.osdItemId, data.isDisplay); 
+                viewer.setItemVisibility(data.osdItemId, data.isDisplay);
                 break;
             // Change openseadragon item channel setting
             case "changeOsdItemChannelSetting":
@@ -47,6 +47,15 @@ var myApp = (function (_config) {
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            case "disableChannelList":
+                // toolbar && toolbar.updateAnnotationList(data);
+                window.parent.postMessage({messageType: type}, window.location.origin);
+                break;
+            case "disableAnnotationList":
+                // toolbar && toolbar.updateAnnotationList(data);
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+
             // Send the updated channel list to toolbar
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
@@ -124,7 +133,7 @@ var myApp = (function (_config) {
                 // case 'syncVisibility':
                 //     for (var i = 0, len = data.length; i < len; i++) {
                 //         var annotation = convertToAnnotation(data[i]);
-                //         var existingAnnotation = 
+                //         var existingAnnotation =
                 //             annoRetrieveByHash(getHash(annotation));
                 //         existingAnnotation.shapes = annotation.shapes;
                 //         updateAnnotationDOMWithStyle(annotation);
