@@ -275,12 +275,12 @@ function Viewer(parent, config) {
 
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
-            imgWidth = this.osd.world.getItemAt(1).getContentSize().x,
-            imgHeight = this.osd.world.getItemAt(1).getContentSize().y;
-            console.log(this.osd.world.getItemAt(1).getBounds(true));
-            console.log(this.osd.world.getItemAt(0).getBounds(true));
-            console.log(this.osd.world.getItemAt(1).getContentSize());
-            console.log(this.osd.world.getItemAt(0).getContentSize());
+            imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
+            imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
+            // console.log(this.osd.world.getItemAt(1).getBounds(true));
+            // console.log(this.osd.world.getItemAt(0).getBounds(true));
+            // console.log(this.osd.world.getItemAt(1).getContentSize());
+            // console.log(this.osd.world.getItemAt(0).getContentSize());
 
         for(var i = 0; i < svgs.length; i++){
             var id = Date.parse(new Date()) + parseInt(Math.random() * 1000),
