@@ -164,10 +164,10 @@ a.cardlink.delete {
     display: none;
 }
 
-#sidebar {
+/* #sidebar {
    position:absolute;
    top:80px;
-}
+} */
 
 #create-annotation-btn {
    margin-top:10px;

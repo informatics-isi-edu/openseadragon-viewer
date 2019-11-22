@@ -36,12 +36,16 @@ function Viewer(parent, config) {
         // Get config from scalebar and Openseadragon
         console.log(this.parameters.info);
         this._config.osd.tileSources = this.parameters.info;
+
         this.osd = OpenSeadragon(this._config.osd);
+
+
         this.osd.scalebar(this._config.scalebar);
 
         // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this._config.svg.id);
+        console.log(this.svg);
         this.osd.canvas.append(this.svg);
 
         // Parse urls to load image and channels
@@ -271,8 +275,12 @@ function Viewer(parent, config) {
 
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
-            imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
-            imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
+            imgWidth = this.osd.world.getItemAt(1).getContentSize().x,
+            imgHeight = this.osd.world.getItemAt(1).getContentSize().y;
+            console.log(this.osd.world.getItemAt(1).getBounds(true));
+            console.log(this.osd.world.getItemAt(0).getBounds(true));
+            console.log(this.osd.world.getItemAt(1).getContentSize());
+            console.log(this.osd.world.getItemAt(0).getContentSize());
 
         for(var i = 0; i < svgs.length; i++){
             var id = Date.parse(new Date()) + parseInt(Math.random() * 1000),
@@ -347,6 +355,15 @@ function Viewer(parent, config) {
                 }
             }
             _self.isInitLoad = true;
+            console.log(_self.osd.world.getItemCount());
+            var i, tiledImage;
+    var count = _self.osd.world.getItemCount();
+    for (i = 0; i < count; i++) {
+        tiledImage = _self.osd.world.getItemAt(i);
+        console.log(tiledImage);
+        // tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
+    }
+
         };
     }
 
@@ -555,10 +572,11 @@ function Viewer(parent, config) {
                     bottomRight.y = bottomRight.y / scale;
                 }
             }
+            console.log(topLeft, bottomRight);
 
             topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
             bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
-
+            console.log(topLeft, bottomRight);
             svgs[i].setAttribute("x", topLeft.x + "px");
             svgs[i].setAttribute("y", topLeft.y + "px");
             svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
