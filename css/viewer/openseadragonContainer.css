@@ -1,0 +1,60 @@
+#openseadragonContainer{
+    flex: 1;
+    background-color: #000;
+}
+
+#openseadragonContainer .annotation{
+    cursor: pointer;
+    pointer-events: auto; 
+    /* pointer-events: bounding-box;  */
+    /* opacity: 0.2; */
+}
+
+#openseadragonContainer .indicator{
+    font-size: 18px;
+    text-shadow: 0 0 3px #3c3b3b;
+    text-align: center;
+    color: red;
+    z-index: 1;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+#openseadragonContainer #annotationTooltip{
+    position: absolute;
+    width: 180px;
+    background: #2c2c2c;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    text-overflow: ellipsis;
+    padding: 5px;
+    box-sizing: border-box;
+    box-shadow: 0 0 2px 1px #7e7e7e;
+    display: none;
+    overflow-wrap: break-word;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */ 
+}
+
+#openseadragonContainer #annotationTooltip .row{
+    color: #7a7a7a;
+    padding: 3px;
+    font-size: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+#openseadragonContainer #annotationTooltip .row .name{
+    color: #fff;
+    flex: 1;
+}
+
+#openseadragonContainer #annotationTooltip .row .desc{
+    flex: 1;
+    color: #b4b4b4;
+}

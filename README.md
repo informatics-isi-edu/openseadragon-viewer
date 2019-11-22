@@ -47,10 +47,51 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 | **x** | float | set initial X |
 | **y** | float | set initial Y |
 | **z** | float | set initial zoom |
-| **MeterScaleInPixels** | float | set scale, pixels in a meter, usually set within DZI's metadata |
+| **meterScaleInPixels** | float | set scale, pixels in a meter, usually set within DZI's metadata |
 | **channelName** | chars | set channel name of the matching URL image.  The channel is either one of ('Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647') for red, one of ('FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488' ) for green, one of ('DAPI') for blue or one of ('TL Brightfield' or 'combo') for colorized RGB or if none specified.  This name can also be extracted from ImageProperties.xml |
 | **aliasName** | chars | set name to be used for pull-out listing for this URL image |
 | **waterMark** | chars | set watermark to add credit to snapshot jpg image |
+| **scale** | float | This scale corresponds to the unit used in the provided SVG. For example, a given `viewBox (0, 0, 3830.84, 4059.58)` and a `scale=0.21951` will convert to `width = 17451` and `height=18493`
+| **ignoreReferencePoint** | boolean | set `true` (default) to ignore the reference point in the svg `viewBox`, which the upper-left point will be `0,0`. set to `false` to honor the provided upper-left point. If set to `false` and `scale` is provided, the reference point will be converted based on the provided scale. 
+| **ignoreDimension** | boolean | set `true` (default) to ignore the provided width and height in the svg `viewBox`, which the bottom-right point will be the size of `tif` image width and height. set `false` to honor the provided bottom-right point. If set to `false` and `scale` is provided, the bottom-right point will be converted based on the provided scale.
+
+## Usage of the `scale`, `ignoreReferencePoint`, `ignoreDimension` parameters
+
+- **Case 1 : Provided SVG has the same aspect ratio as the loaded `tif` image**
+
+  - Assumption:
+    - the `svg` and `tif image` has same proportional relationship between the image's width and height. In this case, `openseadragon` will scale the `svg`, so that its `upper-left point`, `bottom-right point`, `width` and `height` are the same with the loaded `tif images`
+  - Usage
+    - `scale` is not needed
+    - `ignoreReferencePoint` set to `true`
+    - `ignoreDimension` set to `true`
+    
+
+- **Case 2 : Provided SVG has differnt unit in origin point and dimension**
+
+  - Assumption:
+    - the `svg`'s `origin point` and `dimension` need to be converted into pixels. In this case, the `scale` parameters will need to be provided in order to do the conversion. 
+    
+  - Usage
+    - `scale` is needed
+    - `ignoreReferencePoint` set to `false`
+      - the `upper-left point` will be converted into pixels based on the provided `scale`
+    - `ignoreDimension` set to `false` 
+      - the svg `width` and `height` will be converted into pixels with the provided `scale`
+
+- **Case 3 : Provided SVG has a same unit origin point, but with a different unit dimension**
+
+  - Assumption:
+    - The given `upper-left point` of the `svg` should be at `0,0` as the `tif image` and the provided `width` and `height` are in different unit and therefore need to be converted into pixels.
+    
+  - Usage
+    - `scale` is not needed
+    - `ignoreReferencePoint` set to `true`
+    - `ignoreDimension` set to `false`
+      - the dimension will be converted into pixels using the `scale` provided
+
+
+
 
 ## Example of ImageProperties.xml
 

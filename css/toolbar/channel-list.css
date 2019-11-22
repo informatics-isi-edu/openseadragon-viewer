@@ -1,0 +1,26 @@
+/* Channel List */
+#menuContainer #navMenuContent .channelList{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* background: #2f2f2f; */
+    color: #c1c1c1;
+}
+
+#menuContainer #navMenuContent .channelList .title{
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+    text-align: left;
+    padding: 5px 10px 0;
+}
+
+#navMenuContent .channelList .groups{
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 5px 10px 5px 10px;
+    flex: 1;
+    overflow-y: auto;
+    /* border-radius: 5px; */
+}

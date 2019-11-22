@@ -247,6 +247,38 @@
         return globalProcessors ? globalProcessors : [];
     }
 
+    function _hsl2rgb(h, s, l) {
+        var r, g, b, q, p;
+    
+        h /= 360;
+    
+        if (s == 0) {
+            r = g = b = l;
+        } else {
+            function hue2rgb(p, q, t) {
+                if (t < 0) t++;
+                if (t > 1) t--;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            }
+    
+            q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            p = 2 * l - q;
+    
+            r = hue2rgb(p, q, h + 1/3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1/3);
+        }
+    
+        return {
+            r: r * 255,
+            g: g * 255,
+            b: b * 255
+        };
+    }
+
     $.Filters = {
         THRESHOLDING: function(threshold) {
             if (threshold < 0 || threshold > 255) {
@@ -306,6 +338,27 @@
                     pixels[i] = precomputedContrast[pixels[i]];
                     pixels[i + 1] = precomputedContrast[pixels[i + 1]];
                     pixels[i + 2] = precomputedContrast[pixels[i + 2]];
+                }
+                context.putImageData(imgData, 0, 0);
+                callback();
+            };
+        },
+        HUE: function(angle) { 
+            //window.console.log(" in HUE filtering with angle.",angle);
+            if (angle < 0) {
+                throw new Error("HUE angle must be greater than 0.");
+            }
+            return function(context, callback) {
+                var imgData = context.getImageData(
+                        0, 0, context.canvas.width, context.canvas.height);
+                var pixels = imgData.data;
+                for (var i = 0; i < pixels.length; i += 4) {
+                    var lum = pixels[i] / 255;
+                    var col = _hsl2rgb(angle, 1, lum);
+
+                    pixels[i] = col.r;
+                    pixels[i+1] = col.g;
+                    pixels[i+2] = col.b;
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();
