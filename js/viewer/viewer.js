@@ -34,7 +34,7 @@ function Viewer(parent, config) {
         this.parameters = this._utils.getParameters();
 
         // Get config from scalebar and Openseadragon
-        console.log(this.parameters.info);
+        // console.log(this.parameters.info);
         this._config.osd.tileSources = this.parameters.info;
 
         this.osd = OpenSeadragon(this._config.osd);
@@ -45,7 +45,7 @@ function Viewer(parent, config) {
         // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this._config.svg.id);
-        console.log(this.svg);
+        // console.log(this.svg);
         this.osd.canvas.append(this.svg);
 
         // Parse urls to load image and channels
@@ -272,7 +272,6 @@ function Viewer(parent, config) {
 
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
-
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
             imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
@@ -292,6 +291,9 @@ function Viewer(parent, config) {
 
             this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
             this.svgCollection[id].parseSVGFile(svgFile);
+            if(!content) {
+              this.dispatchEvent('errorAnnotation');
+            }
         }
     }
 
@@ -319,7 +321,11 @@ function Viewer(parent, config) {
 
             // Check if annotation svg exists
             if(_self.parameters.svgs) {
-                _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                try {
+                  _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                } catch (err) {
+                  _self.dispatchEvent('errorAnnotation');
+                }
                 _self.resizeSVG();
                 _self.dispatchEvent('disableAnnotationList', false);
             } else {
@@ -355,14 +361,7 @@ function Viewer(parent, config) {
                 }
             }
             _self.isInitLoad = true;
-            console.log(_self.osd.world.getItemCount());
-            var i, tiledImage;
-    var count = _self.osd.world.getItemCount();
-    for (i = 0; i < count; i++) {
-        tiledImage = _self.osd.world.getItemAt(i);
-        console.log(tiledImage);
-        // tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
-    }
+
 
         };
     }
@@ -572,11 +571,8 @@ function Viewer(parent, config) {
                     bottomRight.y = bottomRight.y / scale;
                 }
             }
-            console.log(topLeft, bottomRight);
-
             topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
             bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
-            console.log(topLeft, bottomRight);
             svgs[i].setAttribute("x", topLeft.x + "px");
             svgs[i].setAttribute("y", topLeft.y + "px");
             svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
