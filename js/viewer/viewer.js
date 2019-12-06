@@ -34,7 +34,7 @@ function Viewer(parent, config) {
         this.parameters = this._utils.getParameters();
 
         // Get config from scalebar and Openseadragon
-        console.log(this.parameters.info);
+        // console.log(this.parameters.info);
         this._config.osd.tileSources = this.parameters.info;
 
         this.osd = OpenSeadragon(this._config.osd);
@@ -45,7 +45,7 @@ function Viewer(parent, config) {
         // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this._config.svg.id);
-        console.log(this.svg);
+        // console.log(this.svg);
         this.osd.canvas.append(this.svg);
 
         // Parse urls to load image and channels
@@ -237,7 +237,32 @@ function Viewer(parent, config) {
         if (isScalebarExist) {
             canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
             canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-            rawImg = canvas.toDataURL("image/jpeg", 1);
+            // var svg = document.querySelector(".annotationSVG");
+            var svg =  this.svg;
+            var svgString = new XMLSerializer().serializeToString(svg);
+
+        // var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        var DOMURL = self.URL || self.webkitURL || self;
+        var img = new Image();
+        var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+        var url = DOMURL.createObjectURL(svg);
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0);
+            var link = document.createElement("a");
+            var png = canvas.toDataURL("image/png");
+            document.body.append(link);
+            link.href = png;
+            link.download = fileName;
+            link.style.display = "none";
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+            link.remove();
+
+            // document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
+            DOMURL.revokeObjectURL(png);
+        };
+          img.src = url;
         }
         else {
             canvas = this.osd.drawer.canvas;
@@ -272,7 +297,6 @@ function Viewer(parent, config) {
 
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
-
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
             imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
@@ -292,6 +316,9 @@ function Viewer(parent, config) {
 
             this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
             this.svgCollection[id].parseSVGFile(svgFile);
+            if(!content) {
+              this.dispatchEvent('errorAnnotation');
+            }
         }
     }
 
@@ -319,7 +346,11 @@ function Viewer(parent, config) {
 
             // Check if annotation svg exists
             if(_self.parameters.svgs) {
-                _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                try {
+                  _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                } catch (err) {
+                  _self.dispatchEvent('errorAnnotation');
+                }
                 _self.resizeSVG();
                 _self.dispatchEvent('disableAnnotationList', false);
             } else {
@@ -355,14 +386,7 @@ function Viewer(parent, config) {
                 }
             }
             _self.isInitLoad = true;
-            console.log(_self.osd.world.getItemCount());
-            var i, tiledImage;
-    var count = _self.osd.world.getItemCount();
-    for (i = 0; i < count; i++) {
-        tiledImage = _self.osd.world.getItemAt(i);
-        console.log(tiledImage);
-        // tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
-    }
+
 
         };
     }
@@ -558,8 +582,11 @@ function Viewer(parent, config) {
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
             var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
+            console.log(viewBox);
             var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
             var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
+            // var topLeft = {x: _self.osd.world.getItemAt(1).getBounds(true).x + _self.osd.world.getItemAt(0).getBounds(true).x, y : 0 };
+            // var bottomRight = {x: topLeft.x + size.x, y : topLeft.y + size.y};
 
             // not ignoring the reference point and the scale is provided
             if(scale){
@@ -573,7 +600,16 @@ function Viewer(parent, config) {
                 }
             }
             console.log(topLeft, bottomRight);
-
+            console.log(_self.osd.world.getItemCount());
+          //   var j, tiledImage;
+          // var count = _self.osd.world.getItemCount();
+          // for (j = 0; j < count; j++) {
+          // tiledImage = _self.osd.world.getItemAt(j);
+          // console.log(tiledImage.getBounds(true));
+          // // tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
+          // }
+          // console.log(topLeft.x,_self.osd.world.getItemAt(1).getBounds(true).x);
+          // console.log(new OpenSeadragon.Point(_self.osd.world.getItemAt(1).getBounds(true).x, topLeft.y),new  );
             topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
             bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
             console.log(topLeft, bottomRight);
