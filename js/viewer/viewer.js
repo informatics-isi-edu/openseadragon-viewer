@@ -34,7 +34,6 @@ function Viewer(parent, config) {
         this.parameters = this._utils.getParameters();
 
         // Get config from scalebar and Openseadragon
-        // console.log(this.parameters.info);
         this._config.osd.tileSources = this.parameters.info;
 
         this.osd = OpenSeadragon(this._config.osd);
@@ -45,11 +44,16 @@ function Viewer(parent, config) {
         // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this._config.svg.id);
-        // console.log(this.svg);
         this.osd.canvas.append(this.svg);
 
-        // Parse urls to load image and channels
-        // this.loadImages(this.parameters.images);
+        /* Parse urls to load image and channels, This is done when so that czi format is also supported, if the parameters are not present,
+        it assumes that the format of the files is in czi. The below mentioned function uses the old version of code to load the images in OpenSeadragon.
+        // NOTE: This also assuumes there won't be a svg for czi format(for overalpping).
+        */
+        console.log("Parameters info", this.parameters.info);
+        if (this.parameters.info === undefined) {
+          this.loadImages(this.parameters.images);
+        }
         this.osd.addHandler('open', this.loadAfterOSDInit);
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
