@@ -17,31 +17,31 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
     }
 
     // if has scalebar, associate with it
-    if (scalebar) { 
-        sLoc = scalebar.getScalebarLocation()
-        wx = sLoc.x + scalebar.divElt.offsetWidth - 10;
-        fsize = scalebar.divElt.offsetWidth / 3;
-    } else {
-        wx = w - fsize;
-    }
+    // if (scalebar) {
+    //     sLoc = scalebar.getScalebarLocation()
+    //     wx = sLoc.x + scalebar.divElt.offsetWidth - 10;
+    //     fsize = scalebar.divElt.offsetWidth / 3;
+    // } else {
+    //     wx = w - fsize;
+    // }
     ctx.save();
-    ctx.translate(5, h - fsize / 3 - 5);
+    // ctx.translate(5, h - fsize / 3 - 5);
     ctx.textAlign = "left";
     ctx.font = fsize + "pt Sans-serif";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.fillText(watermark, 0, 0);
+    ctx.fillText(watermark, 0,h/2);
     ctx.restore();
     return canvas;
 }
 
-// Get file content from a url 
+// Get file content from a url
 Utils.prototype.getUrlContent = function(url){
     var http = new XMLHttpRequest(),
         res = null;
 
     http.open("GET", url, false);
     http.send(null);
-    
+
     res = http.status != 404 ? http.responseText : false;
     return res;
 }
@@ -60,28 +60,28 @@ Utils.prototype.getParameters = function(){
             case "url":
                 if(value.indexOf(".svg") != -1){
                     parameters.svgs = parameters.svgs || [];
-                    parameters.svgs.push(value); 
+                    parameters.svgs.push(value);
                 }
                 else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
-                    parameters.images.push(value); 
+                    parameters.images.push(value);
                 }
                 else if(value.indexOf("info.json") != -1){
                     parameters.info = parameters.info || [];
-                    parameters.info.push(value); 
-                } 
+                    parameters.info.push(value);
+                }
                 break;
             case "aliasName":
             case "waterMark":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
-                }  
+                }
                 parameters[type] = decodeURI(value);
                 break;
             case "channelName":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
-                }  
+                }
                 if(!parameters[type]){
                     parameters[type] = [];
                 }
@@ -121,7 +121,7 @@ Utils.prototype.getUserBrowserType = function(){
 
     // Firefox 1.0+
     detectResult["FIREFOX"] = typeof InstallTrigger !== 'undefined';
-    // Safari 3.0+ "[object HTMLElementConstructor]" 
+    // Safari 3.0+ "[object HTMLElementConstructor]"
     detectResult["SAFARI"] = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
     // Internet Explorer 6-11
     detectResult["IE"] = /*@cc_on!@*/false || !!document.documentMode;
@@ -184,5 +184,5 @@ Utils.prototype.downloadAsFile = function(fileName, dataUrl){
             break;
     }
 
-    
+
 }

@@ -34,7 +34,6 @@ function Viewer(parent, config) {
         this.parameters = this._utils.getParameters();
 
         // Get config from scalebar and Openseadragon
-        // console.log(this.parameters.info);
         this._config.osd.tileSources = this.parameters.info;
 
         this.osd = OpenSeadragon(this._config.osd);
@@ -45,11 +44,16 @@ function Viewer(parent, config) {
         // Add a SVG container to contain svg objects
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this._config.svg.id);
-        // console.log(this.svg);
         this.osd.canvas.append(this.svg);
 
-        // Parse urls to load image and channels
-        // this.loadImages(this.parameters.images);
+        /* Parse urls to load image and channels, This is done when so that czi format is also supported, if the parameters are not present,
+        it assumes that the format of the files is in czi. The below mentioned function uses the old version of code to load the images in OpenSeadragon.
+        // NOTE: This also assuumes there won't be a svg for czi format(for overalpping).
+        */
+        console.log("Parameters info", this.parameters.info);
+        if (this.parameters.info === undefined) {
+          this.loadImages(this.parameters.images);
+        }
         this.osd.addHandler('open', this.loadAfterOSDInit);
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
@@ -235,34 +239,18 @@ function Viewer(parent, config) {
             pixelDensityRatio;
 
         if (isScalebarExist) {
-            canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-            canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+            // canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
+            // canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
             // var svg = document.querySelector(".annotationSVG");
-            var svg =  this.svg;
-            var svgString = new XMLSerializer().serializeToString(svg);
 
-        // var canvas = document.getElementById("canvas");
-        var ctx = canvas.getContext("2d");
-        var DOMURL = self.URL || self.webkitURL || self;
-        var img = new Image();
-        var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-        var url = DOMURL.createObjectURL(svg);
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
-            var link = document.createElement("a");
-            var png = canvas.toDataURL("image/png");
-            document.body.append(link);
-            link.href = png;
-            link.download = fileName;
-            link.style.display = "none";
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-            link.remove();
-
-            // document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
-            DOMURL.revokeObjectURL(png);
-        };
-          img.src = url;
+            // Add svg to the canvas
+            html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
+                // document.body.appendChild(canvas)
+                // var scalebar = this.osd.scalebarInstance.getAsCanvas()
+                var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+                rawImg = canvas.toDataURL("image/jpeg", 1);
+                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+            });
         }
         else {
             canvas = this.osd.drawer.canvas;
@@ -281,9 +269,9 @@ function Viewer(parent, config) {
             }
         }
 
-        if (rawImg) {
-            this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-        }
+        // if (rawImg) {
+        //     this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+        // }
     }
 
     // Get channels
@@ -599,20 +587,8 @@ function Viewer(parent, config) {
                     bottomRight.y = bottomRight.y / scale;
                 }
             }
-            console.log(topLeft, bottomRight);
-            console.log(_self.osd.world.getItemCount());
-          //   var j, tiledImage;
-          // var count = _self.osd.world.getItemCount();
-          // for (j = 0; j < count; j++) {
-          // tiledImage = _self.osd.world.getItemAt(j);
-          // console.log(tiledImage.getBounds(true));
-          // // tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
-          // }
-          // console.log(topLeft.x,_self.osd.world.getItemAt(1).getBounds(true).x);
-          // console.log(new OpenSeadragon.Point(_self.osd.world.getItemAt(1).getBounds(true).x, topLeft.y),new  );
             topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
             bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
-            console.log(topLeft, bottomRight);
             svgs[i].setAttribute("x", topLeft.x + "px");
             svgs[i].setAttribute("y", topLeft.y + "px");
             svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
