@@ -21,7 +21,7 @@ function Viewer(parent, config) {
     this.strokeWidthScale = null;
     this.strokeMinScale = 1.5;
     this.strokeMaxScale = 3.5;
-
+    this.tiffImage = false;
     // Init
     this.init = function (utils) {
 
@@ -52,6 +52,7 @@ function Viewer(parent, config) {
         */
         console.log("Parameters info", this.parameters.info);
         if (this.parameters.info === undefined) {
+          this.tiffImage = true;
           this.loadImages(this.parameters.images);
         }
         this.osd.addHandler('open', this.loadAfterOSDInit);
@@ -239,18 +240,22 @@ function Viewer(parent, config) {
             pixelDensityRatio;
 
         if (isScalebarExist) {
-            // canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-            // canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-            // var svg = document.querySelector(".annotationSVG");
+            if (this.tiffImage) {// NOTE: tiff images does not have an svg overlay with it.
+              var canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
+              canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+              rawImg = canvas.toDataURL("image/jpeg", 1);
+              if (rawImg) {
+                  this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+              }
+            } else {
+              html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
+                  var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+                  rawImg = canvas.toDataURL("image/jpeg", 1);
+                  this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+              });
+            }
 
             // Add svg to the canvas
-            html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
-                // document.body.appendChild(canvas)
-                // var scalebar = this.osd.scalebarInstance.getAsCanvas()
-                var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                rawImg = canvas.toDataURL("image/jpeg", 1);
-                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-            });
         }
         else {
             canvas = this.osd.drawer.canvas;
@@ -267,6 +272,10 @@ function Viewer(parent, config) {
                 canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark);
                 rawImg = canvas.toDataURL("image/jpeg", 1);
             }
+            if (rawImg) {
+                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+            }
+
         }
 
         // if (rawImg) {
