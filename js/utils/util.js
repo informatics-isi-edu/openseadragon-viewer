@@ -1,7 +1,7 @@
 function Utils(){};
 
 // Add attribution watermark
-Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
+Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svgOverlay) {
     if(!watermark || !canvas) return canvas;
 
     var fsize = 20,
@@ -25,11 +25,13 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
     //     wx = w - fsize;
     // }
     ctx.save();
-    // ctx.translate(5, h - fsize / 3 - 5);
+    ctx.translate(5, h - fsize / 3 - 5);
     ctx.textAlign = "left";
     ctx.font = fsize + "pt Sans-serif";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.fillText(watermark, 0,h/2);
+    console.log(svgOverlay, h, fsize, h - fsize / 3 - 5);
+    // ctx.fillText(watermark, 5, h - fsize / 3 - 5);
+    ctx.fillText(watermark, 0,0);
     ctx.restore();
     return canvas;
 }
