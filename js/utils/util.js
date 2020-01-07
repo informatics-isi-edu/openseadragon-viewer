@@ -1,7 +1,7 @@
 function Utils(){};
 
 // Add attribution watermark
-Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svgOverlay) {
+Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svgOverlayHeight) {
     if(!watermark || !canvas) return canvas;
 
     var fsize = 20,
@@ -25,13 +25,16 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svg
     //     wx = w - fsize;
     // }
     ctx.save();
-    ctx.translate(5, h - fsize / 3 - 5);
     ctx.textAlign = "left";
     ctx.font = fsize + "pt Sans-serif";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    console.log(svgOverlay, h, fsize, h - fsize / 3 - 5);
-    // ctx.fillText(watermark, 5, h - fsize / 3 - 5);
-    ctx.fillText(watermark, 0,0);
+    console.log(svgOverlayHeight, h, fsize, h - fsize / 3 - 5,h/2);
+    if (svgOverlayHeight) {
+      ctx.fillText(watermark, 5, svgOverlayHeight - fsize / 3 - 5);
+    } else {
+      ctx.translate(5, h - fsize / 3 - 5);
+      ctx.fillText(watermark, 5, h - fsize / 3 - 5);
+    }
     ctx.restore();
     return canvas;
 }
