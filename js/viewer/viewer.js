@@ -21,7 +21,7 @@ function Viewer(parent, config) {
     this.strokeWidthScale = null;
     this.strokeMinScale = 1.5;
     this.strokeMaxScale = 3.5;
-    this.tiffImage = false;
+    this.svgNotPresent = false;
     // Init
     this.init = function (utils) {
 
@@ -52,7 +52,7 @@ function Viewer(parent, config) {
         */
         console.log("Parameters info", this.parameters.info);
         if (this.parameters.info === undefined) {
-          this.tiffImage = true;
+          this.svgNotPresent = true;
           this.loadImages(this.parameters.images);
         }
         this.osd.addHandler('open', this.loadAfterOSDInit);
@@ -240,7 +240,7 @@ function Viewer(parent, config) {
             pixelDensityRatio;
 
         if (isScalebarExist) {
-            if (this.tiffImage) {// NOTE: tiff images does not have an svg overlay with it.
+            if (this.svgNotPresent) {// NOTE: tiff images does not have an svg overlay with it.
               var canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
               canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
               rawImg = canvas.toDataURL("image/jpeg", 1);
@@ -249,7 +249,9 @@ function Viewer(parent, config) {
               }
             } else {
               html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
-                  var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+                  var elementOfInterest = document.querySelector("#annotationContainer");
+                  var height = elementOfInterest.height.baseVal.value;
+                  var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance, height);
                   rawImg = canvas.toDataURL("image/jpeg", 1);
                   this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
               });
