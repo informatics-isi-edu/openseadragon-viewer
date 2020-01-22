@@ -356,14 +356,9 @@ function Viewer(parent, config) {
                         osdItemId: channel["id"]
                     });
                 }
-                if (channelList.length == 0) {
-                  // Dispatch event to toolbar to update channel list
-                  _self.dispatchEvent('disableChannelList');
-                } else {
-                  // Dispatch event to toolbar to update channel list
-                  _self.dispatchEvent('updateChannelList', channelList);
-                }
-            }
+                // Dispatch event to toolbar to update channel list
+                _self.dispatchEvent('updateChannelList', channelList);
+            } 
             _self.isInitLoad = true;
 
 
