@@ -1,7 +1,7 @@
 function ChannelList(parent){
 
     var _self = this;
-    
+
     this.elem = null;
     this.collection = {};
     this.parent = parent || null;
@@ -11,7 +11,7 @@ function ChannelList(parent){
         var id,
             item,
             i;
-            
+
         for(i = 0; i < items.length; i++){
             id = items[i].osdItemId;
 
@@ -25,9 +25,9 @@ function ChannelList(parent){
                     osdItemId : id,
                     parent : _self
                 });
-                
+
                 this.collection[id] = item;
-    
+
                 if(this.elem != null){
                     item.render();
                     this.elem.querySelector(".groups").appendChild(item.elem);
@@ -35,13 +35,13 @@ function ChannelList(parent){
             }
         }
     }
-    
+
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
         this.parent.dispatchEvent(type, data);
     }
 
-    // Render the view 
+    // Render the view
     this.render = function(){
 
         var id,
@@ -49,12 +49,20 @@ function ChannelList(parent){
             listElem = document.createElement("div");
 
         listElem.setAttribute("class", "channelList");
-        listElem.innerHTML = [
-            // "<span class='title'>Channels</span>",
-            "<div class='groups'>",
-            "</div>"
-        ].join("");
-
+        if (collection,Object.keys(collection).length === 0 && collection.constructor === Object) {
+          listElem.innerHTML = [
+              // "<span class='title'>Channels</span>",
+              "<div class='groups'> No Channels found",
+              "</div>"
+          ].join("");
+        } else {
+          listElem.innerHTML = [
+              // "<span class='title'>Channels</span>",
+              "<div class='groups'>",
+              "</div>"
+          ].join("");
+        }
+        console.log("Collection are herre",  collection,Object.keys(collection).length === 0 && collection.constructor === Object);
         for(id in collection){
             if(collection[id].elem == null){
                 collection[id].render();
@@ -65,8 +73,3 @@ function ChannelList(parent){
         this.elem = listElem;
     }
 }
-
-
-
-
-
