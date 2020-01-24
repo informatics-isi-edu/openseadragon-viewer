@@ -12,7 +12,7 @@
 }
 
 #navMenuContent .groups .channelItem .channelRow:hover{
-    color: #407cca;
+    color: #fff;
 }
 
 #navMenuContent .groups .channelItem .toggleSetting{
@@ -41,7 +41,7 @@
     color: #c1c1c1;
 }
 
-#navMenuContent .groups .channelItem .toggleVisibility:hover{color: #407cca;}
+#navMenuContent .groups .channelItem .toggleVisibility:hover{color: #fff;}
 
 #navMenuContent .groups .channelItem .setting{
     display: flex;
