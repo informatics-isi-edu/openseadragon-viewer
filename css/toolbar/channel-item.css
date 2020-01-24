@@ -5,14 +5,14 @@
 #navMenuContent .groups .channelItem .channelRow{
     display: flex;
     /* padding: 5px 0; */
-    color: #407cca;
+    color: #c1c1c1;
     height: 20px;
     font-size: 14px;
     cursor: pointer;
 }
 
 #navMenuContent .groups .channelItem .channelRow:hover{
-    color: #d0dcea;
+    color: #fff;
 }
 
 #navMenuContent .groups .channelItem .toggleSetting{
@@ -38,10 +38,10 @@
 #navMenuContent .groups .channelItem .toggleVisibility{
     display: flex;
     align-items: center;
-    color: #337ab7;
+    color: #c1c1c1;
 }
 
-#navMenuContent .groups .channelItem .toggleVisibility:hover{color: #ddd;}
+#navMenuContent .groups .channelItem .toggleVisibility:hover{color: #fff;}
 
 #navMenuContent .groups .channelItem .setting{
     display: flex;
@@ -122,7 +122,7 @@
     opacity: 1; /* Fully shown on mouse-over */
 }
 
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
 
 #navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
@@ -134,7 +134,7 @@
     border: 1px solid #6797d4;
     border-radius : 2px;
 }
-  
+
 
 #navMenuContent .groups .channelItem input.slider::-moz-range-thumb {
     width: 5px; /* Set a specific slider handle width */
