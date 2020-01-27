@@ -239,50 +239,14 @@ function Viewer(parent, config) {
             rawImg,
             pixelDensityRatio;
 
-        if (isScalebarExist) {
-            if (this.svgNotPresent) {// NOTE: tiff images does not have an svg overlay with it.
-              var canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-              canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-              rawImg = canvas.toDataURL("image/jpeg", 1);
-              if (rawImg) {
-                  this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-              }
-            } else {
-              html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
-                  var elementOfInterest = document.querySelector("#annotationContainer");
-                  var height = elementOfInterest.height.baseVal.value;
-                  var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance, height);
-                  rawImg = canvas.toDataURL("image/jpeg", 1);
-                  this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-              });
-            }
-
-            // Add svg to the canvas
-        }
-        else {
-            canvas = this.osd.drawer.canvas;
-            pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
-            if (pixelDensityRatio != 1) {
-                newCanvas = document.createElement("canvas");
-                newCanvas.width = canvas.width;
-                newCanvas.height = canvas.height;
-                newCtx = newCanvas.getContext("2d");
-                newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                newCanvas = this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark);
-                rawImg = newCanvas.toDataURL("image/jpeg", 1);
-            } else {
-                canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark);
-                rawImg = canvas.toDataURL("image/jpeg", 1);
-            }
-            if (rawImg) {
-                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-            }
-
-        }
-
-        // if (rawImg) {
-        //     this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-        // }
+        // NOTE: Removed the previous code, as the new one takes the parent div for the screenshot and add the watermark based on requirement.
+        html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
+            var elementOfInterest = document.querySelector("#annotationContainer");
+            var height = elementOfInterest.height.baseVal.value;
+            var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance, height);
+            rawImg = canvas.toDataURL("image/jpeg");
+            this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+        });
     }
 
     // Get channels
@@ -378,7 +342,7 @@ function Viewer(parent, config) {
                 }
                 // Dispatch event to toolbar to update channel list
                 _self.dispatchEvent('updateChannelList', channelList);
-            } 
+            }
             _self.isInitLoad = true;
 
 
