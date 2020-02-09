@@ -10,7 +10,6 @@ var myApp = (function (_config) {
         toolbar = new ToolbarController(this, _config.toolbar);
 
         viewer.init(utils);
-        // toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
 
         this.viewer = viewer;
@@ -25,6 +24,7 @@ var myApp = (function (_config) {
             case "highlightAnnotation": // Highlight selecting annotation group
             case "changeAllVisibility": // Change all annotations visibility
             case "setGroupAttributes": // Change annotation 'description' or 'anatomy' text
+            case "drawingStart":
                 viewer.dispatchSVGEvent(type, data);
                 break;
             // Change openseadragon item overlay visibility
@@ -113,6 +113,9 @@ var myApp = (function (_config) {
                     break;
                 case 'changeStrokeScale':
                     viewer.changeStrokeScale(data);
+                    break;
+                case 'drawAnnotationModeOn':
+                    toolbar && toolbar.drawAnnotationModeOn(data);
                     break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);

@@ -7,6 +7,7 @@ function ToolbarView(controller, config){
     this._containerElem = document.getElementById(config.elems.containerId);
     this._navMenuElem = document.getElementById(config.elems.navMenuId);
     this._navMenuContentElem = document.getElementById(config.elems.navMenuContentId);
+    this._drawToolElem = document.getElementById(config.elems.drawToolContainerId); 
     this._types = config.navMenu;
     this._toolbarController = controller;
     
@@ -48,6 +49,23 @@ function ToolbarView(controller, config){
         this._navMenuContentElem.appendChild(annotationList.elem);
     }
 
+    // Render the annotation tool
+    this.renderAnnotationTool = function(annotationTool, data){
+        // Clear menu content
+        this._drawToolElem.innerHTML = "";
+
+        // Render annotation tool if it's null 
+        if(annotationTool.elem == null){
+            annotationTool.render();
+        }
+
+        // Save drawing SVG ID and group ID
+        annotationTool.updateDrawInfo(data);
+
+        // Append annotation list 
+        this._drawToolElem.appendChild(annotationTool.elem);
+    }
+
     // Render the annotation group menu
     this.renderChannelContent = function(channelList){
 
@@ -75,7 +93,7 @@ function ToolbarView(controller, config){
     }
 
     // Toggle menu content 
-    this.toggleDisplayMenuContent = function(type, list){
+    this.toggleDisplayMenuContent = function(type, object){
         
         this._navMenuContentElem.className = (this._navMenuContentElem.className.indexOf("expand") >= 0) ? "" : "expand";
 
@@ -83,11 +101,14 @@ function ToolbarView(controller, config){
         if(this._navMenuContentElem.className.indexOf("expand") >= 0){
             switch(type){
                 case "channelList":
-                    this.renderChannelContent(list);
+                    this.renderChannelContent(object);
                     break;
                 case "annotationList":
-                    this.renderAnnotationGroupContent(list);
+                    this.renderAnnotationGroupContent(object);
                     break;
+                // case "annotationTool":
+                //     this.renderAnnotationTool(object);
+                //     break;
             }
         }
 

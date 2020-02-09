@@ -6,6 +6,7 @@ function ToolbarController(parent, config){
     this.parent = parent;
     this._toolbarView = new ToolbarView(this, config);
     this.annotationList = new AnnotationList(this);
+    this.annotationTool = new AnnotationTool(this);
     this.channelList = new ChannelList(this);
 
     // Set current selecting annotation
@@ -23,6 +24,19 @@ function ToolbarController(parent, config){
         }
     }
 
+    // Turn on annotation drawing mode
+    this.drawAnnotationModeOn = function(data){
+
+        // Check if the svg id exists 
+        var svgID = data.svgID || "";
+        var groupID = data.groupID || "";
+        
+        if(svgID != "" && groupID != ""){
+            this._toolbarView.renderAnnotationTool(this.annotationTool, data);
+        }
+
+    }
+
     // Hide annotation list
     this.hideAnnotationList = function(){
         this.annotationList.hideAll();
@@ -34,7 +48,7 @@ function ToolbarController(parent, config){
     }
 
     // Binding events when toolbar menu get clicked by the user
-    this.onClickedMenuHandler = function(clickMenuType){
+    this.onClickedMenuHandler = function(clickMenuType, data){
 
         // Trigger event handler for different menu type 
         switch (clickMenuType) {

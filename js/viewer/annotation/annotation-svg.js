@@ -3,6 +3,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.svg = null;
     this.parent = parent;
     this.scale = scale;
+    this.imgScaleX = 1;
+    this.imgScaleY = 1;
     this.imgWidth = imgWidth;
     this.imgHeight = imgHeight;
     // reference point to the actual images
@@ -34,6 +36,29 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             }]);
             return group;
         }
+    }
+
+    // Create a new path/rect/circle object for users to draw
+    this.createAnnotationObject = function(groupID, type, attrs){
+
+        var group,
+            annotation;
+
+        if(this.groups.hasOwnProperty(groupID)){
+            // Find corresponding group
+            group = this.groups[groupID];
+
+            // Start to draw annotation
+            annotation = group.addAnnotation(type);
+            annotation.setupDrawing(attrs);
+
+            this.dispatchEvent("onDrawingBegin", {
+                viewBox : this.viewBox,
+                imgScaleX : this.imgScaleX,
+                imgScaleY : this.imgScaleY,
+                annotation : annotation
+            }) 
+        }        
     }
 
     // Change the group visibility
@@ -276,6 +301,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         annotation.setAttributesBySVG(node);
                         annotation.renderSVG(this);
                     }
+                    break;
+                case "scale":
+                    this.imgScaleX = +node.getAttribute("x") || this.imgScaleX;
+                    this.imgScaleY = +node.getAttribute("y") || this.imgScaleY;
                     break;
             }
         }

@@ -175,6 +175,16 @@ function Viewer(parent, config) {
             case "onMouseoutHideTooltip":
                 this.onMouseoutHideTooltip();
                 break;
+            // Create mousetracker to begin drawing
+            case "onDrawingBegin":
+                alert("view start drawing")
+                this.currentMouseTracker = new OpenSeadragon.MouseTracker({
+                    element: _self.svg,
+                    dragHandler: this.onMouseDragToDraw,
+                    dragEndHandler: this.onMouseDragToDrawEnd,
+                    userData: data
+                });
+                break;
             /**
              * [Dispatch events to App]
              */
@@ -209,6 +219,11 @@ function Viewer(parent, config) {
             // Change stroke scale
             case "changeStrokeScale":
                 svg.changeStrokeScale(data);
+                break;
+            // Drawing annotation on the SVG
+            case "drawingStart":
+                data.attrs["stroke-width"] = strokeScale = _self.strokeWidthScale(_self.osd.viewport.getZoom());
+                svg.createAnnotationObject(data.groupID, data.type, data.attrs);
                 break;
             // Change current selected annotation group
             case "highlightAnnotation":
@@ -468,6 +483,29 @@ function Viewer(parent, config) {
             .style("opacity", 0)
             .remove();
     }
+
+    // Drag to draw event handler start
+    this.onMouseDragToDraw = function(event){
+        var annotation = event.userData.annotation;
+        var viewBox = event.userData.viewBox;
+        var scaleX = event.userData.imgScaleX || 1;
+        var scaleY = event.userData.imgScaleY || 1;
+        var view_coords = _self.osd.viewport.viewerElementToViewportCoordinates(new OpenSeadragon.Point(event.position.x, event.position.y));
+        var img_coords = _self.osd.viewport.viewportToImageCoordinates(view_coords);
+        
+        img_coords.x = viewBox[0] + (img_coords.x * scaleX);
+        img_coords.y = viewBox[1] + (img_coords.y * scaleY);
+
+        console.log(event.position, img_coords);
+        annotation.insertPoint(img_coords);
+    } 
+
+    // Drag to draw event handler end
+    this.onMouseDragToDrawEnd = function(event){
+        var annotation = event.userData.annotation;
+        // annotation.drawEndHandler();
+        // _self.destoryMouseTracker();
+    } 
 
     // Pan to specific location
     this.panTo = function (x, y, z) {
