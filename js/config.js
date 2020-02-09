@@ -2,7 +2,8 @@ var _config = {
     toolbar : {
         elems : {
             containerId : "menuContainer",
-            navMenuContentId : "navMenuContent"
+            navMenuContentId : "navMenuContent",
+            drawToolContainerId : "drawToolContainer"
         }
     },
     viewer : {
