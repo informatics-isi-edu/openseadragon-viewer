@@ -37,6 +37,11 @@ function ToolbarController(parent, config){
 
     }
 
+    // Get current drawing SVG Id and Group ID
+    this.getDrawInfo = function(){
+        return this.annotationTool.getDrawInfo();
+    }
+
     // Hide annotation list
     this.hideAnnotationList = function(){
         this.annotationList.hideAll();

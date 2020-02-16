@@ -31,14 +31,20 @@ function AnnotationTool(parent){
         _self.curType = btnType;
 
         switch(btnType){
+            case "CURSOR":
+                _self.dispatchEvent("cursorMove", {
+                    svgID : _self.curSVGID,
+                    groupID : _self.curGroupID
+                });
+                break;
             case "PATH":
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,
                     groupID : _self.curGroupID,
                     type : btnType,
                     attrs : {
-                        stroke : "#000",
-                        fill : "None"
+                        "stroke" : "#000",
+                        "fill" : "None"
                     }
                 });
                 break;
@@ -80,4 +86,11 @@ function AnnotationTool(parent){
         this.curGroupID = data.groupID;
     }
     
+    // Get current drawing SVG Id and Group ID
+    this.getDrawInfo = function(){
+        return {
+            svgID : this.curSVGID,
+            groupID : this.curGroupID
+        }
+    }
 }

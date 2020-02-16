@@ -2,13 +2,15 @@ function Base(attrs){
     attrs = attrs ? attrs : {};
     var _self = this;
     this.parent = attrs.parent;
+    this.isDrawing = false;
     this._attrs = {
         "annotation-id" : attrs["annotation-id"] || -1,
         "tag" : attrs["tag"] || "",
         "fill" : attrs["fill"] || "none",
         "stroke" :  attrs["stroke"] || "",
         "stroke-width" : attrs["stroke-width"] || "",
-        "style" : ""
+        "style" : "",
+        "vector-effect" : attrs["vector-effect"] || "non-scaling-stroke"
     }
 
     this.onClickToSelectAnnotation = function(){
@@ -17,6 +19,10 @@ function Base(attrs){
 
     this.onMouseoverShowTooltip = function(){
 
+        if(_self.isDrawing){
+            return;
+        }
+
         _self.dispatchEvent("onMouseoverShowTooltip", {
             x : d3.event.pageX,
             y : d3.event.pageY
@@ -24,6 +30,10 @@ function Base(attrs){
     };
 
     this.onMousemoveShowTooltip = function(){
+        if(_self.isDrawing){
+            return;
+        }
+
         _self.dispatchEvent("onMousemoveShowTooltip", {
             x : d3.event.pageX,
             y : d3.event.pageY
@@ -31,12 +41,31 @@ function Base(attrs){
     };
 
     this.onMouseoutHideTooltip = function(){
+        if(_self.isDrawing){
+            return;
+        }
+
         _self.dispatchEvent("onMouseoutHideTooltip");
     };
 }
 
 Base.prototype.dispatchEvent = function(type, data){
     this.parent.dispatchEvent(type, data);
+}
+
+Base.prototype.setDrawing = function(isDrawing){
+    this.isDrawing = isDrawing;
+}
+
+Base.prototype.setupDrawingAttrs = function(attrs){
+
+    this.setDrawing(true);
+
+    if(attrs){
+        this.setAttributesByJSON(attrs);
+    };
+
+    this.renderSVG();
 }
 
 Base.prototype.getAttributes = function(attrs){
@@ -146,6 +175,15 @@ Base.prototype.unHighlight = function(){
         .attr("stroke-width", strokeWidth * strokeScale)
 }
 
+Base.prototype.unbind = function(){
+
+    if(this.svg == null){         
+        this.svg.on("mouseover", null)
+            .on("mousemove", null)
+            .on("mouseout", null)
+            .on('click', null);
+    }
+}
 
 
 

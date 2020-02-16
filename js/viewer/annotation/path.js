@@ -9,6 +9,7 @@ function Path(attrs){
     this._attrs["stroke"] = attrs["stroke"] || "";
     this._attrs["stroke-width"] = attrs["stroke-width"] || "";
     this._attrs["stroke-linecap"] = attrs["stroke-linecap"] || "";
+    
     this.svg = null;
     this.dataPoints = [];
     this.renderPath = d3.line()
@@ -19,23 +20,15 @@ function Path(attrs){
 Path.prototype = Object.create(Base.prototype);
 Path.prototype.constructor = Path;
 
-Path.prototype.setupDrawing = function(attrs){
+Path.prototype.setupDrawingAttrs = function(attrs){
 
     var _self = this;
-    
-    if(attrs){
-        this.setAttributesByJSON(attrs);
-    };
 
-    _self.svg = _self.parent.svg
-        .append("path")
+    Base.prototype.setupDrawingAttrs.call(this, attrs);
+
+    _self.svg
         .data([_self.dataPoints])
-        .attr("class", "annotation")
-        .attr("d", _self.renderPath)
-        .attr("fill", _self._attrs["fill"])
-        .attr("stroke", _self._attrs["stroke"])
-        .attr("stroke-linejoin", _self._attrs["stroke-linejoin"])
-        .attr("stroke-width", _self._attrs["stroke-width"]);
+        .attr("d", _self.renderPath);
 }
 
 Path.prototype.insertPoint = function(point){

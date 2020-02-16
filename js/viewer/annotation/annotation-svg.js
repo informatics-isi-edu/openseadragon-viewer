@@ -50,13 +50,18 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
             // Start to draw annotation
             annotation = group.addAnnotation(type);
-            annotation.setupDrawing(attrs);
+            annotation.renderSVG(group);
+            annotation.setupDrawingAttrs(attrs);
 
             this.dispatchEvent("onDrawingBegin", {
+                svgID : this.id,
+                groupID : groupID,
                 viewBox : this.viewBox,
                 imgScaleX : this.imgScaleX,
                 imgScaleY : this.imgScaleY,
-                annotation : annotation
+                annotation : annotation,
+                type : type,
+                attrs : attrs
             }) 
         }        
     }
@@ -328,6 +333,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }
         
         this.svg = svg;
+    }
+
+    // Remove annotation from a group
+    this.removeAnnotationObject = function(groupID, annotation){
+        if(this.groups.hasOwnProperty(groupID)){
+            var group = this.groups[groupID];
+            group.removeAnnotationObject(annotation);
+        }
     }
 
     this.showGroupBorder = function(data){

@@ -134,6 +134,19 @@ function AnnotationGroup(id, anatomy, description, parent){
     
     }
 
+    // Remove annotation
+    this.removeAnnotationObject = function(annotation){
+        if(!annotation || !annotation.svg){
+            return
+        }
+        
+        // remove event handlers for the annotation
+        annotation.unbind();
+
+        // remove svg element
+        annotation.svg.remove();
+    }
+
     this.setAttributesByJSON = function(attrs){
         var attr,
             value;

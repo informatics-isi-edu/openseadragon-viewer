@@ -11,6 +11,7 @@ function Viewer(parent, config) {
         svgID : "",
         groupID : ""
     };
+    this.mouseTrackers = [];
     this.isInitLoad = false;
     this.osd = null;
     this.tooltipElem = null;
@@ -178,12 +179,13 @@ function Viewer(parent, config) {
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
                 alert("view start drawing")
-                this.currentMouseTracker = new OpenSeadragon.MouseTracker({
+                var tracker = new OpenSeadragon.MouseTracker({
                     element: _self.svg,
                     dragHandler: this.onMouseDragToDraw,
                     dragEndHandler: this.onMouseDragToDrawEnd,
                     userData: data
                 });
+                _self.mouseTrackers.push(tracker);
                 break;
             /**
              * [Dispatch events to App]
@@ -222,7 +224,6 @@ function Viewer(parent, config) {
                 break;
             // Drawing annotation on the SVG
             case "drawingStart":
-                data.attrs["stroke-width"] = strokeScale = _self.strokeWidthScale(_self.osd.viewport.getZoom());
                 svg.createAnnotationObject(data.groupID, data.type, data.attrs);
                 break;
             // Change current selected annotation group
@@ -232,6 +233,10 @@ function Viewer(parent, config) {
             // Change all annotation groups visibility
             case "changeAllVisibility":
                 svg.changeAllVisibility(data.isDisplay);
+                break;
+            // Remove annotation object from a group
+            case "removeAnnotationObject":
+                svg.removeAnnotationObject(data.groupID, data.annotation);
                 break;
             // Set annotation groups attributes
             case "setGroupAttributes":
@@ -502,8 +507,37 @@ function Viewer(parent, config) {
 
     // Drag to draw event handler end
     this.onMouseDragToDrawEnd = function(event){
-        var annotation = event.userData.annotation;
-        // annotation.drawEndHandler();
+        
+        console.log("drawing end!");
+
+        if(_self.mouseTrackers.length > 0){
+            setTimeout(function(){
+                _self.mouseTrackers[0].destroy();
+                _self.mouseTrackers.shift();
+            }, 300)
+        }
+
+        event.userData.annotation.setDrawing(false);
+
+        var svgID = event.userData.svgID;
+        var groupID = event.userData.groupID;
+        var type = event.userData.type;
+        var attrs = event.userData.attrs || {};
+        
+
+        if(_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]){
+            event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
+            event.userData.annotation.setupDrawingAttrs(attrs);
+
+            var mousetracker = new OpenSeadragon.MouseTracker({
+                element: _self.svg,
+                dragHandler: _self.onMouseDragToDraw,
+                dragEndHandler: _self.onMouseDragToDrawEnd,
+                userData: event.userData
+            });
+    
+            _self.mouseTrackers.push(mousetracker);
+        }
         // _self.destoryMouseTracker();
     } 
 
@@ -542,6 +576,28 @@ function Viewer(parent, config) {
     // Remove overlay
     this.removeOverlay = function (element) {
         this.osd.removeOverlay(element);
+    }
+
+    // Remove mouse trackers for drawing
+    this.removeMouseTrackers = function(data){
+        
+        if(this.mouseTrackers.length > 0 && this.mouseTrackers[0].userData){
+            var svgID = this.mouseTrackers[0].userData.svgID || "";
+            var groupID = this.mouseTrackers[0].userData.groupID || "";
+
+            if(svgID == data.svgID && groupID == data.groupID){
+                var curAnnotation = _self.mouseTrackers[0].userData.annotation;
+                this.dispatchSVGEvent("removeAnnotationObject", {
+                    svgID : svgID,
+                    groupID : groupID,
+                    annotation : curAnnotation
+                })
+                setTimeout(function(){
+                    _self.mouseTrackers[0].destroy();
+                    _self.mouseTrackers.shift();
+                }, 300)
+            }
+        }
     }
 
     // Reset the scalebar measurement (pixel per meter) with new value
