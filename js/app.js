@@ -27,7 +27,7 @@ var myApp = (function (_config) {
             case "drawingStart":
                 viewer.dispatchSVGEvent(type, data);
                 break;
-            case "cursorMove":
+            case "drawingStop":
                 viewer.removeMouseTrackers(data);
                 break;
             // Change openseadragon item overlay visibility

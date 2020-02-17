@@ -178,7 +178,7 @@ function Viewer(parent, config) {
                 break;
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
-                alert("view start drawing")
+                // alert("view start drawing")
                 var tracker = new OpenSeadragon.MouseTracker({
                     element: _self.svg,
                     dragHandler: this.onMouseDragToDraw,
@@ -503,6 +503,7 @@ function Viewer(parent, config) {
 
         console.log(event.position, img_coords);
         annotation.insertPoint(img_coords);
+        
     } 
 
     // Drag to draw event handler end
@@ -581,20 +582,22 @@ function Viewer(parent, config) {
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data){
         
-        if(this.mouseTrackers.length > 0 && this.mouseTrackers[0].userData){
-            var svgID = this.mouseTrackers[0].userData.svgID || "";
-            var groupID = this.mouseTrackers[0].userData.groupID || "";
+        if(this.mouseTrackers.length > 0){
 
-            if(svgID == data.svgID && groupID == data.groupID){
-                var curAnnotation = _self.mouseTrackers[0].userData.annotation;
-                this.dispatchSVGEvent("removeAnnotationObject", {
-                    svgID : svgID,
-                    groupID : groupID,
-                    annotation : curAnnotation
-                })
+            while(this.mouseTrackers.length > 0){
+                var tracker = this.mouseTrackers.shift();
+                var userData = tracker.userData;
+
+                if(userData){
+                    this.dispatchSVGEvent("removeAnnotationObject", {
+                        svgID : userData.svgID,
+                        groupID : userData.groupID,
+                        annotation : userData.annotation
+                    })
+                }
+                
                 setTimeout(function(){
-                    _self.mouseTrackers[0].destroy();
-                    _self.mouseTrackers.shift();
+                    tracker.destroy();
                 }, 300)
             }
         }
