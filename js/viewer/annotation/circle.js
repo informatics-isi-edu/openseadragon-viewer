@@ -18,3 +18,22 @@ Circle.prototype.calculateRadius = function(point){
     radius = Math.sqrt(Math.pow(point.x - this._attrs.cx, 2) + Math.pow(point.y - this._attrs.cy, 2));
     return radius;
 };
+
+Circle.prototype.insertPoint = function(point){
+    var _self = this;
+    var updateAttrs = {};
+
+    if (_self._attrs.cx == null || _self._attrs.cy == null){
+        updateAttrs = {
+            cx : point.x,
+            cy: point.y
+        };
+    }
+    else{
+        updateAttrs = {
+            r : _self.calculateRadius(point)
+        }
+    }
+    _self.setAttributesByJSON(updateAttrs);
+    _self.renderSVG();
+}

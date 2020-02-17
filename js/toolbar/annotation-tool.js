@@ -32,12 +32,12 @@ function AnnotationTool(parent){
 
         switch(btnType){
             case "CURSOR":
-                _self.dispatchEvent("cursorMove", {
-                    svgID : _self.curSVGID,
-                    groupID : _self.curGroupID
-                });
+                _self.dispatchEvent("drawingStop");
                 break;
             case "PATH":
+            case "CIRCLE":
+            case "RECT":
+                _self.dispatchEvent("drawingStop");
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,
                     groupID : _self.curGroupID,
