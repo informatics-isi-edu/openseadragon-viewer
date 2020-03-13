@@ -51,9 +51,9 @@ function Viewer(parent, config) {
         // NOTE: This also assuumes there won't be a svg for czi format(for overalpping).
         */
         console.log("Parameters info", this.parameters.info);
-        if (this.parameters.info === undefined) {
-          this.loadImages(this.parameters.images);
-        }
+        // if (this.parameters.info === undefined) { // REmove this
+        this.loadImages(this.parameters.images);
+        // }
         this.osd.addHandler('open', this.loadAfterOSDInit);
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
@@ -358,7 +358,7 @@ function Viewer(parent, config) {
                 }
                 // Dispatch event to toolbar to update channel list
                 _self.dispatchEvent('updateChannelList', channelList);
-            } 
+            }
             _self.isInitLoad = true;
 
 
