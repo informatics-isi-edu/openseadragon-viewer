@@ -3,10 +3,13 @@ function Viewer(parent, config) {
     var _self = this;
 
     this._utils = null;
-    this._config = config;
+    // this._config = config;
+    this.all_config = config; // @mingyi -  need to know if there is a better way to pass the config to the util functions
+    this._config = null;
 
     this.parent = parent;
     this.channels = {};
+    this.filters = {} // For filters of multiple channels. - @mingyi - where else do we need to call filters.
     this.current = {
         svgID : "",
         groupID : ""
@@ -33,45 +36,47 @@ function Viewer(parent, config) {
         // Add each image source into Openseadragon viewer
         this.parameters = this._utils.getParameters();
 
-        // Get config from scalebar and Openseadragon
-        this._config.osd.tileSources = this.parameters.info;
+        // Setting the config based on the type of the image we get
+        this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
+        console.log("Config used: ",  this._config);  // TODO: If config is null, give an error.
 
-        this.osd = OpenSeadragon(this._config.osd);
+        // Get config from scalebar and Openseadragon - Move this to loadimages
+        // this._config.osd.tileSources = this.parameters.info;
+        this.loadImages(this.parameters)
 
 
-        this.osd.scalebar(this._config.scalebar);
-
-        // Add a SVG container to contain svg objects
-        this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this.svg.setAttribute("id", this._config.svg.id);
-        this.osd.canvas.append(this.svg);
+        // Add a SVG container to contain svg objects - move to load images
+        // this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        // this.svg.setAttribute("id", this._config.svg.id);
+        // this.osd.canvas.append(this.svg);
 
         /* Parse urls to load image and channels, This is done when so that czi format is also supported, if the parameters are not present,
         it assumes that the format of the files is in czi. The below mentioned function uses the old version of code to load the images in OpenSeadragon.
         // NOTE: This also assuumes there won't be a svg for czi format(for overalpping).
         */
-        console.log("Parameters info", this.parameters.info);
+        // console.log("Parameters info", this.parameters.info);
         // if (this.parameters.info === undefined) { // REmove this
-        this.loadImages(this.parameters.images);
+        // this.loadImages(this.parameters.images);
         // }
         this.osd.addHandler('open', this.loadAfterOSDInit);
 
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
         this.osd.addHandler('animation-finish', this.loadAfterOSDInit);
 
-        this.osd.addHandler('resize', this.resizeSVG);
+        // this.osd.addHandler('resize', this.resizeSVG); // Moved to tiff as only they have svg
 
-        this.osd.addHandler('animation', this.resizeSVG);
+        // this.osd.addHandler('animation', this.resizeSVG);// Moved to tiff as only they have svg
 
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
         this.osd.world.addHandler('add-item', function() {
+          console.log(_self.channels);
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
                 for(var key in _self.channels){
                     var channel = _self.channels[key];
                     _self.setItemChannel({
                         id : channel.id
-                    })
+                    });
                 }
             }
         });
@@ -303,6 +308,7 @@ function Viewer(parent, config) {
 
     // Load after Openseadragon initialized
     this.loadAfterOSDInit = function(){
+        console.log("This is loaded");
         // Only execute it once when Openseadragon is done loading
         if (!_self.isInitLoad) {
 
@@ -324,6 +330,7 @@ function Viewer(parent, config) {
             }
 
             // Check if annotation svg exists
+            console.log("Disable", _self.parameters.svgs);
             if(_self.parameters.svgs) {
                 try {
                   _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
@@ -366,66 +373,99 @@ function Viewer(parent, config) {
     }
 
     // Load Image and Channel information
-    this.loadImages = function (urls) {
+    this.loadImages = function (params) {
 
-        var urls = urls || [],
+      switch (params.type) { // Add image to osd based on image type
+        case 'tiff': // The order in which tilesources is added and osd is initialized is different in tiff and rest of the image type.
+          // That is the reason why OpenSeadragon's constructor is called in switch case instead of general call.
+          this._config.osd.tileSources = params.info;
+          this.osd = OpenSeadragon(this._config.osd);
+          this.osd.scalebar(this._config.scalebar);
+          this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          this.svg.setAttribute("id", this._config.svg.id);
+          this.osd.canvas.append(this.svg);
+          this.osd.addHandler('resize', this.resizeSVG);
+          this.osd.addHandler('animation', this.resizeSVG);
+          break;
+
+        case 'rest':
+          this.osd = OpenSeadragon(this._config.osd);
+          this.osd.scalebar(this._config.scalebar);
+
+          var urls = params.images || [],
             channelList = [],
             i;
 
-        for (i = 0; i < urls.length; i++) {
+          for (i = 0; i < urls.length; i++) {
+              var isImageSimpleBase = urls[i].indexOf('ImageProperties.xml') == -1 ? true : false,
+                  channel,
+                  url = urls[i],
+                  option = {},
+                  meterScaleInPixels = null;
 
-            var isImageSimpleBase = urls[i].indexOf('ImageProperties.xml') == -1 ? true : false,
-                channel,
-                url = urls[i],
-                option = {},
-                meterScaleInPixels = null;
+              if (isImageSimpleBase) {
+                  // The below code is for aliasName used in place of channelName
+                  // Issue: Assumptions that either all channelName have aliasname or none of them have it. - @mingyi
+                  // var channelName = this.parameters.aliasName.length > i ? this.parameters.aliasName[i] : this.parameters.channelName[i];
+                  option = {
+                      tileSource: {
+                          channelName : this.parameters.channelName[i],
+                          tileWidth: 457,
+                          tileHeight: 640,
+                          type: 'image',
+                          url: url
+                      },
+                      compositeOperation: 'lighter'
+                  };
+              }
+              else {
+                  var xmlString = this._utils.getUrlContent(url),
+                      imgPath = url.replace('/ImageProperties.xml', ''),
+                      xmlParser = new DOMParser(),
+                      xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
 
-            if (isImageSimpleBase) {
+                  xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
+                  option.tileSource = this.buildTileSource(xmlDoc, imgPath);
+                  option.compositeOperation = 'lighter';
 
-                option = {
-                    tileSource: {
-                        channelName : this.parameters.channelName,
-                        tileWidth: 457,
-                        tileHeight: 640,
-                        type: 'image',
-                        url: url
-                    },
-                    compositeOperation: 'lighter'
-                };
-            }
-            else {
+              }
 
-                var xmlString = this._utils.getUrlContent(url),
-                    imgPath = url.replace('/ImageProperties.xml', ''),
-                    xmlParser = new DOMParser(),
-                    xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
+              channel = new Channel(i, option.tileSource);
 
-                xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
-                option.tileSource = this.buildTileSource(xmlDoc, imgPath);
-            }
+              meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
+              meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
+              this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+              this.resetScalebar(meterScaleInPixels);
 
-            channel = new Channel(i, option.tileSource);
+              this.channels[i] = channel;
+              channelList.push({
+                  name: channel.name,
+                  contrast: channel["contrast"],
+                  brightness: channel["brightness"],
+                  gamma: channel["gamma"],
+                  hue : channel["hue"],
+                  osdItemId: channel["id"]
+              });
+              this.osd.addTiledImage(option);
+          }
 
-            meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
-            meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
-            this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
-            this.resetScalebar(meterScaleInPixels);
-            this.osd.addTiledImage(option);
+          // Dispatch event to toolbar to update channel list
+          this.dispatchEvent('updateChannelList', channelList);
+          break;
+        default:
+          break;
 
-            this.channels[i] = channel;
-            channelList.push({
-                name: channel.name,
-                contrast: channel["contrast"],
-                brightness: channel["brightness"],
-                gamma: channel["gamma"],
-                hue : channel["hue"],
-                osdItemId: channel["id"]
-            });
-        }
-
-        // Dispatch event to toolbar to update channel list
-        this.dispatchEvent('updateChannelList', channelList);
+      }
     }
+
+    // this.loadImages = function (urls) {
+    //
+    //     var urls = urls || [],
+    //         channelList = [],
+    //         i;
+    //
+    //
+    // }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
     this.onMouseoverShowTooltip = function(data){
@@ -588,23 +628,33 @@ function Viewer(parent, config) {
     }
 
     // Set Openseadragon viewer item channel values
-    this.setItemChannel = function (data) {
-
+    this.setItemChannel = function (data) { // -@mingyi - changed this a bit
         var channel = this.channels[data.id],
             item = this.osd.world.getItemAt(data.id);
-
         if (!channel || !item) { return; }
-
         channel.set(data.type, data.value);
+        this.filters[data.id] = {
+          items: [item],
+          processors: channel.getFiltersList()
+        }
+        var filters = [];
+        for (var key in this.filters){
+          filters.push(this.filters[key])
+        }
 
         this.osd.setFilterOptions({
-            filters: [
-                {
-                    items: [item],
-                    processors: channel.getFiltersList()
-                }
-            ]
-        })
+          filters: filters
+        });
+
+        // the below one updates the last channel name as the filter for the osd. In case of multiple channels, this won't work.
+        // this.osd.setFilterOptions({
+        //     filters: [
+        //         {
+        //             items: [item],
+        //             processors: channel.getFiltersList()
+        //         }
+        //     ]
+        // })
     }
 
     // Zoom in to the given rectangle viewport

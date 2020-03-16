@@ -109,7 +109,7 @@ var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
-// gudmap.org or rebuildingakidney.org 
+// gudmap.org or rebuildingakidney.org
 var waterMark=null; // for downloaded image
 function saveWaterMark(s) { waterMark=s; }
 function addWaterMark2Canvas(canvas) {
@@ -122,7 +122,7 @@ function addWaterMark2Canvas(canvas) {
     fsize=l;
 
    ctx.save();
-  
+
   // from the scalebarInstance get the coordinates for the BOTTOM_LEFT
   var myScalebarInstance = myViewer.scalebarInstance;
   var barHeight = myScalebarInstance.divElt.offsetHeight;
@@ -138,7 +138,7 @@ function addWaterMark2Canvas(canvas) {
   if (!myScalebarInstance.viewer.wrapVertical) {
       y = Math.min(y, pixel.y - barHeight);
   }
-  
+
   // for the retina case get the pixel density ratio
   // for non retina, this value is 1
   var pixelDensityRatio=queryForRetina(canvas);
@@ -146,18 +146,18 @@ function addWaterMark2Canvas(canvas) {
   y = y*pixelDensityRatio;
   x = x + myScalebarInstance.xOffset;
   y = y - myScalebarInstance.yOffset;
-  
+
   // fill a black rectangle as a background for the watermark
   ctx.font = fsize+"pt Sans-serif";
   var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
   ctx.fillStyle = 'rgb(208, 224, 240)';
   ctx.fillRect(x, y-myScalebarInstance.yOffset, rectWidth, fsize+myScalebarInstance.yOffset);
-  
+
   // fill the watermark in the rectangle
   ctx.textAlign = "left";
   ctx.fillStyle = "rgb(51, 51, 51)";
   ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
-  
+
   ctx.restore();
   window.console.log('Added watermark: ' + waterMark);
 }
@@ -170,7 +170,7 @@ function saveScalebar(s) { save_meterscaleinpixels=s; }
 function isSimpleBaseImage() {
   for(var i=0; i<logURL.length; i++) {
      var url=logURL[i];
-     if(url.indexOf('ImageProperties.xml')!= -1 || url.startsWith('/iiif/')) 
+     if(url.indexOf('ImageProperties.xml')!= -1 || url.startsWith('/iiif/'))
        return false;
   }
   return true;
@@ -181,7 +181,7 @@ function isSimpleBaseImage() {
 function isIIIFImage() {
 for(var i=0; i<logURL.length; i++) {
   var url=logURL[i];
-  if(url.startsWith('/iiif/')) 
+  if(url.startsWith('/iiif/'))
     return true;
 }
 return false;
@@ -219,9 +219,9 @@ jQuery(document).ready(function() {
             if(kvp[0].trim() == 'url') {
               url=kvp[1].replace(new RegExp('/$'),'').trim();
               if(logURL.length > 0) {
-                if(logCHANNELNAME.length < logURL.length) 
+                if(logCHANNELNAME.length < logURL.length)
                   logCHANNELNAME.push(null);
-                if(logALIASNAME.length < logURL.length) { 
+                if(logALIASNAME.length < logURL.length) {
                   var c=logCHANNELNAME.length-1;
                   logALIASNAME.push(logCHANNELNAME[c]);
                 }
@@ -281,9 +281,9 @@ jQuery(document).ready(function() {
 	  saveScalebar(0);
   }
 // last case where there is no ending url
-  if(logCHANNELNAME.length < logURL.length) 
+  if(logCHANNELNAME.length < logURL.length)
     logCHANNELNAME.push(null);
-  if(logALIASNAME.length < logURL.length) { 
+  if(logALIASNAME.length < logURL.length) {
     var c=logCHANNELNAME.length-1;
     logALIASNAME.push(logCHANNELNAME[c]);
   }
@@ -293,7 +293,7 @@ jQuery(document).ready(function() {
 
     var isSimpleURL=isSimpleBaseImage();
     var isIIIFURL=isIIIFImage();
-    // setup the channel alias names, only for simple url 
+    // setup the channel alias names, only for simple url
     var toShowNavigator=true; // suppress navigator if it is simple jpg viewing
     if(isSimpleURL) {
       toShowNavigator=false;
@@ -319,8 +319,8 @@ jQuery(document).ready(function() {
     }
     if(enableEmbedded || typeof(RUN_FOR_DEBUG) !== "undefined") {
     	if (isIIIFURL) {
-    		// the cantaloupe images needs some special options: 
-    		// ajaxWithCredentials: for AJAX requests 
+    		// the cantaloupe images needs some special options:
+    		// ajaxWithCredentials: for AJAX requests
     		// maxZoomPixelRatio: for zoom-in (the default is 1.1)
     		// crossOriginPolicy: for canvas requests to use cantaloupe server
     		// tileSources: an array with the scenes URLs
@@ -342,7 +342,7 @@ jQuery(document).ready(function() {
     			// for multi scenes additonal parameters:
     			// collectionMode: arrange your TiledImages in a grid or line
     			// collectionRows: all the scenes will be arranged on a single row
-    			
+
   	  	      myViewer = OpenSeadragon({
 	              id: "openseadragon",
 	              prefixUrl: "images/",
@@ -419,7 +419,7 @@ compositeOperation: 'lighter',
         annoSetup(anno,myViewer);
 /*
 Currently supported property values are:
-  
+
     outline: outline color for annotation and selection shapes
     stroke: stroke color for annotation and selection shapes
     fill: fill color for annotation and selection shapes
@@ -430,24 +430,24 @@ Currently supported property values are:
     hi_outline_width: outline width for highlighted annotation shapes
     hi_stroke_width: stroke width for highlighted annotation shapes
 */
-//  anno.setProperties({ 'outline' : 'purple' }); 
+//  anno.setProperties({ 'outline' : 'purple' });
 
 // XXX for poly, anno.addPlugin('PolygonSelector', { activate: true });
 
     }
     for( i=0; i<logURL.length; i++) {
        url=logURL[i];
-        
+
        if(url.indexOf('ImageProperties.xml')!= -1) {
           _addURLLayer(url,i);
        } else if(url.indexOf('.svg')!= -1) {
-               // accepting annotation data in svg xml 
+               // accepting annotation data in svg xml
           _addSVGDataLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
        } else if(url.indexOf('AnnotationData.xml')!= -1) {
                // accepting other annotator's annotation data in XML
           _addDataLayer(url,i);
        } else if(isIIIFURL) {
-           // IIIF image data 
+           // IIIF image data
     	   // for now, add just the channel in the property list
     	   _addIIIFURLLayer(url,i,logCHANNELNAME[i],logALIASNAME[i]);
        } else if(isSimpleURL) {
@@ -515,13 +515,13 @@ window.console.log("MEI in startState...");
        inner_node.classList.add("annotation-overlay-inner"); // boxmarker-inner
        var marker_node = document.createElement('span-inner');
 //       var marker_node = document.createElement('a');
-       marker_node.classList.add("annotation-marker"); 
-       marker_node.id=makeMarkerIDWithLocation(location);   
+       marker_node.classList.add("annotation-marker");
+       marker_node.id=makeMarkerIDWithLocation(location);
        anno_div.appendChild(marker_node);
 
 /*
        var tooltip_node = document.createElement('a');
-       tooltip_node.classList.add("annotation-marker-tooltip"); 
+       tooltip_node.classList.add("annotation-marker-tooltip");
        tooltip_node.innerText="1";
        marker_node.appendChild(tooltip_node);
 */
@@ -561,7 +561,7 @@ window.console.log("MEI in startState...");
 
 /*
     $(document).on('mouseenter', '.annotation-marker',
-      function() 
+      function()
       {
 window.console.log("EXTRA, found a annotation-marker...");
       }
@@ -721,7 +721,7 @@ function _addSimpleURLLayer(url, i, channelname, aliasname) {
     myViewer.addTiledImage( options );
 
     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
-    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma}; 
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma};
     if(aliasname != null) {
       p['name']= aliasname;
     }
@@ -756,7 +756,7 @@ function _addIIIFURLLayer(url, i, channelname, aliasname) {
     var gamma=presetGamma(i,_name);
 
     addItemListEntry(_name,i,_dir,hue,contrast,brightness,op,gamma,aliasname);
-    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma}; 
+    var p= { 'name': _name, 'cname':cname, 'itemID':i, 'opacity':op, 'hue':hue, 'contrast':contrast, 'brightness':brightness, 'gamma':gamma};
     if(aliasname != null) {
       p['name']= aliasname;
     }
@@ -1075,7 +1075,7 @@ function jpgClick(fname) {
        addWaterMark2Canvas(canvas);
      }
      rawImg = canvas.toDataURL("image/jpeg",1);
-     } else {   
+     } else {
        canvas= myViewer.drawer.canvas;
        var pixelDensityRatio=queryForRetina(canvas);
        if(pixelDensityRatio != 1) {
@@ -1163,9 +1163,9 @@ function jpgAllClick(fname) {
          newCanvas.width = _width;
          newCanvas.height = _height;
          var newCtxt = newCanvas.getContext("2d");
-         newCtxt.drawImage(canvas, 0,0, _width, _height, 
+         newCtxt.drawImage(canvas, 0,0, _width, _height,
                                   0,0, _width, _height);
-/* grab overlays 
+/* grab overlays
          var overlay=myViewer.svgOverlay();
 */
          rawImg = newCanvas.toDataURL("image/jpeg",1);
@@ -1319,7 +1319,7 @@ function unmarkSpecial() { isSpecialAnnotation=false; }
 function markHidden() { isHiddenAnnotation=true; }
 function unmarkHidden() { isHiddenAnnotation=false; }
 
-// reuse the calls to be like annotorious_ui's 
+// reuse the calls to be like annotorious_ui's
 // make an annotation 'special'
 function specialClick() {
    var stog = document.getElementById('special-toggle');
@@ -1414,4 +1414,3 @@ function queryForRetina(canv) {
 
   return pixelDensityRatio;
 }
-

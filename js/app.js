@@ -33,6 +33,7 @@ var myApp = (function (_config) {
                 break;
             // Change openseadragon item channel setting
             case "changeOsdItemChannelSetting":
+                console.log("This is being called");
                 viewer.setItemChannel(data);
                 break;
             case "zoomIn":

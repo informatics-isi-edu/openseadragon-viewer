@@ -57,24 +57,25 @@ Utils.prototype.getParameters = function(){
         type = args[i].split("=")[0];
         value = args[i].split("=")[1];
         switch(type){
-            case "url":
+            case "url": // Parameter.type are of 3 types : svg - for annotation overlay, tiff - files containing info.json and all the other file formats are treated as rest
                 if(value.indexOf(".svg") != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
+                    parameters.type = 'tiff'; // Asssuming svg are only with tiff files - @mingyi
                 }
-                else if(value.indexOf("ImageProperties.xml") != -1){
+                else if(value.indexOf("ImageProperties.xml") != -1){ // Why can't we merge this with the last else case @mingyi?
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
-                    // parameter to detect type of file
+                    parameters.type = 'rest';
                 }
-                else if(value.indexOf("info.json") != -1){
+                else if(value.indexOf("info.json") != -1) {
                     parameters.info = parameters.info || [];
-                    parameters.info.push(value);                    // parameter to detect type of file
-
+                    parameters.info.push(value);
+                    parameters.type = 'tiff';
                 } else {
                     parameters.images = parameters.images || [];
-                    parameters.images.push(value);                    // parameter to detect type of file
-
+                    parameters.images.push(value);
+                    parameters.type = 'rest';
                 }
                 break;
             // case "aliasName": // Move to channelName - basically to add as an array
@@ -112,6 +113,24 @@ Utils.prototype.getParameters = function(){
     }
     // console.log(parameters);
     return parameters;
+}
+
+// Set the config based on the image type
+Utils.prototype.setOsdConfig =  function(parameters, configs) {
+  var config = null;
+  console.log(parameters);
+  switch (parameters.type) {
+    case "tiff":
+      config = configs.tiff;
+      break;
+    case "rest":
+      config = configs.rest;
+      break;
+    default:
+      break;
+
+  }
+  return config;
 }
 
 // Detect user's browser
