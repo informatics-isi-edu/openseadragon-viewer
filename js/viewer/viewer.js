@@ -451,6 +451,7 @@ function Viewer(parent, config) {
 
           // Dispatch event to toolbar to update channel list
           this.dispatchEvent('updateChannelList', channelList);
+          this.loadAfterOSDInit(); // -- @mingyi - consequences of this ?
           break;
         default:
           break;
