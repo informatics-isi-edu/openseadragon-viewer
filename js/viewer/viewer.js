@@ -766,6 +766,9 @@ function Viewer(parent, config) {
 
     // Set the viewer into different mode
     this.setMode = function(data){
+        // clear all the mouse tracker listeners
+        this.removeMouseTrackers();
+
         switch(data.mode){
             case modes.ERASE_ANNOTATIONS:
                 _self.mode = modes.ERASE_ANNOTATIONS;
