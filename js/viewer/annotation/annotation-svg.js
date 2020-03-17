@@ -202,7 +202,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         var svg = "";
 
         for(groupID in this.groups){
-            svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'>";
+            svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
             svg += this.groups[groupID].exportToSVG();
             svg += "</svg>";
             rst.push({
