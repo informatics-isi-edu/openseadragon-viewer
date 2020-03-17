@@ -326,7 +326,7 @@ function Viewer(parent, config) {
             if(_self.parameters.meterScaleInPixels){
                 var meterScaleInPixels = _self.parameters.meterScaleInPixels;
                 _self.resetScalebar(meterScaleInPixels);
-                _self.osd.scalebar({stayInsideImage: false});
+                _self.osd.scalebar({stayInsideImage: true});
             }
 
             // Check if annotation svg exists
