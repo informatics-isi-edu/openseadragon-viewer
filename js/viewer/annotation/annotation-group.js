@@ -21,37 +21,27 @@ function AnnotationGroup(id, anatomy, description, parent){
     // Add new annotation object (path/cirlce/rect)
     this.addAnnotation = function(type){
         var annotation = null;
-
+        var graphID = Date.parse(new Date()) + parseInt(Math.random() * 1000);
+        var attrs = {
+            "graph-id" : graphID,
+            // "annotation-id" : this.id,
+            "parent" : this
+        }
         switch (type.toUpperCase()) {
             case "PATH":
-                annotation = new Path({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Path(attrs); 
                 break;
             case "POLYLINE":
-                annotation = new Polyline({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Polyline(attrs); 
                 break;
             case "POLYGON":
-                annotation = new Polygon({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Polygon(attrs); 
                 break;
             case "RECT":
-                annotation = new Rect({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Rect(attrs); 
                 break;
             case "CIRCLE":
-                annotation = new Circle({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Circle(attrs); 
                 break;
         };
 
@@ -67,9 +57,8 @@ function AnnotationGroup(id, anatomy, description, parent){
         
         switch(type){
             case "onClickChangeSelectingAnnotation":
-                this.parent.dispatchEvent(type, {
-                    groupID : this.id
-                })
+                data["groupID"] = this.id;
+                this.parent.dispatchEvent(type, data);
                 break;
             case "onMouseoverShowTooltip":
                 data["anatomy"] = this.anatomy;
@@ -135,8 +124,13 @@ function AnnotationGroup(id, anatomy, description, parent){
     }
 
     // Remove annotation
-    this.removeAnnotationObject = function(annotation){
-        if(!annotation || !annotation.svg){
+    this.removeAnnotationObject = function(graphID){
+        
+        var annotation = this.annotations.find(function(graph){
+            return graph.id ==  graphID
+        })
+
+        if(!annotation){
             return
         }
         
@@ -185,6 +179,12 @@ function AnnotationGroup(id, anatomy, description, parent){
         _self.annotations.forEach(function(annotation){
             annotation.renderSVG();
         })
+    }
+
+    this.updateInfo = function(data){
+        this.id = data.id;
+        this.anatomy = data.anatomy;
+        this.svg.attr("annotation-id", this.id);
     }
 
     this.unHighlightAll = function(){

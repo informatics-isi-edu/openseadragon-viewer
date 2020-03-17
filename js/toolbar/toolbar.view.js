@@ -66,6 +66,11 @@ function ToolbarView(controller, config){
         this._drawToolElem.appendChild(annotationTool.elem);
     }
 
+    // Remove the annotaiton tool
+    this.removeAnnotationTool = function(){
+        this._drawToolElem.innerHTML = "";
+    }
+
     // Render the annotation group menu
     this.renderChannelContent = function(channelList){
 

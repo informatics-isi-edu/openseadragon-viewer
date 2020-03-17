@@ -30,6 +30,9 @@ var myApp = (function (_config) {
             case "drawingStop":
                 viewer.removeMouseTrackers(data);
                 break;
+            case "setMode":
+                viewer.setMode(data);
+                break;
             // Change openseadragon item overlay visibility
             case "changeOsdItemVisibility":
                 viewer.setItemVisibility(data.osdItemId, data.isDisplay);
@@ -109,6 +112,7 @@ var myApp = (function (_config) {
                     break;
                 case 'highlightAnnotation':
                 case 'changeAnnotationVisibility':
+                case 'changeGroupInfo':
                     viewer.dispatchSVGEvent(messageType, data);
                     break;
                 case 'changeAllAnnotationVisibility':
@@ -117,8 +121,12 @@ var myApp = (function (_config) {
                 case 'changeStrokeScale':
                     viewer.changeStrokeScale(data);
                     break;
-                case 'drawAnnotationModeOn':
-                    toolbar && toolbar.drawAnnotationModeOn(data);
+                case 'drawAnnotationMode':
+                    toolbar && toolbar.drawAnnotationMode(data);
+                    viewer.drawAnnotationMode(data);
+                    break;
+                case 'addNewTerm':
+                    viewer.addNewTerm(data);
                     break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);

@@ -62,22 +62,24 @@ Utils.prototype.getParameters = function(){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value); 
                 }
-                else if(value.indexOf("ImageProperties.xml") != -1){
+                else if(value.indexOf("ImageProperties.xml") != -1 || value.indexOf(".jpg") != -1){
                     parameters.images = parameters.images || [];
-                    parameters.images.push(value); 
+                    parameters.images.push(value);
+                    parameters.loadImgType = value.indexOf("ImageProperties.xml") != -1 ? "xml" : "simpleImg";
                 }
                 else if(value.indexOf("info.json") != -1){
                     parameters.info = parameters.info || [];
                     parameters.info.push(value); 
+                    parameters.loadImgType = "tiff";
                 } 
                 break;
-            case "aliasName":
             case "waterMark":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
                 }  
                 parameters[type] = decodeURI(value);
                 break;
+            case "aliasName":
             case "channelName":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);

@@ -2,9 +2,11 @@ function Base(attrs){
     attrs = attrs ? attrs : {};
     var _self = this;
     this.parent = attrs.parent;
+    this.id = attrs["graph-id"] || -1;
     this.isDrawing = false;
     this._attrs = {
-        "annotation-id" : attrs["annotation-id"] || -1,
+        // "annotation-id" : attrs["annotation-id"] || -1,
+        "graph-id" : attrs["graph-id"] || -1,
         "tag" : attrs["tag"] || "",
         "fill" : attrs["fill"] || "none",
         "stroke" :  attrs["stroke"] || "",
@@ -14,7 +16,9 @@ function Base(attrs){
     }
 
     this.onClickToSelectAnnotation = function(){
-        _self.dispatchEvent("onClickChangeSelectingAnnotation");
+        _self.dispatchEvent("onClickChangeSelectingAnnotation", {
+            graphID : _self.id || ""
+        });
     };
 
     this.onMouseoverShowTooltip = function(){

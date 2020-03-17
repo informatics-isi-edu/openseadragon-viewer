@@ -1,13 +1,14 @@
 function AnnotationTool(parent){
     
     var _self = this;
-    
+
     this.elem = null;
     this.parent = parent || null;
     this.isDisplay = false;
     this.curType = 'CURSOR';
     this.curSVGID = '';
     this.curGroupID = '';
+    this.curColor = '#f00000';
 
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
@@ -32,6 +33,9 @@ function AnnotationTool(parent){
 
         switch(btnType){
             case "CURSOR":
+                _self.dispatchEvent("setMode", {
+                    mode : "VIEW"
+                });
                 _self.dispatchEvent("drawingStop");
                 break;
             case "PATH":
@@ -43,12 +47,26 @@ function AnnotationTool(parent){
                     groupID : _self.curGroupID,
                     type : btnType,
                     attrs : {
-                        "stroke" : "#000",
+                        "stroke" : _self.curColor,
                         "fill" : "None"
                     }
                 });
                 break;
+            case "ERASER":
+                _self.dispatchEvent("drawingStop");
+                _self.dispatchEvent("setMode", {
+                    mode : "ERASE_ANNOTATIONS"
+                });
+                break;
+            default:
+                _self.dispatchEvent("drawingStop");
+                break;
         }
+    }
+
+    // Change stroke color
+    this.onChangeStrokeColor = function(){
+        _self.curColor = this.value;
     }
 
     // Render the view
@@ -57,8 +75,11 @@ function AnnotationTool(parent){
         var toolElem = document.createElement("div");
         toolElem.setAttribute("class", "annotationTool flex-col");
         toolElem.innerHTML = [
-            "<span class='toolBtn' data-type='CURSOR'>",
+            "<span class='toolBtn' data-type='CURSOR' data-toggle='tooltip' data-placement='right' title='Tooltip on right'>",
                 "<i class='fa fa-mouse-pointer'></i>",
+            "</span>",
+            "<span class='toolBtn' data-type='CHANGE_COLOR'>",
+                "<input type='color' value='" + _self.curColor + "' id='strokeColor'/>",
             "</span>",
             "<span class='toolBtn' data-type='PATH'>",
                 "<i class='fa fa-pencil'></i>",
@@ -69,6 +90,10 @@ function AnnotationTool(parent){
             "<span class='toolBtn' data-type='CIRCLE'>",
                 "<i class='fa fa-circle'></i>",
             "</span>",
+            "<span class='toolBtn' data-type='ERASER'>",
+                "<i class='fa fa-eraser'></i>",
+            "</span>",
+            
         ].join("");
 
         toolElem.querySelector(".toolBtn[data-type='"+this.curType+"']").className = "toolBtn selected";
@@ -78,6 +103,9 @@ function AnnotationTool(parent){
         this.elem.querySelectorAll(".toolBtn").forEach(function(elem){
             elem.addEventListener('click', this.onClickChangeBtn);
         }.bind(this));
+
+        var colorInput = this.elem.querySelector("#strokeColor");
+        colorInput.addEventListener('change', this.onChangeStrokeColor);
     }
 
     // Update the drawing info

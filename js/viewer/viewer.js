@@ -1,5 +1,10 @@
 function Viewer(parent, config) {
 
+    const modes = {
+        "VIEW" : 'VIEW',
+        "ERASE_ANNOTATIONS" : 'ERASE_ANNOTATIONS'
+    }
+
     var _self = this;
 
     this._utils = null;
@@ -12,6 +17,7 @@ function Viewer(parent, config) {
         groupID : ""
     };
     this.mouseTrackers = [];
+    this.mode = modes.VIEW;
     this.isInitLoad = false;
     this.osd = null;
     this.tooltipElem = null;
@@ -78,6 +84,15 @@ function Viewer(parent, config) {
         });
     };
 
+    // Add new term 
+    this.addNewTerm = function(data){
+        // if svgID is exist
+        if(this.svgCollection.hasOwnProperty(data.svgID)){
+            this.dispatchSVGEvent("addNewGroup", data);
+        };
+        // create a new svg 
+        // create a new group 
+    }
     // Build a tilesource object for Openseadragon Config
     this.buildTileSource = function (xmlDoc, imgPath) {
 
@@ -192,11 +207,20 @@ function Viewer(parent, config) {
              */
             // Change current selected annotation group from toolbar
             case "onClickChangeSelectingAnnotation":
-                this.changeSelectingAnnotation(data);
-                this.parent.dispatchEvent(type, {
-                    svgID : data.svgID,
-                    groupID : data.groupID
-                });
+                if(_self.mode == modes.ERASE_ANNOTATIONS){
+                    this.dispatchSVGEvent("removeAnnotationObject", {
+                        svgID : data.svgID,
+                        groupID : data.groupID,
+                        graphID : data.graphID
+                    })
+                }
+                else if(_self.mode == modes.VIEW){
+                    this.changeSelectingAnnotation(data);
+                    this.parent.dispatchEvent(type, {
+                        svgID : data.svgID,
+                        groupID : data.groupID
+                    });
+                }
                 break;
             default:
                 this.parent.dispatchEvent(type, data);
@@ -214,6 +238,10 @@ function Viewer(parent, config) {
         var svg = this.svgCollection[data.svgID];
 
         switch(type){
+            // Add a new group
+            case "addNewGroup":
+                svg.createAnnotationGroup(data.groupID, data.anatomy, data.description);
+                break;
             // Change an annotation group's visibility
             case "changeAnnotationVisibility":
                 svg.changeVisibility(data);
@@ -221,6 +249,10 @@ function Viewer(parent, config) {
             // Change stroke scale
             case "changeStrokeScale":
                 svg.changeStrokeScale(data);
+                break;
+            // Change group information:
+            case "changeGroupInfo":
+                svg.changeGroupInfo(data);
                 break;
             // Drawing annotation on the SVG
             case "drawingStart":
@@ -236,7 +268,7 @@ function Viewer(parent, config) {
                 break;
             // Remove annotation object from a group
             case "removeAnnotationObject":
-                svg.removeAnnotationObject(data.groupID, data.annotation);
+                svg.removeAnnotationObject(data.groupID, data.graphID);
                 break;
             // Set annotation groups attributes
             case "setGroupAttributes":
@@ -244,6 +276,33 @@ function Viewer(parent, config) {
                 break;
             default:
                 break;
+        }
+    }
+
+    // Draw annotation mode on -> only show the related annotation objects
+    this.drawAnnotationMode = function(data){
+        // Check if the svg id exists 
+        var svgID;
+        var groupID;
+        var isDisplay;
+        var mode = data.mode.toUpperCase();
+
+        // Hide all annotation objects
+        for(svgID in this.svgCollection){
+            if(mode == "ON"){
+                if(svgID == data.svgID){
+                    for(groupID in this.svgCollection[svgID].groups){
+                        isDisplay = (groupID == data.groupID) ? true : false;
+                        this.svgCollection[svgID].groups[groupID].setDisplay(isDisplay);
+                    }
+                }
+                else{
+                    this.svgCollection[svgID].changeAllVisibility(false);
+                }
+            }
+            else{
+                this.svgCollection[svgID].changeAllVisibility(true);
+            }
         }
     }
 
@@ -529,7 +588,8 @@ function Viewer(parent, config) {
         if(_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]){
             event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
             event.userData.annotation.setupDrawingAttrs(attrs);
-
+            event.userData.graphID = event.userData.annotation.id;
+            
             var mousetracker = new OpenSeadragon.MouseTracker({
                 element: _self.svg,
                 dragHandler: _self.onMouseDragToDraw,
@@ -592,7 +652,7 @@ function Viewer(parent, config) {
                     this.dispatchSVGEvent("removeAnnotationObject", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
-                        annotation : userData.annotation
+                        graphID : userData.graphID
                     })
                 }
                 
@@ -702,6 +762,18 @@ function Viewer(parent, config) {
                 }
             ]
         })
+    }
+
+    // Set the viewer into different mode
+    this.setMode = function(data){
+        switch(data.mode){
+            case modes.ERASE_ANNOTATIONS:
+                _self.mode = modes.ERASE_ANNOTATIONS;
+                break;
+            case modes.VIEW:
+                _self.mode = modes.VIEW;
+                break;
+        }    
     }
 
     // Zoom in to the given rectangle viewport

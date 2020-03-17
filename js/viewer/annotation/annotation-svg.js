@@ -56,6 +56,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             this.dispatchEvent("onDrawingBegin", {
                 svgID : this.id,
                 groupID : groupID,
+                graphID : annotation.id,
                 viewBox : this.viewBox,
                 imgScaleX : this.imgScaleX,
                 imgScaleY : this.imgScaleY,
@@ -86,6 +87,21 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         if(!isDisplay){
             this.hideGroupBorder();
+        }
+    }
+
+    this.changeGroupInfo = function(data){
+
+        if(this.groups.hasOwnProperty(data.groupID)){
+            var prevGroup = this.groups[data.groupID];
+            prevGroup.updateInfo({
+                id : data.newGroupID,
+                anatomy : data.newAnatomy
+            })
+            
+            this.groups[data.newGroupID] = prevGroup;
+
+            delete this.groups[data.groupID];
         }
     }
 
@@ -336,10 +352,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     // Remove annotation from a group
-    this.removeAnnotationObject = function(groupID, annotation){
+    this.removeAnnotationObject = function(groupID, graphID){
         if(this.groups.hasOwnProperty(groupID)){
             var group = this.groups[groupID];
-            group.removeAnnotationObject(annotation);
+            group.removeAnnotationObject(graphID);
         }
     }
 
@@ -369,6 +385,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }
     }
 
+    /**
+     * 
+     */
+    this.exportSVGContent = function(){
+
+    }
     // Unhighlight current group when user hover on other group
     this.unHighlightCurrentGroup = function(hoverGroupID){
         if(this.currentGroupID != "" && this.currentGroupID != hoverGroupID){

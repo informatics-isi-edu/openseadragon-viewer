@@ -26,3 +26,18 @@
 #drawToolContainer .toolBtn:hover{
     background: #18548d;
 }
+
+#drawToolContainer .toolBtn input[type="color"] {
+	-webkit-appearance: none;
+    border: none;
+    width: 15px;
+    height: 15px;
+    padding: 0;
+    border: 1px solid #99afcb;
+}
+#drawToolContainer .toolBtn input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+#drawToolContainer .toolBtn input[type="color"]::-webkit-color-swatch {
+	border: none;
+}

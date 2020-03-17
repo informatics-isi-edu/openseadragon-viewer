@@ -25,14 +25,22 @@ function ToolbarController(parent, config){
     }
 
     // Turn on annotation drawing mode
-    this.drawAnnotationModeOn = function(data){
+    this.drawAnnotationMode = function(data){
 
+        // Drawing mode
+        var mode = data.mode.toUpperCase();
         // Check if the svg id exists 
         var svgID = data.svgID || "";
         var groupID = data.groupID || "";
         
         if(svgID != "" && groupID != ""){
-            this._toolbarView.renderAnnotationTool(this.annotationTool, data);
+            if(mode == "ON"){
+                this._toolbarView.renderAnnotationTool(this.annotationTool, data);
+            }
+            else{
+                this._toolbarView.removeAnnotationTool();
+            }
+            
         }
 
     }
