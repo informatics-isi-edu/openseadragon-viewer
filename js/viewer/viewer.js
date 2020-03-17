@@ -406,10 +406,10 @@ function Viewer(parent, config) {
               if (isImageSimpleBase) {
                   // The below code is for aliasName used in place of channelName
                   // Issue: Assumptions that either all channelName have aliasname or none of them have it. - @mingyi
-                  // var channelName = this.parameters.aliasName.length > i ? this.parameters.aliasName[i] : this.parameters.channelName[i];
+                  var channelName = this.parameters.aliasName.length > i ? this.parameters.aliasName[i] : this.parameters.channelName[i];
                   option = {
                       tileSource: {
-                          channelName : this.parameters.channelName[i],
+                          channelName : channelName,
                           tileWidth: 457,
                           tileHeight: 640,
                           type: 'image',
