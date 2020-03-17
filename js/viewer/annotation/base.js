@@ -15,6 +15,29 @@ function Base(attrs){
         "vector-effect" : attrs["vector-effect"] || "non-scaling-stroke"
     }
 
+    this.exportToSVG = function(){
+        var tag = this._attrs["tag"];
+        var rst = "<" + tag + " ";
+        var attr;
+
+        for(attr in this._attrs){
+            if(!this._attrs[attr] || this._attrs[attr] === null){
+                continue;
+            }
+
+            switch(attr){
+                case "tag":
+                case "graph-id":
+                    break;
+                default:
+                    rst += (attr + '="' + this._attrs[attr] + '" ');
+                    break;  
+            }
+        }
+        rst += "></" + tag + ">";
+        return rst;
+    }
+
     this.onClickToSelectAnnotation = function(){
         _self.dispatchEvent("onClickChangeSelectingAnnotation", {
             graphID : _self.id || ""

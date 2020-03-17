@@ -192,8 +192,34 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         
     }
 
+    /**
+     * export a list of svg files
+     * each svg file only contains one anatomy ID
+     */
+    this.exportToSVG = function(){
+        var rst = [];
+        var groupID = null;
+        var svg = "";
+
+        for(groupID in this.groups){
+            svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'>";
+            svg += this.groups[groupID].exportToSVG();
+            svg += "</svg>";
+            rst.push({
+                id : groupID,
+                svg : svg
+            });
+        }
+        return rst;
+    }
+
     this.getStrokeScale = function(){
         return this.parent.getStrokeScale();
+    }
+
+    // get viewbox of the svg 
+    this.getViewBox = function(){
+        return (this.viewBox) ? this.viewBox : [0, 0, this.imgWidth, this.imgHeight];
     }
 
     // highlight current group when user leave the hovering group
@@ -385,12 +411,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }
     }
 
-    /**
-     * 
-     */
-    this.exportSVGContent = function(){
-
-    }
     // Unhighlight current group when user hover on other group
     this.unHighlightCurrentGroup = function(hoverGroupID){
         if(this.currentGroupID != "" && this.currentGroupID != hoverGroupID){
@@ -398,6 +418,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             group.unHighlightAll();
         }
     }
+
 }
 
 

@@ -83,6 +83,25 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
     }
 
+    // Export group content
+    this.exportToSVG = function(){
+
+        if(this.annotations.length === 0){
+            return;
+        }
+
+        var rst = ["<g annotation-id='"+this.id+"'>"];
+        var i;
+
+        for(i = 0; i < this.annotations.length; i++){
+            var content = this.annotations[i].exportToSVG();
+            rst.push(content);
+        };
+
+        rst.push("</g>");
+        return rst.join("");
+    }
+
     // Get box boundaries of the group
     this.getBoxBoundaries = function(){
         return {
