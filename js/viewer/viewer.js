@@ -73,6 +73,10 @@ function Viewer(parent, config) {
         this.osd.world.addHandler('add-item', function() {
           // console.log(_self.channels);
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
+                var meterScaleInPixels = _self.parameters.meterScaleInPixels;
+                if (meterScaleInPixels) {
+                  _self.resetScalebar(meterScaleInPixels);
+                }
                 for(var key in _self.channels){
                     var channel = _self.channels[key];
                     _self.setItemChannel({
@@ -438,7 +442,8 @@ function Viewer(parent, config) {
               meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
               meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
               this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
-              this.resetScalebar(meterScaleInPixels);
+              console.log("Meter",meterScaleInPixels);
+              // this.resetScalebar(meterScaleInPixels); - I have removed this.
 
               this.channels[i] = channel;
               channelList.push({

@@ -1,4 +1,4 @@
-/* run :
+s/* run :
 
   http://localhost/tiletiff/mview.html?
          http://localhost/tiletiff/data/DZI/ImageProperties.xml
