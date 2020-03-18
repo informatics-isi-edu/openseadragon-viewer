@@ -24,6 +24,7 @@ function Viewer(parent, config) {
     this.strokeWidthScale = null;
     this.strokeMinScale = 1.5;
     this.strokeMaxScale = 3.5;
+    this.stayInsideImage = true;
 
     // Init
     this.init = function (utils) {
@@ -38,7 +39,7 @@ function Viewer(parent, config) {
 
         // Setting the config based on the type of the image we get
         this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
-        console.log("Config used: ",  this._config);  // TODO: If config is null, give an error.
+        // console.log("Config used: ",  this._config, this.parameters);  // TODO: If config is null, give an error.
 
         // Get config from scalebar and Openseadragon - Move this to loadimages
         // this._config.osd.tileSources = this.parameters.info;
@@ -70,7 +71,7 @@ function Viewer(parent, config) {
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
         this.osd.world.addHandler('add-item', function() {
-          console.log(_self.channels);
+          // console.log(_self.channels);
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
                 for(var key in _self.channels){
                     var channel = _self.channels[key];
@@ -308,7 +309,7 @@ function Viewer(parent, config) {
 
     // Load after Openseadragon initialized
     this.loadAfterOSDInit = function(){
-        console.log("This is loaded");
+        // console.log("This is loaded");
         // Only execute it once when Openseadragon is done loading
         if (!_self.isInitLoad) {
 
@@ -326,11 +327,11 @@ function Viewer(parent, config) {
             if(_self.parameters.meterScaleInPixels){
                 var meterScaleInPixels = _self.parameters.meterScaleInPixels;
                 _self.resetScalebar(meterScaleInPixels);
-                _self.osd.scalebar({stayInsideImage: true});
+                _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
 
             // Check if annotation svg exists
-            console.log("Disable", _self.parameters.svgs);
+            // console.log("Disable", _self.parameters.svgs);
             if(_self.parameters.svgs) {
                 try {
                   _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
@@ -379,6 +380,9 @@ function Viewer(parent, config) {
         case 'tiff': // The order in which tilesources is added and osd is initialized is different in tiff and rest of the image type.
           // That is the reason why OpenSeadragon's constructor is called in switch case instead of general call.
           this._config.osd.tileSources = params.info;
+          if(this._config.osd.tileSources.length > 1) {
+            this.stayInsideImage = false;
+          }
           this.osd = OpenSeadragon(this._config.osd);
           this.osd.scalebar(this._config.scalebar);
           this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -395,7 +399,6 @@ function Viewer(parent, config) {
           var urls = params.images || [],
             channelList = [],
             i;
-
           for (i = 0; i < urls.length; i++) {
               var isImageSimpleBase = urls[i].indexOf('ImageProperties.xml') == -1 ? true : false,
                   channel,
@@ -455,7 +458,6 @@ function Viewer(parent, config) {
           break;
         default:
           break;
-
       }
     }
 
@@ -549,6 +551,7 @@ function Viewer(parent, config) {
 
     // Reset the scalebar measurement (pixel per meter) with new value
     this.resetScalebar = function (value) {
+        console.log("The reset of the scalebar");
         this.osd.scalebar({
             location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
             pixelsPerMeter: value
