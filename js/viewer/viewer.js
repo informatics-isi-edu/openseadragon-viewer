@@ -287,6 +287,9 @@ function Viewer(parent, config) {
         var isDisplay;
         var mode = data.mode.toUpperCase();
 
+        // remove all current mouse trackers
+        this.removeMouseTrackers();
+
         // Hide all annotation objects
         for(svgID in this.svgCollection){
             if(mode == "ON"){
@@ -734,6 +737,19 @@ function Viewer(parent, config) {
             svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
             svgs[i].setAttribute("height", bottomRight.y - topLeft.y + "px");
         }
+    }
+
+    // Save Anatomy SVG file 
+    this.saveAnatomySVG = function(data){
+        var svgID = data.svgID || "",
+            groupID = data.groupID,
+            rst = [];
+
+        if(this.svgCollection.hasOwnProperty(svgID)){
+            rst = this.svgCollection[svgID].exportToSVG(groupID);
+        };
+
+        _self.dispatchEvent("saveGroupSVGContent", rst);
     }
 
     // Set Openseadragon viewer item visibility

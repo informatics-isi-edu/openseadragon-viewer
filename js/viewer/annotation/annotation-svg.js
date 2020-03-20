@@ -195,21 +195,38 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     /**
      * export a list of svg files
      * each svg file only contains one anatomy ID
+     * @param groupID : the group id
+     * @return Array of objects that contains svg content of each group
      */
-    this.exportToSVG = function(){
+    this.exportToSVG = function(groupID = null){
         var rst = [];
-        var groupID = null;
         var svg = "";
 
-        for(groupID in this.groups){
-            svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
-            svg += this.groups[groupID].exportToSVG();
-            svg += "</svg>";
-            rst.push({
-                id : groupID,
-                svg : svg
-            });
+        // return matched group SVG content only if groupID provided
+        if(groupID){
+            if(this.groups.hasOwnProperty(groupID)){
+                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
+                svg += this.groups[groupID].exportToSVG();
+                svg += "</svg>";
+                rst.push({
+                    groupID : groupID,
+                    svg : svg
+                });
+            }
         }
+        // return all group content if groupID is not provided
+        else{
+            for(groupID in this.groups){
+                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
+                svg += this.groups[groupID].exportToSVG();
+                svg += "</svg>";
+                rst.push({
+                    groupID : groupID,
+                    svg : svg
+                });
+            }
+        }
+        
         return rst;
     }
 

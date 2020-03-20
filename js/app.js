@@ -33,6 +33,9 @@ var myApp = (function (_config) {
             case "setMode":
                 viewer.setMode(data);
                 break;
+            case "saveAnatomySVG":
+                viewer.saveAnatomySVG(data);
+                break;
             // Change openseadragon item overlay visibility
             case "changeOsdItemVisibility":
                 viewer.setItemVisibility(data.osdItemId, data.isDisplay);
@@ -61,7 +64,9 @@ var myApp = (function (_config) {
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-
+            case "saveGroupSVGContent":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
             // Send the updated channel list to toolbar
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);

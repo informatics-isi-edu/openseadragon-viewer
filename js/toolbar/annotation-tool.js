@@ -31,17 +31,17 @@ function AnnotationTool(parent){
         _self.elem.querySelector(".toolBtn[data-type='"+btnType+"']").className = "toolBtn selected";
         _self.curType = btnType;
 
+        _self.dispatchEvent("drawingStop");
+
         switch(btnType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {
                     mode : "VIEW"
                 });
-                _self.dispatchEvent("drawingStop");
                 break;
             case "PATH":
             case "CIRCLE":
             case "RECT":
-                _self.dispatchEvent("drawingStop");
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,
                     groupID : _self.curGroupID,
@@ -53,13 +53,17 @@ function AnnotationTool(parent){
                 });
                 break;
             case "ERASER":
-                _self.dispatchEvent("drawingStop");
                 _self.dispatchEvent("setMode", {
                     mode : "ERASE_ANNOTATIONS"
                 });
                 break;
+            case "SAVE":
+                _self.dispatchEvent("saveAnatomySVG", {
+                    svgID : _self.curSVGID,
+                    groupID : _self.curGroupID,
+                });
+                break;
             default:
-                _self.dispatchEvent("drawingStop");
                 break;
         }
     }
@@ -92,6 +96,9 @@ function AnnotationTool(parent){
             "</span>",
             "<span class='toolBtn' data-type='ERASER'>",
                 "<i class='fa fa-eraser'></i>",
+            "</span>",
+            "<span class='toolBtn' data-type='SAVE'>",
+                "<i class='fa fa-floppy-o'></i>",
             "</span>",
             
         ].join("");
