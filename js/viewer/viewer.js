@@ -55,7 +55,6 @@ function Viewer(parent, config) {
         it assumes that the format of the files is in czi. The below mentioned function uses the old version of code to load the images in OpenSeadragon.
         // NOTE: This also assuumes there won't be a svg for czi format(for overalpping).
         */
-        // console.log("Parameters info", this.parameters.info);
         // if (this.parameters.info === undefined) { // REmove this
         // this.loadImages(this.parameters.images);
         // }
@@ -71,7 +70,6 @@ function Viewer(parent, config) {
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
         this.osd.world.addHandler('add-item', function() {
-          // console.log(_self.channels);
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
                 var meterScaleInPixels = _self.parameters.meterScaleInPixels;
                 if (meterScaleInPixels) {
@@ -250,7 +248,7 @@ function Viewer(parent, config) {
 
         if (isScalebarExist) {
             canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-            canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+            this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
             rawImg = canvas.toDataURL("image/jpeg", 1);
         }
         else {
@@ -262,11 +260,16 @@ function Viewer(parent, config) {
                 newCanvas.height = canvas.height;
                 newCtx = newCanvas.getContext("2d");
                 newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                newCanvas = this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark);
+                this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
                 rawImg = newCanvas.toDataURL("image/jpeg", 1);
             } else {
-                canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark);
-                rawImg = canvas.toDataURL("image/jpeg", 1);
+              var newCanvas = document.createElement("canvas");
+              newCanvas.width = canvas.width;
+              newCanvas.height = canvas.height;
+              newCtx = newCanvas.getContext("2d");
+              newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+              this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+              rawImg = newCanvas.toDataURL("image/jpeg", 1);
             }
         }
 
@@ -275,6 +278,84 @@ function Viewer(parent, config) {
         }
     }
 
+
+    // function jpgClick(fname) {
+    //    var dname=fname;
+    //    if(dname == null) {
+    //      var f = new Date().getTime();
+    //      var ff= f.toString();
+    //      dname="osd_"+ff+".jpg";
+    //    }
+    //
+    //    var canvas;
+    //    var rawImg;
+    //    if( hasScalebar() ) {
+    //      canvas=myViewer.scalebarInstance.getImageWithScalebarAsCanvas();
+    //      if(waterMark != null) {
+    //        addWaterMark2Canvas(canvas);
+    //      }
+    //      rawImg = canvas.toDataURL("image/jpeg",1);
+    //      } else {
+    //        canvas= myViewer.drawer.canvas;
+    //        var pixelDensityRatio=queryForRetina(canvas);
+    //        if(pixelDensityRatio != 1) {
+    //          var newCanvas = document.createElement("canvas");
+    //          var _width=canvas.width;
+    //          var _height=canvas.height;
+    //          newCanvas.width = _width;
+    //          newCanvas.height = _height;
+    //          var newCtx = newCanvas.getContext("2d");
+    //          newCtx.drawImage(canvas, 0,0, _width, _height,
+    //                                   0,0, _width, _height);
+    //          if(waterMark != null) {
+    //            addWaterMark2Canvas(newCanvas);
+    //          }
+    //          rawImg = newCanvas.toDataURL("image/jpeg",1);
+    // //window.open(rawImg);
+    //          } else {
+    //              var newCanvas = document.createElement("canvas");
+    //              var _width=canvas.width;
+    //              var _height=canvas.height;
+    //              newCanvas.width = _width;
+    //              newCanvas.height = _height;
+    //              var newCtx = newCanvas.getContext("2d");
+    //              newCtx.drawImage(canvas, 0,0, _width, _height,
+    //                                       0,0, _width, _height);
+    //             if(waterMark != null) {
+    //               addWaterMark2Canvas(newCanvas);
+    //             }
+    //             rawImg = newCanvas.toDataURL("image/jpeg",1);
+    //        }
+    //    }
+    //
+    //    if( !isIE && !isSafari ) { // this only works for firefox and chrome
+    //      var dload = document.createElement('a');
+    //      dload.href = rawImg;
+    //      dload.download = dname;
+    //      dload.innerHTML = "Download Image File";
+    //      dload.style.display = 'none';
+    //      if( isChrome ) {
+    //        dload.click();
+    //        delete dload;
+    //        } else {
+    //          dload.onclick=destroyClickedElement;
+    //          document.body.appendChild(dload);
+    //          dload.click();
+    //          delete dload;
+    //      }
+    //      } else {
+    //        if(isSafari) {
+    // //https://github.com/eligrey/FileSaver.js/issues/12#issuecomment-47247096
+    // //         rawImg= rawImg.replace("image/jpeg", "image/octet-stream");
+    // //         rawImg= rawImg.replace("image/jpeg", "image/png");
+    //          rawImg= rawImg.replace("image/jpeg", "application/octet-stream");
+    //          document.location.href = rawImg;
+    //          } else { // IE
+    //             var blob = dataUriToBlob(rawImg);
+    //             window.navigator.msSaveBlob(blob, dname);
+    //        }
+    //    }
+    // }
     // Get channels
     this.getChannels = function () {
         return this.channels;
@@ -313,7 +394,6 @@ function Viewer(parent, config) {
 
     // Load after Openseadragon initialized
     this.loadAfterOSDInit = function(){
-        // console.log("This is loaded");
         // Only execute it once when Openseadragon is done loading
         if (!_self.isInitLoad) {
 
@@ -335,7 +415,6 @@ function Viewer(parent, config) {
             }
 
             // Check if annotation svg exists
-            // console.log("Disable", _self.parameters.svgs);
             if(_self.parameters.svgs) {
                 try {
                   _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
@@ -442,8 +521,7 @@ function Viewer(parent, config) {
               meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
               meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
               this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
-              console.log("Meter",meterScaleInPixels);
-              // this.resetScalebar(meterScaleInPixels); - I have removed this.
+              this.resetScalebar(meterScaleInPixels);
 
               this.channels[i] = channel;
               channelList.push({
@@ -556,7 +634,6 @@ function Viewer(parent, config) {
 
     // Reset the scalebar measurement (pixel per meter) with new value
     this.resetScalebar = function (value) {
-        console.log("The reset of the scalebar");
         this.osd.scalebar({
             location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
             pixelsPerMeter: value

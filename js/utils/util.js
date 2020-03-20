@@ -1,8 +1,61 @@
 function Utils(){};
 
+//
+// // from the scalebarInstance get the coordinates for the BOTTOM_LEFT
+// var myScalebarInstance = myViewer.scalebarInstance;
+// var barHeight = myScalebarInstance.divElt.offsetHeight;
+// var container = myScalebarInstance.viewer.container;
+// var x = 0;
+// var y = container.offsetHeight - barHeight;
+// var pixel = myScalebarInstance.viewer.viewport.pixelFromPoint(
+//         new OpenSeadragon.Point(0, 1 / myScalebarInstance.viewer.source.aspectRatio),
+//         true);
+// if (!myScalebarInstance.viewer.wrapHorizontal) {
+//     x = Math.max(x, pixel.x);
+// }
+// if (!myScalebarInstance.viewer.wrapVertical) {
+//     y = Math.min(y, pixel.y - barHeight);
+// }
+//
+// // for the retina case get the pixel density ratio
+// // for non retina, this value is 1
+// var pixelDensityRatio=queryForRetina(canvas);
+// x = x*pixelDensityRatio;
+// y = y*pixelDensityRatio;
+// x = x + myScalebarInstance.xOffset;
+// y = y - myScalebarInstance.yOffset;
+//
+// // fill a black rectangle as a background for the watermark
+// ctx.font = fsize+"pt Sans-serif";
+// var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
+// ctx.fillStyle = 'rgb(208, 224, 240)';
+// ctx.fillRect(x, y-myScalebarInstance.yOffset, rectWidth, fsize+myScalebarInstance.yOffset);
+//
+// // fill the watermark in the rectangle
+// ctx.textAlign = "left";
+// ctx.fillStyle = "rgb(51, 51, 51)";
+// ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
+//
+// ctx.restore();
+// window.console.log('Added watermark: ' + waterMark);
+
+function queryForRetina(canvas) {
+  // query for various pixel ratios
+   var ctxt = canvas.getContext("2d");
+   var devicePixelRatio = window.devicePixelRatio || 1;
+   var backingStoreRatio = ctxt.webkitBackingStorePixelRatio ||
+                           ctxt.mozBackingStorePixelRatio ||
+                           ctxt.msBackingStorePixelRatio ||
+                           ctxt.oBackingStorePixelRatio ||
+                           ctxt.backingStorePixelRatio || 1;
+    var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
+
+    return pixelDensityRatio;
+}
+
 // Add attribution watermark
 Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
-    if(!watermark || !canvas) return canvas;
+    if(!watermark || !canvas) return;
 
     var fsize = 20,
         h = canvas.height,
@@ -11,27 +64,64 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
         ctx = canvas.getContext("2d"),
         sLoc;
 
+    ctx.save();
+
     if (l < fsize){
         // cap it at 20
         fsize = l;
     }
 
-    // if has scalebar, associate with it
-    if (scalebar) {
-        sLoc = scalebar.getScalebarLocation()
-        wx = sLoc.x + scalebar.divElt.offsetWidth - 10;
-        fsize = scalebar.divElt.offsetWidth / 3;
-    } else {
-        wx = w - fsize;
+
+    // var myScalebarInstance = myViewer.scalebarInstance;
+    // if (scalebar) {
+    //
+    // }
+    var barHeight = scalebar.divElt.offsetHeight;
+    var container = scalebar.viewer.container;
+    var x = 0;
+    var y = container.offsetHeight - barHeight;
+    var pixel = scalebar.viewer.viewport.pixelFromPoint(
+            new OpenSeadragon.Point(0, 1 / scalebar.viewer.source.aspectRatio),
+            true);
+    if (!scalebar.viewer.wrapHorizontal) {
+        x = Math.max(x, pixel.x);
     }
-    ctx.save();
-    ctx.translate(5, h - fsize / 3 - 5);
+    if (!scalebar.viewer.wrapVertical) {
+        y = Math.min(y, pixel.y - barHeight);
+    }
+
+    // for the retina case get the pixel density ratio
+    // for non retina, this value is 1
+    var pixelDensityRatio=queryForRetina(canvas);
+    x = x*pixelDensityRatio;
+    y = y*pixelDensityRatio;
+    x = x + scalebar.xOffset;
+    y = y - scalebar.yOffset;
+
+    // if has scalebar, associate with it
+    // if (scalebar) {
+    //     sLoc = scalebar.getScalebarLocation()
+    //     wx = sLoc.x + scalebar.divElt.offsetWidth - 10;
+    //     fsize = scalebar.divElt.offsetWidth / 3;
+    // } else {
+    //     wx = w - fsize;
+    // }
+
+    // ctx.translate(5, h - fsize / 3 - 5);
+    // fill a black rectangle as a background for the watermark
+    ctx.font = fsize+"pt Sans-serif";
+    var rectWidth = Math.ceil(ctx.measureText(watermark).width);
+    ctx.fillStyle = 'rgb(208, 224, 240)';
+    ctx.fillRect(x, y-scalebar.yOffset, rectWidth, fsize+scalebar.yOffset);
+
+    // fill the watermark in the rectangle
     ctx.textAlign = "left";
-    ctx.font = fsize + "pt Sans-serif";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.fillText(watermark, 0, 0);
+    ctx.fillStyle = "rgb(51, 51, 51)";
+    ctx.fillText(watermark,x,y+scalebar.yOffset);
+
+
     ctx.restore();
-    return canvas;
+    // return ctx;
 }
 
 // Get file content from a url
