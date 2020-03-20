@@ -1,43 +1,5 @@
 function Utils(){};
 
-//
-// // from the scalebarInstance get the coordinates for the BOTTOM_LEFT
-// var myScalebarInstance = myViewer.scalebarInstance;
-// var barHeight = myScalebarInstance.divElt.offsetHeight;
-// var container = myScalebarInstance.viewer.container;
-// var x = 0;
-// var y = container.offsetHeight - barHeight;
-// var pixel = myScalebarInstance.viewer.viewport.pixelFromPoint(
-//         new OpenSeadragon.Point(0, 1 / myScalebarInstance.viewer.source.aspectRatio),
-//         true);
-// if (!myScalebarInstance.viewer.wrapHorizontal) {
-//     x = Math.max(x, pixel.x);
-// }
-// if (!myScalebarInstance.viewer.wrapVertical) {
-//     y = Math.min(y, pixel.y - barHeight);
-// }
-//
-// // for the retina case get the pixel density ratio
-// // for non retina, this value is 1
-// var pixelDensityRatio=queryForRetina(canvas);
-// x = x*pixelDensityRatio;
-// y = y*pixelDensityRatio;
-// x = x + myScalebarInstance.xOffset;
-// y = y - myScalebarInstance.yOffset;
-//
-// // fill a black rectangle as a background for the watermark
-// ctx.font = fsize+"pt Sans-serif";
-// var rectWidth = Math.ceil(ctx.measureText(waterMark).width);
-// ctx.fillStyle = 'rgb(208, 224, 240)';
-// ctx.fillRect(x, y-myScalebarInstance.yOffset, rectWidth, fsize+myScalebarInstance.yOffset);
-//
-// // fill the watermark in the rectangle
-// ctx.textAlign = "left";
-// ctx.fillStyle = "rgb(51, 51, 51)";
-// ctx.fillText(waterMark,x,y+myScalebarInstance.yOffset);
-//
-// ctx.restore();
-// window.console.log('Added watermark: ' + waterMark);
 
 function queryForRetina(canvas) {
   // query for various pixel ratios
