@@ -13,7 +13,7 @@ var _config = {
           osd: { // Single and multiple @mingyi - what should we do ? - in osd.viewer_multi.js
             id: 'openseadragonContainer',
             // prefixUrl: "images/",
-            collectionRows: 1, // Not in previous code - need to ask @mingyi
+            // collectionRows: 1,
             ajaxWithCredentials : true,
         	  maxZoomPixelRatio: 1,
         	// prefixUrl: "/openseadragon/images/",
@@ -26,7 +26,7 @@ var _config = {
             zoomPerClick : 1,
             crossOriginPolicy: "Anonymous",
             constrainDuringPan: true,
-            collectionMode: true,
+            // collectionMode: true, // Not in previous code - need to ask @mingyi
             // tileSources : {}
           },
           scalebar : {

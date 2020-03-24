@@ -387,6 +387,9 @@ function Viewer(parent, config) {
           this._config.osd.tileSources = params.info;
           if(this._config.osd.tileSources.length > 1) {
             this.stayInsideImage = false;
+            this._config.osd.collectionRows = 1;
+            this._config.osd.collectionMode = true;
+
           }
           this.osd = OpenSeadragon(this._config.osd);
           this.osd.scalebar(this._config.scalebar);
