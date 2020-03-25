@@ -4,12 +4,12 @@ function Viewer(parent, config) {
 
     this._utils = null;
     // this._config = config;
-    this.all_config = config; // @mingyi -  need to know if there is a better way to pass the config to the util functions
+    this.all_config = config;
     this._config = null;
 
     this.parent = parent;
     this.channels = {};
-    this.filters = {} // For filters of multiple channels. - @mingyi - where else do we need to call filters.
+    this.filters = {} // For filters of multiple channels.
     this.current = {
         svgID : "",
         groupID : ""
@@ -416,7 +416,6 @@ function Viewer(parent, config) {
 
               if (isImageSimpleBase) {
                   // The below code is for aliasName used in place of channelName
-                  // Issue: Assumptions that either all channelName have aliasname or none of them have it. - @mingyi
                   var channelName = this.parameters.aliasName.length > i ? this.parameters.aliasName[i] : this.parameters.channelName[i];
                   option = {
                       tileSource: {
@@ -462,7 +461,7 @@ function Viewer(parent, config) {
 
           // Dispatch event to toolbar to update channel list
           this.dispatchEvent('updateChannelList', channelList);
-          this.loadAfterOSDInit(); // -- @mingyi - consequences of this ?
+          this.loadAfterOSDInit();
           break;
         default:
           break;
@@ -639,7 +638,7 @@ function Viewer(parent, config) {
     }
 
     // Set Openseadragon viewer item channel values
-    this.setItemChannel = function (data) { // -@mingyi - changed this a bit
+    this.setItemChannel = function (data) {
         var channel = this.channels[data.id],
             item = this.osd.world.getItemAt(data.id);
         if (!channel || !item) { return; }

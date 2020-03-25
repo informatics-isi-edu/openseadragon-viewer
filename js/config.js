@@ -10,7 +10,7 @@ var _config = {
           svg: {
               id : 'annotationContainer'
           },
-          osd: { // Single and multiple @mingyi - what should we do ? - in osd.viewer_multi.js
+          osd: { // Single and multiple
             id: 'openseadragonContainer',
             // prefixUrl: "images/",
             // collectionRows: 1,
@@ -26,7 +26,7 @@ var _config = {
             zoomPerClick : 1,
             crossOriginPolicy: "Anonymous",
             constrainDuringPan: true,
-            // collectionMode: true, // Not in previous code - need to ask @mingyi
+            // collectionMode: true,
             // tileSources : {}
           },
           scalebar : {

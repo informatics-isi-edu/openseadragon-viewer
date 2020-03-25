@@ -76,7 +76,7 @@ Channel.prototype.setDefaultHue = function () {
   console.log(this.rgb, this.name);
     if (this.rgb != null) {
         // get hue from rgb value..
-        this.hue = hueIs(this.rgb); // - @mingyi - added this from the previous code, if this is correct will modify this function so that it's in better format.
+        this.hue = hueIs(this.rgb); 
     } else {
       switch (this.name) {
           case "unknown":

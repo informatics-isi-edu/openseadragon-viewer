@@ -113,9 +113,9 @@ Utils.prototype.getParameters = function(){
                 if(value.indexOf(".svg") != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
-                    parameters.type = 'tiff'; // Asssuming svg are only with tiff files - @mingyi
+                    parameters.type = 'tiff';
                 }
-                else if(value.indexOf("ImageProperties.xml") != -1){ // Why can't we merge this with the last else case @mingyi?
+                else if(value.indexOf("ImageProperties.xml") != -1){ 
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
                     parameters.type = 'rest';
