@@ -11,6 +11,12 @@ function Channel(osdItemID, options) {
     this.brightness = 0;
     this.gamma = 0.875;
     this.hue = null;
+    this.initialProperty = {
+      contrast: 100,
+      brightness: 0,
+      gamma: 0.875,
+      hue: null,
+    }
 
     // Set Default Values
     this.setDefaultHue();
@@ -25,11 +31,15 @@ Channel.prototype.getFiltersList = function () {
     var list = [];
 
     if (this.contrast != null) {
+      if (this.contrast != this.initialProperty.contrast) {
         list.push(OpenSeadragon.Filters.CONTRAST(this.contrast));
+      }
     }
 
     if (this.brightness != null) {
+      if (this.brightness != this.initialProperty.brightness) {
         list.push(OpenSeadragon.Filters.BRIGHTNESS(this.brightness));
+      }
     }
 
     if (this.gamma != null) {
@@ -73,10 +83,9 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
 }
 
 Channel.prototype.setDefaultHue = function () {
-  console.log(this.rgb, this.name);
     if (this.rgb != null) {
         // get hue from rgb value..
-        this.hue = hueIs(this.rgb); 
+        this.hue = hueIs(this.rgb);
     } else {
       switch (this.name) {
           case "unknown":
@@ -96,12 +105,15 @@ Channel.prototype.setDefaultHue = function () {
               break;
       }
     }
+    this.initialProperty.hue = this.hue;
+
 }
 
 Channel.prototype.setDefaultGamma = function () {
 
     if (this.blueColors.indexOf(this.name) != -1 || this.greenColors.indexOf(this.name) != -1 || this.redColors.indexOf(this.name) != -1) {
         this.gamma = 0.75;
+        this.initialProperty.gamma = this.gamma;
     };
 }
 
@@ -110,11 +122,11 @@ Channel.prototype.set = function (type, value) {
     console.log(
       "channel set" , type, value
     );
-    if (!value || !type) { return }
+    if (!type) { return }
 
     switch (type.toUpperCase()) {
         case "CONTRAST":
-            this.contrast = value;
+            this.contrast = value*100;
             break;
         case "BRIGHTNESS":
             this.brightness = value;
@@ -126,4 +138,20 @@ Channel.prototype.set = function (type, value) {
             this.hue = value;
             break;
     }
+ //    if(!resetMode)
+ //      plist.push(OpenSeadragon.Filters.GAMMA(gamma));
+ //    if(this,hue < 0) { // special case.. this is a RGB full colored image
+ //      filterList.push( {
+ //         items: [myViewer.world.getItemAt(ItemID) ],
+ //         processors: plist
+ //      });
+ //      } else {
+ // // HUE always get called.
+ // //       plist.push(OpenSeadragon.Filters.INVERT());
+ //        plist.push(OpenSeadragon.Filters.HUE(angle));
+ //        filterList.push( {
+ //           items: [myViewer.world.getItemAt(ItemID) ],
+ //           processors: plist
+ //        });
+ //    }
 }

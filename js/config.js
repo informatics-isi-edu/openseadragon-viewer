@@ -17,7 +17,7 @@ var _config = {
             ajaxWithCredentials : true,
         	  maxZoomPixelRatio: 1,
         	// prefixUrl: "/openseadragon/images/",
-            showNavigator: true,
+            // showNavigator: false,
             showZoomControl: false,
             showHomeControl: false,
             showFullPageControl: false,
@@ -47,7 +47,7 @@ var _config = {
         rest: {
           osd: {
             id: 'openseadragonContainer',
-            showNavigator: true,
+            // showNavigator: false,
             showZoomControl: false,
             showHomeControl: false,
             showFullPageControl: false,

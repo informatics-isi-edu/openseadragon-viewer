@@ -400,7 +400,7 @@ function Viewer(parent, config) {
           this.osd.addHandler('animation', this.resizeSVG);
           break;
 
-        case 'rest':
+        default:
           this.osd = OpenSeadragon(this._config.osd);
           this.osd.scalebar(this._config.scalebar);
 
@@ -437,7 +437,6 @@ function Viewer(parent, config) {
                   xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
                   option.tileSource = this.buildTileSource(xmlDoc, imgPath);
                   option.compositeOperation = 'lighter';
-
               }
 
               channel = new Channel(i, option.tileSource);
@@ -445,6 +444,7 @@ function Viewer(parent, config) {
               meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
               meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
               this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+
               this.resetScalebar(meterScaleInPixels);
 
               this.channels[i] = channel;
@@ -462,8 +462,6 @@ function Viewer(parent, config) {
           // Dispatch event to toolbar to update channel list
           this.dispatchEvent('updateChannelList', channelList);
           this.loadAfterOSDInit();
-          break;
-        default:
           break;
       }
     }
@@ -558,6 +556,7 @@ function Viewer(parent, config) {
 
     // Reset the scalebar measurement (pixel per meter) with new value
     this.resetScalebar = function (value) {
+
         this.osd.scalebar({
             location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
             pixelsPerMeter: value
@@ -643,6 +642,8 @@ function Viewer(parent, config) {
             item = this.osd.world.getItemAt(data.id);
         if (!channel || !item) { return; }
         channel.set(data.type, data.value);
+        // console.log(data, channel, item);
+
         this.filters[data.id] = {
           items: [item],
           processors: channel.getFiltersList()
@@ -651,7 +652,6 @@ function Viewer(parent, config) {
         for (var key in this.filters){
           filters.push(this.filters[key])
         }
-
         this.osd.setFilterOptions({
           filters: filters
         });

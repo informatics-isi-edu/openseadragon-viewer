@@ -115,10 +115,10 @@ Utils.prototype.getParameters = function(){
                     parameters.svgs.push(value);
                     parameters.type = 'tiff';
                 }
-                else if(value.indexOf("ImageProperties.xml") != -1){ 
+                else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
-                    parameters.type = 'rest';
+                    parameters.type = 'xml';
                 }
                 else if(value.indexOf("info.json") != -1) {
                     parameters.info = parameters.info || [];
@@ -170,10 +170,13 @@ Utils.prototype.getParameters = function(){
 // Set the config based on the image type
 Utils.prototype.setOsdConfig =  function(parameters, configs) {
   var config = null;
-  console.log(parameters);
   switch (parameters.type) {
     case "tiff":
       config = configs.tiff;
+      break;
+    case "xml":
+      configs.rest.osd.showNavigator = true;
+      config = configs.rest;
       break;
     case "rest":
       config = configs.rest;
