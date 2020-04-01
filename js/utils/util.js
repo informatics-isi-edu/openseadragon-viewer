@@ -1,8 +1,24 @@
 function Utils(){};
 
+
+function queryForRetina(canvas) {
+  // query for various pixel ratios
+   var ctxt = canvas.getContext("2d");
+   var devicePixelRatio = window.devicePixelRatio || 1;
+   var backingStoreRatio = ctxt.webkitBackingStorePixelRatio ||
+                           ctxt.mozBackingStorePixelRatio ||
+                           ctxt.msBackingStorePixelRatio ||
+                           ctxt.oBackingStorePixelRatio ||
+                           ctxt.backingStorePixelRatio || 1;
+    var pixelDensityRatio = devicePixelRatio / backingStoreRatio;
+
+    return pixelDensityRatio;
+}
+
 // Add attribution watermark
-Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svgOverlayHeight) {
-    if(!watermark || !canvas) return canvas;
+
+Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
+    if(!watermark || !canvas) return;
 
     var fsize = 20,
         h = canvas.height,
@@ -11,10 +27,39 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svg
         ctx = canvas.getContext("2d"),
         sLoc;
 
+    ctx.save();
+
     if (l < fsize){
         // cap it at 20
         fsize = l;
     }
+
+
+    // var myScalebarInstance = myViewer.scalebarInstance;
+    // if (scalebar) {
+    //
+    // }
+    var barHeight = scalebar.divElt.offsetHeight;
+    var container = scalebar.viewer.container;
+    var x = 0;
+    var y = container.offsetHeight - barHeight;
+    var pixel = scalebar.viewer.viewport.pixelFromPoint(
+            new OpenSeadragon.Point(0, 1 / scalebar.viewer.source.aspectRatio),
+            true);
+    if (!scalebar.viewer.wrapHorizontal) {
+        x = Math.max(x, pixel.x);
+    }
+    if (!scalebar.viewer.wrapVertical) {
+        y = Math.min(y, pixel.y - barHeight);
+    }
+
+    // for the retina case get the pixel density ratio
+    // for non retina, this value is 1
+    var pixelDensityRatio=queryForRetina(canvas);
+    x = x*pixelDensityRatio;
+    y = y*pixelDensityRatio;
+    x = x + scalebar.xOffset;
+    y = y - scalebar.yOffset;
 
     // if has scalebar, associate with it
     // if (scalebar) {
@@ -24,19 +69,22 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, svg
     // } else {
     //     wx = w - fsize;
     // }
-    ctx.save();
+
+    // ctx.translate(5, h - fsize / 3 - 5);
+    // fill a black rectangle as a background for the watermark
+    ctx.font = fsize+"pt Sans-serif";
+    var rectWidth = Math.ceil(ctx.measureText(watermark).width);
+    ctx.fillStyle = 'rgb(208, 224, 240)';
+    ctx.fillRect(x, y-scalebar.yOffset, rectWidth, fsize+scalebar.yOffset);
+
+    // fill the watermark in the rectangle
     ctx.textAlign = "left";
-    ctx.font = fsize + "pt Sans-serif";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    // console.log(svgOverlayHeight, h, fsize, h - fsize / 3 - 5,h/2);
-    if (svgOverlayHeight) {
-      ctx.fillText(watermark, 5, svgOverlayHeight - fsize / 3 - 5);
-    } else {
-      ctx.translate(5, h - fsize / 3 - 5);
-      ctx.fillText(watermark, 0, 0);
-    }
+    ctx.fillStyle = "rgb(51, 51, 51)";
+    ctx.fillText(watermark,x,y+scalebar.yOffset);
+
+
     ctx.restore();
-    return canvas;
+    // return ctx;
 }
 
 // Get file content from a url
@@ -62,27 +110,35 @@ Utils.prototype.getParameters = function(){
         type = args[i].split("=")[0];
         value = args[i].split("=")[1];
         switch(type){
-            case "url":
+            case "url": // Parameter.type are of 3 types : svg - for annotation overlay, tiff - files containing info.json and all the other file formats are treated as rest
                 if(value.indexOf(".svg") != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
+                    parameters.type = 'tiff';
                 }
                 else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
+                    parameters.type = 'xml';
                 }
-                else if(value.indexOf("info.json") != -1){
+                else if(value.indexOf("info.json") != -1) {
                     parameters.info = parameters.info || [];
                     parameters.info.push(value);
+                    parameters.type = 'tiff';
+                } else {
+                    parameters.images = parameters.images || [];
+                    parameters.images.push(value);
+                    parameters.type = 'rest';
                 }
                 break;
-            case "aliasName":
+            // case "aliasName": // Move to channelName - basically to add as an array
             case "waterMark":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
                 }
                 parameters[type] = decodeURI(value);
                 break;
+            case "aliasName":
             case "channelName":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
@@ -110,6 +166,27 @@ Utils.prototype.getParameters = function(){
     }
     // console.log(parameters);
     return parameters;
+}
+
+// Set the config based on the image type
+Utils.prototype.setOsdConfig =  function(parameters, configs) {
+  var config = null;
+  switch (parameters.type) {
+    case "tiff":
+      config = configs.tiff;
+      break;
+    case "xml":
+      configs.rest.osd.showNavigator = true;
+      config = configs.rest;
+      break;
+    case "rest":
+      config = configs.rest;
+      break;
+    default:
+      break;
+
+  }
+  return config;
 }
 
 // Detect user's browser
