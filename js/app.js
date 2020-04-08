@@ -33,6 +33,7 @@ var myApp = (function (_config) {
                 break;
             // Change openseadragon item channel setting
             case "changeOsdItemChannelSetting":
+                console.log("This is being called");
                 viewer.setItemChannel(data);
                 break;
             case "zoomIn":
@@ -53,6 +54,10 @@ var myApp = (function (_config) {
                 break;
             case "disableAnnotationList":
                 // toolbar && toolbar.updateAnnotationList(data);
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+
+            case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
 
