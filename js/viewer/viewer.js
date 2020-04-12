@@ -247,44 +247,31 @@ function Viewer(parent, config) {
             rawImg,
             pixelDensityRatio;
 
-        // NOTE: Removed the previous code, as the new one takes the parent div for the screenshot and add the watermark based on requirement.
-        // html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
-        //     var elementOfInterest = document.querySelector("#annotationContainer");
-        //     var height = elementOfInterest.height.baseVal.value;
-        //     var canvas = this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance, height);
-        //     rawImg = canvas.toDataURL("image/jpeg");
-        //   }));
+        // NOTE: This if condition works only when there is annotation overlay. 
         if (this.svg != null) {
           html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
-              if (isScalebarExist) {
-                  // canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-                  this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                  rawImg = canvas.toDataURL("image/jpeg", 1);
-              } else {
-                  // canvas = this.osd.drawer.canvas;
-                  pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
-                  if (pixelDensityRatio != 1){
-                      newCanvas = document.createElement("canvas");
-                      newCanvas.width = canvas.width;
-                      newCanvas.height = canvas.height;
-                      newCtx = newCanvas.getContext("2d");
-                      newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                      this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                      rawImg = newCanvas.toDataURL("image/jpeg", 1);
-                  } else {
-                    var newCanvas = document.createElement("canvas");
+                pixelDensityRatio = this._utils.queryForRetina(canvas);
+                if (pixelDensityRatio != 1){
+                    newCanvas = document.createElement("canvas");
                     newCanvas.width = canvas.width;
                     newCanvas.height = canvas.height;
                     newCtx = newCanvas.getContext("2d");
                     newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
                     this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
                     rawImg = newCanvas.toDataURL("image/jpeg", 1);
-                  }
+                } else {
+                  var newCanvas = document.createElement("canvas");
+                  newCanvas.width = canvas.width;
+                  newCanvas.height = canvas.height;
+                  newCtx = newCanvas.getContext("2d");
+                  newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+                  this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+                  rawImg = newCanvas.toDataURL("image/jpeg", 1);
                 }
-              if (rawImg) {
-                  this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-              }
-            });
+            if (rawImg) {
+                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+            }
+          });
         } else {
           if (isScalebarExist) {
               canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();

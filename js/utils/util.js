@@ -1,7 +1,7 @@
 function Utils(){};
 
 
-function queryForRetina(canvas) {
+Utils.prototype.queryForRetina = function(canvas) {
   // query for various pixel ratios
    var ctxt = canvas.getContext("2d");
    var devicePixelRatio = window.devicePixelRatio || 1;
@@ -55,7 +55,7 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
 
     // for the retina case get the pixel density ratio
     // for non retina, this value is 1
-    var pixelDensityRatio=queryForRetina(canvas);
+    var pixelDensityRatio = this.queryForRetina(canvas);
     x = x*pixelDensityRatio;
     y = y*pixelDensityRatio;
     x = x + scalebar.xOffset;
