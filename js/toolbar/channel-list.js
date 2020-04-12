@@ -41,6 +41,11 @@ function ChannelList(parent){
         this.parent.dispatchEvent(type, data);
     }
 
+    this.onClickedMenuHandler = function() {
+      _self.parent.onClickedMenuHandler("channelList")
+      _self.parent.dispatchEvent("hideChannelList");
+    }
+
     // Render the view
     this.render = function(){
 
@@ -51,13 +56,13 @@ function ChannelList(parent){
         listElem.setAttribute("class", "channelList");
         if (collection,Object.keys(collection).length === 0 && collection.constructor === Object) {
           listElem.innerHTML = [
-              // "<span class='title'>Channels</span>",
+              "<div><span class='title'>Channels</span> <button class='dismiss-channel' title='dismiss'><i class='fa fa-times'></i></button></div>",
               "<div class='groups'> No Channels found",
               "</div>"
           ].join("");
         } else {
           listElem.innerHTML = [
-              // "<span class='title'>Channels</span>",
+              "<div><span class='title'>Channels</span> <button class='dismiss-channel' title='dismiss' style='border:none;background-color:transparent; float:right!important;'><i class='fa fa-times'></i></button></div>",
               "<div class='groups'>",
               "</div>"
           ].join("");
@@ -71,5 +76,10 @@ function ChannelList(parent){
         }
 
         this.elem = listElem;
+
+        this.elem.querySelectorAll(".dismiss-channel").forEach(function(elem){
+            elem.addEventListener('click', this.onClickedMenuHandler);
+        }.bind(this));
+
     }
 }

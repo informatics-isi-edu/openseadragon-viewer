@@ -6,7 +6,13 @@ function ChannelItem(data){
     this.contrast = data["contrast"] || "";
     this.brightness = data["brightness"] || 0;
     this.gamma = data["gamma"] || "";
-    this.hue = data["hue"] || null;
+    if (data["hue"] >= 0) {
+      this.hue = data["hue"]
+    } else {
+      this.hue = null;
+
+    }
+    // this.hue = data["hue"] || null;
     this.opacity = data["opacity"] || "";
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
@@ -81,7 +87,7 @@ function ChannelItem(data){
         var channeElem = document.createElement("div");
         channeElem.setAttribute("class", "channelItem");
         channeElem.setAttribute("item-id", this.osdItemId);
-    
+
         channeElem.innerHTML = [
             "<div class='channelRow'>",
                 "<span class='toggleSetting' data-type='setting'><i class='"+this.getIconClass("expandPanel")+"'></i></span>",
@@ -119,35 +125,27 @@ function ChannelItem(data){
                 "</span>",
             "</div>",
         ].join("");
-    
+
         if(this.hue == null){
             channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
         }
         this.elem = channeElem;
-    
+
         // Binding events
-    
+
         // Change the visibility of Openseadragon items
         this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
             elem.addEventListener('click', this.onClickToggleDisplay);
         }.bind(this));
-    
+
         // Open/Close the setting panel
         this.elem.querySelectorAll(".channelRow").forEach(function(elem){
             elem.addEventListener('click', this.onClickToggleExpand);
         }.bind(this));
-    
+
         // Change the slider value
         this.elem.querySelectorAll("input.slider").forEach(function(elem){
             elem.addEventListener('change', this.onChangeSliderValue);
         }.bind(this));
     }
 }
-
-
-
-
-
-
-
-

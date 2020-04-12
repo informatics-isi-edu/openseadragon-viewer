@@ -61,6 +61,10 @@ var myApp = (function (_config) {
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
 
+            case "hideChannelList":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+
             // Send the updated channel list to toolbar
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
