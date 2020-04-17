@@ -247,8 +247,8 @@ function Viewer(parent, config) {
             rawImg,
             pixelDensityRatio;
 
-        // NOTE: This if condition works only when there is annotation overlay. 
-        if (this.svg != null) {
+        // NOTE: The if and else commented will make the screenshot work for all the cases but for tiff images, the screenshot will capture everything available in the main div. 
+        // if (this.svg != null) {
           html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
                 pixelDensityRatio = this._utils.queryForRetina(canvas);
                 if (pixelDensityRatio != 1){
@@ -272,36 +272,37 @@ function Viewer(parent, config) {
                 this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
             }
           });
-        } else {
-          if (isScalebarExist) {
-              canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-              this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-              rawImg = canvas.toDataURL("image/jpeg", 1);
-          } else {
-              canvas = this.osd.drawer.canvas;
-              pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
-              if (pixelDensityRatio != 1){
-                  newCanvas = document.createElement("canvas");
-                  newCanvas.width = canvas.width;
-                  newCanvas.height = canvas.height;
-                  newCtx = newCanvas.getContext("2d");
-                  newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                  this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                  rawImg = newCanvas.toDataURL("image/jpeg", 1);
-              } else {
-                var newCanvas = document.createElement("canvas");
-                newCanvas.width = canvas.width;
-                newCanvas.height = canvas.height;
-                newCtx = newCanvas.getContext("2d");
-                newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                rawImg = newCanvas.toDataURL("image/jpeg", 1);
-              }
-            }
-          if (rawImg) {
-              this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-          }
-        }
+        // }
+        // else {
+        //   if (isScalebarExist) {
+        //       canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
+        //       this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+        //       rawImg = canvas.toDataURL("image/jpeg", 1);
+        //   } else {
+        //       canvas = this.osd.drawer.canvas;
+        //       pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
+        //       if (pixelDensityRatio != 1){
+        //           newCanvas = document.createElement("canvas");
+        //           newCanvas.width = canvas.width;
+        //           newCanvas.height = canvas.height;
+        //           newCtx = newCanvas.getContext("2d");
+        //           newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        //           this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+        //           rawImg = newCanvas.toDataURL("image/jpeg", 1);
+        //       } else {
+        //         var newCanvas = document.createElement("canvas");
+        //         newCanvas.width = canvas.width;
+        //         newCanvas.height = canvas.height;
+        //         newCtx = newCanvas.getContext("2d");
+        //         newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        //         this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+        //         rawImg = newCanvas.toDataURL("image/jpeg", 1);
+        //       }
+        //     }
+        //   if (rawImg) {
+        //       this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+        //   }
+        // }
 
     }
 
