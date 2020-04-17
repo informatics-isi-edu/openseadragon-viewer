@@ -398,7 +398,6 @@ function Viewer(parent, config) {
           this.osd.canvas.append(this.svg);
           this.osd.addHandler('resize', this.resizeSVG);
           this.osd.addHandler('animation', this.resizeSVG);
-          this.osd.addHandler('canvas-click', this.zoomIn.bind(this)); // To zoom in onclick
           break;
 
         default:
