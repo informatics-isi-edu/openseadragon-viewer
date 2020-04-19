@@ -67,6 +67,18 @@ var myApp = (function (_config) {
             case "saveGroupSVGContent":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            // Show Annotation Tool
+            case "toggleDrawingTool":
+                toolbar && toolbar.toggleDrawingTool(data);
+                break;
+            // Update svg id in toolbar
+            case "updateSVGId":
+                toolbar && toolbar.updateDrawingSVGId(data);
+                break;
+            // Update group id in toolbar
+            case "updateGroupInfo":
+                toolbar && toolbar.updateDrawingGroupId(data);
+                break;
             // Send the updated channel list to toolbar
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
@@ -117,6 +129,7 @@ var myApp = (function (_config) {
                     break;
                 case 'highlightAnnotation':
                 case 'changeAnnotationVisibility':
+                case 'changeSVGId':
                 case 'changeGroupInfo':
                     viewer.dispatchSVGEvent(messageType, data);
                     break;
@@ -127,11 +140,17 @@ var myApp = (function (_config) {
                     viewer.changeStrokeScale(data);
                     break;
                 case 'drawAnnotationMode':
-                    toolbar && toolbar.drawAnnotationMode(data);
                     viewer.drawAnnotationMode(data);
                     break;
                 case 'addNewTerm':
                     viewer.addNewTerm(data);
+                    break;
+                case 'removeSVG':
+                    viewer.removeSVG(data.svgID);
+                    break;
+                // Save the svg file with matching group ID and return it to Chaise Viewer
+                case 'saveAnnotationRecord':
+                    viewer.saveAnatomySVG(data);
                     break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);
