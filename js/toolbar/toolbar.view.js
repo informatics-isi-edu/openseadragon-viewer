@@ -50,24 +50,19 @@ function ToolbarView(controller, config){
     }
 
     // Render the annotation tool
-    this.renderAnnotationTool = function(annotationTool, data){
+    this.renderAnnotationTool = function(annotationTool){
         // Clear menu content
         this._drawToolElem.innerHTML = "";
 
         // Render annotation tool if it's null 
-        if(annotationTool.elem == null){
-            annotationTool.render();
-        }
-
-        // Save drawing SVG ID and group ID
-        annotationTool.updateDrawInfo(data);
+        annotationTool.render();
 
         // Append annotation list 
         this._drawToolElem.appendChild(annotationTool.elem);
     }
 
     // Remove the annotaiton tool
-    this.removeAnnotationTool = function(){
+    this.removeAnnotationTool = function(annotationTool){
         this._drawToolElem.innerHTML = "";
     }
 

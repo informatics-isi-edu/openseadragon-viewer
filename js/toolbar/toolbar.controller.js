@@ -14,6 +14,17 @@ function ToolbarController(parent, config){
         this.annotationList.changeSelectingAnnotation(data);
     }
 
+    // Close annotation tool
+    this.closeAnnotationTool = function(){
+        this.annotationTool.updateMode('CURSOR');
+        this.annotationTool.updateDrawInfo({
+            svgID : '',
+            groupID : '',
+            type : null
+        });
+        this._toolbarView.removeAnnotationTool(this.annotationTool);
+    }
+
     // Dispatch event to Viewer
     this.dispatchEvent = function(type, data){
         switch(type){
@@ -24,8 +35,8 @@ function ToolbarController(parent, config){
         }
     }
 
-    // Turn on annotation drawing mode
-    this.drawAnnotationMode = function(data){
+    // Turn on/off annotation drawing mode
+    this.toggleDrawingTool = function(data){
 
         // Drawing mode
         var mode = data.mode.toUpperCase();
@@ -35,14 +46,19 @@ function ToolbarController(parent, config){
         
         if(svgID != "" && groupID != ""){
             if(mode == "ON"){
-                this._toolbarView.renderAnnotationTool(this.annotationTool, data);
+                // Save drawing SVG ID and group ID
+                this.annotationTool.updateDrawInfo(data);
+                this._toolbarView.renderAnnotationTool(this.annotationTool);
             }
             else{
-                this._toolbarView.removeAnnotationTool();
-            }
-            
+                this.annotationTool.updateDrawInfo({
+                    type : "",
+                    svgID : "",
+                    groupID : ""
+                });
+                this._toolbarView.removeAnnotationTool(this.annotationTool);
+            }  
         }
-
     }
 
     // Get current drawing SVG Id and Group ID
@@ -88,6 +104,24 @@ function ToolbarController(parent, config){
     // update channel from viewer
     this.updateChannelList = function(data){
         this.channelList.add(data);
+    }
+
+    // update current drawing svg Id if drawing mode is on
+    this.updateDrawingSVGId = function(data){
+        if(this.annotationTool.curSVGID === data.svgID){
+            this.annotationTool.updateDrawInfo({
+                svgID : data.newSvgID
+            });
+        }
+    }
+
+    // update current drawing group Id if drawing mode is on
+    this.updateDrawingGroupId = function(data){
+        if(this.annotationTool.curSVGID === data.svgID){
+            this.annotationTool.updateDrawInfo({
+                groupID : data.newGroupID
+            });
+        }
     }
 }
 
