@@ -58,7 +58,7 @@ Utils.prototype.getParameters = function(){
         value = args[i].split("=")[1];
         switch(type){
             case "url":
-                if(value.indexOf(".svg") != -1){
+                if(value.indexOf(".svg") != -1 || value.indexOf("/hatrac/resources/gene_expression/annotations/2D") >= 0){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value); 
                 }
@@ -107,6 +107,18 @@ Utils.prototype.getParameters = function(){
     }
     // console.log(parameters);
     return parameters;
+}
+
+// Generate a random color 
+Utils.prototype.generateColor = function(){
+    var letters = '0123456789ABCDEF',
+        color = '#',
+        i;
+
+    for (i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 
 // Detect user's browser
