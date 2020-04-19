@@ -20,6 +20,10 @@ function Base(attrs){
         var rst = "<" + tag + " ";
         var attr;
 
+        if(this.parent.id !== ""){
+            rst += 'name="' + this.parent.id + '" ';
+        };
+
         for(attr in this._attrs){
             if(!this._attrs[attr] || this._attrs[attr] === null){
                 continue;
@@ -95,16 +99,25 @@ Base.prototype.setupDrawingAttrs = function(attrs){
     this.renderSVG();
 }
 
+Base.prototype.getAttribute = function(attr){
+    if(this._attrs.hasOwnProperty(attr)){
+        return this._attrs[attr];
+    }
+    else{
+        return null;
+    }
+}
+
 Base.prototype.getAttributes = function(attrs){
     var attr,
         resAttr = {};
 
-    if(attrs){
-        for(attr in attrs){
-            if(attr in this._attrs){
-                resAttr[attr] = _attrs[attr];
-            }
-        }
+    if(attrs.length > 0){
+        attrs.forEach(function(attr){
+            if(this._attrs.hasOwnProperty(attr)){
+                resAttr[attr] = this._attrs[attr];
+            };
+        })
         return resAttr;
     }
     else{

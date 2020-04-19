@@ -86,12 +86,31 @@ function Viewer(parent, config) {
 
     // Add new term 
     this.addNewTerm = function(data){
+
+        if(!this.osd || !this.osd.world.getItemAt(0)){
+            return;
+        }
+
+        var svg = null,
+            id = null;
+            contentSize = {},
+            defaultAnnotationColor = this._utils.generateColor(); // generate an annotation color when users draw new annotations
+
         // if svgID is exist
         if(this.svgCollection.hasOwnProperty(data.svgID)){
             this.dispatchSVGEvent("addNewGroup", data);
-        };
+        }
         // create a new svg 
-        // create a new group 
+        else{
+            contentSize = this.osd.world.getItemAt(0).getContentSize();
+            svg = new AnnotationSVG(this, data.svgID, contentSize.x, contentSize.y);
+            svg.render();
+            svg.createAnnotationGroup(data.groupID, data.anatomy, data.description); // create a new group 
+            svg.setAnnotationColor(defaultAnnotationColor); // set the default color 
+            this.svgCollection[data.svgID] = svg; // add the new svg into collection
+            this.resizeSVG(); // resize the svg to align with current OSD viewport 
+        }
+        
     }
     // Build a tilesource object for Openseadragon Config
     this.buildTileSource = function (xmlDoc, imgPath) {
@@ -172,6 +191,28 @@ function Viewer(parent, config) {
         }
     }
 
+    // Change SVG ID
+    this.changeSVGId = function(data){
+
+        // Change existing SVG id from the collection 
+        if(this.svgCollection.hasOwnProperty(data.svgID)){
+            var prevSVG = this.svgCollection[data.svgID];
+            prevSVG.updateID(data.newSvgID);
+            
+            this.svgCollection[data.newGroupID] = prevGroup;
+            
+            // update the current svg id if it's also the changing svg id 
+            if(this.current.svgID === data.svgID){
+                this.current.svgID = data.newSvgID;
+            };
+
+            delete this.svgCollection[data.svgID];
+
+            // continue to dispatch to parent to handle the necessary updates
+            this.dispatchEvent("updateGroupInfo", data);
+        }
+    }
+
     // Handle events from children/ Dispatch events to toolbar
     this.dispatchEvent = function (type, data) {
 
@@ -202,13 +243,33 @@ function Viewer(parent, config) {
                 });
                 _self.mouseTrackers.push(tracker);
                 break;
+            case "updateSVGId":
+                var prevSVG = this.svgCollection[data.svgID];
+                // update the current object -> change svg ID if matches the old one
+                if(this.current.svgID === data.svgID){
+                    this.current.svgID = data.newSvgID;
+                }
+                if(prevSVG){                    
+                    this.svgCollection[data.newSvgID] = prevSVG;
+                    delete this.svgCollection[data.svgID];
+                }
+                
+                this.parent.dispatchEvent("updateSVGId", data);
+                break;
+            case "updateGroupInfo":
+                // update the current object -> change group ID if matches the old one
+                if(this.current.groupID === data.groupID){
+                    this.current.groupID = data.newGroupID;
+                }
+                this.parent.dispatchEvent("updateGroupInfo", data);
+                break;
             /**
              * [Dispatch events to App]
              */
             // Change current selected annotation group from toolbar
             case "onClickChangeSelectingAnnotation":
                 if(_self.mode == modes.ERASE_ANNOTATIONS){
-                    this.dispatchSVGEvent("removeAnnotationObject", {
+                    this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : data.svgID,
                         groupID : data.groupID,
                         graphID : data.graphID
@@ -250,6 +311,10 @@ function Viewer(parent, config) {
             case "changeStrokeScale":
                 svg.changeStrokeScale(data);
                 break;
+            // Change SVG ID
+            case "changeSVGId":
+                svg.changeSVGId(data);
+                break;
             // Change group information:
             case "changeGroupInfo":
                 svg.changeGroupInfo(data);
@@ -267,8 +332,8 @@ function Viewer(parent, config) {
                 svg.changeAllVisibility(data.isDisplay);
                 break;
             // Remove annotation object from a group
-            case "removeAnnotationObject":
-                svg.removeAnnotationObject(data.groupID, data.graphID);
+            case "removeAnnotationByGraphID":
+                svg.removeAnnotationByGraphID(data.groupID, data.graphID);
                 break;
             // Set annotation groups attributes
             case "setGroupAttributes":
@@ -306,7 +371,13 @@ function Viewer(parent, config) {
             else{
                 this.svgCollection[svgID].changeAllVisibility(true);
             }
-        }
+        };
+
+        if(this.svgCollection.hasOwnProperty(data.svgID)){
+            data.stroke = this.svgCollection[data.svgID].annotationColor;
+        };
+
+        this.dispatchEvent("toggleDrawingTool", data);
     }
 
     // Exporting the Openseadragon view to a jpg file
@@ -361,14 +432,11 @@ function Viewer(parent, config) {
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
             imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
-            imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
-            // console.log(this.osd.world.getItemAt(1).getBounds(true));
-            // console.log(this.osd.world.getItemAt(0).getBounds(true));
-            // console.log(this.osd.world.getItemAt(1).getContentSize());
-            // console.log(this.osd.world.getItemAt(0).getContentSize());
+            imgHeight = this.osd.world.getItemAt(0).getContentSize().y,
+            defaultAnnotationColor = null;
 
         for(var i = 0; i < svgs.length; i++){
-            var id = Date.parse(new Date()) + parseInt(Math.random() * 1000),
+            var id = Date.parse(new Date()) + parseInt(Math.random() * 10000),
                 svgFileLocation = svgs[i],
                 content = this._utils.getUrlContent(svgFileLocation),
                 svgParser = new DOMParser(),
@@ -377,6 +445,13 @@ function Viewer(parent, config) {
 
             this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
             this.svgCollection[id].parseSVGFile(svgFile);
+            
+            // Set a theme color if not exists
+            if(!this.svgCollection[id].annotationColor){
+                defaultAnnotationColor = this._utils.generateColor();
+                this.svgCollection[id].setAnnotationColor(defaultAnnotationColor);
+            }
+
             if(!content) {
               this.dispatchEvent('errorAnnotation');
             }
@@ -536,6 +611,10 @@ function Viewer(parent, config) {
 
     // Move annotation tooltip when mouse move on Openseadragon viewer
     this.onMousemoveShowTooltip = function(data){
+        if(!this.tooltipElem || !data){
+            return;
+        }
+
         this.tooltipElem
             .style("left", (data.x + 20) + "px")
             .style("top", (data.y + 20) + "px");
@@ -543,6 +622,9 @@ function Viewer(parent, config) {
 
     // Hide annotation tooltip when mouse out of the annotation on Openseadragon viewer
     this.onMouseoutHideTooltip = function(){
+        if(!this.tooltipElem){
+            return;
+        }
 
         this.tooltipElem
             // .transition()
@@ -563,7 +645,7 @@ function Viewer(parent, config) {
         img_coords.x = viewBox[0] + (img_coords.x * scaleX);
         img_coords.y = viewBox[1] + (img_coords.y * scaleY);
 
-        console.log(event.position, img_coords);
+        // console.log(event.position, img_coords);
         annotation.insertPoint(img_coords);
         
     } 
@@ -637,6 +719,21 @@ function Viewer(parent, config) {
         }
     }
 
+    // Remove specific svg object by svgID
+    this.removeSVG = function(svgID){
+        var svgObj = this.svgCollection[svgID];
+
+        if(svgObj){
+            // remove all the groups, which contain annotations
+            svgObj.removeAllGroups();
+
+            // remove svg element
+            svgObj.svg.remove();
+
+            delete this.svgCollection[svgID];
+        }
+    }
+
     // Remove overlay
     this.removeOverlay = function (element) {
         this.osd.removeOverlay(element);
@@ -652,7 +749,7 @@ function Viewer(parent, config) {
                 var userData = tracker.userData;
 
                 if(userData){
-                    this.dispatchSVGEvent("removeAnnotationObject", {
+                    this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
                         graphID : userData.graphID
