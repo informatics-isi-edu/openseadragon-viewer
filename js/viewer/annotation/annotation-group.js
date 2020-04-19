@@ -4,7 +4,6 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.description = description || "no description";
     this.anatomy = anatomy || "Unknown Anatomy";
     this.annotations = [];
-    // this.indicator = null;
     this.parent = parent;
 
     // Top-left diagonal point
@@ -21,7 +20,7 @@ function AnnotationGroup(id, anatomy, description, parent){
     // Add new annotation object (path/cirlce/rect)
     this.addAnnotation = function(type){
         var annotation = null;
-        var graphID = Date.parse(new Date()) + parseInt(Math.random() * 1000);
+        var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
         var attrs = {
             "graph-id" : graphID,
             // "annotation-id" : this.id,
@@ -87,7 +86,7 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.exportToSVG = function(){
 
         if(this.annotations.length === 0){
-            return;
+            return "";
         }
 
         var rst = ["<g annotation-id='"+this.id+"'>"];
@@ -110,6 +109,11 @@ function AnnotationGroup(id, anatomy, description, parent){
             x2 : this.x2,
             y2 : this.y2
         }
+    }
+
+    // Get number of annotations
+    this.getNumOfAnnotations = function(){
+        return this.annotations.length;
     }
 
     this.getStrokeScale = function(){
@@ -142,22 +146,35 @@ function AnnotationGroup(id, anatomy, description, parent){
     
     }
 
-    // Remove annotation
-    this.removeAnnotationObject = function(graphID){
-        
-        var annotation = this.annotations.find(function(graph){
-            return graph.id ==  graphID
+    // Remove an annotation by graphID
+    this.removeAnnotationByID = function(graphID){
+        var index;
+        var annotation = this.annotations.find(function(graph, i){
+            if(graph.id ==  graphID){
+                index = i;
+                return true;
+            }
         })
 
         if(!annotation){
             return
         }
         
+        // remove annotation object from the collection
+        this.annotations.splice(index, 1);
+
         // remove event handlers for the annotation
         annotation.unbind();
 
         // remove svg element
         annotation.svg.remove();
+    }
+
+    // Remove all annotations 
+    this.removeAllAnnotations = function(){
+        for(var i = 0; i < this.annotations.length; i++){
+            this.removeAnnotationByID(this.annotations[i].id);
+        };
     }
 
     this.setAttributesByJSON = function(attrs){
