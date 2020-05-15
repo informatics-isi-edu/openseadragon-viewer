@@ -110,10 +110,11 @@ Utils.prototype.getParameters = function(){
         value = args[i].split("=")[1];
         switch(type){
             case "url": // Parameter.type are of 3 types : svg - for annotation overlay, tiff - files containing info.json and all the other file formats are treated as rest
-                if(value.indexOf(".svg") != -1){
+                // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
+                if(value.indexOf(".svg") != -1 || value.indexOf("hatrac") != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
-                    parameters.type = 'tiff';
+                    // parameters.type = 'tiff';
                 }
                 else if(value.indexOf("ImageProperties.xml") != -1 || value.indexOf(".jpg") != -1){
                     parameters.images = parameters.images || [];
