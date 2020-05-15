@@ -8,10 +8,10 @@ from SVG Overlay plugin.
 ## Overview
 
   There are several flavors of the 2D viewer depending on the input and
-parameters that are being passed. The description of each  will be explained 
+parameters that are being passed. The description of each  will be explained
 in the Example section.
 
-## Download and Run 
+## Download and Run
 
 You can clone the source repository with Git by running:
 
@@ -34,7 +34,7 @@ https://github.com/usnistgov/OpenSeadragonScalebar
   local repo copy, https://github.com/informatics-isi-edu/OpenSeadragonScalebar
 
 https://github.com/openseadragon/svg-overlay
-  An Openseadragon plugin that provides the capability to add images in as an SVG overlay layer 
+  An Openseadragon plugin that provides the capability to add images in as an SVG overlay layer
 
 
 ## Invoking openseadragon-viewer
@@ -52,7 +52,7 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 | **aliasName** | chars | set name to be used for pull-out listing for this URL image |
 | **waterMark** | chars | set watermark to add credit to snapshot jpg image |
 | **scale** | float | This scale corresponds to the unit used in the provided SVG. For example, a given `viewBox (0, 0, 3830.84, 4059.58)` and a `scale=0.21951` will convert to `width = 17451` and `height=18493`
-| **ignoreReferencePoint** | boolean | set `true` (default) to ignore the reference point in the svg `viewBox`, which the upper-left point will be `0,0`. set to `false` to honor the provided upper-left point. If set to `false` and `scale` is provided, the reference point will be converted based on the provided scale. 
+| **ignoreReferencePoint** | boolean | set `true` (default) to ignore the reference point in the svg `viewBox`, which the upper-left point will be `0,0`. set to `false` to honor the provided upper-left point. If set to `false` and `scale` is provided, the reference point will be converted based on the provided scale.
 | **ignoreDimension** | boolean | set `true` (default) to ignore the provided width and height in the svg `viewBox`, which the bottom-right point will be the size of `tif` image width and height. set `false` to honor the provided bottom-right point. If set to `false` and `scale` is provided, the bottom-right point will be converted based on the provided scale.
 
 ## Usage of the `scale`, `ignoreReferencePoint`, `ignoreDimension` parameters
@@ -65,25 +65,25 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
     - `scale` is not needed
     - `ignoreReferencePoint` set to `true`
     - `ignoreDimension` set to `true`
-    
+
 
 - **Case 2 : Provided SVG has differnt unit in origin point and dimension**
 
   - Assumption:
-    - the `svg`'s `origin point` and `dimension` need to be converted into pixels. In this case, the `scale` parameters will need to be provided in order to do the conversion. 
-    
+    - the `svg`'s `origin point` and `dimension` need to be converted into pixels. In this case, the `scale` parameters will need to be provided in order to do the conversion.
+
   - Usage
     - `scale` is needed
     - `ignoreReferencePoint` set to `false`
       - the `upper-left point` will be converted into pixels based on the provided `scale`
-    - `ignoreDimension` set to `false` 
+    - `ignoreDimension` set to `false`
       - the svg `width` and `height` will be converted into pixels with the provided `scale`
 
 - **Case 3 : Provided SVG has a same unit origin point, but with a different unit dimension**
 
   - Assumption:
     - The given `upper-left point` of the `svg` should be at `0,0` as the `tif image` and the provided `width` and `height` are in different unit and therefore need to be converted into pixels.
-    
+
   - Usage
     - `scale` is not needed
     - `ignoreReferencePoint` set to `true`
@@ -98,18 +98,18 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <IMAGE_PROPERTIES
-                    width="18575" 
-                    height="23971" 
-                    numTiles="2359" 
-                    numImages="1" 
-                    version="2.0" 
+                    width="18575"
+                    height="23971"
+                    numTiles="2359"
+                    numImages="1"
+                    version="2.0"
                     meterScaleInPixels="402738.62263391056"
-                    tileWidth="512" 
-                    tileHeight="512" 
+                    tileWidth="512"
+                    tileHeight="512"
                     levelScale="2"
                     channelName="combo"
-                    minLevel="0" 
-                    maxLevel="6" 
+                    minLevel="0"
+                    maxLevel="6"
                     data="real3/DZI"
 />
 ```
@@ -119,7 +119,7 @@ Paremeters may be passed to openseadragon-viewer as URL query parameters.
 ```
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <mbf version="4.0" xmlns="http://www.mbfbioscience.com/2007/neurolucida" xmlns:n
-l="http://www.mbfbioscience.com/2007/neurolucida" appname="Stereo Investigator" 
+l="http://www.mbfbioscience.com/2007/neurolucida" appname="Stereo Investigator"
 appversion="2016.0 SfN (64-bit)">
 <description><![CDATA[]]></description>
 <filefacts>
@@ -176,7 +176,7 @@ d938babc05050f6dd12e7a8.czi</filename>
 </mbf>
 ```
 
-## Examples 
+## Examples
 (pview.html is used for standalone testing without being embedded in chaise control)
 
 View with a single DZI tiled pyramid  
@@ -239,4 +239,19 @@ http://localhost/tiletiff/pview.html?url=http://localhost/data/cirm/real3/DZI/Im
 
 Sample views are in multiple sampleX.png
 
+# Steps to upload the chaise-osd
 
+## openseadragon-viewer
+To upload the OpenSeadragonViewer with annotations - follow the steps:
+1. Go to the github repo of [OpenSeadragon](https://github.com/informatics-isi-edu/openseadragon-viewer/tree/multiple-annotationsbranch) and pull the code from the branch `multiple-annotations` on your local machine.
+2. Go to parent directory OpenSeadragon.
+3. Connect to the server via `sftp username@hostname`, example: `sftp vipul@dev.rebuildingakidney.org`
+4. Navigate to the directory where you need OpenSeadragonViewer
+5. Upload the files via `put -r .`
+
+## chaise
+
+To upload the Chasie with annotations - follow the steps:
+1. Get the chaise code from the branch `multiple-annotations`.
+2. Change the `CHAISEDIR` used in the make file to desired location.
+3. Run command `make install`

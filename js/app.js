@@ -42,6 +42,7 @@ var myApp = (function (_config) {
                 break;
             // Change openseadragon item channel setting
             case "changeOsdItemChannelSetting":
+                console.log("This is being called");
                 viewer.setItemChannel(data);
                 break;
             case "zoomIn":
@@ -78,6 +79,9 @@ var myApp = (function (_config) {
             // Update group id in toolbar
             case "updateGroupInfo":
                 toolbar && toolbar.updateDrawingGroupId(data);
+                break;
+            case "hideChannelList":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             // Send the updated channel list to toolbar
             case "updateChannelList":
