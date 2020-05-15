@@ -109,6 +109,7 @@ function AnnotationTool(parent){
                     break;
                 case "type":
                     this.curType = data.type ? data.type : "CURSOR";
+                    this.updateMode(this.curType);
                     break;
             }
         }
