@@ -17,7 +17,7 @@ You can clone the source repository with Git by running:
 
   git clone https://github.com/informatics-isi-edu/openseadragon-viewer.git
 
-## Dependency
+## Dependency (Based on references folder)
 
 http://openseadragon.github.io
   An open-source, web-based viewer for zoomable images, implemented in pure JavaScript, for desktop and mobile.
@@ -177,8 +177,6 @@ d938babc05050f6dd12e7a8.czi</filename>
 ```
 
 ## Examples
-(pview.html is used for standalone testing without being embedded in chaise control)
-
 View with a single DZI tiled pyramid  
 
 ```
@@ -197,47 +195,11 @@ View with a single DZI tiled pyramid at a particular focus location
 mview.html?url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml&x=0.5&y=0.6452489905787349&z=1.7800585278719854
 ```
 
-
-View with a multiple DZI tiled pyramids (multiple channels)  
-
-```
-pview.html?url=http://localhost/data/cirm/real3/DZC/DAPI/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 488/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZC/Alexa Fluor 555/ImageProperties.xml&url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
-```
-
 View with simple jpg file or files
 
 ```
 mview.html?url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c1-16bit.jpg&channelName=DAPI&meterScaleInPixels=378417.96875
 ```
-
-View with tiled Images generate from simple images
-
-```
-pview.html?url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c1-16bit.jpg&channelName=DAPI&aliasName=%27blue%20channel%27&url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c2-16bit.jpg&channelName=combo&aliasName=%27red%20channel%27&meterScaleInPixels=378417.96875
-```
-
-View with third-party generated annotation markup
-(markups have not been consolidated into layers because the grouping logic has not been clarified)
-
-```
-pview.html?url=http://localhost/data/otherAnnotator/DZI/Brigh/ImageProperties.xml&url=http://localhost/data/otherAnnotator/AnnotationData.xml
-http://localhost/tiletiff/pview.html?url=http://localhost/data/otherAnnotator/DZI/Brigh/ImageProperties.xml&url=http://localhost/data/otherAnnotator/AnnotationData.xml
-```
-
-View with SVG overlays generate from simple images
-
-```
-pview.html?url=http://localhost/data/gudmap/TS21_WMISH_bladderGREY.jpg&channelName=combo&aliasName=background&url=http://localhost/data/gudmap/TS21_WMISH_bladder_bladder.svg&channelName=bladder&url=http://localhost/data/gudmap/TS21_WMISH_bladder_blepi.svg&channelName=blepi&url=http://localhost/data/gudmap/TS21_WMISH_bladder_blmes.svg&channelName=blmes
-```
-
-View with Annotorious annotations
-
-```
-http://localhost/tiletiff/pview.html?url=http://localhost/data/cirm/real3/DZI/ImageProperties.xml
-```
-
-
-Sample views are in multiple sampleX.png
 
 # Steps to upload the chaise-osd
 
