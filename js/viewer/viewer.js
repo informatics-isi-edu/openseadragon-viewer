@@ -289,6 +289,12 @@ function Viewer(parent, config) {
 
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
+        /*
+          We show all the svg files in relative to the position of the first scene,
+          even if the svgs might belong to other scenes.
+          to make the calculations simpler, we're always positioning the svgs
+          relative to the location of first scene (and not the scene that they belong to). 
+        */
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
             imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
