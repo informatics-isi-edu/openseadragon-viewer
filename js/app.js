@@ -56,6 +56,10 @@ var myApp = (function (_config) {
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            case "errorAnnotation":
+                // toolbar && toolbar.updateAnnotationList(data);
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
 
             case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
