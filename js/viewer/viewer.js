@@ -24,6 +24,7 @@ function Viewer(parent, config) {
     this.strokeWidthScale = null;
     this.strokeMinScale = 1.5;
     this.strokeMaxScale = 3.5;
+    this.svgNotPresent = false;
     this.stayInsideImage = true;
 
     // Init
@@ -246,36 +247,63 @@ function Viewer(parent, config) {
             rawImg,
             pixelDensityRatio;
 
-        if (isScalebarExist) {
-            canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-            this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-            rawImg = canvas.toDataURL("image/jpeg", 1);
-        }
-        else {
-            canvas = this.osd.drawer.canvas;
-            pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
-            if (pixelDensityRatio != 1) {
-                newCanvas = document.createElement("canvas");
-                newCanvas.width = canvas.width;
-                newCanvas.height = canvas.height;
-                newCtx = newCanvas.getContext("2d");
-                newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                rawImg = newCanvas.toDataURL("image/jpeg", 1);
-            } else {
-              var newCanvas = document.createElement("canvas");
-              newCanvas.width = canvas.width;
-              newCanvas.height = canvas.height;
-              newCtx = newCanvas.getContext("2d");
-              newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-              this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-              rawImg = newCanvas.toDataURL("image/jpeg", 1);
+        // NOTE: The if and else commented will make the screenshot work for all the cases but for tiff images, the screenshot will capture everything available in the main div. 
+        // if (this.svg != null) {
+          html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
+                pixelDensityRatio = this._utils.queryForRetina(canvas);
+                if (pixelDensityRatio != 1){
+                    newCanvas = document.createElement("canvas");
+                    newCanvas.width = canvas.width;
+                    newCanvas.height = canvas.height;
+                    newCtx = newCanvas.getContext("2d");
+                    newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+                    this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+                    rawImg = newCanvas.toDataURL("image/jpeg", 1);
+                } else {
+                  var newCanvas = document.createElement("canvas");
+                  newCanvas.width = canvas.width;
+                  newCanvas.height = canvas.height;
+                  newCtx = newCanvas.getContext("2d");
+                  newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+                  this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+                  rawImg = newCanvas.toDataURL("image/jpeg", 1);
+                }
+            if (rawImg) {
+                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
             }
-        }
+          });
+        // }
+        // else {
+        //   if (isScalebarExist) {
+        //       canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
+        //       this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
+        //       rawImg = canvas.toDataURL("image/jpeg", 1);
+        //   } else {
+        //       canvas = this.osd.drawer.canvas;
+        //       pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
+        //       if (pixelDensityRatio != 1){
+        //           newCanvas = document.createElement("canvas");
+        //           newCanvas.width = canvas.width;
+        //           newCanvas.height = canvas.height;
+        //           newCtx = newCanvas.getContext("2d");
+        //           newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        //           this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+        //           rawImg = newCanvas.toDataURL("image/jpeg", 1);
+        //       } else {
+        //         var newCanvas = document.createElement("canvas");
+        //         newCanvas.width = canvas.width;
+        //         newCanvas.height = canvas.height;
+        //         newCtx = newCanvas.getContext("2d");
+        //         newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        //         this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
+        //         rawImg = newCanvas.toDataURL("image/jpeg", 1);
+        //       }
+        //     }
+        //   if (rawImg) {
+        //       this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+        //   }
+        // }
 
-        if (rawImg) {
-            this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-        }
     }
 
     // Get channels
@@ -611,8 +639,11 @@ function Viewer(parent, config) {
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
             var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
+            console.log(viewBox);
             var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
             var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
+            // var topLeft = {x: _self.osd.world.getItemAt(1).getBounds(true).x + _self.osd.world.getItemAt(0).getBounds(true).x, y : 0 };
+            // var bottomRight = {x: topLeft.x + size.x, y : topLeft.y + size.y};
 
             // not ignoring the reference point and the scale is provided
             if(scale){
