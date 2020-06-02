@@ -204,16 +204,21 @@ mview.html?url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c1-16bit.jpg&channel
 # Steps to upload the chaise-osd
 
 ## openseadragon-viewer
-To upload the OpenSeadragonViewer with annotations - follow the steps:
-1. Go to the github repo of [OpenSeadragon](https://github.com/informatics-isi-edu/openseadragon-viewer/tree/multiple-annotationsbranch) and pull the code from the branch `multiple-annotations` on your local machine.
-2. Go to parent directory OpenSeadragon.
-3. Connect to the server via `sftp username@hostname`, example: `sftp vipul@dev.rebuildingakidney.org`
-4. Navigate to the directory where you need OpenSeadragonViewer
-5. Upload the files via `put -r .`
+1. Clone the repository and verify that you're in the correct branch.
+2. Ensure the environment variables are properly set. The following are the variables and their default values:
 
-## chaise
+    ```
+    WEB_URL_ROOT=/
+    WEB_INSTALL_ROOT=/var/www/html/
+    OSD_VIEWER_REL_PATH=openseadragon-viewer/
+    ```
+    Which means openseadragon-viewer folder will be copied to `/var/www/html/openseadragon-viewer/` location by default. And the URL path of openseadragon-viewer is `/openseadragon-viewer/`. If that is not the case in your deployment, you should modify the variables accordingly.
 
-To upload the Chasie with annotations - follow the steps:
-1. Get the chaise code from the branch `multiple-annotations`.
-2. Change the `CHAISEDIR` used in the make file to desired location.
-3. Run command `make install`
+    Notes:
+    - All the variables MUST have a trailing `/`.
+
+    - If you're installing remotely, since we're using the `WEB_INSTALL_ROOT` in `rsync` command, you can use a remote location `username@host:public_html/` for this variable.
+
+## Chaise
+
+Please refer to [Chaise installation guide](https://github.com/informatics-isi-edu/chaise/blob/master/docs/user-docs/installation.md#deploying) for more information.
