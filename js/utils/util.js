@@ -112,12 +112,16 @@ Utils.prototype.getParameters = function(){
         switch(type){
             case "url": // Parameter.type are of 3 types : svg - for annotation overlay, tiff - files containing info.json and all the other file formats are treated as rest
                 // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
-                if(value.indexOf(".svg") != -1 || value.indexOf("hatrac") != -1){
+                // TODO the path of svg files are hardcoded and need to change
+                if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
                     // parameters.type = 'tiff';
                 }
-                else if(value.indexOf("ImageProperties.xml") != -1 || value.indexOf(".jpg") != -1){
+                // TODO the following conidtion was removed. we should figure out why it was added
+                // I removed it because we're not supposed to show thumbnail for jpg files
+                //  || value.indexOf(".jpg") != -1
+                else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
                     parameters.type = 'xml';
@@ -169,7 +173,7 @@ Utils.prototype.getParameters = function(){
     return parameters;
 }
 
-// Generate a random color 
+// Generate a random color
 Utils.prototype.generateColor = function(){
     var letters = '0123456789ABCDEF',
         color = '#',
