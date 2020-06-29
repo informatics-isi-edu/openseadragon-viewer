@@ -67,6 +67,9 @@ var _config = {
               fontSize: "small",
               barThickness: 3
           }
-        }
+        },
+        constants: {
+          unknownAnnotation: 'UNKNOWN',
+        },
     },
 };

@@ -165,17 +165,26 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             .remove();
     }
 
+    // get viewbox of the svg 
+    this.getViewBox = function () {
+        return (this.viewBox) ? this.viewBox : [0, 0, this.imgWidth, this.imgHeight];
+    }
+
     this.parseSVGFile = function(svgFile){
 
         if(!svgFile){ return; }
 
-        this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
-            function(num){ 
-                return +num;
-            }
-        );
+        if (svgFile.getAttribute("viewBox")) {
+            this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
+                function (num) {
+                    return +num;
+                }
+            );
+        } else if (svgFile.getAttribute("height") && svgFile.getAttribute("width")) {
+            this.viewBox = [0, 0, parseInt(svgFile.getAttribute("height")), parseInt(svgFile.getAttribute("width"))];
+        }
         
-        if(this.viewBox.length != 4){ 
+        if(!this.viewBox || this.viewBox.length != 4){ 
             console.log("SVG file is missing the viewBox attribute");
             return ; 
         }
@@ -225,14 +234,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
             switch (node.nodeName) {
                 case "g":
-                    this.parseSVGNodes(node.childNodes, styleSheet);
+                    this.parseSVGNodes(node.childNodes, styleSheet, node);
                     break;
                 case "path":
                 case "circle":
                 case "polyline":
                 case "polygon":
                 case "rect":
-                    this.parseSVGNodes([node]);
+                    this.parseSVGNodes([node], styleSheet, node);
                     // annotation = group.addAnnotation(node.nodeName);
                     // annotation.setAttributesBySVG(node);
                     // annotation.renderSVG(this);
@@ -246,24 +255,137 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             // };
         }
     }
+    
+    /**
+     * Checks all the style attributes in the node and returns the in the form of a string
+     * @param {object} node
+     * @return {styleAttributeString}
+     */
+    this.getStyleAttributes = function (node) {
 
-    this.parseSVGNodes = function(nodes, styleSheet){
+        console.log('styleProperties', node);
+        styleAttributeList = ['alignment-baseline', 'baseline-shift', 'clip', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'display', 'dominant-baseline', 'enable-background', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'lighting-color', 'marker-end', 'marker-mid', 'marker-start', 'mask', 'opacity', 'overflow', 'pointer-events', 'shape-rendering', 'stop-color', 'stop-opacity', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-decoration', 'text-rendering', 'transform', 'transform-origin', 'unicode-bidi', 'vector-effect', 'visibility', 'word-spacing', 'writing-mode'];
+
+        styleAttributeString = '';
+
+        for (let i = 0; i < styleAttributeList.length; i++) {
+            if (node.getAttribute(styleAttributeList[i])) {
+                value = node.getAttribute(styleAttributeList[i]);
+                styleAttributeString += styleAttributeList[i] + ':' + value + ';';
+            }
+        }
+
+        return styleAttributeString;
+    }
+
+    /**
+     * Will return an object of the style string
+     * @param {string} styleString
+     * @return {styleObject}
+     */
+    this.styleStringToObject = function (styleString) {
+        styleString = styleString.replace(/\s/g, '');
+        if (styleString[styleString.length - 1] == ';') {
+            styleString = styleString.slice(0, styleString.length - 1);
+        }
+
+        var styleObject = {};
+
+        styleString = styleString.split(';');
+
+        for (i = 0; i < styleString.length; i++) {
+            var property = styleString[i].split(':')[0];
+            var value = styleString[i].split(':')[1];
+            styleObject[property] = value;
+        }
+
+        return styleObject;
+    }
+
+    /**
+     * Will return a string of the style object, opposite of styleStringToObject function
+     * @param {object} styleObject
+     * @return {styleString}
+     */
+    this.styleObjectToString = function (styleObject) {
+        var styleString = '';
+
+        for (let key in styleObject) {
+            styleString += key.toString() + ':' + styleObject[key].toString() + ';';
+        }
+
+        // remove the last ';'
+        styleString = styleString.slice(0, styleString.length - 1);
+
+        return styleString;
+    }
+
+    /**
+     * Take the properties from the parent style and appends them to the child node
+     * @param {string} parentStyle
+     * @param {string} selfStyle
+     * @return {selfStyle}
+     */
+    this.mergeWithParentStyle = function (parentStyle, selfStyle) {
+
+
+        if (parentStyle != '') {
+            parentStyle = this.styleStringToObject(parentStyle);
+            selfStyle = this.styleStringToObject(selfStyle);
+
+            for (let key in parentStyle) {
+                if (!selfStyle[key]) {
+                    selfStyle[key] = parentStyle[key];
+                }
+            }
+
+            return this.styleObjectToString(selfStyle);
+        }
+
+        return selfStyle;
+    }
+    
+    /**
+     * Take the properties from the parent style and appends them to the child node
+     * @param {object} node
+     * @param {object} parentNode
+     * @return {nodeID}
+     */
+    this.getNodeID = function(node, parentNode) {
+        return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.unknownAnnotation;
+    }
+
+
+    this.parseSVGNodes = function (nodes, styleSheet, parentNode){
         // if (group == null) { return }
+
+        if (!parentNode) {
+            parentNode = {};
+        }
+
+        var parentStyle = parentNode.getAttribute("style") || '';
 
         for (var i = 0; i < nodes.length; i++) {
 
             if (!nodes[i].getAttribute) { continue; }
 
             var node = nodes[i];
-            var id = node.getAttribute("name") || "Unknown Anatomy";
+            var id = this.getNodeID(node, parentNode);
+            node.setAttribute("id", id);
             var anatomy = id.split(",").length > 1 ? id.split(",")[1] + " ("+id.split(",")[0]+")" : id;
             var className = node.getAttribute("class") || "";
             var group = null;
+
+            var selfStyle = node.getAttribute("style") || "";
+            if (parentStyle != '') {
+                selfStyle = this.mergeWithParentStyle(parentStyle, selfStyle);
+                node.setAttribute("style", selfStyle);
+            }
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
 
             switch (node.nodeName) {
                 case "g":
-                    this.parseSVGNodes(node.childNodes, styleSheet);
+                    this.parseSVGNodes(node.childNodes, styleSheet, node);
                     break;
                 case "path":
                 case "circle":
