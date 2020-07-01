@@ -165,15 +165,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             .remove();
     }
 
-    // get viewbox of the svg 
-    this.getViewBox = function () {
-        return (this.viewBox) ? this.viewBox : [0, 0, this.imgWidth, this.imgHeight];
-    }
-
     this.parseSVGFile = function(svgFile){
 
         if(!svgFile){ return; }
 
+        // to set the viewBox attribute of the svg, first it is checked of the attributes exsists in the svg file itself or not. If it does exsist then that value is assigned, otherwise we look for the height and width attribute in the svg file and assign [0, 0, height, width]. If none of these are present we display an error in the console.
         if (svgFile.getAttribute("viewBox")) {
             this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
                 function (num) {
@@ -259,12 +255,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     /**
      * Checks all the style attributes in the node and returns the in the form of a string
      * @param {object} node
-     * @return {styleAttributeString}
+     * @return {string} the returned value is a string that is similar to the 'style' attribute of a node i.e. style in a svg node.
      */
     this.getStyleAttributes = function (node) {
 
-        console.log('styleProperties', node);
-        styleAttributeList = ['alignment-baseline', 'baseline-shift', 'clip', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'display', 'dominant-baseline', 'enable-background', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'lighting-color', 'marker-end', 'marker-mid', 'marker-start', 'mask', 'opacity', 'overflow', 'pointer-events', 'shape-rendering', 'stop-color', 'stop-opacity', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-decoration', 'text-rendering', 'transform', 'transform-origin', 'unicode-bidi', 'vector-effect', 'visibility', 'word-spacing', 'writing-mode'];
+        styleAttributeList = parent.all_config.constants.STYLE_ATTRIBUTE_LIST;
 
         styleAttributeString = '';
 
@@ -274,14 +269,13 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 styleAttributeString += styleAttributeList[i] + ':' + value + ';';
             }
         }
-
         return styleAttributeString;
     }
 
     /**
      * Will return an object of the style string
      * @param {string} styleString
-     * @return {styleObject}
+     * @return {object} the returned object is a key (eg style property like 'font-size') and value (eg '20px') pair
      */
     this.styleStringToObject = function (styleString) {
         styleString = styleString.replace(/\s/g, '');
@@ -294,9 +288,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         styleString = styleString.split(';');
 
         for (i = 0; i < styleString.length; i++) {
-            var property = styleString[i].split(':')[0];
-            var value = styleString[i].split(':')[1];
-            styleObject[property] = value;
+            var property, value;
+            [property, value] = styleString[i].split(':')
+            if (value) {
+                styleObject[property] = value;
+            }
         }
 
         return styleObject;
@@ -305,7 +301,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     /**
      * Will return a string of the style object, opposite of styleStringToObject function
      * @param {object} styleObject
-     * @return {styleString}
+     * @return {string} 
      */
     this.styleObjectToString = function (styleObject) {
         var styleString = '';
@@ -321,10 +317,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     /**
-     * Take the properties from the parent style and appends them to the child node
+     * Take the properties from the parent style and appends them to the child node if they are missing from the child.
      * @param {string} parentStyle
      * @param {string} selfStyle
-     * @return {selfStyle}
+     * @return {string}
      */
     this.mergeWithParentStyle = function (parentStyle, selfStyle) {
 
@@ -346,13 +342,13 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
     
     /**
-     * Take the properties from the parent style and appends them to the child node
+     * Returns the node ID, which can is defined by the following logic: if the node has an ID return that else check for the name attribute in the node. If name is not present then check if the parent of that node has an ID, if yes then return that. In case non of these are present, then return a constant.
      * @param {object} node
      * @param {object} parentNode
-     * @return {nodeID}
+     * @return {string}
      */
     this.getNodeID = function(node, parentNode) {
-        return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.unknownAnnotation;
+        return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.UNKNOWN_ANNNOTATION;
     }
 
 
