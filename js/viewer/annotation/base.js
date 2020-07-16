@@ -189,6 +189,7 @@ Base.prototype.setAttributesBySVG = function(elem){
         if(value != null){
             switch(attr){
                 case "style":
+                    value = value.replace(/\s/g, '');
                     styleArr = value.split(";");
                     for(var i = 0; i < styleArr.length; i++){
                         var attrName = styleArr[i].split(":")[0];

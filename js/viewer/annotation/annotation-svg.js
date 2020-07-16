@@ -281,13 +281,18 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         if(!svgFile){ return; }
 
-        this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
-            function(num){ 
-                return +num;
-            }
-        );
+        // to set the viewBox attribute of the svg, first it is checked of the attributes exsists in the svg file itself or not. If it does exsist then that value is assigned, otherwise we look for the height and width attribute in the svg file and assign [0, 0, height, width]. If none of these are present we display an error in the console.
+        if (svgFile.getAttribute("viewBox")) {
+            this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
+                function (num) {
+                    return +num;
+                }
+            );
+        } else if (svgFile.getAttribute("height") && svgFile.getAttribute("width")) {
+            this.viewBox = [0, 0, parseInt(svgFile.getAttribute("height")), parseInt(svgFile.getAttribute("width"))];
+        }
         
-        if(this.viewBox.length != 4){ 
+        if(!this.viewBox || this.viewBox.length != 4){ 
             console.log("SVG file is missing the viewBox attribute");
             return ; 
         }
@@ -342,14 +347,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
             switch (node.nodeName) {
                 case "g":
-                    this.parseSVGNodes(node.childNodes, styleSheet);
+                    this.parseSVGNodes(node.childNodes, styleSheet, node);
                     break;
                 case "path":
                 case "circle":
                 case "polyline":
                 case "polygon":
                 case "rect":
-                    this.parseSVGNodes([node]);
+                    this.parseSVGNodes([node], styleSheet, node);
                     // annotation = group.addAnnotation(node.nodeName);
                     // annotation.setAttributesBySVG(node);
                     // annotation.renderSVG(this);
@@ -367,24 +372,137 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             // };
         }
     }
+    
+    /**
+     * Checks all the style attributes in the node and returns the in the form of a string
+     * @param {object} node
+     * @return {string} the returned value is a string that is similar to the 'style' attribute of a node i.e. style in a svg node.
+     */
+    this.getStyleAttributes = function (node) {
 
-    this.parseSVGNodes = function(nodes, styleSheet){
+        styleAttributeList = parent.all_config.constants.STYLE_ATTRIBUTE_LIST;
+
+        styleAttributeString = '';
+
+        for (let i = 0; i < styleAttributeList.length; i++) {
+            if (node.getAttribute(styleAttributeList[i])) {
+                value = node.getAttribute(styleAttributeList[i]);
+                styleAttributeString += styleAttributeList[i] + ':' + value + ';';
+            }
+        }
+        return styleAttributeString;
+    }
+
+    /**
+     * Will return an object of the style string
+     * @param {string} styleString
+     * @return {object} the returned object is a key (eg style property like 'font-size') and value (eg '20px') pair
+     */
+    this.styleStringToObject = function (styleString) {
+        styleString = styleString.replace(/\s/g, '');
+        if (styleString[styleString.length - 1] == ';') {
+            styleString = styleString.slice(0, styleString.length - 1);
+        }
+
+        var styleObject = {};
+
+        styleString = styleString.split(';');
+
+        for (i = 0; i < styleString.length; i++) {
+            var property, value;
+            [property, value] = styleString[i].split(':')
+            if (value) {
+                styleObject[property] = value;
+            }
+        }
+
+        return styleObject;
+    }
+
+    /**
+     * Will return a string of the style object, opposite of styleStringToObject function
+     * @param {object} styleObject
+     * @return {string} 
+     */
+    this.styleObjectToString = function (styleObject) {
+        var styleString = '';
+
+        for (let key in styleObject) {
+            styleString += key.toString() + ':' + styleObject[key].toString() + ';';
+        }
+
+        // remove the last ';'
+        styleString = styleString.slice(0, styleString.length - 1);
+
+        return styleString;
+    }
+
+    /**
+     * Take the properties from the parent style and appends them to the child node if they are missing from the child.
+     * @param {string} parentStyle
+     * @param {string} selfStyle
+     * @return {string}
+     */
+    this.mergeWithParentStyle = function (parentStyle, selfStyle) {
+
+
+        if (parentStyle != '') {
+            parentStyle = this.styleStringToObject(parentStyle);
+            selfStyle = this.styleStringToObject(selfStyle);
+
+            for (let key in parentStyle) {
+                if (!selfStyle[key]) {
+                    selfStyle[key] = parentStyle[key];
+                }
+            }
+
+            return this.styleObjectToString(selfStyle);
+        }
+
+        return selfStyle;
+    }
+    
+    /**
+     * Returns the node ID, which can is defined by the following logic: if the node has an ID return that else check for the name attribute in the node. If name is not present then check if the parent of that node has an ID, if yes then return that. In case non of these are present, then return a constant.
+     * @param {object} node
+     * @param {object} parentNode
+     * @return {string}
+     */
+    this.getNodeID = function(node, parentNode) {
+        return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.UNKNOWN_ANNNOTATION;
+    }
+
+
+    this.parseSVGNodes = function (nodes, styleSheet, parentNode){
         // if (group == null) { return }
+
+        if (!parentNode) {
+            parentNode = {};
+        }
+
+        var parentStyle = parentNode.getAttribute("style") || '';
 
         for (var i = 0; i < nodes.length; i++) {
 
             if (!nodes[i].getAttribute) { continue; }
 
             var node = nodes[i];
-            var id = node.getAttribute("name") || "Unknown Anatomy";
+            var id = this.getNodeID(node, parentNode);
+            node.setAttribute("id", id);
             var anatomy = id.split(",").length > 1 ? id.split(",")[1] + " ("+id.split(",")[0]+")" : id;
             var className = node.getAttribute("class") || "";
             var group = null;
+
+            var selfStyle = node.getAttribute("style") || "";
+            if (parentStyle != '') {
+                selfStyle = this.mergeWithParentStyle(parentStyle, selfStyle);
+                node.setAttribute("style", selfStyle);
+            }
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
 
             switch (node.nodeName) {
                 case "g":
-                    this.parseSVGNodes(node.childNodes, styleSheet);
+                    this.parseSVGNodes(node.childNodes, styleSheet, node);
                     break;
                 case "path":
                 case "circle":
