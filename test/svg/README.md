@@ -23,3 +23,6 @@ This svg contains a viewbox having 3 values only, instead of the normal four whc
 
 - heightWidthNoViewbox.svg
 This file does not contain a viewBox attribute, but has a height and width. The height and width are used to create a viewbox in this case and the file is displayed according the those values.
+
+- viewBoxAssignmentCheck.svg
+This file does not contain a viewbox attribute. This testcase is an extension of heightWidthNoViewbox.svg, as not only it checks that the viewBox is created properly but also makes sure that the file is aligned properly with the image. In this case the rectangle should cover the outer boundary of the image.
