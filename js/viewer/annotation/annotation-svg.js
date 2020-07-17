@@ -281,7 +281,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         if(!svgFile){ return; }
 
-        // to set the viewBox attribute of the svg, first it is checked of the attributes exsists in the svg file itself or not. If it does exsist then that value is assigned, otherwise we look for the height and width attribute in the svg file and assign [0, 0, height, width]. If none of these are present we display an error in the console.
+        // to set the viewBox attribute of the svg, first it is checked of the attributes exsists in the svg file itself or not. If it does exsist then that value is assigned, otherwise we look for the min-x, min-y, height and width attribute in the svg file and assign [min-x, min-y, height, width]. If none of these are present we display an error in the console.
         if (svgFile.getAttribute("viewBox")) {
             this.viewBox = svgFile.getAttribute("viewBox").split(" ").map(
                 function (num) {
@@ -289,7 +289,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 }
             );
         } else if (svgFile.getAttribute("height") && svgFile.getAttribute("width")) {
-            this.viewBox = [0, 0, parseInt(svgFile.getAttribute("height")), parseInt(svgFile.getAttribute("width"))];
+            var minX = parseInt(svgFile.getAttribute("min-x")) || 0;
+            var minY = parseInt(svgFile.getAttribute("min-y")) || 0;
+            this.viewBox = [minX, minY, parseInt(svgFile.getAttribute("width")), parseInt(svgFile.getAttribute("height"))];
         }
         
         if(!this.viewBox || this.viewBox.length != 4){ 
