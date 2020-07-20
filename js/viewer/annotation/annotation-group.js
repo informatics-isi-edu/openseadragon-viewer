@@ -91,7 +91,6 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         var rst = ["<g id='"+this.id+"'>"];
         var i;
-        console.log('this.annotations', this.annotations);
         for(i = 0; i < this.annotations.length; i++){
             var content = this.annotations[i].exportToSVG();
             rst.push(content);

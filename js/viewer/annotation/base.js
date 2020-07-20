@@ -4,13 +4,14 @@ function Base(attrs){
     this.parent = attrs.parent;
     this.id = attrs["graph-id"] || -1;
     this.isDrawing = false;
+    this.constants = attrs.parent.parent.parent.all_config.constants;
     this._attrs = {
         // "annotation-id" : attrs["annotation-id"] || -1,
         "graph-id" : attrs["graph-id"] || -1,
         "tag" : attrs["tag"] || "",
         "fill" : attrs["fill"] || "none",
         "stroke" :  attrs["stroke"] || "",
-        "stroke-width" : attrs["stroke-width"] || "1px",
+        "stroke-width": attrs["stroke-width"] || this.constants.OUTPUT_SVG_STROKE_WIDTH,
         "style" : "",
         "vector-effect" : attrs["vector-effect"] || "non-scaling-stroke"
     }
@@ -31,7 +32,7 @@ function Base(attrs){
      */
     this.getStyle = function() {
         var styleString = "";
-        var styleAttributes = ['fill', "stroke", "stroke", "vector-effect", "stroke-width"];
+        var styleAttributes = ['fill', "stroke", "stroke", "stroke-width"];
 
         for (var i = 0; i <  styleAttributes.length; i++) {
             if (this._attrs[styleAttributes[i]] && this._attrs[styleAttributes[i]].length > 0) {
@@ -68,7 +69,9 @@ function Base(attrs){
         }
 
         for(attr in this._attrs){
-            if(!this._attrs[attr] || this._attrs[attr] === null || attr === "style"){
+            // Ingoring style because that will be added at the end.
+            // Ignoreing vector-effect becasue this properpty is not needed in the output file
+            if (!this._attrs[attr] || this._attrs[attr] === null || attr === "style" || attr == "vector-effect"){
                 continue;
             }
 
@@ -87,7 +90,6 @@ function Base(attrs){
             rst += ('style="' + this._attrs["style"] + '" ');
         }
         rst += "></" + tag + ">";
-        // console.log('rst', rst, this._attrs);
         return rst;
     }
 

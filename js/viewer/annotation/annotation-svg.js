@@ -228,7 +228,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
                 svg += this.groups[groupID].exportToSVG();
                 svg += "</svg>";
-                console.log('svg', svg);
+                // console.log('svg', svg);
                 rst.push({
                     svgID : this.id,
                     groupID : groupID,
