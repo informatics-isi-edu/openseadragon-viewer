@@ -116,7 +116,7 @@ Utils.prototype.getParameters = function(){
                 if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
-                    // parameters.type = 'tiff';
+                    parameters.type = 'tiff';
                 }
                 // TODO the following conidtion was removed. we should figure out why it was added
                 // I removed it because we're not supposed to show thumbnail for jpg files

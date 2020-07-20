@@ -224,10 +224,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         // return matched group SVG content only if groupID provided
         if(groupID){
             if(this.groups.hasOwnProperty(groupID)){
-                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"' annotationColor='"+annotationColor+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
+                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
                 svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
                 svg += this.groups[groupID].exportToSVG();
                 svg += "</svg>";
+                console.log('svg', svg);
                 rst.push({
                     svgID : this.id,
                     groupID : groupID,

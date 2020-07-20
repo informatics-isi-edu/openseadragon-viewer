@@ -89,9 +89,9 @@ function AnnotationGroup(id, anatomy, description, parent){
             return "";
         }
 
-        var rst = ["<g annotation-id='"+this.id+"'>"];
+        var rst = ["<g id='"+this.id+"'>"];
         var i;
-
+        console.log('this.annotations', this.annotations);
         for(i = 0; i < this.annotations.length; i++){
             var content = this.annotations[i].exportToSVG();
             rst.push(content);
@@ -140,7 +140,7 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         var svg = d3.select(this.parent.svg)
             .append("g")
-            .attr("annotation-id", this.id);
+            .attr("id", this.id);
             
         this.svg = svg;
     
@@ -220,7 +220,7 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.updateInfo = function(data){
         this.id = data.id;
         this.anatomy = data.anatomy;
-        this.svg.attr("annotation-id", this.id);
+        this.svg.attr("id", this.id);
     }
 
     this.unHighlightAll = function(){

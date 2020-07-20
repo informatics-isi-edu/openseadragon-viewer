@@ -10,22 +10,65 @@ function Base(attrs){
         "tag" : attrs["tag"] || "",
         "fill" : attrs["fill"] || "none",
         "stroke" :  attrs["stroke"] || "",
-        "stroke-width" : attrs["stroke-width"] || "",
+        "stroke-width" : attrs["stroke-width"] || "1px",
         "style" : "",
         "vector-effect" : attrs["vector-effect"] || "non-scaling-stroke"
     }
+    /**
+     * This functions checks to see if the svg component has valid attributes for it to be drawn. This function makes sure that no empty attribute is added.
+     * @param {object} attributes
+     * @return {boolean} Boolean values representing if the component has valid dimensions
+     */
+    this.hasDimensions = function(attributes) {
+        if ((attributes["height"] && attributes["width"]) || (attributes["d"]) || (attributes["cx"] && attributes["cy"] && attributes["r"])) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * This functions removes the style attributes, appends them to a string and returns them.
+     * @return {string}
+     */
+    this.getStyle = function() {
+        var styleString = "";
+        var styleAttributes = ['fill', "stroke", "stroke", "vector-effect", "stroke-width"];
+
+        for (var i = 0; i <  styleAttributes.length; i++) {
+            if (this._attrs[styleAttributes[i]] && this._attrs[styleAttributes[i]].length > 0) {
+                styleString += styleAttributes[i] + ':' + this._attrs[styleAttributes[i]] + ';';
+                this._attrs[styleAttributes[i]] = null;
+            }
+        }
+
+        if (styleString[styleString.length - 1] == ';') {
+            styleString = styleString.slice(0, styleString.length - 1);
+        }
+
+        return styleString;
+    }
 
     this.exportToSVG = function(){
+
+        // Check to see if there are necessary dimensions needed to construct the component. This makes sure that no empty components are added to the final SVG output file.
+        if (!this.hasDimensions(this._attrs)) {
+            return "";
+        }
+
         var tag = this._attrs["tag"];
         var rst = "<" + tag + " ";
         var attr;
 
-        if(this.parent.id !== ""){
-            rst += 'name="' + this.parent.id + '" ';
-        };
+        // if(this.parent.id !== ""){
+        //     rst += 'id="' + this.parent.id + '" ';
+        // };
+
+        var style = this.getStyle();
+        if (style.length > 0) {
+            this._attrs["style"] = style;
+        }
 
         for(attr in this._attrs){
-            if(!this._attrs[attr] || this._attrs[attr] === null){
+            if(!this._attrs[attr] || this._attrs[attr] === null || attr === "style"){
                 continue;
             }
 
@@ -38,7 +81,13 @@ function Base(attrs){
                     break;  
             }
         }
+
+        // The style is added at the end
+        if (this._attrs["style"].length > 0) {
+            rst += ('style="' + this._attrs["style"] + '" ');
+        }
         rst += "></" + tag + ">";
+        // console.log('rst', rst, this._attrs);
         return rst;
     }
 
