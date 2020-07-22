@@ -165,6 +165,7 @@ Utils.prototype.getParameters = function(){
                 break;
             case "ignoreReferencePoint":
             case "ignoreDimension":
+            case "enableSVGStrokeWidth":
                 parameters[type] = (value.toLocaleLowerCase() === "true") ? true : false;
                 break;
         }

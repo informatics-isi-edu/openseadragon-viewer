@@ -5,6 +5,7 @@ function Base(attrs){
     this.id = attrs["graph-id"] || -1;
     this.isDrawing = false;
     this.constants = attrs.parent.parent.parent.all_config.constants;
+    this.urlParams = attrs.parent.parent.parent.parameters;
     this._attrs = {
         // "annotation-id" : attrs["annotation-id"] || -1,
         "graph-id" : attrs["graph-id"] || -1,
@@ -176,9 +177,22 @@ Base.prototype.getAttributes = function(attrs){
     }
 }
 
+/**
+ * This functions checks to see if enableSVGStrokeWidth is true or false. If it is true then it return the value passed as its param, else it returns the default line thickness which is set in the config file
+ * @param {string} value it is the stroke-width
+ * @return {int} the desired stroke-width
+ */
+Base.prototype.getStrokeWidth = function (value) {
+    return this.urlParams.enableSVGStrokeWidth ? (parseInt(value) || 1) : parseInt(this.constants.DEFAULT_LINE_THICKNESS);
+}
+
 Base.prototype.highlight = function(highlightAttrs){
 
     for(var attr in highlightAttrs){
+        if (attr == "stroke-width") {
+            highlightAttrs[attr] = this.getStrokeWidth(highlightAttrs[attr]) * this.parent.getStrokeScale() * 1.25;
+            // stroke-width is multiplied by 1.25 for highlighting it
+        }
         this.svg.attr(attr, highlightAttrs[attr]);
     }
 }
@@ -207,7 +221,7 @@ Base.prototype.renderSVG = function(){
             case "tag":
                 break;
             case "stroke-width":
-                value = parseInt(value) || 1;
+                value = this.getStrokeWidth(value);
                 this.svg.attr(attr, value * strokeScale);
                 break;
             default:
@@ -259,7 +273,7 @@ Base.prototype.setAttributesBySVG = function(elem){
 
 Base.prototype.unHighlight = function(){
     var strokeScale = this.parent.getStrokeScale() || 1;
-    var strokeWidth = parseInt(this._attrs["stroke-width"]) || 1;
+    var strokeWidth = this.getStrokeWidth(this._attrs["stroke-width"]);
 
     this.svg
         .attr("fill", this._attrs["fill"] || "")
