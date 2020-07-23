@@ -343,6 +343,7 @@ function Viewer(parent, config) {
             // Remove annotation object from a group
             case "removeAnnotationByGraphID":
                 svg.removeAnnotationByGraphID(data.groupID, data.graphID);
+                this.dispatchEvent("onMouseoutHideTooltip");
                 break;
             // Set annotation groups attributes
             case "setGroupAttributes":
