@@ -16,6 +16,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.isSelected = false;
     this.annotationColor = null;
     this.currentGroupID = "";
+    this.groupIDs = new Set();
 
     // Create drawing area for grouping annotations with same id
     this.createAnnotationGroup = function (id, anatomy, description) {
@@ -492,6 +493,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             var node = nodes[i];
             var id = this.getNodeID(node, parentNode);
             node.setAttribute("id", id);
+            this.groupIDs.add(id);
             var anatomy = id.split(",").length > 1 ? id.split(",")[1] + " ("+id.split(",")[0]+")" : id;
             var className = node.getAttribute("class") || "";
             var group = null;

@@ -33,6 +33,7 @@ function Viewer(parent, config) {
     this.strokeMaxScale = 3.5;
     this.svgNotPresent = false;
     this.stayInsideImage = true;
+    this.groupIDs = new Set();
 
     // Init
     this.init = function (utils) {
@@ -469,6 +470,21 @@ function Viewer(parent, config) {
         return this.strokeScale;
     }
 
+    /**
+     * For all the ID passed in the param, this function adds a mouseTracker for those ID and disables the on click zoom functionality of the OSD
+     * @param {Array} idArray
+     */
+    this.disableClickZoomForAnnotation = function (idArray) {
+        for (let i = 0; i < idArray.length; i++) {
+            new OpenSeadragon.MouseTracker({
+                element: idArray[i],
+                clickHandler: function (e) {
+                    // console.log(e);
+                }
+            });
+        }
+    }
+
     // Load and import the unstructured SVG file into Openseadragon viewer
     this.importAnnotationUnformattedSVG = function (svgs) {
         /*
@@ -493,6 +509,14 @@ function Viewer(parent, config) {
 
             this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
             this.svgCollection[id].parseSVGFile(svgFile);
+
+            // get ID of the annotations
+            var idArray = Array.from(this.svgCollection[id].groupIDs);
+
+            // Add those IDs to the set
+            for (let i = 0; i < idArray.length; i++) {
+                this.groupIDs.add(idArray[i]);
+            }
             
             // Set a theme color if not exists
             if(!this.svgCollection[id].annotationColor){
@@ -504,6 +528,13 @@ function Viewer(parent, config) {
               this.dispatchEvent('errorAnnotation');
             }
         }
+
+        // Create an array of the set of annotation IDs
+        var idArray = Array.from(this.groupIDs)
+
+        // Disable on click zoom for them
+        this.disableClickZoomForAnnotation(idArray);
+        
     }
 
     // Load after Openseadragon initialized
