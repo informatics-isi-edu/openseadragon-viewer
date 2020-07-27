@@ -212,6 +212,14 @@ Base.prototype.renderSVG = function(){
             .on("mousemove", this.onMousemoveShowTooltip)
             .on("mouseout", this.onMouseoutHideTooltip)
             .on('click', this.onClickToSelectAnnotation);
+            
+        // prevent the default behavior of osd by adding an empty click handler
+        new OpenSeadragon.MouseTracker({
+            element: this.svg.node(),
+            clickHandler: function (e) {
+                // intentially left empy. we just want to prevent the default behavior (zoom)
+            }
+        });
     }
 
     for(attr in this._attrs){
@@ -290,6 +298,3 @@ Base.prototype.unbind = function(){
             .on('click', null);
     }
 }
-
-
-
