@@ -33,9 +33,18 @@ function AnnotationTool(parent){
         
     }
 
-    // Change stroke color
+    // Change stroke color. This function handles the flow when the color (stroke) is changed while drawing/editting the SVG.
     this.onChangeStrokeColor = function(){
         _self.curStroke = this.value;
+        _self.dispatchEvent("drawingStrokeChanged", {
+            svgID: _self.curSVGID,
+            groupID: _self.curGroupID,
+            type: _self.curType,
+            attrs: {
+                "stroke": _self.curStroke,
+                "fill": "None"
+            }
+        });
     }
 
     // Render the view

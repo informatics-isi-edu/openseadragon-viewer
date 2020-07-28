@@ -332,6 +332,10 @@ function Viewer(parent, config) {
             case "drawingStart":
                 svg.createAnnotationObject(data.groupID, data.type, data.attrs);
                 break;
+            // Change the color of the annotation
+            case "drawingStrokeChanged":
+                svg.changeDrawingStroke(data);
+                break;
             // Change current selected annotation group
             case "highlightAnnotation":
                 this.changeSelectingAnnotation(data);

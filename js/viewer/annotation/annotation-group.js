@@ -216,6 +216,18 @@ function AnnotationGroup(id, anatomy, description, parent){
         })
     }
 
+    /**
+    * This function changes the color(stroke) of the each annotation to the new value passed as param
+    * @param {string} stroke the RGB value of the new color
+    */
+    this.updateStroke = function(stroke) {
+        _self.annotations.forEach(function (annotation) {
+            annotation._attrs.stroke = stroke;
+            // render the SVG after changing the color so that the new color is reflected in the viewer
+            annotation.renderSVG();
+        });
+    }
+
     this.updateInfo = function(data){
         this.id = data.id;
         this.anatomy = data.anatomy;

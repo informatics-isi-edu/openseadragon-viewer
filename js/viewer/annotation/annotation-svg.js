@@ -68,6 +68,19 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }        
     }
 
+    /**
+    * This function changes the color of the annotation that is worked on, to the new color passes in the data
+    * @param {object} data Contain information about the object that is being drawn/editted
+    */
+    this.changeDrawingStroke = function (data) {
+        for (var groupID in this.groups) {
+            // change the color for only the group that is being worked on
+            if (groupID == data.groupID) {
+                this.groups[groupID].updateStroke(data.attrs.stroke);
+            }
+        }
+    }
+
     // Change the group visibility
     this.changeVisibility = function(data){
 
