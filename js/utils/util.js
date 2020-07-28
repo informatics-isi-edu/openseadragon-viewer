@@ -111,11 +111,16 @@ Utils.prototype.getParameters = function(){
         value = args[i].split("=")[1];
         switch(type){
             case "url": // Parameter.type are of 3 types : svg - for annotation overlay, tiff - files containing info.json and all the other file formats are treated as rest
-                if(value.indexOf(".svg") != -1){
+                // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
+                // TODO the path of svg files are hardcoded and need to change
+                if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
                     parameters.type = 'tiff';
                 }
+                // TODO the following conidtion was removed. we should figure out why it was added
+                // I removed it because we're not supposed to show thumbnail for jpg files
+                //  || value.indexOf(".jpg") != -1
                 else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
@@ -160,12 +165,25 @@ Utils.prototype.getParameters = function(){
                 break;
             case "ignoreReferencePoint":
             case "ignoreDimension":
+            case "enableSVGStrokeWidth":
                 parameters[type] = (value.toLocaleLowerCase() === "true") ? true : false;
                 break;
         }
     }
     // console.log(parameters);
     return parameters;
+}
+
+// Generate a random color
+Utils.prototype.generateColor = function(){
+    var letters = '0123456789ABCDEF',
+        color = '#',
+        i;
+
+    for (i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 
 // Set the config based on the image type

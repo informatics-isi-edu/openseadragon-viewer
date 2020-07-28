@@ -2,7 +2,8 @@ var _config = {
     toolbar : {
         elems : {
             containerId : "menuContainer",
-            navMenuContentId : "navMenuContent"
+            navMenuContentId : "navMenuContent",
+            drawToolContainerId : "drawToolContainer"
         }
     },
     viewer : {
@@ -71,6 +72,9 @@ var _config = {
         constants: {
           UNKNOWN_ANNNOTATION: 'UNKNOWN',
           STYLE_ATTRIBUTE_LIST: ['alignment-baseline', 'baseline-shift', 'clip', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'display', 'dominant-baseline', 'enable-background', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'lighting-color', 'marker-end', 'marker-mid', 'marker-start', 'mask', 'opacity', 'overflow', 'pointer-events', 'shape-rendering', 'stop-color', 'stop-opacity', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-decoration', 'text-rendering', 'transform', 'transform-origin', 'unicode-bidi', 'vector-effect', 'visibility', 'word-spacing', 'writing-mode'],
+          OUTPUT_SVG_STROKE_WIDTH: '1px',
+          DISABLE_VECTOR_EFFECT: false,
+          DEFAULT_LINE_THICKNESS: '1px'
         },
     },
 };

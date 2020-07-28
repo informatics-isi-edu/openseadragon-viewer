@@ -10,7 +10,6 @@ var myApp = (function (_config) {
         toolbar = new ToolbarController(this, _config.toolbar);
 
         viewer.init(utils);
-        // toolbar.onClickedMenuHandler('annotationList');
         window.addEventListener('message', receiveChaiseEvent);
 
         this.viewer = viewer;
@@ -25,7 +24,17 @@ var myApp = (function (_config) {
             case "highlightAnnotation": // Highlight selecting annotation group
             case "changeAllVisibility": // Change all annotations visibility
             case "setGroupAttributes": // Change annotation 'description' or 'anatomy' text
+            case "drawingStart":
                 viewer.dispatchSVGEvent(type, data);
+                break;
+            case "drawingStop":
+                viewer.removeMouseTrackers(data);
+                break;
+            case "setMode":
+                viewer.setMode(data);
+                break;
+            case "saveAnatomySVG":
+                viewer.saveAnatomySVG(data);
                 break;
             // Change openseadragon item overlay visibility
             case "changeOsdItemVisibility":
@@ -56,15 +65,28 @@ var myApp = (function (_config) {
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            case "saveGroupSVGContent":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            // Show Annotation Tool
+            case "toggleDrawingTool":
+                toolbar && toolbar.toggleDrawingTool(data);
+                break;
+            // Update svg id in toolbar
+            case "updateSVGId":
+                toolbar && toolbar.updateDrawingSVGId(data);
+                break;
+            // Update group id in toolbar
+            case "updateGroupInfo":
+                toolbar && toolbar.updateDrawingGroupId(data);
+                break;
             case "errorAnnotation":
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-
             case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-
             // Send the updated channel list to toolbar
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
@@ -115,6 +137,8 @@ var myApp = (function (_config) {
                     break;
                 case 'highlightAnnotation':
                 case 'changeAnnotationVisibility':
+                case 'changeSVGId':
+                case 'changeGroupInfo':
                     viewer.dispatchSVGEvent(messageType, data);
                     break;
                 case 'changeAllAnnotationVisibility':
@@ -122,6 +146,19 @@ var myApp = (function (_config) {
                     break;
                 case 'changeStrokeScale':
                     viewer.changeStrokeScale(data);
+                    break;
+                case 'drawAnnotationMode':
+                    viewer.drawAnnotationMode(data);
+                    break;
+                case 'addNewTerm':
+                    viewer.addNewTerm(data);
+                    break;
+                case 'removeSVG':
+                    viewer.removeSVG(data.svgID);
+                    break;
+                // Save the svg file with matching group ID and return it to Chaise Viewer
+                case 'saveAnnotationRecord':
+                    viewer.saveAnatomySVG(data);
                     break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);

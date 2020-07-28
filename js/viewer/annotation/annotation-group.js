@@ -4,7 +4,6 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.description = description || "no description";
     this.anatomy = anatomy || "Unknown Anatomy";
     this.annotations = [];
-    // this.indicator = null;
     this.parent = parent;
 
     // Top-left diagonal point
@@ -21,37 +20,27 @@ function AnnotationGroup(id, anatomy, description, parent){
     // Add new annotation object (path/cirlce/rect)
     this.addAnnotation = function(type){
         var annotation = null;
-
+        var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
+        var attrs = {
+            "graph-id" : graphID,
+            // "annotation-id" : this.id,
+            "parent" : this
+        }
         switch (type.toUpperCase()) {
             case "PATH":
-                annotation = new Path({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Path(attrs); 
                 break;
             case "POLYLINE":
-                annotation = new Polyline({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Polyline(attrs); 
                 break;
             case "POLYGON":
-                annotation = new Polygon({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Polygon(attrs); 
                 break;
             case "RECT":
-                annotation = new Rect({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Rect(attrs); 
                 break;
             case "CIRCLE":
-                annotation = new Circle({
-                    "annotation-id" : this.id,
-                    "parent" : this
-                }); 
+                annotation = new Circle(attrs); 
                 break;
         };
 
@@ -67,9 +56,8 @@ function AnnotationGroup(id, anatomy, description, parent){
         
         switch(type){
             case "onClickChangeSelectingAnnotation":
-                this.parent.dispatchEvent(type, {
-                    groupID : this.id
-                })
+                data["groupID"] = this.id;
+                this.parent.dispatchEvent(type, data);
                 break;
             case "onMouseoverShowTooltip":
                 data["anatomy"] = this.anatomy;
@@ -94,6 +82,24 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
     }
 
+    // Export group content
+    this.exportToSVG = function(){
+
+        if(this.annotations.length === 0){
+            return "";
+        }
+
+        var rst = ["<g id='"+this.id+"'>"];
+        var i;
+        for(i = 0; i < this.annotations.length; i++){
+            var content = this.annotations[i].exportToSVG();
+            rst.push(content);
+        };
+
+        rst.push("</g>");
+        return rst.join("");
+    }
+
     // Get box boundaries of the group
     this.getBoxBoundaries = function(){
         return {
@@ -102,6 +108,11 @@ function AnnotationGroup(id, anatomy, description, parent){
             x2 : this.x2,
             y2 : this.y2
         }
+    }
+
+    // Get number of annotations
+    this.getNumOfAnnotations = function(){
+        return this.annotations.length;
     }
 
     this.getStrokeScale = function(){
@@ -115,7 +126,7 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         _self.annotations.forEach(function(annotation){
             strokeWidth = parseInt(annotation._attrs["stroke-width"]) || 1;
-            strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
+            // strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
             annotation.highlight({
                 "stroke-width" : strokeWidth === 0 ? 5 : strokeWidth,
                 "stroke" : "yellow",
@@ -128,10 +139,41 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         var svg = d3.select(this.parent.svg)
             .append("g")
-            .attr("annotation-id", this.id);
+            .attr("id", this.id);
             
         this.svg = svg;
     
+    }
+
+    // Remove an annotation by graphID
+    this.removeAnnotationByID = function(graphID){
+        var index;
+        var annotation = this.annotations.find(function(graph, i){
+            if(graph.id ==  graphID){
+                index = i;
+                return true;
+            }
+        })
+
+        if(!annotation){
+            return
+        }
+        
+        // remove annotation object from the collection
+        this.annotations.splice(index, 1);
+
+        // remove event handlers for the annotation
+        annotation.unbind();
+
+        // remove svg element
+        annotation.svg.remove();
+    }
+
+    // Remove all annotations 
+    this.removeAllAnnotations = function(){
+        for(var i = 0; i < this.annotations.length; i++){
+            this.removeAnnotationByID(this.annotations[i].id);
+        };
     }
 
     this.setAttributesByJSON = function(attrs){
@@ -172,6 +214,12 @@ function AnnotationGroup(id, anatomy, description, parent){
         _self.annotations.forEach(function(annotation){
             annotation.renderSVG();
         })
+    }
+
+    this.updateInfo = function(data){
+        this.id = data.id;
+        this.anatomy = data.anatomy;
+        this.svg.attr("id", this.id);
     }
 
     this.unHighlightAll = function(){

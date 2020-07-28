@@ -1,0 +1,43 @@
+#drawToolContainer{
+    position: absolute;
+    height: 100%;
+    display: flex;
+    z-index: 1;
+}
+
+#drawToolContainer .annotationTool{
+    background: #407ccb;
+    opacity: 0.85;
+} 
+
+#drawToolContainer .toolBtn{
+    display: flex;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+#drawToolContainer .toolBtn.selected{
+    background: #18548d;
+}
+
+#drawToolContainer .toolBtn:hover{
+    background: #18548d;
+}
+
+#drawToolContainer .toolBtn input[type="color"] {
+	-webkit-appearance: none;
+    border: none;
+    width: 15px;
+    height: 15px;
+    padding: 0;
+    border: 1px solid #99afcb;
+}
+#drawToolContainer .toolBtn input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+#drawToolContainer .toolBtn input[type="color"]::-webkit-color-swatch {
+	border: none;
+}

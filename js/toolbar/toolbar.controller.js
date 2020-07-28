@@ -6,11 +6,23 @@ function ToolbarController(parent, config){
     this.parent = parent;
     this._toolbarView = new ToolbarView(this, config);
     this.annotationList = new AnnotationList(this);
+    this.annotationTool = new AnnotationTool(this);
     this.channelList = new ChannelList(this);
 
     // Set current selecting annotation
     this.changeSelectingAnnotation = function(data){
         this.annotationList.changeSelectingAnnotation(data);
+    }
+
+    // Close annotation tool
+    this.closeAnnotationTool = function(){
+        this.annotationTool.updateMode('CURSOR');
+        this.annotationTool.updateDrawInfo({
+            svgID : '',
+            groupID : '',
+            type : null
+        });
+        this._toolbarView.removeAnnotationTool(this.annotationTool);
     }
 
     // Dispatch event to Viewer
@@ -21,6 +33,37 @@ function ToolbarController(parent, config){
                 break;
             
         }
+    }
+
+    // Turn on/off annotation drawing mode
+    this.toggleDrawingTool = function(data){
+
+        // Drawing mode
+        var mode = data.mode.toUpperCase();
+        // Check if the svg id exists 
+        var svgID = data.svgID || "";
+        var groupID = data.groupID || "";
+        
+        if(svgID != "" && groupID != ""){
+            if(mode == "ON"){
+                // Save drawing SVG ID and group ID
+                this.annotationTool.updateDrawInfo(data);
+                this._toolbarView.renderAnnotationTool(this.annotationTool);
+            }
+            else{
+                this.annotationTool.updateDrawInfo({
+                    type : "",
+                    svgID : "",
+                    groupID : ""
+                });
+                this._toolbarView.removeAnnotationTool(this.annotationTool);
+            }  
+        }
+    }
+
+    // Get current drawing SVG Id and Group ID
+    this.getDrawInfo = function(){
+        return this.annotationTool.getDrawInfo();
     }
 
     // Hide annotation list
@@ -34,7 +77,7 @@ function ToolbarController(parent, config){
     }
 
     // Binding events when toolbar menu get clicked by the user
-    this.onClickedMenuHandler = function(clickMenuType){
+    this.onClickedMenuHandler = function(clickMenuType, data){
 
         // Trigger event handler for different menu type 
         switch (clickMenuType) {
@@ -61,6 +104,24 @@ function ToolbarController(parent, config){
     // update channel from viewer
     this.updateChannelList = function(data){
         this.channelList.add(data);
+    }
+
+    // update current drawing svg Id if drawing mode is on
+    this.updateDrawingSVGId = function(data){
+        if(this.annotationTool.curSVGID === data.svgID){
+            this.annotationTool.updateDrawInfo({
+                svgID : data.newSvgID
+            });
+        }
+    }
+
+    // update current drawing group Id if drawing mode is on
+    this.updateDrawingGroupId = function(data){
+        if(this.annotationTool.curSVGID === data.svgID){
+            this.annotationTool.updateDrawInfo({
+                groupID : data.newGroupID
+            });
+        }
     }
 }
 
