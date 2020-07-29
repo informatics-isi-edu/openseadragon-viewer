@@ -25,6 +25,7 @@ var myApp = (function (_config) {
             case "changeAllVisibility": // Change all annotations visibility
             case "setGroupAttributes": // Change annotation 'description' or 'anatomy' text
             case "drawingStart":
+            case "drawingStrokeChanged":    //change the color of annotation that is being drawn/editted
                 viewer.dispatchSVGEvent(type, data);
                 break;
             case "drawingStop":
