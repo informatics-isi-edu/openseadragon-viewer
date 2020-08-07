@@ -7,14 +7,13 @@ function Base(attrs){
     this.constants = attrs.parent.parent.parent.all_config.constants;
     this.urlParams = attrs.parent.parent.parent.parameters;
     this._attrs = {
-        // "annotation-id" : attrs["annotation-id"] || -1,
-        "graph-id" : attrs["graph-id"] || -1,
-        "tag" : attrs["tag"] || "",
-        "fill" : attrs["fill"] || "none",
-        "stroke" :  attrs["stroke"] || "",
-        "stroke-width": attrs["stroke-width"] || this.constants.OUTPUT_SVG_STROKE_WIDTH,
-        "style" : "",
-        "vector-effect" : attrs["vector-effect"] || "non-scaling-stroke"
+        "graph-id": -1,
+        "tag": "",
+        "fill": "none",
+        "stroke": this.constants.DEFAULT_STROKE,
+        "stroke-width": this.constants.OUTPUT_SVG_STROKE_WIDTH,
+        "style": "",
+        "vector-effect": "non-scaling-stroke"
     }
     /**
      * This functions checks to see if the svg component has valid attributes for it to be drawn. This function makes sure that no empty attribute is added.
@@ -227,6 +226,7 @@ Base.prototype.renderSVG = function(){
         
         switch(attr){
             case "tag":
+            case "style":
                 break;
             case "stroke-width":
                 value = this.getStrokeWidth(value);
@@ -235,6 +235,22 @@ Base.prototype.renderSVG = function(){
             default:
                 this.svg.attr(attr, value);
                 break;
+        }
+    }
+}
+
+/**
+ * This functions read the style string, removes any spaces in it then splits the string into an array of property-value pair and adds these values to this._attrs
+ * @param {string} value style of the SVG object
+ */
+Base.prototype.setStyle = function(value) {
+    value = value.replace(/\s/g, '');
+    styleArr = value.split(";");
+    for (var i = 0; i < styleArr.length; i++) {
+        var attrName = styleArr[i].split(":")[0];
+        var attrValue = styleArr[i].split(":")[1];
+        if (attrName && attrName.length > 0 && attrValue && attrValue.length > 0) {
+            this._attrs[attrName] = attrValue;
         }
     }
 }
@@ -249,33 +265,31 @@ Base.prototype.setAttributesByJSON = function(attrs){
             this._attrs[attr] = value;
         }
     }
+
+    if (attrs['style']) {
+        this.setStyle(attrs['style']);
+    }
 }
 
 Base.prototype.setAttributesBySVG = function(elem){
     
     var attr,
-        value,
-        styleArr;
+        value;
 
     for(attr in this._attrs){
         value = elem.getAttribute(attr);
         if(value != null){
             switch(attr){
-                case "style":
-                    value = value.replace(/\s/g, '');
-                    styleArr = value.split(";");
-                    for(var i = 0; i < styleArr.length; i++){
-                        var attrName = styleArr[i].split(":")[0];
-                        var attrValue = styleArr[i].split(":")[1];
-                        this._attrs[attrName] = attrValue;
-                    }
-                    break;
                 default:
                     this._attrs[attr] = value;
                     break;
             }
             
         }
+    }
+
+    if (elem.getAttribute('style')) {
+        this.setStyle(elem.getAttribute('style'));
     }
 }
 
