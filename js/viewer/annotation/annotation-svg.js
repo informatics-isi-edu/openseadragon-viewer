@@ -17,6 +17,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.annotationColor = null;
     this.currentGroupID = "";
 
+    this.annotationUtils = new AnnotationUtils();
+
     // Create drawing area for grouping annotations with same id
     this.createAnnotationGroup = function (id, anatomy, description) {
         // Check if the area has created
@@ -410,50 +412,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     /**
-     * Will return an object of the style string
-     * @param {string} styleString
-     * @return {object} the returned object is a key (eg style property like 'font-size') and value (eg '20px') pair
-     */
-    this.styleStringToObject = function (styleString) {
-        styleString = styleString.replace(/\s/g, '');
-        if (styleString[styleString.length - 1] == ';') {
-            styleString = styleString.slice(0, styleString.length - 1);
-        }
-
-        var styleObject = {};
-
-        styleString = styleString.split(';');
-
-        for (i = 0; i < styleString.length; i++) {
-            var property, value;
-            [property, value] = styleString[i].split(':')
-            if (value) {
-                styleObject[property] = value;
-            }
-        }
-
-        return styleObject;
-    }
-
-    /**
-     * Will return a string of the style object, opposite of styleStringToObject function
-     * @param {object} styleObject
-     * @return {string} 
-     */
-    this.styleObjectToString = function (styleObject) {
-        var styleString = '';
-
-        for (let key in styleObject) {
-            styleString += key.toString() + ':' + styleObject[key].toString() + ';';
-        }
-
-        // remove the last ';'
-        styleString = styleString.slice(0, styleString.length - 1);
-
-        return styleString;
-    }
-
-    /**
      * Take the properties from the parent style and appends them to the child node if they are missing from the child.
      * @param {string} parentStyle
      * @param {string} selfStyle
@@ -463,8 +421,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
 
         if (parentStyle != '') {
-            parentStyle = this.styleStringToObject(parentStyle);
-            selfStyle = this.styleStringToObject(selfStyle);
+            parentStyle = this.annotationUtils.styleStringToObject(parentStyle);
+            selfStyle = this.annotationUtils.styleStringToObject(selfStyle);
 
             for (let key in parentStyle) {
                 if (!selfStyle[key]) {
@@ -472,7 +430,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 }
             }
 
-            return this.styleObjectToString(selfStyle);
+            return this.annotationUtils.styleObjectToString(selfStyle);
         }
 
         return selfStyle;
