@@ -6,6 +6,12 @@ function Base(attrs){
     this.isDrawing = false;
     this.constants = attrs.parent.parent.parent.all_config.constants;
     this.urlParams = attrs.parent.parent.parent.parameters;
+    this.annotationUtils = new AnnotationUtils();
+
+    // this is used to make sure that any property that is added to the SVG for display purpose, is not added while saving
+    this.addedProperties = {
+        "vector-effect": true
+    };
     this._attrs = {
         "graph-id": -1,
         "tag": "",
@@ -26,27 +32,6 @@ function Base(attrs){
         }
         return false;
     }
-    /**
-     * This functions removes the style attributes, appends them to a string and returns them.
-     * @return {string}
-     */
-    this.getStyle = function() {
-        var styleString = "";
-        var styleAttributes = ['fill', "stroke", "stroke", "stroke-width"];
-
-        for (var i = 0; i <  styleAttributes.length; i++) {
-            if (this._attrs[styleAttributes[i]] && this._attrs[styleAttributes[i]].length > 0) {
-                styleString += styleAttributes[i] + ':' + this._attrs[styleAttributes[i]] + ';';
-                this._attrs[styleAttributes[i]] = null;
-            }
-        }
-
-        if (styleString[styleString.length - 1] == ';') {
-            styleString = styleString.slice(0, styleString.length - 1);
-        }
-
-        return styleString;
-    }
 
     this.exportToSVG = function(){
 
@@ -59,35 +44,33 @@ function Base(attrs){
         var rst = "<" + tag + " ";
         var attr;
 
-        // if(this.parent.id !== ""){
-        //     rst += 'id="' + this.parent.id + '" ';
-        // };
-
-        var style = this.getStyle();
-        if (style.length > 0) {
-            this._attrs["style"] = style;
-        }
+        var style = this.annotationUtils.styleStringToObject(this._attrs['style']);
 
         for(attr in this._attrs){
-            // Ingoring style because that will be added at the end.
-            // Ignoreing vector-effect becasue this properpty is not needed in the output file
-            if (!this._attrs[attr] || this._attrs[attr] === null || attr === "style" || attr == "vector-effect"){
+            if (!this._attrs[attr] || this._attrs[attr] === null){
                 continue;
             }
 
             switch(attr){
                 case "tag":
                 case "graph-id":
+                case "style":
                     break;
                 default:
-                    rst += (attr + '="' + this._attrs[attr] + '" ');
+                    if (this.constants.STYLE_ATTRIBUTE_LIST.includes(attr)) {
+                        style[attr] = this._attrs[attr];
+                    } else {
+                        rst += (attr + '="' + this._attrs[attr] + '" ');
+                    }
                     break;  
             }
         }
 
+        style = this.annotationUtils.styleObjectToString(this.removeAddedProperties(style));
+
         // The style is added at the end
-        if (this._attrs["style"].length > 0) {
-            rst += ('style="' + this._attrs["style"] + '" ');
+        if (style.length > 0) {
+            rst += ('style="' + style + '" ');
         }
         rst += "></" + tag + ">";
         return rst;
@@ -129,6 +112,32 @@ function Base(attrs){
 
         _self.dispatchEvent("onMouseoutHideTooltip");
     };
+}
+
+/**
+ * This functions remove the added property from the style object, so that it is safe for saving/writing
+ * @param {object} style
+ * @return {object} style with removed properties
+ */
+Base.prototype.removeAddedProperties = function (style) {
+    for (attr in style) {
+        if (attr in this.addedProperties && this.addedProperties[attr]) {
+            delete style[attr];
+        }
+    }
+    return style;
+}
+
+/**
+ * This functions check to see if the properties mentioned in this.addedProperties are present in the attribute list which is used to initialize this object.
+ * @param {object} attrs
+ */
+Base.prototype.updateAddedProperties = function (attrs) {
+    for (attr in attrs) {
+        if (attr in this.addedProperties) {
+            this.addedProperties[attr] = false;
+        }
+    }
 }
 
 Base.prototype.dispatchEvent = function(type, data){
@@ -266,6 +275,8 @@ Base.prototype.setAttributesByJSON = function(attrs){
         }
     }
 
+    this.updateAddedProperties(attrs);
+    
     if (attrs['style']) {
         this.setStyle(attrs['style']);
     }
@@ -287,6 +298,8 @@ Base.prototype.setAttributesBySVG = function(elem){
             
         }
     }
+
+    this.updateAddedProperties(elem);
 
     if (elem.getAttribute('style')) {
         this.setStyle(elem.getAttribute('style'));
