@@ -407,7 +407,7 @@ function Viewer(parent, config) {
 
         // NOTE: The if and else commented will make the screenshot work for all the cases but for tiff images, the screenshot will capture everything available in the main div. 
         // if (this.svg != null) {
-          html2canvas(document.querySelector("#openseadragonContainer")).then(canvas => {
+          html2canvas(document.querySelector("#openseadragonContainer")).then(function (canvas) {
                 pixelDensityRatio = this._utils.queryForRetina(canvas);
                 if (pixelDensityRatio != 1){
                     newCanvas = document.createElement("canvas");
@@ -532,19 +532,28 @@ function Viewer(parent, config) {
                 _self.resetScalebar(meterScaleInPixels);
                 _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
-
-            // Check if annotation svg exists
-            if(_self.parameters.svgs) {
-                try {
-                  _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
-                } catch (err) {
-                  _self.dispatchEvent('errorAnnotation');
+            
+            // svgs are currently only supported for tiff case
+            if (_self.parameters.type !== "tiff") {
+                _self.dispatchEvent('disableAnnotationSidebar', true);
+                if (_self.parameters.svgs) {
+                    // TODO should be changed to a proper warning (error)
+                    console.log("annotations are not supported on this type of images.");
+                    _self.parameters.svgs = [];
                 }
-                _self.resizeSVG();
-                _self.dispatchEvent('disableAnnotationList', false);
             } else {
-              _self.dispatchEvent('disableAnnotationList', true);
+                // Check if annotation svg exists in the url
+                if(_self.parameters.svgs) {
+                    try {
+                        _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                        _self.dispatchEvent('annotationsLoaded');
+                    } catch (err) {
+                        _self.dispatchEvent('errorAnnotation', err);
+                    }
+                    _self.resizeSVG();
+                }
             }
+            
 
             // Check if channelName is provided
             if(_self.parameters.channelName){
@@ -570,9 +579,26 @@ function Viewer(parent, config) {
                 _self.dispatchEvent('updateChannelList', channelList);
             }
             _self.isInitLoad = true;
-
+            _self.dispatchEvent('osdInitialized');
 
         };
+    }
+    
+    /**
+     * Load the given list of svg urls and display them as annotations.
+     * It will directly dispatch the following messages:
+     *   - annotationsLoaded: when all the annotations are processed.
+     *   - errorAnnotation: when encountered an error while loading annotations
+     * @param {String[]} svgURLs - svg urls
+     */
+    this.loadSVGAnnotations = function (svgURLs) {
+        try {
+            _self.importAnnotationUnformattedSVG(svgURLs);
+            _self.dispatchEvent('annotationsLoaded');
+        } catch (err) {
+            _self.dispatchEvent('errorAnnotation', err);
+        } 
+        _self.resizeSVG();
     }
 
     // Load Image and Channel information
