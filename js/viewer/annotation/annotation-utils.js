@@ -6,6 +6,7 @@ function AnnotationUtils() {};
  * @return {string}
  */
 AnnotationUtils.prototype.styleObjectToString = function (styleObject) {
+	styleObject = styleObject || {};
 	var styleString = '';
 
 	for (let key in styleObject) {
@@ -24,6 +25,7 @@ AnnotationUtils.prototype.styleObjectToString = function (styleObject) {
  * @return {object} the returned object is a key (eg style property like 'font-size') and value (eg '20px') pair
  */
 AnnotationUtils.prototype.styleStringToObject = function (styleString) {
+	styleString = styleString || '';
 	styleString = styleString.replace(/\s/g, '');
 	if (styleString[styleString.length - 1] == ';') {
 		styleString = styleString.slice(0, styleString.length - 1);
