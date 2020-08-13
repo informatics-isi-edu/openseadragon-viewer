@@ -394,74 +394,99 @@ function Viewer(parent, config) {
         this.dispatchEvent("toggleDrawingTool", data);
     }
 
-    // Exporting the Openseadragon view to a jpg file
+    /**
+     * Export the displayed view of osd viewer to a jpg file.
+     * Apart from the osd canvas, it will also add the svg overlays
+     * This function will trigger a browser download after processing is done.
+     * The messages that will be displatched by this function:
+     *  - `downloadViewDone`: when download is done.
+     *  - `downloadViewError`: if we encounter an error.
+     * 
+     * @param {String=} fileName - the name of the file that will be downloaded
+     */
     this.exportViewToJPG = function (fileName) {
-        fileName = (fileName) ? fileName + ".jpg" : "osd_" + Date.parse(new Date()) + ".jpg";
+        fileName = fileName ? (fileName + ".jpg") : ("osd_" + Date.parse(new Date()) + ".jpg");
 
-        var isScalebarExist = (this.osd.scalebarInstance.pixelsPerMeter) ? true : false,
-            canvas,
-            newCanvas,
-            newCtx,
-            rawImg,
-            pixelDensityRatio;
+        var self = this,
+            canvas, newCanvas, newCtx, rawImg, errored = false,
+            svgProcessedCount = 0, svgTotalCount = 0;
 
-        // NOTE: The if and else commented will make the screenshot work for all the cases but for tiff images, the screenshot will capture everything available in the main div. 
-        // if (this.svg != null) {
-          html2canvas(document.querySelector("#openseadragonContainer")).then(function (canvas) {
-                pixelDensityRatio = this._utils.queryForRetina(canvas);
-                if (pixelDensityRatio != 1){
-                    newCanvas = document.createElement("canvas");
-                    newCanvas.width = canvas.width;
-                    newCanvas.height = canvas.height;
-                    newCtx = newCanvas.getContext("2d");
-                    newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                    this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                    rawImg = newCanvas.toDataURL("image/jpeg", 1);
-                } else {
-                  var newCanvas = document.createElement("canvas");
-                  newCanvas.width = canvas.width;
-                  newCanvas.height = canvas.height;
-                  newCtx = newCanvas.getContext("2d");
-                  newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-                  this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-                  rawImg = newCanvas.toDataURL("image/jpeg", 1);
-                }
+        // add watermark and download the file
+        var finalize = function () {
+            if (errored) return;
+
+            // add the water mark to the image
+            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance);
+
+            // turn it into an image
+            rawImg = newCanvas.toDataURL("image/jpeg", 1);
             if (rawImg) {
-                this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+                self._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
+                self.dispatchEvent('downloadViewDone');
+            } else {
+                // TODO proper error object
+                self.dispatchEvent('downloadViewError', new Error("Empty image"));
             }
-          });
-        // }
-        // else {
-        //   if (isScalebarExist) {
-        //       canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
-        //       this._utils.addWaterMark2Canvas(canvas, this.parameters.waterMark, this.osd.scalebarInstance);
-        //       rawImg = canvas.toDataURL("image/jpeg", 1);
-        //   } else {
-        //       canvas = this.osd.drawer.canvas;
-        //       pixelDensityRatio = this.osd.scalebarInstance.queryForRetina(canvas);
-        //       if (pixelDensityRatio != 1){
-        //           newCanvas = document.createElement("canvas");
-        //           newCanvas.width = canvas.width;
-        //           newCanvas.height = canvas.height;
-        //           newCtx = newCanvas.getContext("2d");
-        //           newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        //           this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-        //           rawImg = newCanvas.toDataURL("image/jpeg", 1);
-        //       } else {
-        //         var newCanvas = document.createElement("canvas");
-        //         newCanvas.width = canvas.width;
-        //         newCanvas.height = canvas.height;
-        //         newCtx = newCanvas.getContext("2d");
-        //         newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-        //         this._utils.addWaterMark2Canvas(newCanvas, this.parameters.waterMark, this.osd.scalebarInstance);
-        //         rawImg = newCanvas.toDataURL("image/jpeg", 1);
-        //       }
-        //     }
-        //   if (rawImg) {
-        //       this._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
-        //   }
-        // }
+        }
 
+        // get the displayed osd canvas
+        if (this.osd.scalebarInstance.pixelsPerMeter) {
+            canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
+        } else {
+            canvas = self.osd.drawer.canvas;
+        }
+
+        // create a canvas the same size as the displayed osd canvas
+        newCanvas = document.createElement("canvas");
+        newCanvas.width = canvas.width;
+        newCanvas.height = canvas.height;
+        newCtx = newCanvas.getContext("2d");
+
+        // add the osd canvas content to the new canvas
+        newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+
+        // add the svg overlays to the new canvas by converting them to image
+        for (var svgID in self.svgCollection) {
+            if (!self.svgCollection.hasOwnProperty(svgID)) continue;
+
+            svgTotalCount++;
+            var annotSVG = self.svgCollection[svgID], img = new Image();
+            img.onload = function(e) {
+                if (errored) return;
+
+                // add the image to new canvas
+                newCtx.drawImage(
+                    e.target,
+                    parseFloat(annotSVG.svg.getAttribute("x")),
+                    parseFloat(annotSVG.svg.getAttribute("y")),
+                    parseFloat(annotSVG.svg.getAttribute("width")),
+                    parseFloat(annotSVG.svg.getAttribute("height"))
+                );
+
+                svgProcessedCount++
+                if (svgProcessedCount === svgTotalCount) {
+                    finalize();
+                }
+            };
+            img.onerror = function (message, source, lineno, colno, error) {
+                console.log(error);
+                
+                // only one error message is enough.
+                if (errored) return;
+                errored = true;
+
+                // TODO proper error object
+                self.dispatchEvent('downloadViewError', error);
+            }
+            // NOTE source has to be defined after onload and onerror
+            img.src = null;
+            img.src = "data:image/svg+xml;utf8," + encodeURIComponent(new XMLSerializer().serializeToString(annotSVG.svg));
+        }
+
+        // in case there wasn't any svg overlays
+        if (svgProcessedCount === svgTotalCount) {
+            finalize();
+        }
     }
 
     // Get channels

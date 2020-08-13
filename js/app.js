@@ -102,7 +102,13 @@ var myApp = (function (_config) {
             case "annotationsLoaded":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-            case "osdInitialized": 
+            case "osdInitialized":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "downloadViewDone":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "downloadViewError":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
         }
@@ -163,7 +169,7 @@ var myApp = (function (_config) {
                 case 'saveAnnotationRecord':
                     viewer.saveAnatomySVG(data);
                     break;
-                case "loadAnnotations": 
+                case "loadAnnotations":
                     viewer.loadSVGAnnotations(data);
                     break;
                 // case 'loadFilteringPropertyList':
