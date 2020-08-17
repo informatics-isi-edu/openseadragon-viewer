@@ -161,6 +161,9 @@ var myApp = (function (_config) {
                 case 'saveAnnotationRecord':
                     viewer.saveAnatomySVG(data);
                     break;
+                // case 'discardAnnotationChanges':
+                //     console.log('discardAnnotationChanges');
+                //     break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);
                 //     break;

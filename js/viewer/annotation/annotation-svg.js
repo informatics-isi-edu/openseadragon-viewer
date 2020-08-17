@@ -446,6 +446,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.UNKNOWN_ANNNOTATION;
     }
 
+    this.getNodeAttributes = function(node) {
+        var obj = {}
+        for (i = 0; i < node.length; i++) {
+            obj[node[i]['name']] = node[i]['nodeValue'];
+        }
+        return obj;
+    }
+
 
     this.parseSVGNodes = function (nodes, styleSheet, parentNode){
         // if (group == null) { return }
@@ -472,6 +480,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 selfStyle = this.mergeWithParentStyle(parentStyle, selfStyle);
                 node.setAttribute("style", selfStyle);
             }
+
+            var attrs = this.annotationUtils.styleStringToObject(node.getAttribute("style"));
+            for (attr in attrs) {
+                node.setAttribute(attr, attrs[attr]);
+            }
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
 
             switch (node.nodeName) {
@@ -486,7 +499,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName);
-                        annotation.setAttributesBySVG(node);
+                        annotation.setAttributesByJSON(this.getNodeAttributes(node.attributes));
                         annotation.renderSVG(this);
                         // Get default theme color as annotation default color
                         if(!this.annotationColor && annotation.getAttribute("stroke")){

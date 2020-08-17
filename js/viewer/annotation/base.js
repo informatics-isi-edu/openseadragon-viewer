@@ -18,9 +18,13 @@ function Base(attrs){
         "fill": "none",
         "stroke": this.constants.DEFAULT_STROKE,
         "stroke-width": this.constants.OUTPUT_SVG_STROKE_WIDTH,
-        "style": "",
+        // "style": "",
         "vector-effect": "non-scaling-stroke"
     }
+
+    // it stores all the attributes that we are not handling right now, so that they can be added to the output SVG file
+    this.ignoredAttributes = {};
+    
     /**
      * This functions checks to see if the svg component has valid attributes for it to be drawn. This function makes sure that no empty attribute is added.
      * @param {object} attributes
@@ -44,8 +48,6 @@ function Base(attrs){
         var rst = "<" + tag + " ";
         var attr;
 
-        var style = this.annotationUtils.styleStringToObject(this._attrs['style']);
-
         for(attr in this._attrs){
             if (!this._attrs[attr] || this._attrs[attr] === null){
                 continue;
@@ -54,24 +56,18 @@ function Base(attrs){
             switch(attr){
                 case "tag":
                 case "graph-id":
-                case "style":
+                case "vector-effect":
                     break;
                 default:
-                    if (this.constants.STYLE_ATTRIBUTE_LIST.includes(attr)) {
-                        style[attr] = this._attrs[attr];
-                    } else {
-                        rst += (attr + '="' + this._attrs[attr] + '" ');
-                    }
+                    rst += (attr + '="' + this._attrs[attr] + '" ');
                     break;  
             }
         }
 
-        style = this.annotationUtils.styleObjectToString(this.removeAddedProperties(style));
-
-        // The style is added at the end
-        if (style.length > 0) {
-            rst += ('style="' + style + '" ');
+        for (attr in this.ignoredAttributes) {
+            rst += (attr + '="' + this.ignoredAttributes[attr] + '" ');
         }
+
         rst += "></" + tag + ">";
         return rst;
     }
@@ -112,20 +108,6 @@ function Base(attrs){
 
         _self.dispatchEvent("onMouseoutHideTooltip");
     };
-}
-
-/**
- * This functions remove the added property from the style object, so that it is safe for saving/writing
- * @param {object} style
- * @return {object} style with removed properties
- */
-Base.prototype.removeAddedProperties = function (style) {
-    for (attr in style) {
-        if (attr in this.addedProperties && this.addedProperties[attr]) {
-            delete style[attr];
-        }
-    }
-    return style;
 }
 
 /**
@@ -248,62 +230,23 @@ Base.prototype.renderSVG = function(){
     }
 }
 
-/**
- * This functions read the style string, removes any spaces in it then splits the string into an array of property-value pair and adds these values to this._attrs
- * @param {string} value style of the SVG object
- */
-Base.prototype.setStyle = function(value) {
-    value = value.replace(/\s/g, '');
-    styleArr = value.split(";");
-    for (var i = 0; i < styleArr.length; i++) {
-        var attrName = styleArr[i].split(":")[0];
-        var attrValue = styleArr[i].split(":")[1];
-        if (attrName && attrName.length > 0 && attrValue && attrValue.length > 0) {
-            this._attrs[attrName] = attrValue;
-        }
-    }
-}
-
 Base.prototype.setAttributesByJSON = function(attrs){
     var attr,
         value;
 
     for(attr in attrs){
         value = attrs[attr];        
-        if(attr in this._attrs){
-            this._attrs[attr] = value;
+        if (attr && attr.length > 0 && attr != 'id' && attr != 'style' && value) {
+            if (attr in this._attrs) {
+                this._attrs[attr] = value;
+            } else {
+                // if the attribute is not handled by us, add it to the ignored list
+                this.ignoredAttributes[attr] = value;
+            }
         }
     }
 
     this.updateAddedProperties(attrs);
-    
-    if (attrs['style']) {
-        this.setStyle(attrs['style']);
-    }
-}
-
-Base.prototype.setAttributesBySVG = function(elem){
-    
-    var attr,
-        value;
-
-    for(attr in this._attrs){
-        value = elem.getAttribute(attr);
-        if(value != null){
-            switch(attr){
-                default:
-                    this._attrs[attr] = value;
-                    break;
-            }
-            
-        }
-    }
-
-    this.updateAddedProperties(elem);
-
-    if (elem.getAttribute('style')) {
-        this.setStyle(elem.getAttribute('style'));
-    }
 }
 
 Base.prototype.unHighlight = function(){
