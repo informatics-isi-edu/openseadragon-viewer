@@ -62,7 +62,7 @@ var myApp = (function (_config) {
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type}, window.location.origin);
                 break;
-            case "disableAnnotationList":
+            case "disableAnnotationSidebar":
                 // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
@@ -81,10 +81,6 @@ var myApp = (function (_config) {
             case "updateGroupInfo":
                 toolbar && toolbar.updateDrawingGroupId(data);
                 break;
-            case "errorAnnotation":
-                // toolbar && toolbar.updateAnnotationList(data);
-                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
-                break;
             case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
@@ -101,6 +97,18 @@ var myApp = (function (_config) {
                 break;
             case "errorAnnotation":
                 // toolbar && toolbar.changeSelectingAnnotation(data);
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "annotationsLoaded":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "osdInitialized":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "downloadViewDone":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "downloadViewError":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
         }
@@ -164,6 +172,9 @@ var myApp = (function (_config) {
                 // case 'discardAnnotationChanges':
                 //     console.log('discardAnnotationChanges');
                 //     break;
+                case "loadAnnotations":
+                    viewer.loadSVGAnnotations(data);
+                    break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);
                 //     break;
