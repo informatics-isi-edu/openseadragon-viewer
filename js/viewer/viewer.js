@@ -617,6 +617,9 @@ function Viewer(parent, config) {
      * @param {String[]} svgURLs - svg urls
      */
     this.loadSVGAnnotations = function (svgURLs) {
+        if (!Array.isArray(svgURLs) || svgURLs.length === 0) {
+            _self.dispatchEvent('annotationsLoaded');
+        }
         try {
             _self.importAnnotationUnformattedSVG(svgURLs);
             _self.dispatchEvent('annotationsLoaded');
