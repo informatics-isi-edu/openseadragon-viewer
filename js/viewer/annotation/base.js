@@ -47,6 +47,7 @@ function Base(attrs){
         var tag = this._attrs["tag"];
         var rst = "<" + tag + " ";
         var attr;
+        var attributeList = {}
 
         for(attr in this._attrs){
             if (!this._attrs[attr] || this._attrs[attr] === null){
@@ -56,16 +57,27 @@ function Base(attrs){
             switch(attr){
                 case "tag":
                 case "graph-id":
-                case "vector-effect":
                     break;
                 default:
-                    rst += (attr + '="' + this._attrs[attr] + '" ');
+                    if (!(this.addedProperties[attr])) {
+                        attributeList[attr] = this._attrs[attr];
+                    }
                     break;  
             }
         }
 
         for (attr in this.ignoredAttributes) {
-            rst += (attr + '="' + this.ignoredAttributes[attr] + '" ');
+            attributeList[attrs] = this.ignoredAttributes[attr];
+        }
+
+        // sort the attributes to make the output deterministic
+        var sortedAttributeList = {};
+        Object.keys(attributeList).sort().forEach(function (key) {
+            sortedAttributeList[key] = attributeList[key];
+        });
+
+        for(attr in sortedAttributeList){
+            rst += (attr + '="' + sortedAttributeList[attr] + '" ');
         }
 
         rst += "></" + tag + ">";
