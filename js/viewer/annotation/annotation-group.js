@@ -16,6 +16,9 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.svg = null;
     this.isDisplay = true;
     this.isSelected = false;
+    
+    // the stroke that is used by annotations in this group
+    this.stroke = [];
 
     // Add new annotation object (path/cirlce/rect)
     this.addAnnotation = function(type){
@@ -215,12 +218,24 @@ function AnnotationGroup(id, anatomy, description, parent){
             annotation.renderSVG();
         })
     }
+    
+    /**
+     * Given an annotation, will update the this.stroke Array
+     * @param {Base} annot
+     */
+    this.setGroupStrokeByAnnotation = function (annot) {
+        var stroke = annot._attrs.stroke;
+        if (_self.stroke.indexOf(stroke) === -1) {
+            _self.stroke.push(stroke);
+        }
+    };
 
     /**
     * This function changes the color(stroke) of the each annotation to the new value passed as param
     * @param {string} stroke the RGB value of the new color
     */
     this.updateStroke = function(stroke) {
+        _self.stroke = [stroke];
         _self.annotations.forEach(function (annotation) {
             annotation._attrs.stroke = stroke;
             // render the SVG after changing the color so that the new color is reflected in the viewer
@@ -240,16 +255,3 @@ function AnnotationGroup(id, anatomy, description, parent){
         })
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

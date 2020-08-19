@@ -14,7 +14,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.bottomRightPoint = null;
     this.groups = {};
     this.isSelected = false;
-    this.annotationColor = null;
     this.currentGroupID = "";
 
     // Create drawing area for grouping annotations with same id
@@ -29,12 +28,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             group = new AnnotationGroup(id, anatomy, description, this);
             group.render();
             this.groups[id] = group;
-            this.dispatchEvent('updateAnnotationList', [{
-                svgID : this.id,
-                groupID : id,
-                anatomy : anatomy,
-                description : description
-            }]);
             return group;
         }
     }
@@ -227,12 +220,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      * @param groupID : the group id
      * @return Array of objects that contains svg content of each group
      */
-    this.exportToSVG = function(groupID = null){
+    this.exportToSVG = function(groupID){
         var rst = [];
         var svg = "";
         var imgScaleX = (this.imgScaleX) ? this.imgScaleX : 1;
         var imgScaleY = (this.imgScaleY) ? this.imgScaleY : 1;
-        var annotationColor = this.annotationColor || "";
 
         // return matched group SVG content only if groupID provided
         if(groupID){
@@ -246,7 +238,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     svgID : this.id,
                     groupID : groupID,
                     numOfAnnotations : this.groups[groupID].getNumOfAnnotations(),
-                    svg : svg
+                    svg : svg,
+                    stroke: this.groups[groupID].stroke
                 });
             }
         }
@@ -259,7 +252,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 svg += "</svg>";
                 rst.push({
                     groupID : groupID,
-                    svg : svg
+                    svg : svg,
+                    stroke: this.groups[groupID].stroke
                 });
             }
         }
@@ -292,6 +286,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     this.parseSVGFile = function(svgFile){
+        var self = this;
 
         if(!svgFile){ return; }
 
@@ -315,10 +310,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         this.render();
 
-        // Get default drawing color for annotation  
-        if(svgFile.getAttribute("annotationColor") !== null){
-            this.annotationColor = svgFile.getAttribute("annotationColor");
-        };
 
         // Add SVG stylesheet to the document to get the css rules
         var styleSheet = {}
@@ -380,13 +371,29 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     this.imgScaleY = +node.getAttribute("y") || this.imgScaleY;
                     break;
             }
-
-            // Setting each group's boundary
-            // for (var id in this.groups) {
-            //     var group = this.groups[id];
-            //     group.updateDiagonalPoints();
-            // };
         }
+    
+        // sort the groups based on their anatomy value
+        var annotList = Object.keys(this.groups).sort(function (keyA, keyB) {
+            var anatA = self.groups[keyA].anatomy,
+                anatB = self.groups[keyB].anatomy;
+            return (anatA > anatB) ? 1 : ((anatA < anatB) ? -1 : 0);
+        }).map(function (id) {
+            // create the list of annotations that UI has to display
+            var group = self.groups[id];
+            return {
+                svgID: self.id,
+                groupID: group.id,
+                anatomy : group.anatomy,
+                description : group.description,
+                stroke: group.stroke
+            }
+        });
+        
+        // update the annotation list
+        // NOTE this has to be here, because the stroke value changes will 
+        //      processing the annotation list. We cannot send this right away
+        this.dispatchEvent('updateAnnotationList', annotList);
     }
     
     /**
@@ -530,10 +537,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         annotation = group.addAnnotation(node.nodeName);
                         annotation.setAttributesBySVG(node);
                         annotation.renderSVG(this);
-                        // Get default theme color as annotation default color
-                        if(!this.annotationColor && annotation.getAttribute("stroke")){
-                            this.annotationColor = annotation.getAttribute("stroke");
-                        };
+                        
+                        // make sure stroke value in group is based on annotations
+                        group.setGroupStrokeByAnnotation(annotation);
                     }
                     break;
                 case "scale":
@@ -606,11 +612,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             .attr("fill", "none")
             .attr("stroke-width", "2px")
             .attr("stroke", "yellow")
-    }
-
-    // Set default color for drawing annotations
-    this.setAnnotationColor = function(color){
-        this.annotationColor = color ? color : this.annotationColor;
     }
 
     this.setGroupAttributes = function(data){
