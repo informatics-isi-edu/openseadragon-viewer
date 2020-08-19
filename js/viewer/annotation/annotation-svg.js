@@ -446,10 +446,16 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.UNKNOWN_ANNNOTATION;
     }
 
+    /**
+     * This function return the set of attributes in the form of an object {attr: value}, from the input object which has otehr properties as well.
+     * @param {object} node
+     * @return {object}
+     */
     this.getNodeAttributes = function(node) {
+        attributes = node.attributes || {};
         var obj = {}
-        for (i = 0; i < node.length; i++) {
-            obj[node[i]['name']] = node[i]['nodeValue'];
+        for (i = 0; i < attributes.length; i++) {
+            obj[attributes[i]['name']] = attributes[i]['nodeValue'];
         }
         return obj;
     }
@@ -499,7 +505,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName);
-                        annotation.setAttributesByJSON(this.getNodeAttributes(node.attributes));
+                        annotation.setAttributesByJSON(this.getNodeAttributes(node));
                         annotation.renderSVG(this);
                         // Get default theme color as annotation default color
                         if(!this.annotationColor && annotation.getAttribute("stroke")){

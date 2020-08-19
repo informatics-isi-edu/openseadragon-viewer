@@ -6,10 +6,9 @@ function Base(attrs){
     this.isDrawing = false;
     this.constants = attrs.parent.parent.parent.all_config.constants;
     this.urlParams = attrs.parent.parent.parent.parameters;
-    this.annotationUtils = new AnnotationUtils();
 
     // this is used to make sure that any property that is added to the SVG for display purpose, is not added while saving
-    this.addedProperties = {
+    this._addedProperties = {
         "vector-effect": true
     };
     this._attrs = {
@@ -23,7 +22,7 @@ function Base(attrs){
     }
 
     // it stores all the attributes that we are not handling right now, so that they can be added to the output SVG file
-    this.ignoredAttributes = {};
+    this._ignoredAttributes = {};
     
     /**
      * This functions checks to see if the svg component has valid attributes for it to be drawn. This function makes sure that no empty attribute is added.
@@ -59,15 +58,15 @@ function Base(attrs){
                 case "graph-id":
                     break;
                 default:
-                    if (!(this.addedProperties[attr])) {
+                    if (!(this._addedProperties[attr])) {
                         attributeList[attr] = this._attrs[attr];
                     }
                     break;  
             }
         }
 
-        for (attr in this.ignoredAttributes) {
-            attributeList[attrs] = this.ignoredAttributes[attr];
+        for (attr in this._ignoredAttributes) {
+            attributeList[attrs] = this._ignoredAttributes[attr];
         }
 
         // sort the attributes to make the output deterministic
@@ -123,13 +122,13 @@ function Base(attrs){
 }
 
 /**
- * This functions check to see if the properties mentioned in this.addedProperties are present in the attribute list which is used to initialize this object.
+ * This functions check to see if the properties mentioned in this._addedProperties are present in the attribute list which is used to initialize this object.
  * @param {object} attrs
  */
 Base.prototype.updateAddedProperties = function (attrs) {
     for (attr in attrs) {
-        if (attr in this.addedProperties) {
-            this.addedProperties[attr] = false;
+        if (attr in this._addedProperties) {
+            this._addedProperties[attr] = false;
         }
     }
 }
@@ -253,7 +252,7 @@ Base.prototype.setAttributesByJSON = function(attrs){
                 this._attrs[attr] = value;
             } else {
                 // if the attribute is not handled by us, add it to the ignored list
-                this.ignoredAttributes[attr] = value;
+                this._ignoredAttributes[attr] = value;
             }
         }
     }
