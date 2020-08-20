@@ -3,7 +3,7 @@ function Polygon(attrs){
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);
 
-    this._attrs["tag"] = "polygon";
+    this._tag = "polygon";
     this._attrs["points"] = attrs["points"] || "";
     this._attrs["fill"] = attrs["fill"] || "";
     this._attrs["stroke"] = attrs["stroke"] || "";

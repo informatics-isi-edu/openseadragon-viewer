@@ -2,7 +2,7 @@ function Rect(attrs){
 
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);
-    this._attrs["tag"] = "rect";
+    this._tag = "rect";
     this._attrs["x"] = attrs["x"] || null;
     this._attrs["y"] = attrs["y"] || null;
     this._attrs["height"] = attrs["height"] || 0;

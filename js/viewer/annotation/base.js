@@ -11,15 +11,19 @@ function Base(attrs){
     this._addedProperties = {
         "vector-effect": true
     };
+
+    // TODO figure out why, where graph-id is being used. If it is necessary for proper functioning of the code remove it from this._attrs and add it as a private variable. If not then remove it and just pass parent and not attrs to base.js
+
     this._attrs = {
-        "graph-id": -1,
-        "tag": "",
+        "graph-id": attrs["graph-id"] || -1,
         "fill": "none",
         "stroke": this.constants.DEFAULT_STROKE,
         "stroke-width": this.constants.OUTPUT_SVG_STROKE_WIDTH,
         // "style": "",
         "vector-effect": "non-scaling-stroke"
     }
+
+    this._tag = "";
 
     // it stores all the attributes that we are not handling right now, so that they can be added to the output SVG file
     this._ignoredAttributes = {};
@@ -42,8 +46,7 @@ function Base(attrs){
         if (!this.hasDimensions(this._attrs)) {
             return "";
         }
-
-        var tag = this._attrs["tag"];
+        var tag = this._tag;
         var rst = "<" + tag + " ";
         var attr;
         var attributeList = {}
@@ -54,7 +57,6 @@ function Base(attrs){
             }
 
             switch(attr){
-                case "tag":
                 case "graph-id":
                     break;
                 default:
@@ -206,7 +208,7 @@ Base.prototype.renderSVG = function(){
 
     if(this.svg == null){ 
         this.svg = this.parent.svg
-            .append(this._attrs['tag'])
+            .append(this._tag)
             .attr("class", "annotation")
         
         this.svg.on("mouseover", this.onMouseoverShowTooltip)
@@ -227,7 +229,6 @@ Base.prototype.renderSVG = function(){
         value = this._attrs[attr];
         
         switch(attr){
-            case "tag":
             case "style":
                 break;
             case "stroke-width":

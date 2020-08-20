@@ -3,7 +3,7 @@ function Polyline(attrs){
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);
 
-    this._attrs["tag"] = "polyline";
+    this._tag = "polyline";
     this._attrs["points"] = attrs["points"] || "";
     this._attrs["fill"] = attrs["fill"] || "";
     this._attrs["stroke"] = attrs["stroke"] || "";

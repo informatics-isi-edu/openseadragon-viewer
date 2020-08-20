@@ -3,7 +3,7 @@ function Path(attrs){
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);
 
-    this._attrs["tag"] = "path";
+    this._tag = "path";
     this._attrs["d"] = attrs["d"] || "";
     
     this.svg = null;
