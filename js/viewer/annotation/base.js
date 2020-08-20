@@ -52,18 +52,12 @@ function Base(attrs){
         var attributeList = {}
 
         for(attr in this._attrs){
-            if (!this._attrs[attr] || this._attrs[attr] === null){
+            if (!this._attrs[attr] || this._attrs[attr] === null || attr === "graph-id"){
                 continue;
             }
 
-            switch(attr){
-                case "graph-id":
-                    break;
-                default:
-                    if (!(this._addedProperties[attr])) {
-                        attributeList[attr] = this._attrs[attr];
-                    }
-                    break;  
+            if (!(this._addedProperties[attr])) {
+                attributeList[attr] = this._attrs[attr];
             }
         }
 
