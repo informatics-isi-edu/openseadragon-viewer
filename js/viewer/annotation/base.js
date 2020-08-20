@@ -12,10 +12,7 @@ function Base(attrs){
         "vector-effect": true
     };
 
-    // TODO figure out why, where graph-id is being used. If it is necessary for proper functioning of the code remove it from this._attrs and add it as a private variable. If not then remove it and just pass parent and not attrs to base.js
-
     this._attrs = {
-        "graph-id": attrs["graph-id"] || -1,
         "fill": "none",
         "stroke": this.constants.DEFAULT_STROKE,
         "stroke-width": this.constants.OUTPUT_SVG_STROKE_WIDTH,
@@ -52,7 +49,7 @@ function Base(attrs){
         var attributeList = {}
 
         for(attr in this._attrs){
-            if (!this._attrs[attr] || this._attrs[attr] === null || attr === "graph-id"){
+            if (!this._attrs[attr] || this._attrs[attr] === null){
                 continue;
             }
 
@@ -65,15 +62,10 @@ function Base(attrs){
             attributeList[attrs] = this._ignoredAttributes[attr];
         }
 
-        // sort the attributes to make the output deterministic
-        var sortedAttributeList = {};
+        // add the attributes in sorted order
         Object.keys(attributeList).sort().forEach(function (key) {
-            sortedAttributeList[key] = attributeList[key];
+            rst += (key + '="' + attributeList[key] + '" ');
         });
-
-        for(attr in sortedAttributeList){
-            rst += (attr + '="' + sortedAttributeList[attr] + '" ');
-        }
 
         rst += "></" + tag + ">";
         return rst;
