@@ -123,18 +123,6 @@ function Base(attrs){
     };
 }
 
-/**
- * This functions check to see if the properties mentioned in this._addedProperties are present in the attribute list which is used to initialize this object.
- * @param {object} attrs
- */
-Base.prototype.updateAddedProperties = function (attrs) {
-    for (attr in attrs) {
-        if (attr in this._addedProperties) {
-            this._addedProperties[attr] = false;
-        }
-    }
-}
-
 Base.prototype.dispatchEvent = function(type, data){
     this.parent.dispatchEvent(type, data);
 }
@@ -244,21 +232,23 @@ Base.prototype.renderSVG = function(){
 
 Base.prototype.setAttributesByJSON = function(attrs){
     var attr,
-        value;
+        value,
+        discardedAttributes = ["id", "style"];
 
     for(attr in attrs){
-        value = attrs[attr];        
-        if (attr && attr.length > 0 && attr != 'id' && attr != 'style' && value) {
-            if (attr in this._attrs) {
-                this._attrs[attr] = value;
-            } else {
-                // if the attribute is not handled by us, add it to the ignored list
-                this._ignoredAttributes[attr] = value;
-            }
+        if (!attr || !attrs.hasOwnProperty(attr) || discardedAttributes.indexOf(attr) != -1) continue;
+        value = attrs[attr];
+        
+        if (attr in this._addedProperties) {
+            // to make sure that the properties that we add to the SVG like vector-effect, are not added to the output in case they are not present in the input SVG file
+            this._addedProperties[attr] = false;
+        }
+        if (attr in this._attrs) {
+            this._attrs[attr] = value;
+        } else {
+            this._ignoredAttributes[attr] = value;
         }
     }
-
-    this.updateAddedProperties(attrs);
 }
 
 Base.prototype.unHighlight = function(){
