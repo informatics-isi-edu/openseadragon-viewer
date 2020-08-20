@@ -102,8 +102,7 @@ function Viewer(parent, config) {
 
         var svg = null,
             id = null;
-            contentSize = {},
-            defaultAnnotationColor = this._utils.generateColor(); // generate an annotation color when users draw new annotations
+            contentSize = {};
 
         // if svgID is exist
         if(this.svgCollection.hasOwnProperty(data.svgID)){
@@ -115,7 +114,6 @@ function Viewer(parent, config) {
             svg = new AnnotationSVG(this, data.svgID, contentSize.x, contentSize.y);
             svg.render();
             svg.createAnnotationGroup(data.groupID, data.anatomy, data.description); // create a new group 
-            svg.setAnnotationColor(defaultAnnotationColor); // set the default color 
             this.svgCollection[data.svgID] = svg; // add the new svg into collection
             this.resizeSVG(); // resize the svg to align with current OSD viewport 
         }
@@ -387,10 +385,6 @@ function Viewer(parent, config) {
             }
         };
 
-        if(this.svgCollection.hasOwnProperty(data.svgID)){
-            data.stroke = this.svgCollection[data.svgID].annotationColor;
-        };
-
         this.dispatchEvent("toggleDrawingTool", data);
     }
 
@@ -509,8 +503,7 @@ function Viewer(parent, config) {
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
             imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
-            imgHeight = this.osd.world.getItemAt(0).getContentSize().y,
-            defaultAnnotationColor = null;
+            imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
 
         for(var i = 0; i < svgs.length; i++){
             var id = Date.parse(new Date()) + parseInt(Math.random() * 10000),
@@ -522,12 +515,6 @@ function Viewer(parent, config) {
 
             this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
             this.svgCollection[id].parseSVGFile(svgFile);
-            
-            // Set a theme color if not exists
-            if(!this.svgCollection[id].annotationColor){
-                defaultAnnotationColor = this._utils.generateColor();
-                this.svgCollection[id].setAnnotationColor(defaultAnnotationColor);
-            }
 
             if(!content) {
               this.dispatchEvent('errorAnnotation');
@@ -619,6 +606,7 @@ function Viewer(parent, config) {
     this.loadSVGAnnotations = function (svgURLs) {
         if (!Array.isArray(svgURLs) || svgURLs.length === 0) {
             _self.dispatchEvent('annotationsLoaded');
+            return;
         }
         try {
             _self.importAnnotationUnformattedSVG(svgURLs);
