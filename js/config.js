@@ -75,8 +75,7 @@ var _config = {
           OUTPUT_SVG_STROKE_WIDTH: '1px',
           DISABLE_VECTOR_EFFECT: false,
           DEFAULT_LINE_THICKNESS: '1px',
-          DEFAULT_STROKE: 'red',
-          SVG_ATTRIBUTE_LIST: ["fill", "stroke", "stroke-width", "vector-effect", "cx", "cy", "r", "d", "x", "y", "height", "width"]
+          DEFAULT_STROKE: 'red'
         },
     },
 };
