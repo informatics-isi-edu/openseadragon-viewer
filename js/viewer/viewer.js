@@ -920,6 +920,35 @@ function Viewer(parent, config) {
         this.osd.viewport.applyConstraints();
     }
 
+    /**
+     * This function reads the URL param zoomLineThickness, and decides which stroke-width scale function to select
+     * log = the thickness vaires according to the log of the current zoom level. Since at each zoom in/out the zoom level changes by a factor of 2, i.e. it changes exponentially, therefore using a log approach provides linear change in line-thickness with respect to each zoom in/out click.
+     * default = using the original function, i.e. mapping the line thickness linearly with the total zoom levels avaibale in the OSD
+     * @return {function} the function is responsible for how the line-thickness vaires with respect of current zoom level
+     */
+    this.getStrokeWidthScaleFunction = function () {
+        console.log(this.parameters.zoomLineThickness)
+        switch (this.parameters.zoomLineThickness) {
+            case 'log':
+                return function (value) {
+                    var minZoom = _self.osd.viewport.getMinZoom();
+                    var maxZoom = _self.osd.viewport.getMaxZoom();
+                    var zoomLevels = Math.ceil(Math.log2(maxZoom) - Math.log2(minZoom));
+                    var currentZoomLevel = Math.ceil(Math.log2(value) - Math.log2(minZoom));
+
+                    var delta = _self.strokeMaxScale - _self.strokeMinScale;
+                    var result = delta * currentZoomLevel / zoomLevels;
+
+                    return Math.max(_self.strokeMinScale, _self.strokeMaxScale - result);
+                };
+            default:
+                return d3.scaleLinear()
+                    .domain([_self.osd.viewport.getMinZoom(), _self.osd.viewport.getMaxZoom()])
+                    .range([_self.strokeMaxScale, _self.strokeMinScale])
+                    .nice();
+        }
+    }
+
     // Resize Annotation SVGs
     this.resizeSVG = function(){
         var svgs = _self.svg.querySelectorAll(".annotationSVG"),
@@ -930,12 +959,8 @@ function Viewer(parent, config) {
             size = w.getContentSize(),
             strokeScale = null;
 
-        if(_self.strokeWidthScale == null){
-            _self.strokeWidthScale = d3.scaleLinear()
-                .domain([_self.osd.viewport.getMinZoom(), _self.osd.viewport.getMaxZoom()])
-                .range([_self.strokeMaxScale, _self.strokeMinScale])
-                .nice();
-        }
+        // removed the if condition because the function would need to change if the window has been resized
+        _self.strokeWidthScale = _self.getStrokeWidthScaleFunction();
 
         strokeScale = _self.strokeWidthScale(_self.osd.viewport.getZoom())
         _self.changeStrokeScale(strokeScale);
