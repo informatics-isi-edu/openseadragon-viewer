@@ -8,7 +8,7 @@ function Base(attrs){
     this.urlParams = attrs.parent.parent.parent.parameters;
 
     // this is used to make sure that any property that is added to the SVG for display purpose, is not added while saving
-    this._addedProperties = {
+    this._addedAttrs = {
         "vector-effect": {
             "isAdded": true,
             "value": "non-scaling-stroke"
@@ -26,7 +26,7 @@ function Base(attrs){
     this._tag = "";
 
     // it stores all the attributes that we are not handling right now, so that they can be added to the output SVG file
-    this._ignoredAttributes = {};
+    this._ignoredAttrs = {};
     
     /**
      * This functions checks to see if the svg component has valid attributes for it to be drawn. This function makes sure that no empty attribute is added.
@@ -56,14 +56,14 @@ function Base(attrs){
                 continue;
             }
 
-            if (!(this._addedProperties[attr])) {
+            if (!(this._addedAttrs[attr])) {
                 attributeList[attr] = this._attrs[attr];
             }
         }
 
         // read the ignored attributes after this._attrs, to ensure that the values in the input and output match
-        for (attr in this._ignoredAttributes) {
-            attributeList[attr] = this._ignoredAttributes[attr];
+        for (attr in this._ignoredAttrs) {
+            attributeList[attr] = this._ignoredAttrs[attr];
         }
 
         // add the attributes in sorted order
@@ -229,23 +229,23 @@ Base.prototype.setAttributesByJSON = function(attrs){
         if (!attr || !attrs.hasOwnProperty(attr) || discardedAttributes.indexOf(attr) != -1) continue;
         value = attrs[attr];
         
-        if (attr in this._addedProperties) {
+        if (attr in this._addedAttrs) {
             // to make sure that the properties that we add to the SVG like vector-effect, are not added to the output in case they are not present in the input SVG file
-            if (this._addedProperties[attr].value === value) {
+            if (this._addedAttrs[attr].value === value) {
                 // if the added value matches
-                this._addedProperties[attr] = false;
+                this._addedAttrs[attr] = false;
                 continue;
             } else {
                 // if the value does not matches then, add the actual value to the ignored attributes (so that when the export function is called, the actual value is added back since the ignored attributes are read second) and the value that we need to this._attrs
-                this._ignoredAttributes[attr] = value;
+                this._ignoredAttrs[attr] = value;
             }
-            // since attr is in _addedProperties, it means that this property is necessary to display the SVG in OSD, and therefore the value is added to this._attrs
-            this._attrs[attr] = this._addedProperties[attr].value;
+            // since attr is in _addedAttrs, it means that this property is necessary to display the SVG in OSD, and therefore the value is added to this._attrs
+            this._attrs[attr] = this._addedAttrs[attr].value;
         } else {
             if (attr in this._attrs) {
                 this._attrs[attr] = value;
             } else {
-                this._ignoredAttributes[attr] = value;
+                this._ignoredAttrs[attr] = value;
             }
         }
     }
