@@ -915,7 +915,6 @@ function Viewer(parent, config) {
      * @return {function} the function is responsible for how the line-thickness vaires with respect of current zoom level
      */
     this.getStrokeWidthScaleFunction = function () {
-        console.log(this.parameters.zoomLineThickness)
         switch (this.parameters.zoomLineThickness) {
             case 'log':
                 return function (value) {
