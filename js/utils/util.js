@@ -167,6 +167,9 @@ Utils.prototype.getParameters = function(){
             case "enableSVGStrokeWidth":
                 parameters[type] = (value.toLocaleLowerCase() === "true") ? true : false;
                 break;
+            case "zoomLineThickness":
+                parameters[type] = value;
+                break;
         }
     }
     // console.log(parameters);
