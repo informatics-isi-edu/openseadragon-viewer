@@ -26,3 +26,9 @@ This file does not contain a viewBox attribute, but has a height and width. The 
 
 - viewBoxAssignmentCheck.svg
 This file does not contain a viewbox attribute. This testcase is an extension of heightWidthNoViewbox.svg, as not only it checks that the viewBox is created properly but also makes sure that the file is aligned properly with the image. In this case the rectangle should cover the outer boundary of the image.
+
+- vectorEffectFixedPosition.svg
+This file has the value of `vector-effect` as fixed-position, which is not the accepted value. So our code changes this value while display the SVG, but returns the original value while generating the output. image: 16-DJSY
+
+- ignoredAttributes.svg
+This file has an attribute that is not handled by us, i.e. `opacity`. So our code just ignores it but keeps it in the output svg. The SVG that is display is a fully visible square, i.e. not affected by opacity. image: 16-DJSY
