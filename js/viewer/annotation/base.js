@@ -8,19 +8,19 @@ function Base(attrs){
     this.urlParams = attrs.parent.parent.parent.parameters;
 
     // this is used to make sure that any property that is added to the SVG for display purpose, is not added while saving
-    this._addedAttrs = {
-        "vector-effect": {
-            "isAdded": true,
-            "value": "non-scaling-stroke"
-        }
-    };
+    this._addedAttributeNames = ["vector-effect"];
+    
+    // if this url parameter exists, we should honor the stroke width that are defined on SVG files
+    if (!this.urlParams.enableSVGStrokeWidth) {
+        this._addedAttributeNames.push("stroke-width");
+    }
 
+    // attributes that are used to display the SVG annotation in osd viewer
     this._attrs = {
-        "fill": "none",
-        "stroke": this.constants.DEFAULT_STROKE,
-        "stroke-width": this.constants.OUTPUT_SVG_STROKE_WIDTH,
-        // "style": "",
-        "vector-effect": "non-scaling-stroke"
+        "fill": "none", // TODO should this be part of added attributes as well?
+        "stroke": this.constants.DEFAULT_SVG_STROKE,
+        "stroke-width": this.constants.DEFAULT_SVG_STROKE_WIDTH,
+        "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT
     }
 
     this._tag = "";
@@ -52,13 +52,17 @@ function Base(attrs){
         var attributeList = {}
 
         for(attr in this._attrs){
+            // only add non-empty attributes
             if (!this._attrs[attr] || this._attrs[attr] === null){
                 continue;
             }
-
-            if (!(this._addedAttrs[attr])) {
-                attributeList[attr] = this._attrs[attr];
+            
+            // don't add the attributes that are added by osd viewer
+            if (this._addedAttributeNames.indexOf(attr) !== -1) {
+                continue;
             }
+
+            attributeList[attr] = this._attrs[attr];
         }
 
         // read the ignored attributes after this._attrs, to ensure that the values in the input and output match
@@ -158,22 +162,8 @@ Base.prototype.getAttributes = function(attrs){
     }
 }
 
-/**
- * This functions checks to see if enableSVGStrokeWidth is true or false. If it is true then it return the value passed as its param, else it returns the default line thickness which is set in the config file
- * @param {string} value it is the stroke-width
- * @return {int} the desired stroke-width
- */
-Base.prototype.getStrokeWidth = function (value) {
-    return this.urlParams.enableSVGStrokeWidth ? (parseInt(value) || 1) : parseInt(this.constants.DEFAULT_LINE_THICKNESS);
-}
-
 Base.prototype.highlight = function(highlightAttrs){
-
     for(var attr in highlightAttrs){
-        if (attr == "stroke-width") {
-            highlightAttrs[attr] = this.getStrokeWidth(highlightAttrs[attr]) * this.parent.getStrokeScale() * 1.25;
-            // stroke-width is multiplied by 1.25 for highlighting it
-        }
         this.svg.attr(attr, highlightAttrs[attr]);
     }
 }
@@ -202,21 +192,15 @@ Base.prototype.renderSVG = function(){
             }
         });
     }
-
+    
+    // add all the attributes
     for(attr in this._attrs){
         value = this._attrs[attr];
-        
-        switch(attr){
-            case "style":
-                break;
-            case "stroke-width":
-                value = this.getStrokeWidth(value);
-                this.svg.attr(attr, value * strokeScale);
-                break;
-            default:
-                this.svg.attr(attr, value);
-                break;
+        if (attr === "stroke-width") {
+            // TODO what if the value is not in pixel? (it can be pixel)
+            value = (parseFloat(value) || 1) * strokeScale;
         }
+        this.svg.attr(attr, value);
     }
 }
 
@@ -226,34 +210,24 @@ Base.prototype.setAttributesByJSON = function(attrs){
         discardedAttributes = ["id", "style"];
 
     for(attr in attrs){
-        if (!attr || !attrs.hasOwnProperty(attr) || discardedAttributes.indexOf(attr) != -1) continue;
+        if (!attr || !attrs.hasOwnProperty(attr) || discardedAttributes.indexOf(attr) != -1) {
+            continue;
+        }
+
         value = attrs[attr];
         
-        if (attr in this._addedAttrs) {
-            // to make sure that the properties that we add to the SVG like vector-effect, are not added to the output in case they are not present in the input SVG file
-            if (this._addedAttrs[attr].value === value) {
-                // if the added value matches
-                this._addedAttrs[attr] = false;
-                continue;
-            } else {
-                // if the value does not matches then, add the actual value to the ignored attributes (so that when the export function is called, the actual value is added back since the ignored attributes are read second) and the value that we need to this._attrs
-                this._ignoredAttrs[attr] = value;
-            }
-            // since attr is in _addedAttrs, it means that this property is necessary to display the SVG in OSD, and therefore the value is added to this._attrs
-            this._attrs[attr] = this._addedAttrs[attr].value;
+        // if it's any of the attributes that we should ignore
+        if (!(attr in this._attrs) || this._addedAttributeNames.indexOf(attr) !== -1) {
+            this._ignoredAttrs[attr] = value;
         } else {
-            if (attr in this._attrs) {
-                this._attrs[attr] = value;
-            } else {
-                this._ignoredAttrs[attr] = value;
-            }
+            this._attrs[attr] = value;
         }
     }
 }
 
 Base.prototype.unHighlight = function(){
     var strokeScale = this.parent.getStrokeScale() || 1;
-    var strokeWidth = this.getStrokeWidth(this._attrs["stroke-width"]);
+    var strokeWidth = parseFloat(this._attrs["stroke-width"]) || 1;
 
     this.svg
         .attr("fill", this._attrs["fill"] || "")

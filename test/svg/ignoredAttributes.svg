@@ -1,7 +1,7 @@
 <svg viewBox='0 0 7137 14166' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>
 <scale x='1' y='1'/>
 	<g id='EMAPA:19535,T7 rib'>
-		<rect height="2000" width="2000" x="1000" y="1000" style="stroke:blue;stroke-width:2px;fill:none;opacity:0.5">
+		<rect height="2000" width="2000" x="1000" y="1000" style="stroke:blue;stroke-width:2px;fill:none;opacity:0.5" stroke-dasharray="4">
 		</rect>
 	</g>
 </svg>
