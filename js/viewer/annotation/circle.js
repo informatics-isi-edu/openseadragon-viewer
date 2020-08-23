@@ -1,7 +1,7 @@
 function Circle(attrs){
     attrs = attrs ? attrs : {};
     Base.call(this, attrs);
-    this._attrs["tag"] = "circle";
+    this._tag = "circle";
     this._attrs["cx"] = attrs["cx"] || null;
     this._attrs["cy"] = attrs["cy"] || null;
     this._attrs["r"] = attrs["r"] || 0;

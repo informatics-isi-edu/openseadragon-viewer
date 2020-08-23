@@ -128,8 +128,8 @@ function AnnotationGroup(id, anatomy, description, parent){
         var strokeWidth = 1;
 
         _self.annotations.forEach(function(annotation){
-            strokeWidth = parseInt(annotation._attrs["stroke-width"]) || 1;
-            // strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
+            strokeWidth = parseFloat(annotation._attrs["stroke-width"]) || 1;
+            strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
             annotation.highlight({
                 "stroke-width" : strokeWidth === 0 ? 5 : strokeWidth,
                 "stroke" : "yellow",
