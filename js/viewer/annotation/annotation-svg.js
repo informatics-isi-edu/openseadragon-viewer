@@ -59,8 +59,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 annotation : annotation,
                 type : type,
                 attrs : attrs
-            }) 
-        }        
+            })
+        }
     }
 
     /**
@@ -116,9 +116,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 id : data.newGroupID,
                 anatomy : data.newAnatomy
             })
-            
+
             this.groups[data.newGroupID] = prevGroup;
-            
+
             if(this.currentGroupID === data.groupID){
                 this.currentGroupID = data.newGroupID;
             };
@@ -147,21 +147,21 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 group.unHighlightAll();
                 this.hideGroupBorder();
             }
-            
+
             if(this.groups.hasOwnProperty(data.groupID) && data.groupID != this.currentGroupID){
                 var group = this.groups[data.groupID];
                 group.highlightAll();
                 group.isSelected = true;
                 this.currentGroupID = data.groupID;
-        
+
                 // Bring up the element to the front
                 this.svg.append(group.svg.node());
-        
+
                 // data["x1"] = this.upperLeftPoint.x + group["x1"] * this.xUnit;
                 // data["x2"] = this.upperLeftPoint.x + group["x2"] * this.xUnit;
                 // data["y1"] = this.upperLeftPoint.y + group["y1"] * this.yUnit;
                 // data["y2"] = this.upperLeftPoint.y + group["y2"] * this.yUnit;
-                
+
                     // Show border if the group's visibility set to true
                 if(group.isDisplay){
                     this.showGroupBorder({
@@ -171,21 +171,21 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         y2 : group["y2"]
                     });
                 }
-                
-            } 
+
+            }
         }
-        
-        
+
+
         data["svgID"] = this.id;
         // data["groupID"] = this.currentGroupID;
 
     }
 
     this.changeStrokeScale = function(data){
-        
+
         for(var groupID in this.groups){
             this.groups[groupID].updateStrokeWidth();
-            
+
             if(this.currentGroupID == groupID){
                 this.groups[groupID].highlightAll();
             }
@@ -194,7 +194,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
     this.dispatchEvent = function(type, data){
         switch(type){
-            // Change the selecting annotation 
+            // Change the selecting annotation
             case "onClickChangeSelectingAnnotation":
                 data.svgID = this.id;
                 this.parent.dispatchEvent(type, data);
@@ -213,7 +213,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 this.parent.dispatchEvent(type, data);
                 break;
         }
-        
+
     }
 
     /**
@@ -224,7 +224,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      */
     this.exportToSVG = function(groupID){
         var rst = [];
-        var svg = "";
+        var svg = "", stroke;
         var imgScaleX = (this.imgScaleX) ? this.imgScaleX : 1;
         var imgScaleY = (this.imgScaleY) ? this.imgScaleY : 1;
 
@@ -235,13 +235,21 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
                 svg += this.groups[groupID].exportToSVG();
                 svg += "</svg>";
-                // console.log('svg', svg);
+
+                stroke = this.groups[groupID].stroke;
+                // TODO there might be a better way to do this
+                // if in create mode, you don't change the color, this value will
+                // be empty. This check will make sure that it's not empty and uses the default
+                if (!Array.isArray(stroke) || stroke.length === 0) {
+                    stroke = [this.parent.all_config.constants.DEFAULT_SVG_STROKE];
+                }
+
                 rst.push({
                     svgID : this.id,
                     groupID : groupID,
                     numOfAnnotations : this.groups[groupID].getNumOfAnnotations(),
                     svg : svg,
-                    stroke: this.groups[groupID].stroke
+                    stroke: stroke
                 });
             }
         }
@@ -252,14 +260,20 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
                 svg += this.groups[groupID].exportToSVG();
                 svg += "</svg>";
+
+                stroke = this.groups[groupID].stroke;
+                if (!Array.isArray(stroke) || stroke.length === 0) {
+                    stroke = [this.parent.all_config.constants.DEFAULT_SVG_STROKE];
+                }
+
                 rst.push({
                     groupID : groupID,
                     svg : svg,
-                    stroke: this.groups[groupID].stroke
+                    stroke: stroke
                 });
             }
         }
-        
+
         return rst;
     }
 
@@ -267,7 +281,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         return this.parent.getStrokeScale();
     }
 
-    // get viewbox of the svg 
+    // get viewbox of the svg
     this.getViewBox = function(){
         return (this.viewBox) ? this.viewBox : [0, 0, this.imgWidth, this.imgHeight];
     }
@@ -304,10 +318,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             var minY = parseInt(svgFile.getAttribute("min-y")) || 0;
             this.viewBox = [minX, minY, parseInt(svgFile.getAttribute("width")), parseInt(svgFile.getAttribute("height"))];
         }
-        
-        if(!this.viewBox || this.viewBox.length != 4){ 
+
+        if(!this.viewBox || this.viewBox.length != 4){
             console.log("SVG file is missing the viewBox attribute");
-            return ; 
+            return ;
         }
 
         this.render();
@@ -338,10 +352,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 }
             }
         }
-        
+
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-        
+
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
@@ -374,7 +388,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     break;
             }
         }
-    
+
         // sort the groups based on their anatomy value
         var annotList = Object.keys(this.groups).sort(function (keyA, keyB) {
             var anatA = self.groups[keyA].anatomy,
@@ -391,13 +405,13 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 stroke: group.stroke
             }
         });
-        
+
         // update the annotation list
-        // NOTE this has to be here, because the stroke value changes will 
+        // NOTE this has to be here, because the stroke value changes will
         //      processing the annotation list. We cannot send this right away
         this.dispatchEvent('updateAnnotationList', annotList);
     }
-    
+
     /**
      * Checks all the style attributes in the node and returns the in the form of a string
      * @param {object} node
@@ -442,7 +456,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         return selfStyle;
     }
-    
+
     /**
      * Returns the node ID, which can is defined by the following logic: if the node has an ID return that else check for the name attribute in the node. If name is not present then check if the parent of that node has an ID, if yes then return that. In case non of these are present, then return a constant.
      * @param {object} node
@@ -514,7 +528,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         annotation = group.addAnnotation(node.nodeName);
                         annotation.setAttributesByJSON(this.getNodeAttributes(node));
                         annotation.renderSVG(this);
-                        
+
                         // make sure stroke value in group is based on annotations
                         group.setGroupStrokeByAnnotation(annotation);
                     }
@@ -543,18 +557,18 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         if(this.parent.svg){
             this.parent.svg.append(svg);
         }
-        
+
         this.svg = svg;
     }
 
-    // Remove all the annotations 
+    // Remove all the annotations
     this.removeAllGroups = function(){
         var groupID;
         var group;
 
         for(groupID in this.groups){
             group = this.groups[groupID]
-            
+
             group.removeAllAnnotations();
 
             // remove svg element
@@ -605,7 +619,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             if(this.groups.hasOwnProperty(this.currentGroupID)){
                 var group = this.groups[this.currentGroupID];
                 group.unHighlightAll();
-            } 
+            }
         }
     }
 
