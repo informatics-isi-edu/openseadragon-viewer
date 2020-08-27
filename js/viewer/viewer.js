@@ -93,7 +93,7 @@ function Viewer(parent, config) {
         });
     };
 
-    // Add new term 
+    // Add new term
     this.addNewTerm = function(data){
 
         if(!this.osd || !this.osd.world.getItemAt(0)){
@@ -108,16 +108,16 @@ function Viewer(parent, config) {
         if(this.svgCollection.hasOwnProperty(data.svgID)){
             this.dispatchSVGEvent("addNewGroup", data);
         }
-        // create a new svg 
+        // create a new svg
         else{
             contentSize = this.osd.world.getItemAt(0).getContentSize();
             svg = new AnnotationSVG(this, data.svgID, contentSize.x, contentSize.y);
             svg.render();
-            svg.createAnnotationGroup(data.groupID, data.anatomy, data.description); // create a new group 
+            svg.createAnnotationGroup(data.groupID, data.anatomy, data.description); // create a new group
             this.svgCollection[data.svgID] = svg; // add the new svg into collection
-            this.resizeSVG(); // resize the svg to align with current OSD viewport 
+            this.resizeSVG(); // resize the svg to align with current OSD viewport
         }
-        
+
     }
     // Build a tilesource object for Openseadragon Config
     this.buildTileSource = function (xmlDoc, imgPath) {
@@ -201,14 +201,14 @@ function Viewer(parent, config) {
     // Change SVG ID
     this.changeSVGId = function(data){
 
-        // Change existing SVG id from the collection 
+        // Change existing SVG id from the collection
         if(this.svgCollection.hasOwnProperty(data.svgID)){
             var prevSVG = this.svgCollection[data.svgID];
             prevSVG.updateID(data.newSvgID);
-            
+
             this.svgCollection[data.newGroupID] = prevGroup;
-            
-            // update the current svg id if it's also the changing svg id 
+
+            // update the current svg id if it's also the changing svg id
             if(this.current.svgID === data.svgID){
                 this.current.svgID = data.newSvgID;
             };
@@ -256,11 +256,11 @@ function Viewer(parent, config) {
                 if(this.current.svgID === data.svgID){
                     this.current.svgID = data.newSvgID;
                 }
-                if(prevSVG){                    
+                if(prevSVG){
                     this.svgCollection[data.newSvgID] = prevSVG;
                     delete this.svgCollection[data.svgID];
                 }
-                
+
                 this.parent.dispatchEvent("updateSVGId", data);
                 break;
             case "updateGroupInfo":
@@ -358,11 +358,12 @@ function Viewer(parent, config) {
 
     // Draw annotation mode on -> only show the related annotation objects
     this.drawAnnotationMode = function(data){
-        // Check if the svg id exists 
-        var svgID;
-        var groupID;
-        var isDisplay;
+        // Check if the svg id exists
+        var svgID, groupID, isDisplay, foundAMatch = false, usedColors = [];
         var mode = data.mode.toUpperCase();
+
+        var setStroke = (data.setStroke === true);
+        delete data.setStroke;
 
         // remove all current mouse trackers
         this.removeMouseTrackers();
@@ -372,8 +373,17 @@ function Viewer(parent, config) {
             if(mode == "ON"){
                 if(svgID == data.svgID){
                     for(groupID in this.svgCollection[svgID].groups){
+                        // indicate whether we found a match or not
+                        foundAMatch = foundAMatch || groupID == data.groupID;
+
+                        // only show the matching group
                         isDisplay = (groupID == data.groupID) ? true : false;
                         this.svgCollection[svgID].groups[groupID].setDisplay(isDisplay);
+
+                        // set the drawing tool stroke to be based on the group stroke
+                        if (setStroke && groupID == data.groupID) {
+                            data.stroke = this.svgCollection[svgID].groups[groupID].stroke[0];
+                        }
                     }
                 }
                 else{
@@ -385,6 +395,18 @@ function Viewer(parent, config) {
             }
         };
 
+        // if we didn't find a matching group, use a random stroke
+        if (setStroke && !foundAMatch) {
+            // TODO could be improved by incorporating it with the other loop
+            // find the colors that are used, to avoid duplicate colors
+            for (svgID in this.svgCollection) {
+                for (groupID in this.svgCollection[svgID].groups) {
+                    usedColors = usedColors.concat(this.svgCollection[svgID].groups[groupID].stroke);
+                }
+            }
+            data.stroke = this._utils.generateColor(usedColors);
+        }
+
         this.dispatchEvent("toggleDrawingTool", data);
     }
 
@@ -395,7 +417,7 @@ function Viewer(parent, config) {
      * The messages that will be displatched by this function:
      *  - `downloadViewDone`: when download is done.
      *  - `downloadViewError`: if we encounter an error.
-     * 
+     *
      * @param {String=} fileName - the name of the file that will be downloaded
      */
     this.exportViewToJPG = function (fileName) {
@@ -464,7 +486,7 @@ function Viewer(parent, config) {
             };
             img.onerror = function (message, source, lineno, colno, error) {
                 console.log(error);
-                
+
                 // only one error message is enough.
                 if (errored) return;
                 errored = true;
@@ -498,7 +520,7 @@ function Viewer(parent, config) {
           We show all the svg files in relative to the position of the first scene,
           even if the svgs might belong to other scenes.
           to make the calculations simpler, we're always positioning the svgs
-          relative to the location of first scene (and not the scene that they belong to). 
+          relative to the location of first scene (and not the scene that they belong to).
         */
         var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
             ignoreDimension = this.parameters.ignoreDimension,
@@ -520,7 +542,7 @@ function Viewer(parent, config) {
               this.dispatchEvent('errorAnnotation');
             }
         }
-        
+
     }
 
     // Load after Openseadragon initialized
@@ -544,7 +566,7 @@ function Viewer(parent, config) {
                 _self.resetScalebar(meterScaleInPixels);
                 _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
-            
+
             // svgs are currently only supported for tiff case
             if (_self.parameters.type !== "tiff") {
                 _self.dispatchEvent('disableAnnotationSidebar', true);
@@ -565,7 +587,7 @@ function Viewer(parent, config) {
                     _self.resizeSVG();
                 }
             }
-            
+
 
             // Check if channelName is provided
             if(_self.parameters.channelName){
@@ -595,7 +617,7 @@ function Viewer(parent, config) {
 
         };
     }
-    
+
     /**
      * Load the given list of svg urls and display them as annotations.
      * It will directly dispatch the following messages:
@@ -613,7 +635,7 @@ function Viewer(parent, config) {
             _self.dispatchEvent('annotationsLoaded');
         } catch (err) {
             _self.dispatchEvent('errorAnnotation', err);
-        } 
+        }
         _self.resizeSVG();
     }
 
@@ -771,19 +793,17 @@ function Viewer(parent, config) {
         var scaleY = event.userData.imgScaleY || 1;
         var view_coords = _self.osd.viewport.viewerElementToViewportCoordinates(new OpenSeadragon.Point(event.position.x, event.position.y));
         var img_coords = _self.osd.viewport.viewportToImageCoordinates(view_coords);
-        
+
         img_coords.x = viewBox[0] + (img_coords.x * scaleX);
         img_coords.y = viewBox[1] + (img_coords.y * scaleY);
 
         // console.log(event.position, img_coords);
         annotation.insertPoint(img_coords);
-        
-    } 
+
+    }
 
     // Drag to draw event handler end
     this.onMouseDragToDrawEnd = function(event){
-        
-        console.log("drawing end!");
 
         if(_self.mouseTrackers.length > 0){
             setTimeout(function(){
@@ -798,24 +818,24 @@ function Viewer(parent, config) {
         var groupID = event.userData.groupID;
         var type = event.userData.type;
         var attrs = event.userData.attrs || {};
-        
+
 
         if(_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]){
             event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
             event.userData.annotation.setupDrawingAttrs(attrs);
             event.userData.graphID = event.userData.annotation.id;
-            
+
             var mousetracker = new OpenSeadragon.MouseTracker({
                 element: _self.svg,
                 dragHandler: _self.onMouseDragToDraw,
                 dragEndHandler: _self.onMouseDragToDrawEnd,
                 userData: event.userData
             });
-    
+
             _self.mouseTrackers.push(mousetracker);
         }
         // _self.destoryMouseTracker();
-    } 
+    }
 
     // Pan to specific location
     this.panTo = function (x, y, z) {
@@ -871,7 +891,7 @@ function Viewer(parent, config) {
 
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data){
-        
+
         if(this.mouseTrackers.length > 0){
 
             while(this.mouseTrackers.length > 0){
@@ -885,7 +905,7 @@ function Viewer(parent, config) {
                         graphID : userData.graphID
                     })
                 }
-                
+
                 setTimeout(function(){
                     tracker.destroy();
                 }, 300)
@@ -994,7 +1014,7 @@ function Viewer(parent, config) {
         }
     }
 
-    // Save Anatomy SVG file 
+    // Save Anatomy SVG file
     this.saveAnatomySVG = function(data){
         var svgID = data.svgID || "",
             groupID = data.groupID,
@@ -1058,7 +1078,7 @@ function Viewer(parent, config) {
             case modes.VIEW:
                 _self.mode = modes.VIEW;
                 break;
-        }    
+        }
     }
 
     // Zoom in to the given rectangle viewport

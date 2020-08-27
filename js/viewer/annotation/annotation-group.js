@@ -16,7 +16,7 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.svg = null;
     this.isDisplay = true;
     this.isSelected = false;
-    
+
     // the stroke that is used by annotations in this group
     this.stroke = [];
 
@@ -31,32 +31,32 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
         switch (type.toUpperCase()) {
             case "PATH":
-                annotation = new Path(attrs); 
+                annotation = new Path(attrs);
                 break;
             case "POLYLINE":
-                annotation = new Polyline(attrs); 
+                annotation = new Polyline(attrs);
                 break;
             case "POLYGON":
-                annotation = new Polygon(attrs); 
+                annotation = new Polygon(attrs);
                 break;
             case "RECT":
-                annotation = new Rect(attrs); 
+                annotation = new Rect(attrs);
                 break;
             case "CIRCLE":
-                annotation = new Circle(attrs); 
+                annotation = new Circle(attrs);
                 break;
         };
 
         if(annotation != null){
             this.annotations.push(annotation);
         }
-        
+
         return annotation;
     }
 
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
-        
+
         switch(type){
             case "onClickChangeSelectingAnnotation":
                 data["groupID"] = this.id;
@@ -128,8 +128,8 @@ function AnnotationGroup(id, anatomy, description, parent){
         var strokeWidth = 1;
 
         _self.annotations.forEach(function(annotation){
-            strokeWidth = parseInt(annotation._attrs["stroke-width"]) || 1;
-            // strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
+            strokeWidth = parseFloat(annotation._attrs["stroke-width"]) || 1;
+            strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
             annotation.highlight({
                 "stroke-width" : strokeWidth === 0 ? 5 : strokeWidth,
                 "stroke" : "yellow",
@@ -137,15 +137,15 @@ function AnnotationGroup(id, anatomy, description, parent){
         })
     }
 
-    // Render a g container to contain annotation objects 
+    // Render a g container to contain annotation objects
     this.render = function(){
 
         var svg = d3.select(this.parent.svg)
             .append("g")
             .attr("id", this.id);
-            
+
         this.svg = svg;
-    
+
     }
 
     // Remove an annotation by graphID
@@ -161,7 +161,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         if(!annotation){
             return
         }
-        
+
         // remove annotation object from the collection
         this.annotations.splice(index, 1);
 
@@ -172,7 +172,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         annotation.svg.remove();
     }
 
-    // Remove all annotations 
+    // Remove all annotations
     this.removeAllAnnotations = function(){
         for(var i = 0; i < this.annotations.length; i++){
             this.removeAnnotationByID(this.annotations[i].id);
@@ -182,9 +182,9 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.setAttributesByJSON = function(attrs){
         var attr,
             value;
-    
+
         for(attr in attrs){
-            value = attrs[attr];        
+            value = attrs[attr];
             switch(attr){
                 case "description":
                 case "anatomy":
@@ -199,7 +199,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         this.isDisplay = isDisplay;
         this.svg.attr("display", displayStyle);
     }
-    
+
     this.updateDiagonalPoints = function(){
 
         // Set the annotation group boundaries based on the annotation
@@ -218,13 +218,14 @@ function AnnotationGroup(id, anatomy, description, parent){
             annotation.renderSVG();
         })
     }
-    
+
     /**
      * Given an annotation, will update the this.stroke Array
      * @param {Base} annot
      */
     this.setGroupStrokeByAnnotation = function (annot) {
-        var stroke = annot._attrs.stroke;
+        var stroke = _self.parent.parent._utils.standardizeColor(annot._attrs.stroke);
+
         if (_self.stroke.indexOf(stroke) === -1) {
             _self.stroke.push(stroke);
         }
@@ -235,6 +236,8 @@ function AnnotationGroup(id, anatomy, description, parent){
     * @param {string} stroke the RGB value of the new color
     */
     this.updateStroke = function(stroke) {
+        var stroke = _self.parent.parent._utils.standardizeColor(stroke);
+
         _self.stroke = [stroke];
         _self.annotations.forEach(function (annotation) {
             annotation._attrs.stroke = stroke;

@@ -176,12 +176,35 @@ Utils.prototype.getParameters = function(){
     return parameters;
 }
 
+/**
+ * Given an string for a color, turn it into a standard hex value
+ * @param {string} color
+ */
+Utils.prototype.standardizeColor = function (color) {
+    var ctx = document.createElement("canvas").getContext("2d");
+    ctx.fillStyle = color;
+    return ctx.fillStyle;
+};
+
 // Generate a random color
-Utils.prototype.generateColor = function(){
-    var letters = '0123456789ABCDEF',
+Utils.prototype.generateColor = function(usedColors){
+    var letters = '0123456789abcdef',
         color = '#',
         i;
 
+    var colorPallete = ["#d5ff00", "#00ff00", "#ff937e", "#91d0cb", "#0000ff",
+        "#00ae7e", "#ff00f6", "#5fad4e", "#01d0ff", "#bb8800", "#bdc6ff", "#008f9c",
+        "#a5ffd2", "#ffa6fe", "#ffdb66", "#00ffc6", "#00b917", "#bdd393", "#004754",
+        "#010067", "#0e4ca1", "#005f39", "#6b6882", "#683d3b", "#43002c", "#788231"];
+
+    //find a color from the pallete that is not used
+    for (i = 0; i < colorPallete.length; i++) {
+        if (usedColors.indexOf(colorPallete[i]) === -1) {
+            return colorPallete[i];
+        }
+    }
+
+    // otherwise generate a random color
     for (i = 0; i < 6; i++) {
         color += letters[Math.floor(Math.random() * 16)];
     }
