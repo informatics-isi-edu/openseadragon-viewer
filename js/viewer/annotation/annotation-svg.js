@@ -224,7 +224,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      */
     this.exportToSVG = function(groupID){
         var rst = [];
-        var svg = "", stroke;
+        var svg = "";
         var imgScaleX = (this.imgScaleX) ? this.imgScaleX : 1;
         var imgScaleY = (this.imgScaleY) ? this.imgScaleY : 1;
 
@@ -236,20 +236,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 svg += this.groups[groupID].exportToSVG();
                 svg += "</svg>";
 
-                stroke = this.groups[groupID].stroke;
-                // TODO there might be a better way to do this
-                // if in create mode, you don't change the color, this value will
-                // be empty. This check will make sure that it's not empty and uses the default
-                if (!Array.isArray(stroke) || stroke.length === 0) {
-                    stroke = [this.parent.all_config.constants.DEFAULT_SVG_STROKE];
-                }
-
                 rst.push({
                     svgID : this.id,
                     groupID : groupID,
                     numOfAnnotations : this.groups[groupID].getNumOfAnnotations(),
                     svg : svg,
-                    stroke: stroke
+                    stroke: this.groups[groupID].stroke
                 });
             }
         }
@@ -261,15 +253,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 svg += this.groups[groupID].exportToSVG();
                 svg += "</svg>";
 
-                stroke = this.groups[groupID].stroke;
-                if (!Array.isArray(stroke) || stroke.length === 0) {
-                    stroke = [this.parent.all_config.constants.DEFAULT_SVG_STROKE];
-                }
-
                 rst.push({
                     groupID : groupID,
                     svg : svg,
-                    stroke: stroke
+                    stroke: this.groups[groupID].stroke
                 });
             }
         }
@@ -528,9 +515,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         annotation = group.addAnnotation(node.nodeName);
                         annotation.setAttributesByJSON(this.getNodeAttributes(node));
                         annotation.renderSVG(this);
-
-                        // make sure stroke value in group is based on annotations
-                        group.setGroupStrokeByAnnotation(annotation);
                     }
                     break;
                 case "scale":

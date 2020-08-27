@@ -1,5 +1,5 @@
 function AnnotationTool(parent){
-    
+
     var _self = this;
 
     this.elem = null;
@@ -27,10 +27,10 @@ function AnnotationTool(parent){
             return;
         }
 
-        
+
         _self.dispatchEvent("drawingStop");
         _self.updateMode(btnType);
-        
+
     }
 
     // Change stroke color. This function handles the flow when the color (stroke) is changed while drawing/editting the SVG.
@@ -49,7 +49,7 @@ function AnnotationTool(parent){
 
     // Render the view
     this.render = function(data){
-        
+
         var toolElem = null,
             colorInput = null;
             _self = this;
@@ -79,28 +79,30 @@ function AnnotationTool(parent){
                 // "<span class='toolBtn' data-type='SAVE'>",
                 //     "<i class='fa fa-floppy-o'></i>",
                 // "</span>",
-                
+
             ].join("");
-    
+
             toolElem.querySelector(".toolBtn[data-type='"+this.curType+"']").className = "toolBtn selected";
             this.elem = toolElem;
-    
+
             // Binding events
             this.elem.querySelectorAll(".toolBtn").forEach(function(elem){
                 elem.addEventListener('click', this.onClickChangeBtn);
             }.bind(this));
-    
+
             colorInput = this.elem.querySelector("#strokeColor");
             colorInput.addEventListener('change', this.onChangeStrokeColor);
         }
         else{
             colorInput = this.elem.querySelector("#strokeColor");
-            colorInput.setAttribute("value", this.curStroke);
+            // if a user changes the value, setAttribute doesn't work properly,
+            // so we have to use .value here
+            colorInput.value = this.curStroke;
             this.elem.querySelectorAll(".toolBtn").forEach(function(elem){
                 elem.className = (elem.getAttribute("data-type") === _self.curType) ?  "toolBtn selected" : "toolBtn";
             });
         }
-        
+
     }
 
     // Update the drawing info
@@ -114,7 +116,15 @@ function AnnotationTool(parent){
                     this.curGroupID = data.groupID;
                     break;
                 case "stroke":
-                    this.curStroke = data.stroke;
+                    if (data.stroke && typeof data.stroke === "string") {
+                        // the given color might not be understandable by input,
+                        // so we have to change it into hex instead
+                        var ctx = document.createElement("canvas").getContext("2d");
+                        ctx.fillStyle = data.stroke;
+
+                        // get the computed value
+                        this.curStroke = ctx.fillStyle;
+                    }
                     break;
                 case "type":
                     this.curType = data.type ? data.type : "CURSOR";
@@ -123,18 +133,18 @@ function AnnotationTool(parent){
             }
         }
     }
-    
+
     // Update the current mode
     this.updateMode = function(mode){
-       
+
         if(!_self.elem){
             return;
         }
-        
+
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
         _self.curType = mode || 'CURSOR';
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
-        
+
         switch(_self.curType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {
