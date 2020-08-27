@@ -9,7 +9,7 @@ function Base(attrs){
 
     // this is used to make sure that any property that is added to the SVG for display purpose, is not added while saving
     this._addedAttributeNames = ["vector-effect"];
-    
+
     // if this url parameter exists, we should honor the stroke width that are defined on SVG files
     if (!this.urlParams.enableSVGStrokeWidth) {
         this._addedAttributeNames.push("stroke-width");
@@ -27,7 +27,7 @@ function Base(attrs){
 
     // it stores all the attributes that we are not handling right now, so that they can be added to the output SVG file
     this._ignoredAttrs = {};
-    
+
     /**
      * This functions checks to see if the svg component has valid attributes for it to be drawn. This function makes sure that no empty attribute is added.
      * @param {object} attributes
@@ -56,7 +56,7 @@ function Base(attrs){
             if (!this._attrs[attr] || this._attrs[attr] === null){
                 continue;
             }
-            
+
             // don't add the attributes that are added by osd viewer
             if (this._addedAttributeNames.indexOf(attr) !== -1) {
                 continue;
@@ -169,21 +169,21 @@ Base.prototype.highlight = function(highlightAttrs){
 }
 
 Base.prototype.renderSVG = function(){
-    
+
     var attr,
         value,
         strokeScale = this.parent.getStrokeScale() || 1;
 
-    if(this.svg == null){ 
+    if(this.svg == null){
         this.svg = this.parent.svg
             .append(this._tag)
             .attr("class", "annotation")
-        
+
         this.svg.on("mouseover", this.onMouseoverShowTooltip)
             .on("mousemove", this.onMousemoveShowTooltip)
             .on("mouseout", this.onMouseoutHideTooltip)
             .on('click', this.onClickToSelectAnnotation);
-            
+
         // prevent the default behavior of osd by adding an empty click handler
         new OpenSeadragon.MouseTracker({
             element: this.svg.node(),
@@ -192,7 +192,7 @@ Base.prototype.renderSVG = function(){
             }
         });
     }
-    
+
     // add all the attributes
     for(attr in this._attrs){
         value = this._attrs[attr];
@@ -215,7 +215,7 @@ Base.prototype.setAttributesByJSON = function(attrs){
         }
 
         value = attrs[attr];
-        
+
         // if it's any of the attributes that we should ignore
         if (!(attr in this._attrs) || this._addedAttributeNames.indexOf(attr) !== -1) {
             this._ignoredAttrs[attr] = value;
@@ -223,6 +223,9 @@ Base.prototype.setAttributesByJSON = function(attrs){
             this._attrs[attr] = value;
         }
     }
+
+    // update the stroke in the group
+    this.parent.setGroupStrokeByAnnotation(this);
 }
 
 Base.prototype.unHighlight = function(){
@@ -237,7 +240,7 @@ Base.prototype.unHighlight = function(){
 
 Base.prototype.unbind = function(){
 
-    if(this.svg == null){         
+    if(this.svg == null){
         this.svg.on("mouseover", null)
             .on("mousemove", null)
             .on("mouseout", null)

@@ -359,10 +359,11 @@ function Viewer(parent, config) {
     // Draw annotation mode on -> only show the related annotation objects
     this.drawAnnotationMode = function(data){
         // Check if the svg id exists
-        var svgID;
-        var groupID;
-        var isDisplay;
+        var svgID, groupID, isDisplay, foundAMatch = false, usedColors = [];
         var mode = data.mode.toUpperCase();
+
+        var setStroke = (data.setStroke === true);
+        delete data.setStroke;
 
         // remove all current mouse trackers
         this.removeMouseTrackers();
@@ -372,8 +373,17 @@ function Viewer(parent, config) {
             if(mode == "ON"){
                 if(svgID == data.svgID){
                     for(groupID in this.svgCollection[svgID].groups){
+                        // indicate whether we found a match or not
+                        foundAMatch = foundAMatch || groupID == data.groupID;
+
+                        // only show the matching group
                         isDisplay = (groupID == data.groupID) ? true : false;
                         this.svgCollection[svgID].groups[groupID].setDisplay(isDisplay);
+
+                        // set the drawing tool stroke to be based on the group stroke
+                        if (setStroke && groupID == data.groupID) {
+                            data.stroke = this.svgCollection[svgID].groups[groupID].stroke[0];
+                        }
                     }
                 }
                 else{
@@ -384,6 +394,18 @@ function Viewer(parent, config) {
                 this.svgCollection[svgID].changeAllVisibility(true);
             }
         };
+
+        // if we didn't find a matching group, use a random stroke
+        if (setStroke && !foundAMatch) {
+            // TODO could be improved by incorporating it with the other loop
+            // find the colors that are used, to avoid duplicate colors
+            for (svgID in this.svgCollection) {
+                for (groupID in this.svgCollection[svgID].groups) {
+                    usedColors = usedColors.concat(this.svgCollection[svgID].groups[groupID].stroke);
+                }
+            }
+            data.stroke = this._utils.generateColor(usedColors);
+        }
 
         this.dispatchEvent("toggleDrawingTool", data);
     }
