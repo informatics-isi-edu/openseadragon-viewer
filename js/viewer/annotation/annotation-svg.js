@@ -472,11 +472,13 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.parseSVGNodes = function (nodes, styleSheet, parentNode){
         // if (group == null) { return }
 
-        if (!parentNode) {
+        var parentStyle = '';
+        if (parentNode) {
+            parentStyle = parentNode.getAttribute("style") || '';
+        } else {
             parentNode = {};
         }
 
-        var parentStyle = parentNode.getAttribute("style") || '';
 
         for (var i = 0; i < nodes.length; i++) {
 

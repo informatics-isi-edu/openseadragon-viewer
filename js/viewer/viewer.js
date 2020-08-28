@@ -34,6 +34,8 @@ function Viewer(parent, config) {
     this.svgNotPresent = false;
     this.stayInsideImage = true;
 
+    this.svgFiles = {};
+
     // Init
     this.init = function (utils) {
 
@@ -988,7 +990,7 @@ function Viewer(parent, config) {
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
             var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
-            console.log(viewBox);
+            // console.log(viewBox);
             var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
             var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
             // var topLeft = {x: _self.osd.world.getItemAt(1).getBounds(true).x + _self.osd.world.getItemAt(0).getBounds(true).x, y : 0 };
@@ -1105,5 +1107,70 @@ function Viewer(parent, config) {
     this.zoomOut = function () {
         this.osd.viewport.zoomBy(1.0 / 2);
         this.osd.viewport.applyConstraints();
+    }
+
+
+    /**
+     * used by savedAnnotationGroupState and discardAnnotationChange
+     * @type {Object}
+     */
+    this.savedAnnotationGroupStates = {};
+
+    /**
+     * This functions creates a copy of the SVG file of the annotation group that is being edited
+     * TODO there should be a mechanism to delete the unused savedAnnotationGroupStates objects
+     * @param {object} data contains the groupID and svgID of the annotation that is being edited
+     */
+    this.saveAnnotationGroupState = function (data) {
+        if (!(data.svgID in this.svgCollection) || !(data.groupID in this.svgCollection[data.svgID].groups)) {
+            return;
+        }
+
+        var group = this.svgCollection[data.svgID].groups[data.groupID];
+
+        if (!(data.svgID in this.savedAnnotationGroupStates)) {
+            this.savedAnnotationGroupStates[data.svgID] = {};
+        }
+        this.savedAnnotationGroupStates[data.svgID][data.groupID] = group.exportToSVG();
+    }
+
+    /**
+     * This functions firsts deletes the annoation, and then re-loads it using the copy stored in this.savedAnnotationGroupStates
+     * TODO we shouldn't remove and create all the times, we should keep track of whether something changed or not
+     * @param {object} data contains the groupID and svgID of the annotation whoes edit is being cancelled
+     */
+    this.discardAnnotationGroupChanges = function (data) {
+        var svgID = data.svgID, groupID = data.groupID;
+
+        // if the group has not been saved, we cannot do anything about it
+        if (!(svgID in this.savedAnnotationGroupStates) || !(groupID in this.savedAnnotationGroupStates[svgID])) {
+            return;
+        }
+
+        // make sure the svgID is valid
+        if (!(svgID in this.svgCollection)) {
+            return;
+        }
+
+        var svgAnnotation = this.svgCollection[svgID],
+            savedState = this.savedAnnotationGroupStates[svgID][groupID];
+
+        if (svgAnnotation.groups[groupID]) {
+            // remove all the annotations under the group
+            svgAnnotation.groups[groupID].removeAllAnnotations();
+
+            // delete the group
+            delete svgAnnotation.groups[groupID];
+        }
+
+        // add the saved state
+        var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
+        svgAnnotation.parseSVGNodes(svgFile.childNodes);
+
+        // make sure svg is rendered properly
+        this.resizeSVG();
+
+        // delete the saved state
+        delete savedState;
     }
 }

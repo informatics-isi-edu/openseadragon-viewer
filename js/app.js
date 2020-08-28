@@ -172,6 +172,12 @@ var myApp = (function (_config) {
                 case "loadAnnotations":
                     viewer.loadSVGAnnotations(data);
                     break;
+                case "discardAnnotationChange":
+                    viewer.discardAnnotationGroupChanges(data);
+                    break;
+                case "startAnnotationChange":
+                    viewer.saveAnnotationGroupState(data);
+                    break;
                 // case 'loadFilteringPropertyList':
                 //     event_loadFilteringPropertyList(messageType, data);
                 //     break;
