@@ -34,6 +34,8 @@ function Viewer(parent, config) {
     this.svgNotPresent = false;
     this.stayInsideImage = true;
 
+    this.svgFiles = {};
+
     // Init
     this.init = function (utils) {
 
@@ -988,7 +990,7 @@ function Viewer(parent, config) {
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
             var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
-            console.log(viewBox);
+            // console.log(viewBox);
             var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
             var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
             // var topLeft = {x: _self.osd.world.getItemAt(1).getBounds(true).x + _self.osd.world.getItemAt(0).getBounds(true).x, y : 0 };
@@ -1105,5 +1107,56 @@ function Viewer(parent, config) {
     this.zoomOut = function () {
         this.osd.viewport.zoomBy(1.0 / 2);
         this.osd.viewport.applyConstraints();
+    }
+
+    /**
+     * This functions creates a copy of the SVG file of the annotation that is being edited
+     * @param {object} data contains the groupID and svgID of the annotation that is being edited
+     */
+    this.saveAnnotationState = function (data) {
+        console.log(data);
+        if (data.svgID in this.svgCollection) {
+            this.svgFiles = [];
+            for (groupID in this.svgCollection[data.svgID].groups) {
+                this.svgFiles.push(this.svgCollection[data.svgID].exportToSVG(groupID));
+            }
+        }
+    }
+
+    /**
+     * This functions firsts deletes the annoation, and then re-loads it using the copy stored in this.svgFiles
+     * @param {object} data contains the groupID and svgID of the annotation whoes edit is being cancelled
+     */
+    this.discardAnnotationChanges = function (data) {
+        if (data.svgID in this.svgCollection) {
+            this.removeSVG(data.svgID);
+            
+            var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
+                ignoreDimension = this.parameters.ignoreDimension,
+                imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
+                imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
+
+            for (var i = 0; i < this.svgFiles.length; i++) {
+                var svgFile = this.svgFiles[i];
+
+                for (j = 0; j < svgFile.length; j++) {
+
+                    var id = svgFile[j].svgID,
+                        content = svgFile[j].svg,
+                        svgParser = new DOMParser(),
+                        svgFile = svgParser.parseFromString(content, "image/svg+xml"),
+                        svgFile = svgFile.getElementsByTagName("svg")[0];
+
+
+                    this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
+                    this.svgCollection[id].parseSVGFile(svgFile);
+
+                    if (!content) {
+                        this.dispatchEvent('errorAnnotation');
+                    }
+                }
+            }
+            this.resizeSVG();
+        }
     }
 }
