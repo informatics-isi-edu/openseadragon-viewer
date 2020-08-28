@@ -1109,54 +1109,66 @@ function Viewer(parent, config) {
         this.osd.viewport.applyConstraints();
     }
 
+
     /**
-     * This functions creates a copy of the SVG file of the annotation that is being edited
+     * used by savedAnnotationGroupState and discardAnnotationChange
+     * @type {Object}
+     */
+    this.savedAnnotationGroupStates = {};
+
+    /**
+     * This functions creates a copy of the SVG file of the annotation group that is being edited
      * @param {object} data contains the groupID and svgID of the annotation that is being edited
      */
-    this.saveAnnotationState = function (data) {
-        console.log(data);
-        if (data.svgID in this.svgCollection) {
-            this.svgFiles = [];
-            for (groupID in this.svgCollection[data.svgID].groups) {
-                this.svgFiles.push(this.svgCollection[data.svgID].exportToSVG(groupID));
-            }
+    this.saveAnnotationGroupState = function (data) {
+        if (!(data.svgID in this.svgCollection) || !(data.groupID in this.svgCollection[data.svgID].groups)) {
+            return;
         }
+
+        var group = this.svgCollection[data.svgID].groups[data.groupID];
+
+        if (!(data.svgID in this.savedAnnotationGroupStates)) {
+            this.savedAnnotationGroupStates[data.svgID] = {};
+        }
+        this.savedAnnotationGroupStates[data.svgID][data.groupID] = group.exportToSVG();
     }
 
     /**
-     * This functions firsts deletes the annoation, and then re-loads it using the copy stored in this.svgFiles
+     * This functions firsts deletes the annoation, and then re-loads it using the copy stored in this.savedAnnotationGroupStates
      * @param {object} data contains the groupID and svgID of the annotation whoes edit is being cancelled
      */
-    this.discardAnnotationChanges = function (data) {
-        if (data.svgID in this.svgCollection) {
-            this.removeSVG(data.svgID);
-            
-            var ignoreReferencePoint = this.parameters.ignoreReferencePoint,
-                ignoreDimension = this.parameters.ignoreDimension,
-                imgWidth = this.osd.world.getItemAt(0).getContentSize().x,
-                imgHeight = this.osd.world.getItemAt(0).getContentSize().y;
+    this.discardAnnotationGroupChanges = function (data) {
+        var svgID = data.svgID, groupID = data.groupID;
 
-            for (var i = 0; i < this.svgFiles.length; i++) {
-                var svgFile = this.svgFiles[i];
-
-                for (j = 0; j < svgFile.length; j++) {
-
-                    var id = svgFile[j].svgID,
-                        content = svgFile[j].svg,
-                        svgParser = new DOMParser(),
-                        svgFile = svgParser.parseFromString(content, "image/svg+xml"),
-                        svgFile = svgFile.getElementsByTagName("svg")[0];
-
-
-                    this.svgCollection[id] = new AnnotationSVG(this, id, imgWidth, imgHeight, this.scale, ignoreReferencePoint, ignoreDimension);
-                    this.svgCollection[id].parseSVGFile(svgFile);
-
-                    if (!content) {
-                        this.dispatchEvent('errorAnnotation');
-                    }
-                }
-            }
-            this.resizeSVG();
+        // if the group has not been saved, we cannot do anything about it
+        if (!(svgID in this.savedAnnotationGroupStates) || !(groupID in this.savedAnnotationGroupStates[svgID])) {
+            return;
         }
+
+        // make sure the svgID is valid
+        if (!(svgID in this.svgCollection)) {
+            return;
+        }
+
+        var svgAnnotation = this.svgCollection[svgID],
+            savedState = this.savedAnnotationGroupStates[svgID][groupID];
+
+        if (svgAnnotation.groups[groupID]) {
+            // remove all the annotations under the group
+            svgAnnotation.groups[groupID].removeAllAnnotations();
+
+            // delete the group
+            delete svgAnnotation.groups[groupID];
+        }
+
+        // add the saved state
+        var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
+        svgAnnotation.parseSVGNodes(svgFile.childNodes);
+
+        // make sure svg is rendered properly
+        this.resizeSVG();
+
+        // delete the saved state
+        delete savedState;
     }
 }

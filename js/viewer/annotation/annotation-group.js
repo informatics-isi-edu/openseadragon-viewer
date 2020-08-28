@@ -174,9 +174,16 @@ function AnnotationGroup(id, anatomy, description, parent){
 
     // Remove all annotations
     this.removeAllAnnotations = function(){
-        for(var i = 0; i < this.annotations.length; i++){
-            this.removeAnnotationByID(this.annotations[i].id);
-        };
+        this.annotations.forEach(function (annotation) {
+            // remove event handlers for the annotation
+            annotation.unbind();
+
+            // remove svg element
+            annotation.svg.remove();
+        });
+
+        // remove from the collection
+        this.annotations = [];
     }
 
     this.setAttributesByJSON = function(attrs){
