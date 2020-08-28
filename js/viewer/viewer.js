@@ -1118,6 +1118,7 @@ function Viewer(parent, config) {
 
     /**
      * This functions creates a copy of the SVG file of the annotation group that is being edited
+     * TODO there should be a mechanism to delete the unused savedAnnotationGroupStates objects
      * @param {object} data contains the groupID and svgID of the annotation that is being edited
      */
     this.saveAnnotationGroupState = function (data) {
@@ -1135,6 +1136,7 @@ function Viewer(parent, config) {
 
     /**
      * This functions firsts deletes the annoation, and then re-loads it using the copy stored in this.savedAnnotationGroupStates
+     * TODO we shouldn't remove and create all the times, we should keep track of whether something changed or not
      * @param {object} data contains the groupID and svgID of the annotation whoes edit is being cancelled
      */
     this.discardAnnotationGroupChanges = function (data) {
