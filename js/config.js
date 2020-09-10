@@ -7,7 +7,7 @@ var _config = {
         }
     },
     viewer : {
-        tiff : {
+        iiif : {
           svg: {
               id : 'annotationContainer'
           },

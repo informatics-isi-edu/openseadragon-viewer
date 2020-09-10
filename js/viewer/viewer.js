@@ -55,11 +55,13 @@ function Viewer(parent, config) {
         // this._config.osd.tileSources = this.parameters.info;
         this.loadImages(this.parameters)
 
+        // Add a SVG container to contain svg objects
+        this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.svg.setAttribute("id", 'annotationContainer');
+        this.osd.canvas.append(this.svg);
 
-        // Add a SVG container to contain svg objects - move to load images
-        // this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        // this.svg.setAttribute("id", this._config.svg.id);
-        // this.osd.canvas.append(this.svg);
+        // add the scalebar
+        this.osd.scalebar(this._config.scalebar);
 
         /* Parse urls to load image and channels, This is done when so that czi format is also supported, if the parameters are not present,
         it assumes that the format of the files is in czi. The below mentioned function uses the old version of code to load the images in OpenSeadragon.
@@ -73,9 +75,9 @@ function Viewer(parent, config) {
         // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
         this.osd.addHandler('animation-finish', this.loadAfterOSDInit);
 
-        // this.osd.addHandler('resize', this.resizeSVG); // Moved to tiff as only they have svg
+        this.osd.addHandler('resize', this.resizeSVG);
 
-        // this.osd.addHandler('animation', this.resizeSVG);// Moved to tiff as only they have svg
+        this.osd.addHandler('animation', this.resizeSVG);
 
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
@@ -578,8 +580,8 @@ function Viewer(parent, config) {
                 _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
 
-            // svgs are currently only supported for tiff case
-            if (_self.parameters.type !== "tiff") {
+            // svgs are currently only supported for iiif case
+            if (_self.parameters.type !== "iiif") {
                 _self.dispatchEvent('disableAnnotationSidebar', true);
                 if (_self.parameters.svgs) {
                     // TODO should be changed to a proper warning (error)
@@ -652,30 +654,19 @@ function Viewer(parent, config) {
 
     // Load Image and Channel information
     this.loadImages = function (params) {
-
       switch (params.type) { // Add image to osd based on image type
-        case 'tiff': // The order in which tilesources is added and osd is initialized is different in tiff and rest of the image type.
+        case 'iiif': // The order in which tilesources is added and osd is initialized is different in iiif and rest of the image type.
           // That is the reason why OpenSeadragon's constructor is called in switch case instead of general call.
-          this._config.osd.tileSources = params.info;
-          if(this._config.osd.tileSources.length > 1) {
-            this.stayInsideImage = false;
-            this._config.osd.collectionRows = 1;
-            this._config.osd.collectionMode = true;
-
-          }
+          this._config.osd.tileSources = params.images;
           this.osd = OpenSeadragon(this._config.osd);
-          this.osd.scalebar(this._config.scalebar);
-          this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          this.svg.setAttribute("id", this._config.svg.id);
-          this.osd.canvas.append(this.svg);
-          this.osd.addHandler('resize', this.resizeSVG);
-          this.osd.addHandler('animation', this.resizeSVG);
+          // if(this._config.osd.tileSources.length > 1) {
+          //   this.stayInsideImage = false;
+          //   this._config.osd.collectionRows = 1;
+          //   this._config.osd.collectionMode = true;
+          // }
           break;
-
         default:
           this.osd = OpenSeadragon(this._config.osd);
-          this.osd.scalebar(this._config.scalebar);
-
           var urls = params.images || [],
             channelList = [],
             i;
@@ -687,8 +678,13 @@ function Viewer(parent, config) {
                   meterScaleInPixels = null;
 
               if (isImageSimpleBase) {
+                  // TODO what if there are no channel names?
                   // The below code is for aliasName used in place of channelName
-                  var channelName = this.parameters.aliasName.length > i ? this.parameters.aliasName[i] : this.parameters.channelName[i];
+                  var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
+                  if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
+                      channelName = this.parameteres.aliasName[i];
+                  }
+
                   option = {
                       tileSource: {
                           channelName : channelName,
@@ -737,15 +733,6 @@ function Viewer(parent, config) {
           break;
       }
     }
-
-    // this.loadImages = function (urls) {
-    //
-    //     var urls = urls || [],
-    //         channelList = [],
-    //         i;
-    //
-    //
-    // }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
     this.onMouseoverShowTooltip = function(data){

@@ -110,7 +110,7 @@ Utils.prototype.getParameters = function(){
         type = args[i].split("=")[0];
         value = args[i].split("=")[1];
         switch(type){
-            case "url": // Parameter.type are of 3 types : svg - for annotation overlay, tiff - files containing info.json and all the other file formats are treated as rest
+            case "url": // Parameter.type are of 3 types : svg - for annotation overlay, iiif - files containing info.json and all the other file formats are treated as rest
                 // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
                 // TODO the path of svg files are hardcoded and need to change
                 if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
@@ -123,19 +123,18 @@ Utils.prototype.getParameters = function(){
                 else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
-                    parameters.type = 'xml';
+                    parameters.type = 'dzi';
                 }
                 else if(value.indexOf("info.json") != -1) {
-                    parameters.info = parameters.info || [];
-                    parameters.info.push(value);
-                    parameters.type = 'tiff';
+                    parameters.images = parameters.images || [];
+                    parameters.images.push(value);
+                    parameters.type = 'iiif';
                 } else {
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);
                     parameters.type = 'rest';
                 }
                 break;
-            // case "aliasName": // Move to channelName - basically to add as an array
             case "waterMark":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
@@ -215,10 +214,10 @@ Utils.prototype.generateColor = function(usedColors){
 Utils.prototype.setOsdConfig =  function(parameters, configs) {
   var config = null;
   switch (parameters.type) {
-    case "tiff":
-      config = configs.tiff;
+    case "iiif":
+      config = configs.iiif;
       break;
-    case "xml":
+    case "dzi":
       configs.rest.osd.showNavigator = true;
       config = configs.rest;
       break;
