@@ -3,6 +3,8 @@ function Channel(osdItemID, options) {
     var _self = this;
     this.id = osdItemID;
     this.name = options["channelName"] || "";
+    this.name = this.name.replace(/\_/g, " ");
+
     this.rgb = options["channelRGB"] || null;
     this.opacity = options["channelAlpha"] || 1;;
     this.width = +options["width"] || 0;
