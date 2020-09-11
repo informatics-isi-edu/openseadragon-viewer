@@ -427,7 +427,8 @@ function Viewer(parent, config) {
 
         var self = this,
             canvas, newCanvas, newCtx, rawImg, errored = false,
-            svgProcessedCount = 0, svgTotalCount = 0;
+            svgProcessedCount = 0, svgTotalCount = 0,
+            svgAttrs = ["x", "y", "width", "height"], svgDimension = [], svgAttr;
 
         // add watermark and download the file
         var finalize = function () {
@@ -464,22 +465,30 @@ function Viewer(parent, config) {
         newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
 
         // add the svg overlays to the new canvas by converting them to image
-        for (var svgID in self.svgCollection) {
-            if (!self.svgCollection.hasOwnProperty(svgID)) continue;
-
+        // TODO should be refactored
+        var svgs = _self.svg.querySelectorAll(".annotationSVG");
+        var pixelRatio = self._utils.queryForRetina(newCanvas);
+        svgs.forEach(function (svg) {
             svgTotalCount++;
-            var annotSVG = self.svgCollection[svgID], img = new Image();
+            var img = new Image();
             img.onload = function(e) {
                 if (errored) return;
 
+                svgAttrs.forEach(function (attrName) {
+                    svgAttr = svg.getAttribute(attrName);
+                    if (svgAttr == null) {
+                        svgAttr = 0;
+                    }
+                    if (typeof svgAttr === "string") {
+                        svgAttr = svgAttr.replace("px", "");
+                    }
+                    // osd is property handling pixel ratio, so we don't need to change the canvas settings.
+                    // instead while drawing the annotation manually on top of the canvas, we should take care of pixelRatio
+                    svgDimension.push(Number(svgAttr) * pixelRatio);
+                });
+
                 // add the image to new canvas
-                newCtx.drawImage(
-                    e.target,
-                    parseFloat(annotSVG.svg.getAttribute("x")),
-                    parseFloat(annotSVG.svg.getAttribute("y")),
-                    parseFloat(annotSVG.svg.getAttribute("width")),
-                    parseFloat(annotSVG.svg.getAttribute("height"))
-                );
+                newCtx.drawImage(e.target, svgDimension[0], svgDimension[1], svgDimension[2], svgDimension[3]);
 
                 svgProcessedCount++
                 if (svgProcessedCount === svgTotalCount) {
@@ -498,8 +507,8 @@ function Viewer(parent, config) {
             }
             // NOTE source has to be defined after onload and onerror
             img.src = null;
-            img.src = "data:image/svg+xml;utf8," + encodeURIComponent(new XMLSerializer().serializeToString(annotSVG.svg));
-        }
+            img.src = "data:image/svg+xml;utf8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+        });
 
         // in case there wasn't any svg overlays
         if (svgProcessedCount === svgTotalCount) {
