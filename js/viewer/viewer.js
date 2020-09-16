@@ -580,27 +580,16 @@ function Viewer(parent, config) {
                 _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
 
-            // svgs are currently only supported for iiif case
-            if (_self.parameters.type !== "iiif") {
-                _self.dispatchEvent('disableAnnotationSidebar', true);
-                if (_self.parameters.svgs) {
-                    // TODO should be changed to a proper warning (error)
-                    console.log("annotations are not supported on this type of images.");
-                    _self.parameters.svgs = [];
+            // Check if annotation svg exists in the url
+            if(_self.parameters.svgs) {
+                try {
+                    _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                    _self.dispatchEvent('annotationsLoaded');
+                } catch (err) {
+                    _self.dispatchEvent('errorAnnotation', err);
                 }
-            } else {
-                // Check if annotation svg exists in the url
-                if(_self.parameters.svgs) {
-                    try {
-                        _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
-                        _self.dispatchEvent('annotationsLoaded');
-                    } catch (err) {
-                        _self.dispatchEvent('errorAnnotation', err);
-                    }
-                    _self.resizeSVG();
-                }
+                _self.resizeSVG();
             }
-
 
             // Check if channelName is provided
             if(_self.parameters.channelName){
@@ -608,9 +597,7 @@ function Viewer(parent, config) {
                 var channelList = [];
 
                 for(var i = 0; i < channelsParams.length; i++){
-                    channel = new Channel(i, {
-                        channelName : channelsParams[i]
-                    });
+                    channel = new Channel(i, channelsParams[i]);
 
                     _self.channels[i] = channel;
                     channelList.push({
@@ -654,84 +641,78 @@ function Viewer(parent, config) {
 
     // Load Image and Channel information
     this.loadImages = function (params) {
-      switch (params.type) { // Add image to osd based on image type
-        case 'iiif': // The order in which tilesources is added and osd is initialized is different in iiif and rest of the image type.
-          // That is the reason why OpenSeadragon's constructor is called in switch case instead of general call.
-          this._config.osd.tileSources = params.images;
-          this.osd = OpenSeadragon(this._config.osd);
-          // if(this._config.osd.tileSources.length > 1) {
-          //   this.stayInsideImage = false;
-          //   this._config.osd.collectionRows = 1;
-          //   this._config.osd.collectionMode = true;
-          // }
-          break;
-        default:
-          this.osd = OpenSeadragon(this._config.osd);
-          var urls = params.images || [],
-            channelList = [],
-            i;
-          for (i = 0; i < urls.length; i++) {
-              var isImageSimpleBase = urls[i].indexOf('ImageProperties.xml') == -1 ? true : false,
-                  channel,
-                  url = urls[i],
-                  option = {},
-                  meterScaleInPixels = null;
+      this.osd = OpenSeadragon(this._config.osd);
+      var urls = params.images || [], channelList = [], i;
 
-              if (isImageSimpleBase) {
-                  // TODO what if there are no channel names?
-                  // The below code is for aliasName used in place of channelName
-                  var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
-                  if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
-                      channelName = this.parameteres.aliasName[i];
-                  }
+      for (i = 0; i < urls.length; i++) {
+          var channel,
+              tileSource,
+              url = urls[i],
+              options = {},
+              meterScaleInPixels = null;
 
-                  option = {
-                      tileSource: {
-                          channelName : channelName,
-                          tileWidth: 457,
-                          tileHeight: 640,
-                          type: 'image',
-                          url: url
-                      },
-                      compositeOperation: 'lighter'
-                  };
-              }
-              else {
-                  var xmlString = this._utils.getUrlContent(url),
-                      imgPath = url.replace('/ImageProperties.xml', ''),
-                      xmlParser = new DOMParser(),
-                      xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
-
-                  xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
-                  option.tileSource = this.buildTileSource(xmlDoc, imgPath);
-                  option.compositeOperation = 'lighter';
-              }
-
-              channel = new Channel(i, option.tileSource);
-
-              meterScaleInPixels = option.tileSource.meterScaleInPixels ? option.tileSource.meterScaleInPixels : meterScaleInPixels;
-              meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
-              this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
-
-              this.resetScalebar(meterScaleInPixels);
-
-              this.channels[i] = channel;
-              channelList.push({
-                  name: channel.name,
-                  contrast: channel["contrast"],
-                  brightness: channel["brightness"],
-                  gamma: channel["gamma"],
-                  hue : channel["hue"],
-                  osdItemId: channel["id"]
-              });
-              this.osd.addTiledImage(option);
+          // TODO what if there are no channel names?
+          // The below code is for aliasName used in place of channelName
+          var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
+          if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
+              channelName = this.parameters.aliasName[i];
           }
 
-          // Dispatch event to toolbar to update channel list
-          this.dispatchEvent('updateChannelList', channelList);
-          this.loadAfterOSDInit();
-          break;
+          // create tileSource and options based on the image type
+          if (url.indexOf('ImageProperties.xml') !== -1) {
+              var xmlString = this._utils.getUrlContent(url),
+                  imgPath = url.replace('/ImageProperties.xml', ''),
+                  xmlParser = new DOMParser(),
+                  xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
+
+              xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
+              tileSource = options = this.buildTileSource(xmlDoc, imgPath);
+              if (options.channelName) {
+                  channelName = options.channelName;
+              }
+          }
+          else if (url.indexOf("info.json") !== -1){
+              tileSource = url;
+          } else {
+              // TODO are the width and height needed?
+              tileSource = {
+                  tileWidth: 457,
+                  tileHeight: 640,
+                  type: 'image',
+                  url: url
+              };
+          }
+
+          // make sure the scale is properly defined
+          meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
+          meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
+          this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+
+          this.resetScalebar(meterScaleInPixels);
+
+          // add to the list of channels
+          channel = new Channel(i, channelName, options);
+
+          this.channels[i] = channel;
+          channelList.push({
+              name: channel.name,
+              contrast: channel["contrast"],
+              brightness: channel["brightness"],
+              gamma: channel["gamma"],
+              hue : channel["hue"],
+              osdItemId: channel["id"]
+          });
+
+          // add the image
+          this.osd.addTiledImage({
+              tileSource: tileSource,
+              compositeOperation: 'lighter'
+          });
       }
+
+      // Dispatch event to toolbar to update channel list
+      this.dispatchEvent('updateChannelList', channelList);
+      this.loadAfterOSDInit();
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
