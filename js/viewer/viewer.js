@@ -592,6 +592,7 @@ function Viewer(parent, config) {
             }
 
             // Check if channelName is provided
+            // TODO is this needed?
             if(_self.parameters.channelName){
                 var channelsParams = _self.parameters.channelName;
                 var channelList = [];
@@ -641,78 +642,86 @@ function Viewer(parent, config) {
 
     // Load Image and Channel information
     this.loadImages = function (params) {
-      this.osd = OpenSeadragon(this._config.osd);
-      var urls = params.images || [], channelList = [], i;
+        // configure osd
+        this.osd = OpenSeadragon(this._config.osd);
 
-      for (i = 0; i < urls.length; i++) {
-          var channel,
-              tileSource,
-              url = urls[i],
-              options = {},
-              meterScaleInPixels = null;
+        var urls = params.images || [], channelList = [], i;
 
-          // TODO what if there are no channel names?
-          // The below code is for aliasName used in place of channelName
-          var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
-          if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
-              channelName = this.parameters.aliasName[i];
-          }
+        // process the images
+        for (i = 0; i < urls.length; i++) {
+            var channel,
+                tileSource,
+                url = urls[i],
+                options = {},
+                meterScaleInPixels = null;
 
-          // create tileSource and options based on the image type
-          if (url.indexOf('ImageProperties.xml') !== -1) {
-              var xmlString = this._utils.getUrlContent(url),
-                  imgPath = url.replace('/ImageProperties.xml', ''),
-                  xmlParser = new DOMParser(),
-                  xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
+            // TODO what if there are no channel names?
+            // The below code is for aliasName used in place of channelName
+            var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
+            if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
+                channelName = this.parameters.aliasName[i];
+            }
 
-              xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
-              tileSource = options = this.buildTileSource(xmlDoc, imgPath);
-              if (options.channelName) {
-                  channelName = options.channelName;
-              }
-          }
-          else if (url.indexOf("info.json") !== -1){
-              tileSource = url;
-          } else {
-              // TODO are the width and height needed?
-              tileSource = {
-                  tileWidth: 457,
-                  tileHeight: 640,
-                  type: 'image',
-                  url: url
-              };
-          }
+            // use the index for the channelName
+            if (typeof channelName !== "string" || channelName.length === 0) {
+                channelName = i.toString();
+            }
 
-          // make sure the scale is properly defined
-          meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
-          meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
-          this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+            // create tileSource and options based on the image type
+            if (url.indexOf('ImageProperties.xml') !== -1) {
+                var xmlString = this._utils.getUrlContent(url),
+                    imgPath = url.replace('/ImageProperties.xml', ''),
+                    xmlParser = new DOMParser(),
+                    xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
 
-          this.resetScalebar(meterScaleInPixels);
+                xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
+                tileSource = options = this.buildTileSource(xmlDoc, imgPath);
+                if (options.channelName) {
+                    channelName = options.channelName;
+                }
+            }
+            else if (url.indexOf("info.json") !== -1){
+                tileSource = url;
+            } else {
+                // TODO are the width and height needed?
+                tileSource = {
+                    tileWidth: 457,
+                    tileHeight: 640,
+                    type: 'image',
+                    url: url
+                };
+            }
 
-          // add to the list of channels
-          channel = new Channel(i, channelName, options);
+            // make sure the scale is properly defined
+            meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
+            meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
+            this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
 
-          this.channels[i] = channel;
-          channelList.push({
-              name: channel.name,
-              contrast: channel["contrast"],
-              brightness: channel["brightness"],
-              gamma: channel["gamma"],
-              hue : channel["hue"],
-              osdItemId: channel["id"]
-          });
+            this.resetScalebar(meterScaleInPixels);
 
-          // add the image
-          this.osd.addTiledImage({
-              tileSource: tileSource,
-              compositeOperation: 'lighter'
-          });
-      }
+            // add to the list of channels
+            channel = new Channel(i, channelName, options);
 
-      // Dispatch event to toolbar to update channel list
-      this.dispatchEvent('updateChannelList', channelList);
-      this.loadAfterOSDInit();
+            this.channels[i] = channel;
+            channelList.push({
+                name: channel.name,
+                contrast: channel["contrast"],
+                brightness: channel["brightness"],
+                gamma: channel["gamma"],
+                hue : channel["hue"],
+                osdItemId: channel["id"]
+            });
+
+            // add the image
+            this.osd.addTiledImage({
+                tileSource: tileSource,
+                compositeOperation: 'lighter'
+            });
+        }
+
+        // Dispatch event to toolbar to update channel list
+        this.dispatchEvent('updateChannelList', channelList);
+        this.loadAfterOSDInit();
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
