@@ -464,6 +464,11 @@ function Viewer(parent, config) {
         // add the osd canvas content to the new canvas
         newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
 
+        if (!_self.svg) {
+            finalize();
+            return;
+        }
+
         // add the svg overlays to the new canvas by converting them to image
         // TODO should be refactored
         var svgs = _self.svg.querySelectorAll(".annotationSVG");
