@@ -43,7 +43,6 @@ var myApp = (function (_config) {
                 break;
             // Change openseadragon item channel setting
             case "changeOsdItemChannelSetting":
-                console.log("This is being called");
                 viewer.setItemChannel(data);
                 break;
             case "zoomIn":
@@ -103,6 +102,9 @@ var myApp = (function (_config) {
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "osdInitialized":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            case "osdInitializeFailed":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "downloadViewDone":

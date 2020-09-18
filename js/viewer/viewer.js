@@ -51,11 +51,10 @@ function Viewer(parent, config) {
         this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
         // console.log("Config used: ",  this._config, this.parameters);  // TODO: If config is null, give an error.
 
-        // Get config from scalebar and Openseadragon - Move this to loadimages
-        // this._config.osd.tileSources = this.parameters.info;
+        // load the images
         this.loadImages(this.parameters)
 
-        // Add a SVG container to contain svg objects
+        // Add a SVG container to contain annotations
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", 'annotationContainer');
         this.osd.canvas.append(this.svg);
@@ -63,30 +62,34 @@ function Viewer(parent, config) {
         // add the scalebar
         this.osd.scalebar(this._config.scalebar);
 
-        /* Parse urls to load image and channels, This is done when so that czi format is also supported, if the parameters are not present,
-        it assumes that the format of the files is in czi. The below mentioned function uses the old version of code to load the images in OpenSeadragon.
-        // NOTE: This also assuumes there won't be a svg for czi format(for overalpping).
-        */
-        // if (this.parameters.info === undefined) { // REmove this
-        // this.loadImages(this.parameters.images);
-        // }
-        this.osd.addHandler('open', this.loadAfterOSDInit);
-
-        // Since 'open' event is no longer called properly, load initial position in 'animation-finish' event
-        this.osd.addHandler('animation-finish', this.loadAfterOSDInit);
-
+        // after each resize, make sure svgs are properly positioned
         this.osd.addHandler('resize', this.resizeSVG);
 
+        // after each change, make sure svgs are properly positioned
         this.osd.addHandler('animation', this.resizeSVG);
 
+        // zoom on double click
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
+        // inform the client if any of the images failed to load
+        this.osd.world.addHandler('add-item-failed', function(event) {
+            console.error("Failed to add an item to osd", event);
+            _self.dispatchEvent('osdInitializeFailed', {});
+        });
+
+        // the finalizing tasks after images are load
         this.osd.world.addHandler('add-item', function() {
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
+                // finalize loading
+                _self.loadAfterOSDInit();
+
+                // make sure the scalebar is correct
                 var meterScaleInPixels = _self.parameters.meterScaleInPixels;
                 if (meterScaleInPixels) {
                   _self.resetScalebar(meterScaleInPixels);
                 }
+
+                // apply the intiial channel filters
                 for(var key in _self.channels){
                     var channel = _self.channels[key];
                     _self.setItemChannel({
@@ -591,28 +594,6 @@ function Viewer(parent, config) {
                 _self.resizeSVG();
             }
 
-            // Check if channelName is provided
-            // TODO is this needed?
-            if(_self.parameters.channelName){
-                var channelsParams = _self.parameters.channelName;
-                var channelList = [];
-
-                for(var i = 0; i < channelsParams.length; i++){
-                    channel = new Channel(i, channelsParams[i]);
-
-                    _self.channels[i] = channel;
-                    channelList.push({
-                        name: channel.name,
-                        contrast: channel["contrast"],
-                        brightness: channel["brightness"],
-                        gamma: channel["gamma"],
-                        hue : channel["hue"],
-                        osdItemId: channel["id"]
-                    });
-                }
-                // Dispatch event to toolbar to update channel list
-                _self.dispatchEvent('updateChannelList', channelList);
-            }
             _self.isInitLoad = true;
             _self.dispatchEvent('osdInitialized');
 
@@ -671,22 +652,23 @@ function Viewer(parent, config) {
             if (url.indexOf('ImageProperties.xml') !== -1) {
                 var xmlString = this._utils.getUrlContent(url),
                     imgPath = url.replace('/ImageProperties.xml', ''),
-                    xmlParser = new DOMParser(),
-                    xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
+                    xmlParser = new DOMParser();
 
-                xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0],
+                var xmlDoc = xmlParser.parseFromString(xmlString.trim(), "application/xml");
+                xmlDoc = xmlDoc.getElementsByTagName("IMAGE_PROPERTIES")[0];
+
+                // we want to properly define how to get the images from the
+                // folder structure that we have for dzi images
                 tileSource = options = this.buildTileSource(xmlDoc, imgPath);
                 if (options.channelName) {
                     channelName = options.channelName;
                 }
-            }
-            else if (url.indexOf("info.json") !== -1){
+            } else if (url.indexOf("info.json") !== -1){
+                // since osd supports iiif images, we can just pass the url
                 tileSource = url;
             } else {
-                // TODO are the width and height needed?
+                // we have to specify the type, just passing url to osd doesn't work
                 tileSource = {
-                    tileWidth: 457,
-                    tileHeight: 640,
                     type: 'image',
                     url: url
                 };
@@ -721,7 +703,6 @@ function Viewer(parent, config) {
 
         // Dispatch event to toolbar to update channel list
         this.dispatchEvent('updateChannelList', channelList);
-        this.loadAfterOSDInit();
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
