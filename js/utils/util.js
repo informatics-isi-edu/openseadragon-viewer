@@ -117,9 +117,6 @@ Utils.prototype.getParameters = function(){
                     parameters.svgs = parameters.svgs || [];
                     parameters.svgs.push(value);
                 }
-                // TODO the following conidtion was removed. we should figure out why it was added
-                // I removed it because we're not supposed to show thumbnail for jpg files
-                //  || value.indexOf(".jpg") != -1
                 else if(value.indexOf("ImageProperties.xml") != -1){
                     parameters.images = parameters.images || [];
                     parameters.images.push(value);

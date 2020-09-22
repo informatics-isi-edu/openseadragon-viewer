@@ -51,6 +51,12 @@ function Viewer(parent, config) {
         this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
         // console.log("Config used: ",  this._config, this.parameters);  // TODO: If config is null, give an error.
 
+        // configure osd
+        this.osd = OpenSeadragon(this._config.osd);
+
+        // add the scalebar (might change based on the images)
+        this.osd.scalebar(this._config.scalebar);
+
         // load the images
         this.loadImages(this.parameters)
 
@@ -58,9 +64,6 @@ function Viewer(parent, config) {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", 'annotationContainer');
         this.osd.canvas.append(this.svg);
-
-        // add the scalebar
-        this.osd.scalebar(this._config.scalebar);
 
         // after each resize, make sure svgs are properly positioned
         this.osd.addHandler('resize', this.resizeSVG);
@@ -628,9 +631,6 @@ function Viewer(parent, config) {
 
     // Load Image and Channel information
     this.loadImages = function (params) {
-        // configure osd
-        this.osd = OpenSeadragon(this._config.osd);
-
         var urls = params.images || [], channelList = [], i;
 
         // process the images
