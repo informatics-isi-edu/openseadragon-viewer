@@ -35,17 +35,17 @@ Channel.prototype.colorMapping = {
     'Alexa Fluor 594': '1.000000 0.000000 0.000000',
     'tdTomato': '1.000000 0.000000 0.000000',
     'Alexa Fluor 633': '1.000000 0.000000 0.000000',
-    'Alexa Fluor 647': '1.000000 0.000000 0.000000',
+    'Alexa Fluor 647': '1.000000 1.000000 0.000000', // TODO customized based on demo image, should be reverted
 
     //green
     'FITC': '0.000000 1.000000 0.000000',
     'Alexa 488': '0.000000 1.000000 0.000000',
     'EGFP': '0.000000 1.000000 0.000000',
-    'Alexa Fluor 488': '0.000000 1.000000 0.000000',
+    'Alexa Fluor 488': '0.000000 1.000000 0.200000', // TODO customized based on demo image, should be reverted
 
     //blue
     'DAPI': '0.000000 0.000000 1.000000'
-}
+};
 
 Channel.prototype.getFiltersList = function () {
     var list = [];
