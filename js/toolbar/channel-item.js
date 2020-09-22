@@ -25,7 +25,7 @@ function ChannelItem(data){
             case "toggleDisplay":
                 return (this.isDisplay) ? 'fa fa-eye' : 'fa fa-eye-slash';
             case "expandPanel":
-                return (this.isDisplay) ? 'fa fa-caret-down' : 'fa fa-caret-up';
+                return (this.isExpand) ? 'fa fa-caret-down' : 'fa fa-caret-up';
         }
     }
 
