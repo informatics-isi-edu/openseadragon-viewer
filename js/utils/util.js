@@ -215,7 +215,6 @@ Utils.prototype.setOsdConfig =  function(parameters, configs) {
       config = configs.iiif;
       break;
     case "dzi":
-      configs.rest.osd.showNavigator = true;
       config = configs.rest;
       break;
     case "rest":
