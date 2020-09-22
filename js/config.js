@@ -7,7 +7,7 @@ var _config = {
         }
     },
     viewer : {
-        tiff : {
+        iiif : {
           svg: {
               id : 'annotationContainer'
           },
@@ -28,7 +28,8 @@ var _config = {
             crossOriginPolicy: "Anonymous",
             constrainDuringPan: true,
             // collectionMode: true,
-            // tileSources : {}
+            // tileSources : {},
+            showNavigator: true //thumbnail
           },
           scalebar : {
               type: OpenSeadragon.ScalebarType.MAP,
@@ -53,6 +54,7 @@ var _config = {
             showHomeControl: false,
             showFullPageControl: false,
             constrainDuringPan: true,
+            showNavigator: true //thumbnail
           },
           scalebar : {
               type: OpenSeadragon.ScalebarType.MAP,

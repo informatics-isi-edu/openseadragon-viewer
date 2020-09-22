@@ -1,8 +1,11 @@
-function Channel(osdItemID, options) {
+function Channel(osdItemID, name, options) {
+    options = options || {};
 
     var _self = this;
     this.id = osdItemID;
-    this.name = options["channelName"] || "";
+    this.name = (typeof name === "string") ? name : "";
+    this.name = this.name.replace(/\_/g, " ");
+
     this.rgb = options["channelRGB"] || null;
     this.opacity = options["channelAlpha"] || 1;;
     this.width = +options["width"] || 0;
@@ -23,9 +26,26 @@ function Channel(osdItemID, options) {
     this.setDefaultGamma();
 }
 
-Channel.prototype.redColors = ['Rhodamine', 'RFP', 'Alexa Fluor 555', 'Alexa Fluor 594', 'tdTomato', 'Alexa Fluor 633', 'Alexa Fluor 647'];
-Channel.prototype.greenColors = ['FITC', 'Alexa 488', 'EGFP', 'Alexa Fluor 488'];
-Channel.prototype.blueColors = ['DAPI'];
+
+Channel.prototype.colorMapping = {
+    // red
+    'Rhodamine': '1.000000 0.000000 0.000000',
+    'RFP': '1.000000 0.000000 0.000000',
+    'Alexa Fluor 555': '1.000000 0.000000 0.000000',
+    'Alexa Fluor 594': '1.000000 0.000000 0.000000',
+    'tdTomato': '1.000000 0.000000 0.000000',
+    'Alexa Fluor 633': '1.000000 0.000000 0.000000',
+    'Alexa Fluor 647': '1.000000 0.000000 0.000000',
+
+    //green
+    'FITC': '0.000000 1.000000 0.000000',
+    'Alexa 488': '0.000000 1.000000 0.000000',
+    'EGFP': '0.000000 1.000000 0.000000',
+    'Alexa Fluor 488': '0.000000 1.000000 0.000000',
+
+    //blue
+    'DAPI': '0.000000 0.000000 1.000000'
+}
 
 Channel.prototype.getFiltersList = function () {
     var list = [];
@@ -96,12 +116,9 @@ Channel.prototype.setDefaultHue = function () {
               this.hue = null;
               break;
           default:
-              // Blue colors
-              this.hue = this.blueColors.indexOf(this.name) != -1 ? 240 : this.hue;
-              // Green colors
-              this.hue = this.greenColors.indexOf(this.name) != -1 ? 120 : this.hue;
-              // Red colors
-              this.hue = this.redColors.indexOf(this.name) != -1 ? 0 : this.hue;
+              if (this.name in this.colorMapping) {
+                  this.hue = hueIs(this.colorMapping[this.name]);
+              }
               break;
       }
     }
@@ -110,8 +127,7 @@ Channel.prototype.setDefaultHue = function () {
 }
 
 Channel.prototype.setDefaultGamma = function () {
-
-    if (this.blueColors.indexOf(this.name) != -1 || this.greenColors.indexOf(this.name) != -1 || this.redColors.indexOf(this.name) != -1) {
+    if (this.name in this.colorMapping) {
         this.gamma = 0.75;
         this.initialProperty.gamma = this.gamma;
     };
