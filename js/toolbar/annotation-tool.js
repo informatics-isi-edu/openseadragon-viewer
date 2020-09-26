@@ -73,6 +73,9 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='CIRCLE'>",
                     "<i class='fa fa-circle'></i>",
                 "</span>",
+                "<span class='toolBtn' data-type='LINE'>",
+                    "<i class='fa fa-minus'></i>",
+                "</span>",
                 "<span class='toolBtn' data-type='ERASER'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",
@@ -144,7 +147,6 @@ function AnnotationTool(parent){
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
         _self.curType = mode || 'CURSOR';
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
-
         switch(_self.curType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {
@@ -154,6 +156,7 @@ function AnnotationTool(parent){
             case "PATH":
             case "CIRCLE":
             case "RECT":
+            case "LINE":
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,
                     groupID : _self.curGroupID,

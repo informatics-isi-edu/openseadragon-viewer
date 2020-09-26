@@ -45,6 +45,9 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "CIRCLE":
                 annotation = new Circle(attrs);
                 break;
+            case "LINE":
+                annotation = new Line(attrs);
+                break;
         };
 
         if(annotation != null){
