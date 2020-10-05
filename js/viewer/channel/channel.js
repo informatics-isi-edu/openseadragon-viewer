@@ -28,23 +28,30 @@ function Channel(osdItemID, name, options) {
 
 
 Channel.prototype.colorMapping = {
+    // far red (magenta)
+    'Alexa Fluor 633': '1.000000 0.000000 1.000000',
+    'Alexa Fluor 647': '1.000000 0.000000 1.000000',
+
     // red
     'Rhodamine': '1.000000 0.000000 0.000000',
     'RFP': '1.000000 0.000000 0.000000',
     'Alexa Fluor 555': '1.000000 0.000000 0.000000',
     'Alexa Fluor 594': '1.000000 0.000000 0.000000',
     'tdTomato': '1.000000 0.000000 0.000000',
-    'Alexa Fluor 633': '1.000000 0.000000 0.000000',
-    'Alexa Fluor 647': '1.000000 1.000000 0.000000', // TODO customized based on demo image, should be reverted
+    'mcherry': '1.000000 0.000000 0.000000',
 
     //green
     'FITC': '0.000000 1.000000 0.000000',
     'Alexa 488': '0.000000 1.000000 0.000000',
     'EGFP': '0.000000 1.000000 0.000000',
-    'Alexa Fluor 488': '0.000000 1.000000 0.200000', // TODO customized based on demo image, should be reverted
+    'Alexa Fluor 488': '0.000000 1.000000 0.000000',
 
     //blue
-    'DAPI': '0.000000 0.000000 1.000000'
+    'DAPI': '0.000000 0.000000 1.000000',
+    'Hoechst': '0.000000 0.000000 1.000000',
+
+    // any uknown channel name will be mapped to this
+    'unknown': '1.000000 1.000000 1.000000'
 };
 
 Channel.prototype.getFiltersList = function () {
@@ -108,9 +115,10 @@ Channel.prototype.setDefaultHue = function () {
         this.hue = hueIs(this.rgb);
     } else {
       switch (this.name) {
-          case "unknown":
-              this.hue = 180;
-              break;
+          // TODO why?
+          // case "unknown":
+          //     this.hue = 180;
+          //     break;
           case "combo":
           case "TL Brightfield":
               this.hue = null;
@@ -118,6 +126,9 @@ Channel.prototype.setDefaultHue = function () {
           default:
               if (this.name in this.colorMapping) {
                   this.hue = hueIs(this.colorMapping[this.name]);
+              } else {
+                  // any unknown channel should be white
+                  this.hue = hueIs(this.colorMapping['unknown']);
               }
               break;
       }

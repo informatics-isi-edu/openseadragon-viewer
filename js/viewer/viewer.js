@@ -643,9 +643,9 @@ function Viewer(parent, config) {
 
             // TODO what if there are no channel names?
             // The below code is for aliasName used in place of channelName
-            var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
-            if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
-                channelName = this.parameters.aliasName[i];
+            var channelName = Array.isArray(params.channelName) &&  params.channelName[i] ? params.channelName[i] : "";
+            if (params.aliasName && params.aliasName[i]) {
+                channelName = params.aliasName[i];
             }
 
             // use the index for the channelName
@@ -681,10 +681,15 @@ function Viewer(parent, config) {
 
             // make sure the scale is properly defined
             meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
-            meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
+            meterScaleInPixels = params.meterScaleInPixels ? params.meterScaleInPixels : meterScaleInPixels;
             this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
 
             this.resetScalebar(meterScaleInPixels);
+
+            // channelRGB
+            if (Array.isArray(params.channelRGB) && params.channelRGB[i]) {
+                options.channelRGB = params.channelRGB[i];
+            }
 
             // add to the list of channels
             channel = new Channel(i, channelName, options);

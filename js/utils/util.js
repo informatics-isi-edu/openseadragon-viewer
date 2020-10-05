@@ -139,6 +139,7 @@ Utils.prototype.getParameters = function(){
                 parameters[type] = decodeURI(value);
                 break;
             case "aliasName":
+            case "channelRGB":
             case "channelName":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
