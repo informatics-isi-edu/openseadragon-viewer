@@ -29,7 +29,8 @@ function Base(attrs){
         "rect": ["height", "width"],
         "circle": ["cx", "cy", "r"],
         "path": ["d"],
-        "line": ["x1", "x2", "y1", "y2"]
+        "line": ["x1", "x2", "y1", "y2"],
+        "polygon": ["points"]
     }
 
     this._tag = "";
