@@ -33,6 +33,5 @@ Polygon.prototype.insertPoint = function (point) {
 }
 
 Polygon.prototype.insertPointAtDrawEnd = function () {
-    console.log('insertPointAtDrawEnd', this._attrs["points"]);
     this._oldPoints = this._attrs["points"]; 
 }
