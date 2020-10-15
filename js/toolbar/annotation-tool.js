@@ -33,8 +33,10 @@ function AnnotationTool(parent){
         }
 
 
-        _self.dispatchEvent("drawingStop");
-        _self.updateMode(btnType);
+        _self.dispatchEvent("drawingStop", {'buttonType': btnType});
+        setTimeout(() => {
+            _self.updateMode(btnType);
+        }, 300);
 
     }
 
@@ -80,6 +82,9 @@ function AnnotationTool(parent){
                 "</span>",
                 "<span class='toolBtn' data-type='LINE'>",
                     "<i class='fa fa-minus'></i>",
+                "</span>",
+                "<span class='toolBtn' data-type='POLYGON'>",
+                    "<i class='fas fa-draw-polygon'></i>",
                 "</span>",
                 "<span class='toolBtn' data-type='ERASER'>",
                     "<i class='fa fa-eraser'></i>",
@@ -162,6 +167,7 @@ function AnnotationTool(parent){
             case "CIRCLE":
             case "RECT":
             case "LINE":
+            case "POLYGON":
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,
                     groupID : _self.curGroupID,

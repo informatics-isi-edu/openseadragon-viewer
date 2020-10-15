@@ -29,7 +29,8 @@ var myApp = (function (_config) {
                 viewer.dispatchSVGEvent(type, data);
                 break;
             case "drawingStop":
-                viewer.removeMouseTrackers(data);
+                viewer.annotationDrawingEnd2(data);
+                // viewer.removeMouseTrackers(data);
                 break;
             case "setMode":
                 viewer.setMode(data);

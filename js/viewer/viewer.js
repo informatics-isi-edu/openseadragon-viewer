@@ -34,6 +34,8 @@ function Viewer(parent, config) {
     this.svgNotPresent = false;
     this.stayInsideImage = true;
 
+    this._currentDrawingEvent = null;
+
     this.svgFiles = {};
 
     // Init
@@ -252,6 +254,7 @@ function Viewer(parent, config) {
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
                 // alert("view start drawing")
+                console.log('adding tracker');
                 var tracker = new OpenSeadragon.MouseTracker({
                     element: _self.svg,
                     dragHandler: this.onMouseDragToDraw,
@@ -779,10 +782,31 @@ function Viewer(parent, config) {
     // Drag to draw event handler end
     this.onMouseDragToDrawEnd = function(event){
 
-        if(_self.mouseTrackers.length > 0){
-            setTimeout(function(){
+        // console.log('event.userData.annotation', event.userData.annotation);
+        
+        if (event.userData.annotation._tag == "polygon") {
+            event.userData.annotation.insertPointAtDrawEnd();
+            _self._currentDrawingEvent = {
+                svgID: event.userData.svgID,
+                groupID: event.userData.groupID,
+                type: event.userData.type,
+                attrs: event.userData.attrs || {},
+                imgScaleX: event.userData.imgScaleX,
+                imgScaleY: event.userData.imgScaleY,
+                viewBox: event.userData.viewBox
+            };
+        } else {
+            _self.annotationDrawingEnd(event)
+        }
+        // _self.destoryMouseTracker();
+    }
+
+    this.annotationDrawingEnd = function(event) {
+        if (_self.mouseTrackers.length > 0) {
+            setTimeout(function () {
                 _self.mouseTrackers[0].destroy();
                 _self.mouseTrackers.shift();
+                console.log('destroyed 1');
             }, 300)
         }
 
@@ -793,8 +817,8 @@ function Viewer(parent, config) {
         var type = event.userData.type;
         var attrs = event.userData.attrs || {};
 
-
         if(_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]){
+            // setting the mouse tracker for the next annotation i.e. line, circle, rect
             event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
             event.userData.annotation.setupDrawingAttrs(attrs);
             event.userData.graphID = event.userData.annotation.id;
@@ -809,6 +833,50 @@ function Viewer(parent, config) {
             _self.mouseTrackers.push(mousetracker);
         }
         // _self.destoryMouseTracker();
+    }
+
+    this.savePolygon = function() {
+        if (_self._currentDrawingEvent) {
+
+            var svgID = _self._currentDrawingEvent.svgID;
+            var groupID = _self._currentDrawingEvent.groupID;
+            var type = _self._currentDrawingEvent.type;
+            var attrs = _self._currentDrawingEvent.attrs || {};
+
+            if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
+                _self.svgCollection[svgID].groups[groupID].annotations[0].setDrawing(false);
+                var annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
+                annotation.setupDrawingAttrs(attrs);
+
+                console.log('Saved');
+            }
+            _self._currentDrawingEvent = null;
+
+            setTimeout(function () {
+                if (_self.mouseTrackers.length > 0) {
+                    console.log('destroyed', _self.mouseTrackers[0]);
+                    _self.mouseTrackers[0].destroy();
+                    _self.mouseTrackers.shift();
+                    console.log('after destroye', _self.mouseTrackers.length);
+                }
+                _self.removeMouseTrackers();
+            }, 300);
+        }
+    }
+
+    this.annotationDrawingEnd2 = function (data) {
+        console.log('stopped drawing');
+        if (!data) {
+            return;
+        }
+
+        if (_self._currentDrawingEvent) {
+            console.log('saving polygon');
+            _self.savePolygon();
+        } else {
+            _self.removeMouseTrackers();
+        }
+
     }
 
     // Pan to specific location
@@ -866,11 +934,15 @@ function Viewer(parent, config) {
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data){
 
+        console.log('mouse trackers removed', data);
+
         if(this.mouseTrackers.length > 0){
 
             while(this.mouseTrackers.length > 0){
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
+
+                console.log('userData', userData);
 
                 if(userData){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
