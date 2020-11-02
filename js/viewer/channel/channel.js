@@ -5,8 +5,8 @@ function Channel(osdItemID, name, options) {
     this.id = osdItemID;
     this.name = (typeof name === "string") ? name : "";
     this.name = this.name.replace(/\_/g, " ");
-
-    this.rgb = options["channelRGB"] || null;
+    this.isMultiColor = options['isRGB'] || false;
+    this.rgb = options["pseudoColor"] || null;
     this.opacity = options["channelAlpha"] || 1;;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
@@ -106,19 +106,21 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
     var _rgb=rgb.split(" ");
     var p=_rgb2hsl(parseFloat(_rgb[0]), parseFloat(_rgb[1]), parseFloat(_rgb[2]));
     var hue = p[0] * 360;
-    return hue;
+    return Math.round(hue);
 }
 
 Channel.prototype.setDefaultHue = function () {
-    if (this.rgb != null) {
-        // get hue from rgb value..
+    // don't offer any hue control
+    if (this.isMultiColor) {
+        this.hue = null;
+    }
+    // get hue from rgb value
+    else if (this.rgb != null) {
         this.hue = hueIs(this.rgb);
-    } else {
+    }
+    // find the color mapping based on the channel name
+    else {
       switch (this.name) {
-          // TODO why?
-          // case "unknown":
-          //     this.hue = 180;
-          //     break;
           case "combo":
           case "TL Brightfield":
               this.hue = null;

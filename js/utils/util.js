@@ -102,6 +102,7 @@ Utils.prototype.getUrlContent = function(url){
 // Parsing browser's url to get file locations
 Utils.prototype.getParameters = function(){
     var args = document.location.href.split("?"),
+        self = this,
         type,
         parameters = {};
 
@@ -109,8 +110,11 @@ Utils.prototype.getParameters = function(){
     for(var i = 0; i < args.length; i++){
         type = args[i].split("=")[0];
         value = args[i].split("=")[1];
+
         switch(type){
-            case "url": // Parameter.type are of 3 types : svg - for annotation overlay, iiif - files containing info.json and all the other file formats are treated as rest
+            // array of urls
+            case "url":
+                // Parameter.type are of 3 types : svg - for annotation overlay, iiif - files containing info.json and all the other file formats are treated as rest
                 // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
                 // TODO the path of svg files are hardcoded and need to change
                 if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
@@ -132,14 +136,8 @@ Utils.prototype.getParameters = function(){
                     parameters.type = 'rest';
                 }
                 break;
-            case "waterMark":
-                if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
-                    value = value.substr(1,value.length-2);
-                }
-                parameters[type] = decodeURI(value);
-                break;
+            // array of string
             case "aliasName":
-            case "channelRGB":
             case "channelName":
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
@@ -149,6 +147,26 @@ Utils.prototype.getParameters = function(){
                 }
                 parameters[type].push(decodeURI(value));
                 break;
+            // array of boolean
+            case "isRGB":
+                value = (value.toLocaleLowerCase() === "true") ? true : false;
+                if(!parameters[type]){
+                    parameters[type] = [];
+                }
+                parameters[type].push(value);
+                break;
+            // array of color
+            case "pseudoColor":
+                value = self.colorHexToRGB(decodeURI(value));
+                if(!parameters[type]){
+                    parameters[type] = [];
+                }
+                parameters[type].push(value);
+                break;
+            // string
+            case "zoomLineThickness":
+            case "waterMark":
+            // float
             case "meterScaleInPixels":
             case "scale":
             case "x":
@@ -159,14 +177,14 @@ Utils.prototype.getParameters = function(){
                     parameters[type] = value;
                 }
                 break;
+            // boolean
             case "ignoreReferencePoint":
             case "ignoreDimension":
             case "enableSVGStrokeWidth":
                 parameters[type] = (value.toLocaleLowerCase() === "true") ? true : false;
                 break;
-            case "zoomLineThickness":
-                parameters[type] = value;
-                break;
+            default:
+                console.log("unknown query parameter: " + args[i]);
         }
     }
     // console.log(parameters);
@@ -206,6 +224,34 @@ Utils.prototype.generateColor = function(usedColors){
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+/**
+ * Converrt the given hex string to RGB color format that channel code understands
+ * The returned format: '#.###### #.###### #.######'
+ * If the given input is not properly formatted, this function will return null.
+ */
+Utils.prototype.colorHexToRGB = function (val) {
+    var res = null;
+
+    if (typeof val !== "string" || val.length === 0) {
+        return res;
+    }
+
+    // support shorthand syntax (#ccc)
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    val = val.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var parts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(val);
+    if (parts) {
+        res = (parseInt(parts[1], 16) / 255).toFixed(6)
+        res += " " + (parseInt(parts[2], 16) / 255).toFixed(6)
+        res += " " + (parseInt(parts[3], 16) / 255).toFixed(6)
+    }
+
+    return res;
 }
 
 // Set the config based on the image type

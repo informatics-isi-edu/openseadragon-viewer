@@ -143,7 +143,7 @@ function Viewer(parent, config) {
         tileSource.overlap = parseInt(xmlDoc.getAttribute("overlap")) || 0;
         tileSource.channelName = xmlDoc.getAttribute("channelName");
         tileSource.channelAlpha = +xmlDoc.getAttribute("channelDefaultAlpha");
-        tileSource.channelRGB = xmlDoc.getAttribute("channelDefaultRGB");
+        tileSource.pseudoColor = xmlDoc.getAttribute("channelDefaultRGB");
         tileSource.dir = xmlDoc.getAttribute("data");
         tileSource.format = xmlDoc.getAttribute("format") || "jpg";
         tileSource.meterScaleInPixels = parseFloat(xmlDoc.getAttribute("meterScaleInPixels"));
@@ -686,9 +686,14 @@ function Viewer(parent, config) {
 
             this.resetScalebar(meterScaleInPixels);
 
-            // channelRGB
-            if (Array.isArray(params.channelRGB) && params.channelRGB[i]) {
-                options.channelRGB = params.channelRGB[i];
+            // pseudoColor
+            if (Array.isArray(params.pseudoColor) && (typeof params.pseudoColor[i] === 'string')) {
+                options.pseudoColor = params.pseudoColor[i];
+            }
+
+            // isRGB
+            if (Array.isArray(params.isRGB) && (typeof params.isRGB[i] === 'boolean')) {
+                options.isRGB = params.isRGB[i];
             }
 
             // add to the list of channels
