@@ -9,8 +9,16 @@ var myApp = (function (_config) {
         viewer = new Viewer(this, _config.viewer);
         toolbar = new ToolbarController(this, _config.toolbar);
 
-        viewer.init(utils);
+        // if there are query parameters, we should initialize viewer
+        var url = document.location.href;
+        if (url.indexOf("?") != -1) {
+            viewer.init(utils, utils.getQueryParams(url));
+        }
+
         window.addEventListener('message', receiveChaiseEvent);
+
+        // let parent window know that the app is loaded
+        window.parent.postMessage({messageType: 'osdLoaded'}, window.location.origin);
 
         this.viewer = viewer;
         this.toolbar = toolbar;
@@ -122,6 +130,9 @@ var myApp = (function (_config) {
             var messageType = event.data.messageType;
             var data = event.data.content;
             switch (messageType) {
+                case 'initializeViewer':
+                    viewer.init(utils, data);
+                    break;
                 case 'filterChannels':
                     toolbar && toolbar.onClickedMenuHandler('channelList');
                     break;

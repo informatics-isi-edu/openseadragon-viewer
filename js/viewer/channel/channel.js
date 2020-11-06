@@ -76,7 +76,7 @@ Channel.prototype.getFiltersList = function () {
     if (this.hue != null) {
         list.push(OpenSeadragon.Filters.HUE(this.hue));
     }
-    console.log("list", list);
+    // console.log("list", list);
     return list;
 }
 
@@ -148,9 +148,9 @@ Channel.prototype.setDefaultGamma = function () {
 
 
 Channel.prototype.set = function (type, value) {
-    console.log(
-      "channel set" , type, value
-    );
+    // console.log(
+    //   "channel set" , type, value
+    // );
     if (!type) { return }
 
     switch (type.toUpperCase()) {

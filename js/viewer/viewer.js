@@ -37,7 +37,7 @@ function Viewer(parent, config) {
     this.svgFiles = {};
 
     // Init
-    this.init = function (utils) {
+    this.init = function (utils, params) {
 
         if (!OpenSeadragon || !utils) {
             return null;
@@ -45,7 +45,7 @@ function Viewer(parent, config) {
         this._utils = utils;
 
         // Add each image source into Openseadragon viewer
-        this.parameters = this._utils.getParameters();
+        this.parameters = this._utils.processParams(params);
 
         // Setting the config based on the type of the image we get
         this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
