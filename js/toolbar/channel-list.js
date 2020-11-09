@@ -22,6 +22,7 @@ function ChannelList(parent){
                     brightness : items[i]["brightness"],
                     gamma : items[i]["gamma"],
                     hue : items[i]["hue"],
+                    deactivateHue: items[i]["deactivateHue"],
                     osdItemId : id,
                     parent : _self
                 });
@@ -56,13 +57,13 @@ function ChannelList(parent){
         listElem.setAttribute("class", "channelList");
         if (collection,Object.keys(collection).length === 0 && collection.constructor === Object) {
           listElem.innerHTML = [
-              "<div><span class='title'>Channels</span> <button class='dismiss-channel' title='dismiss'><i class='fa fa-times'></i></button></div>",
+              "<div class='title-container'><span class='title'>Channels</span> <button class='dismiss-channel' title='dismiss'><i class='fa fa-times'></i></button></div>",
               "<div class='groups'> No Channels found",
               "</div>"
           ].join("");
         } else {
           listElem.innerHTML = [
-              "<div><span class='title'>Channels</span> <button class='dismiss-channel' title='dismiss' style='border:none;background-color:transparent; float:right!important;'><i class='fa fa-times'></i></button></div>",
+              "<div class='title-container'><span class='title'>Channels</span> <button class='dismiss-channel' title='dismiss' style='border:none;background-color:transparent; float:right!important;'><i class='fa fa-times'></i></button></div>",
               "<div class='groups'>",
               "</div>"
           ].join("");

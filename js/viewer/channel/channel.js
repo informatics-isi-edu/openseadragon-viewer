@@ -19,7 +19,11 @@ function Channel(osdItemID, name, options) {
       brightness: 0,
       gamma: 0.875,
       hue: null,
-    }
+    };
+
+    // we might want to offer hue control but not apply it by default.
+    // for example in case of a greyscale image with an unknown channelName
+    this.deactivateHue = false;
 
     // Set Default Values
     this.setDefaultHue();
@@ -73,9 +77,11 @@ Channel.prototype.getFiltersList = function () {
         list.push(OpenSeadragon.Filters.GAMMA(this.gamma));
     }
 
-    if (this.hue != null) {
+    // only apply hue if it's activated
+    if (this.hue != null && !this.deactivateHue) {
         list.push(OpenSeadragon.Filters.HUE(this.hue));
     }
+
     // console.log("list", list);
     return list;
 }
@@ -129,8 +135,11 @@ Channel.prototype.setDefaultHue = function () {
               if (this.name in this.colorMapping) {
                   this.hue = hueIs(this.colorMapping[this.name]);
               } else {
-                  // any unknown channel should be white
+                  // make sure hue has a default value
                   this.hue = hueIs(this.colorMapping['unknown']);
+
+                  // deactivate hue control
+                  this.deactivateHue = true;
               }
               break;
       }
@@ -165,6 +174,11 @@ Channel.prototype.set = function (type, value) {
             break;
         case "HUE":
             this.hue = value;
+            // activate the hue control so the value change takes effect
+            this.deactivateHue = false;
+            break;
+        case "DEACTIVATEHUE":
+            this.deactivateHue = true;
             break;
     }
  //    if(!resetMode)

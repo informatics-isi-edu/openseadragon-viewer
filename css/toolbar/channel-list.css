@@ -8,6 +8,13 @@
     padding: 10px 0;
 }
 
+
+#menuContainer #navMenuContent .channelList .title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
 #menuContainer #navMenuContent .channelList .title{
     font-size: 14px;
     font-weight: bold;
@@ -22,8 +29,6 @@
     box-sizing: border-box;
     padding: 5px 10px 5px 10px;
     flex: 1;
-    overflow-y: auto;
-    /* border-radius: 5px; */
 }
 #navMenuContent .channelList .dismiss-channel {
   border:none;

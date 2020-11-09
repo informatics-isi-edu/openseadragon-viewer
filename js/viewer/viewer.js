@@ -706,6 +706,7 @@ function Viewer(parent, config) {
                 brightness: channel["brightness"],
                 gamma: channel["gamma"],
                 hue : channel["hue"],
+                deactivateHue : channel['deactivateHue'],
                 osdItemId: channel["id"]
             });
 

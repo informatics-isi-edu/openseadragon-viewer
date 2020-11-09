@@ -10,9 +10,10 @@ function ChannelItem(data){
       this.hue = data["hue"]
     } else {
       this.hue = null;
-
     }
-    // this.hue = data["hue"] || null;
+
+    this.deactivateHue = data["deactivateHue"] || false;
+
     this.opacity = data["opacity"] || "";
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
@@ -51,6 +52,25 @@ function ChannelItem(data){
         event.stopPropagation();
     };
 
+    this.onClickDeactivateHue = function (event) {
+        if (!_self.deactivateHue) {
+            _self.deactivateHue = true;
+
+            // change the displayed value
+            _self.hue = "None";
+            _self.elem.querySelector(".sliderContainer[data-type='hue'] .attrRow .value").innerText = "None";
+
+            // set te proper value
+            _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
+                id: _self.osdItemId,
+                type : 'deactivateHue',
+                value : true
+            });
+        }
+
+        event.stopPropagation();
+    };
+
     // Change the slider value
     this.onChangeSliderValue = function(){
         var type = this.parentNode.getAttribute("data-type"),
@@ -72,6 +92,7 @@ function ChannelItem(data){
             case "hue":
                 _self.hue = value;
                 _self.elem.querySelector(".sliderContainer[data-type='hue'] .attrRow .value").innerText = value;
+                _self.deactivateHue = false;
                 break;
         };
 
@@ -119,9 +140,12 @@ function ChannelItem(data){
                 "<span class='sliderContainer' data-type='hue'>",
                     "<span class='attrRow'>",
                         "<span class='name'>Hue</span>",
-                        "<span class='value'>"+ this.hue +"</span>",
+                        "<span class='value'>"+ (this.deactivateHue ? "None" : this.hue) +"</span>",
                     "</span>",
-                    "<input type='range' class='slider' min='0' max='360' step='1' value='"+this.hue+"'>",
+                    "<span class='hue-container' data-type='hue'>",
+                        "<input type='range' class='slider' min='0' max='360' step='1' value='"+this.hue+"'>",
+                        "<span class='deactivate-hue'></span>",
+                    "</span>",
                 "</span>",
             "</div>",
         ].join("");
@@ -132,6 +156,11 @@ function ChannelItem(data){
         this.elem = channeElem;
 
         // Binding events
+
+        //
+        this.elem.querySelectorAll(".hue-container .deactivate-hue").forEach(function(elem){
+            elem.addEventListener('click', this.onClickDeactivateHue);
+        }.bind(this));
 
         // Change the visibility of Openseadragon items
         this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
