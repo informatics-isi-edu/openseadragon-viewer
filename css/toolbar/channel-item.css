@@ -80,17 +80,35 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     padding: 0 5px;
 }
 
 #navMenuContent .groups .channelItem .deactivate-hue {
     display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #ccc;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: #a6a4a4;
     cursor: pointer;
+    font-family: "Font Awesome 5 Pro";
+    font-weight: 900;
+    position: relative;
+}
+
+
+/* #navMenuContent .groups .channelItem .deactivate-hue.active {
+    border: 2px solid #6797d4;
+} */
+
+#navMenuContent .groups .channelItem .deactivate-hue.active:after {
+    position: absolute;
+    color: #4674A7;
+    top: 0;
+    left: 0;
+    content: "\f00c";
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: 12px;
 }
 
 
@@ -111,6 +129,7 @@
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
     width: 195px;
     margin: 0;
+    margin-right: 7px;
     background: -webkit-linear-gradient(left, hsla(0, 100%, 50%, 1),
         hsla(10, 100%, 50%, 1),hsla(20, 100%, 50%, 1),hsla(30, 100%, 50%, 1),
         hsla(40, 100%, 50%, 1),hsla(50, 100%, 50%, 1),hsla(60, 100%, 50%, 1),
@@ -149,11 +168,13 @@
 #navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
     appearance: none;
-    width: 10px; /* Set a specific slider handle width */
+    width: 5px; /* Set a specific slider handle width */
     height: 10px; /* Slider handle height */
-    background: #d2d6da;
+    /* background: #d2d6da; */
+    background: white;
     cursor: pointer; /* Cursor on hover */
-    border: 1px solid #6797d4;
+    /* border: 1px solid #6797d4; */
+    border: 1px solid white;
     border-radius : 2px;
 }
 
