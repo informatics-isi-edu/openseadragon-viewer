@@ -97,7 +97,7 @@ function ChannelItem(data){
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
             type : 'deactivateHue',
-            value : true
+            value : _self.deactivateHue
         });
 
         event.stopPropagation();

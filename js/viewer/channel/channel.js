@@ -178,7 +178,7 @@ Channel.prototype.set = function (type, value) {
             this.deactivateHue = false;
             break;
         case "DEACTIVATEHUE":
-            this.deactivateHue = true;
+            this.deactivateHue = (value === true);
             break;
     }
  //    if(!resetMode)
