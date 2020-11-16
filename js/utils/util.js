@@ -99,76 +99,141 @@ Utils.prototype.getUrlContent = function(url){
     return res;
 }
 
-// Parsing browser's url to get file locations
-Utils.prototype.getParameters = function(){
-    var args = document.location.href.split("?"),
-        type,
-        parameters = {};
+// given a url, return the query params object
+Utils.prototype.getQueryParams = function (url) {
+    var idx = url.lastIndexOf("?"), params = {};
+    var queries = url.slice(idx+1).split("&");
 
-    args = args[1] ? args[1].split("&") : [];
-    for(var i = 0; i < args.length; i++){
-        type = args[i].split("=")[0];
-        value = args[i].split("=")[1];
-        switch(type){
-            case "url": // Parameter.type are of 3 types : svg - for annotation overlay, iiif - files containing info.json and all the other file formats are treated as rest
-                // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
-                // TODO the path of svg files are hardcoded and need to change
-                if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
-                    parameters.svgs = parameters.svgs || [];
-                    parameters.svgs.push(value);
-                }
-                else if(value.indexOf("ImageProperties.xml") != -1){
-                    parameters.images = parameters.images || [];
-                    parameters.images.push(value);
-                    parameters.type = 'dzi';
-                }
-                else if(value.indexOf("info.json") != -1) {
-                    parameters.images = parameters.images || [];
-                    parameters.images.push(value);
-                    parameters.type = 'iiif';
-                } else {
-                    parameters.images = parameters.images || [];
-                    parameters.images.push(value);
-                    parameters.type = 'rest';
-                }
+    for (var i = 0; i < queries.length; i++) {
+        var q_parts = queries[i].split("=");
+        if (q_parts.length != 2) continue;
+
+        // NOTE: we're not decoding anything
+        var q_key = q_parts[0], q_val = q_parts[1];
+
+        if (!(q_key in params)) {
+            params[q_key] = [];
+        }
+
+        params[q_key].push(q_val);
+    }
+
+    return params;
+};
+
+// given the parameters object, process it
+Utils.prototype.processParams = function(inp){
+    var EMPTY = "null"; // this value should be ignored on all the attributes
+    var parameters = {}, self = this, paramKey, paramValue, value;
+
+    if (!inp) {
+        return parameters;
+    }
+
+    for (paramKey in inp) {
+        paramValue = inp[paramKey];
+
+        // TODO this could be improved,
+        // currently the params might be string or array
+        if (!Array.isArray(paramValue)) {
+            paramValue = [paramValue];
+        }
+
+        switch(paramKey){
+            // array of urls
+            case "url":
+                paramValue.forEach(function (value) {
+                    // Parameter.type are of 3 types : svg - for annotation overlay, iiif - files containing info.json and all the other file formats are treated as rest
+                    // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
+                    // TODO the path of svg files are hardcoded and need to change
+                    if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
+                        parameters.svgs = parameters.svgs || [];
+                        parameters.svgs.push(value);
+                    }
+                    else if(value.indexOf("ImageProperties.xml") != -1){
+                        parameters.images = parameters.images || [];
+                        parameters.images.push(value);
+                        parameters.type = 'dzi';
+                    }
+                    else if(value.indexOf("info.json") != -1) {
+                        parameters.images = parameters.images || [];
+                        parameters.images.push(value);
+                        parameters.type = 'iiif';
+                    } else if (value.length > 0 && value !== EMPTY) {
+                        parameters.images = parameters.images || [];
+                        parameters.images.push(value);
+                        parameters.type = 'rest';
+                    }
+                });
                 break;
-            case "waterMark":
-                if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
-                    value = value.substr(1,value.length-2);
-                }
-                parameters[type] = decodeURI(value);
-                break;
+            // array of string
             case "aliasName":
             case "channelName":
+                paramValue.forEach(function (value) {
+                    if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
+                        value = value.substr(1,value.length-2);
+                    }
+                    if(!parameters[paramKey]){
+                        parameters[paramKey] = [];
+                    }
+                    parameters[paramKey].push(value.length > 0 && value !== EMPTY ? decodeURI(value) : null);
+                });
+                break;
+            // array of boolean
+            case "isRGB":
+                paramValue.forEach(function (value) {
+                    value = (value.toLocaleLowerCase() === "true") ? true : false;
+                    if(!parameters[paramKey]){
+                        parameters[paramKey] = [];
+                    }
+                    parameters[paramKey].push(value);
+                });
+                break;
+            // array of color
+            case "pseudoColor":
+                paramValue.forEach(function (value) {
+                    value = self.colorHexToRGB(decodeURI(value));
+                    if(!parameters[paramKey]){
+                        parameters[paramKey] = [];
+                    }
+                    parameters[paramKey].push(value);
+                });
+                break;
+            // string
+            case "zoomLineThickness":
+            case "waterMark":
+                value = paramValue[0];
                 if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                     value = value.substr(1,value.length-2);
                 }
-                if(!parameters[type]){
-                    parameters[type] = [];
+                if (value.length > 0 && value !== EMPTY) {
+                    parameters[paramKey] = decodeURI(value);
                 }
-                parameters[type].push(decodeURI(value));
                 break;
+            // float
             case "meterScaleInPixels":
             case "scale":
             case "x":
             case "y":
             case "z":
-                value = parseFloat(value);
+                value = parseFloat(paramValue[0]);
                 if(!isNaN(value)){
-                    parameters[type] = value;
+                    parameters[paramKey] = value;
                 }
                 break;
+            // boolean
             case "ignoreReferencePoint":
             case "ignoreDimension":
             case "enableSVGStrokeWidth":
-                parameters[type] = (value.toLocaleLowerCase() === "true") ? true : false;
+                parameters[paramKey] = (paramValue[0].toLocaleLowerCase() === "true") ? true : false;
                 break;
-            case "zoomLineThickness":
-                parameters[type] = value;
-                break;
+            default:
+                console.log("unknown query parameter: " + paramKey);
         }
     }
-    // console.log(parameters);
+    console.log("------");
+    console.log("OSD viewer parameters: ", parameters);
+    console.log("------");
     return parameters;
 }
 
@@ -205,6 +270,34 @@ Utils.prototype.generateColor = function(usedColors){
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+/**
+ * Converrt the given hex string to RGB color format that channel code understands
+ * The returned format: '#.###### #.###### #.######'
+ * If the given input is not properly formatted, this function will return null.
+ */
+Utils.prototype.colorHexToRGB = function (val) {
+    var res = null;
+
+    if (typeof val !== "string" || val.length === 0) {
+        return res;
+    }
+
+    // support shorthand syntax (#ccc)
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    val = val.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var parts = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(val);
+    if (parts) {
+        res = (parseInt(parts[1], 16) / 255).toFixed(6)
+        res += " " + (parseInt(parts[2], 16) / 255).toFixed(6)
+        res += " " + (parseInt(parts[3], 16) / 255).toFixed(6)
+    }
+
+    return res;
 }
 
 // Set the config based on the image type

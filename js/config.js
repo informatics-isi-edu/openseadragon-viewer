@@ -12,7 +12,10 @@ var _config = {
               id : 'annotationContainer'
           },
           osd: { // Single and multiple
+            // debugMode: true,
             id: 'openseadragonContainer',
+            spinnerID: 'openseadragonSpinner',
+
             // prefixUrl: "images/",
             // collectionRows: 1,
             ajaxWithCredentials : true,
@@ -48,7 +51,9 @@ var _config = {
         },
         rest: {
           osd: {
+            // debugMode: true,
             id: 'openseadragonContainer',
+            spinnerID: 'openseadragonSpinner',
             // showNavigator: false,
             showZoomControl: false,
             showHomeControl: false,

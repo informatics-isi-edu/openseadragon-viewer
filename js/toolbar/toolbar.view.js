@@ -7,10 +7,10 @@ function ToolbarView(controller, config){
     this._containerElem = document.getElementById(config.elems.containerId);
     this._navMenuElem = document.getElementById(config.elems.navMenuId);
     this._navMenuContentElem = document.getElementById(config.elems.navMenuContentId);
-    this._drawToolElem = document.getElementById(config.elems.drawToolContainerId); 
+    this._drawToolElem = document.getElementById(config.elems.drawToolContainerId);
     this._types = config.navMenu;
     this._toolbarController = controller;
-    
+
     this.onClickMenuBtn = function(event){
         // Get menu button type clicked by the user
         var clickMenuType = this.getAttribute("data-type") || "";
@@ -23,7 +23,7 @@ function ToolbarView(controller, config){
     }
 
 
-    // Render the toolbar menu 
+    // Render the toolbar menu
     this.renderToolbarMenu = function(){
         for (key in this._types) {
             type = this._types[key];
@@ -41,11 +41,11 @@ function ToolbarView(controller, config){
 
         // Clear menu content
         this._navMenuContentElem.innerHTML = "";
-        // Render annotation list if it's null 
+        // Render annotation list if it's null
         if(annotationList.elem == null){
             annotationList.render();
         }
-        // Append annotation list 
+        // Append annotation list
         this._navMenuContentElem.appendChild(annotationList.elem);
     }
 
@@ -54,10 +54,10 @@ function ToolbarView(controller, config){
         // Clear menu content
         this._drawToolElem.innerHTML = "";
 
-        // Render annotation tool if it's null 
+        // Render annotation tool if it's null
         annotationTool.render();
 
-        // Append annotation list 
+        // Append annotation list
         this._drawToolElem.appendChild(annotationTool.elem);
     }
 
@@ -71,11 +71,11 @@ function ToolbarView(controller, config){
 
         // Clear menu content
         this._navMenuContentElem.innerHTML = "";
-        // Render channel list if it's null 
+        // Render channel list if it's null
         if(channelList.elem == null){
             channelList.render();
         }
-        // Append annotation list 
+        // Append annotation list
         this._navMenuContentElem.appendChild(channelList.elem);
     }
 
@@ -92,10 +92,13 @@ function ToolbarView(controller, config){
         }
     }
 
-    // Toggle menu content 
+    // Toggle menu content
     this.toggleDisplayMenuContent = function(type, object){
-        
+
         this._navMenuContentElem.className = (this._navMenuContentElem.className.indexOf("expand") >= 0) ? "" : "expand";
+
+        // added to make sure the scroll is properly displayed
+        this._containerElem.className = (this._containerElem.className.indexOf("expand") >= 0) ? "" : "expand";
 
         // if it's expand, insert the content
         if(this._navMenuContentElem.className.indexOf("expand") >= 0){
@@ -114,12 +117,10 @@ function ToolbarView(controller, config){
 
     }
 
-    // Remove all the selected menu style from toolbar 
+    // Remove all the selected menu style from toolbar
     this.unselectMenuType = function(){
         this._navMenuElem.querySelectorAll(".menuType").forEach(function(elem){
             elem.className = "menuType";
         })
     }
 }
-
-

@@ -37,7 +37,7 @@ function Viewer(parent, config) {
     this.svgFiles = {};
 
     // Init
-    this.init = function (utils) {
+    this.init = function (utils, params) {
 
         if (!OpenSeadragon || !utils) {
             return null;
@@ -45,7 +45,7 @@ function Viewer(parent, config) {
         this._utils = utils;
 
         // Add each image source into Openseadragon viewer
-        this.parameters = this._utils.getParameters();
+        this.parameters = this._utils.processParams(params);
 
         // Setting the config based on the type of the image we get
         this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
@@ -53,6 +53,9 @@ function Viewer(parent, config) {
 
         // configure osd
         this.osd = OpenSeadragon(this._config.osd);
+
+        // show spinner while initializing the page
+        this.resetSpinner(true);
 
         // add the scalebar (might change based on the images)
         this.osd.scalebar(this._config.scalebar);
@@ -77,11 +80,33 @@ function Viewer(parent, config) {
         // inform the client if any of the images failed to load
         this.osd.world.addHandler('add-item-failed', function(event) {
             console.error("Failed to add an item to osd", event);
+            _self.resetSpinner();
             _self.dispatchEvent('osdInitializeFailed', {});
         });
 
         // the finalizing tasks after images are load
-        this.osd.world.addHandler('add-item', function() {
+        this.osd.world.addHandler('add-item', function(event) {
+            // display a spinner while the images are loading
+            event.item.addHandler('fully-loaded-change', function() {
+                // make sure all the images are added
+                if (Object.keys(_self.channels).length != _self.osd.world.getItemCount()) {
+                    _self.resetSpinner(true);
+                    return;
+                }
+
+                // make sure all the tiles are fully loaded
+                for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
+                    if (!_self.osd.world.getItemAt(i).getFullyLoaded()) {
+                        _self.resetSpinner(true);
+                        return;
+                    }
+                }
+
+                // hide the spinner (all images are added and loaded)
+                _self.resetSpinner();
+            });
+
+            // when all the images are added
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
                 // finalize loading
                 _self.loadAfterOSDInit();
@@ -143,7 +168,7 @@ function Viewer(parent, config) {
         tileSource.overlap = parseInt(xmlDoc.getAttribute("overlap")) || 0;
         tileSource.channelName = xmlDoc.getAttribute("channelName");
         tileSource.channelAlpha = +xmlDoc.getAttribute("channelDefaultAlpha");
-        tileSource.channelRGB = xmlDoc.getAttribute("channelDefaultRGB");
+        tileSource.pseudoColor = xmlDoc.getAttribute("channelDefaultRGB");
         tileSource.dir = xmlDoc.getAttribute("data");
         tileSource.format = xmlDoc.getAttribute("format") || "jpg";
         tileSource.meterScaleInPixels = parseFloat(xmlDoc.getAttribute("meterScaleInPixels"));
@@ -643,9 +668,9 @@ function Viewer(parent, config) {
 
             // TODO what if there are no channel names?
             // The below code is for aliasName used in place of channelName
-            var channelName = Array.isArray(this.parameters.channelName) &&  this.parameters.channelName[i] ? this.parameters.channelName[i] : "";
-            if (this.parameters.aliasName && this.parameters.aliasName.length > i) {
-                channelName = this.parameters.aliasName[i];
+            var channelName = Array.isArray(params.channelName) &&  params.channelName[i] ? params.channelName[i] : "";
+            if (params.aliasName && params.aliasName[i]) {
+                channelName = params.aliasName[i];
             }
 
             // use the index for the channelName
@@ -681,10 +706,20 @@ function Viewer(parent, config) {
 
             // make sure the scale is properly defined
             meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
-            meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
+            meterScaleInPixels = params.meterScaleInPixels ? params.meterScaleInPixels : meterScaleInPixels;
             this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
 
             this.resetScalebar(meterScaleInPixels);
+
+            // pseudoColor
+            if (Array.isArray(params.pseudoColor) && (typeof params.pseudoColor[i] === 'string')) {
+                options.pseudoColor = params.pseudoColor[i];
+            }
+
+            // isRGB
+            if (Array.isArray(params.isRGB) && (typeof params.isRGB[i] === 'boolean')) {
+                options.isRGB = params.isRGB[i];
+            }
 
             // add to the list of channels
             channel = new Channel(i, channelName, options);
@@ -696,6 +731,7 @@ function Viewer(parent, config) {
                 brightness: channel["brightness"],
                 gamma: channel["gamma"],
                 hue : channel["hue"],
+                deactivateHue : channel['deactivateHue'],
                 osdItemId: channel["id"]
             });
 
@@ -886,6 +922,15 @@ function Viewer(parent, config) {
             }
         }
     }
+
+    this.resetSpinner = function (show) {
+        if (this._config.osd.spinnerID) {
+            var sp = document.querySelector("#" + this._config.osd.spinnerID);
+            if (sp) {
+                sp.style.display = (show ? 'block' : 'none');
+            }
+        }
+    };
 
     // Reset the scalebar measurement (pixel per meter) with new value
     this.resetScalebar = function (value) {
