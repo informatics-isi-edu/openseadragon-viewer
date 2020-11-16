@@ -19,6 +19,7 @@
 
 #menuContainer.expand {
     overflow-y: auto;
+    padding-right: 10px;
 }
 
 #menuContainer #navMenu{

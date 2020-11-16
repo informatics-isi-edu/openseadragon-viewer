@@ -68,7 +68,7 @@ function ChannelList(parent){
               "</div>"
           ].join("");
         }
-        console.log("Collection are herre",  collection,Object.keys(collection).length === 0 && collection.constructor === Object);
+        // console.log("Collection are herre",  collection,Object.keys(collection).length === 0 && collection.constructor === Object);
         for(id in collection){
             if(collection[id].elem == null){
                 collection[id].render();

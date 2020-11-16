@@ -54,6 +54,9 @@ function Viewer(parent, config) {
         // configure osd
         this.osd = OpenSeadragon(this._config.osd);
 
+        // show spinner while initializing the page
+        this.resetSpinner(true);
+
         // add the scalebar (might change based on the images)
         this.osd.scalebar(this._config.scalebar);
 
@@ -77,11 +80,33 @@ function Viewer(parent, config) {
         // inform the client if any of the images failed to load
         this.osd.world.addHandler('add-item-failed', function(event) {
             console.error("Failed to add an item to osd", event);
+            _self.resetSpinner();
             _self.dispatchEvent('osdInitializeFailed', {});
         });
 
         // the finalizing tasks after images are load
-        this.osd.world.addHandler('add-item', function() {
+        this.osd.world.addHandler('add-item', function(event) {
+            // display a spinner while the images are loading
+            event.item.addHandler('fully-loaded-change', function() {
+                // make sure all the images are added
+                if (Object.keys(_self.channels).length != _self.osd.world.getItemCount()) {
+                    _self.resetSpinner(true);
+                    return;
+                }
+
+                // make sure all the tiles are fully loaded
+                for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
+                    if (!_self.osd.world.getItemAt(i).getFullyLoaded()) {
+                        _self.resetSpinner(true);
+                        return;
+                    }
+                }
+
+                // hide the spinner (all images are added and loaded)
+                _self.resetSpinner();
+            });
+
+            // when all the images are added
             if(Object.keys(_self.channels).length == _self.osd.world.getItemCount()){
                 // finalize loading
                 _self.loadAfterOSDInit();
@@ -897,6 +922,15 @@ function Viewer(parent, config) {
             }
         }
     }
+
+    this.resetSpinner = function (show) {
+        if (this._config.osd.spinnerID) {
+            var sp = document.querySelector("#" + this._config.osd.spinnerID);
+            if (sp) {
+                sp.style.display = (show ? 'block' : 'none');
+            }
+        }
+    };
 
     // Reset the scalebar measurement (pixel per meter) with new value
     this.resetScalebar = function (value) {
