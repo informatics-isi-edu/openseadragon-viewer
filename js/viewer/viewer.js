@@ -786,27 +786,13 @@ function Viewer(parent, config) {
         
         if (event.userData.annotation._tag == "polygon") {
             event.userData.annotation.insertPointAtDrawEnd();
-            _self._currentDrawingEvent = {
-                svgID: event.userData.svgID,
-                groupID: event.userData.groupID,
-                type: event.userData.type,
-                attrs: event.userData.attrs || {},
-                imgScaleX: event.userData.imgScaleX,
-                imgScaleY: event.userData.imgScaleY,
-                viewBox: event.userData.viewBox
-            };
-        } else {
-            _self.annotationDrawingEnd(event)
+            return;
         }
-        // _self.destoryMouseTracker();
-    }
 
-    this.annotationDrawingEnd = function(event) {
         if (_self.mouseTrackers.length > 0) {
             setTimeout(function () {
                 _self.mouseTrackers[0].destroy();
                 _self.mouseTrackers.shift();
-                console.log('destroyed 1');
             }, 300)
         }
 
@@ -817,8 +803,7 @@ function Viewer(parent, config) {
         var type = event.userData.type;
         var attrs = event.userData.attrs || {};
 
-        if(_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]){
-            // setting the mouse tracker for the next annotation i.e. line, circle, rect
+        if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
             event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
             event.userData.annotation.setupDrawingAttrs(attrs);
             event.userData.graphID = event.userData.annotation.id;
@@ -833,50 +818,6 @@ function Viewer(parent, config) {
             _self.mouseTrackers.push(mousetracker);
         }
         // _self.destoryMouseTracker();
-    }
-
-    this.savePolygon = function() {
-        if (_self._currentDrawingEvent) {
-
-            var svgID = _self._currentDrawingEvent.svgID;
-            var groupID = _self._currentDrawingEvent.groupID;
-            var type = _self._currentDrawingEvent.type;
-            var attrs = _self._currentDrawingEvent.attrs || {};
-
-            if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
-                _self.svgCollection[svgID].groups[groupID].annotations[0].setDrawing(false);
-                var annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
-                annotation.setupDrawingAttrs(attrs);
-
-                console.log('Saved');
-            }
-            _self._currentDrawingEvent = null;
-
-            setTimeout(function () {
-                if (_self.mouseTrackers.length > 0) {
-                    console.log('destroyed', _self.mouseTrackers[0]);
-                    _self.mouseTrackers[0].destroy();
-                    _self.mouseTrackers.shift();
-                    console.log('after destroye', _self.mouseTrackers.length);
-                }
-                _self.removeMouseTrackers();
-            }, 300);
-        }
-    }
-
-    this.annotationDrawingEnd2 = function (data) {
-        console.log('stopped drawing');
-        if (!data) {
-            return;
-        }
-
-        if (_self._currentDrawingEvent) {
-            console.log('saving polygon');
-            _self.savePolygon();
-        } else {
-            _self.removeMouseTrackers();
-        }
-
     }
 
     // Pan to specific location
@@ -944,7 +885,7 @@ function Viewer(parent, config) {
 
                 console.log('userData', userData);
 
-                if(userData){
+                if(userData && userData.type != 'POLYGON'){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
