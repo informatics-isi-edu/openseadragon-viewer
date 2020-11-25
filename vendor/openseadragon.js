@@ -21442,6 +21442,8 @@ function getTile(
  * @param {Number} time
  */
 function loadTile( tiledImage, tile, time ) {
+    // console.log("level=" + tile.level + ", x=" + tile.x + ", y=" + tile.y);
+    // console.log("url: ", tile.url);
     tile.loading = true;
     tiledImage._imageLoader.addJob({
         src: tile.url,

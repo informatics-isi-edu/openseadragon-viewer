@@ -10,9 +10,10 @@ function ChannelItem(data){
       this.hue = data["hue"]
     } else {
       this.hue = null;
-
     }
-    // this.hue = data["hue"] || null;
+
+    this.deactivateHue = data["deactivateHue"] || false;
+
     this.opacity = data["opacity"] || "";
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
@@ -51,6 +52,57 @@ function ChannelItem(data){
         event.stopPropagation();
     };
 
+    /**
+     * make sure the hue control attributes are properly set and it's displayed properly
+     * @param {String|Number=} newVal - the new value that should be used.
+     */
+    this._setHueControlState = function (newVal) {
+        var val = 0;
+
+        // set the value to something new
+        if (newVal != null) {
+            _self.deactivateHue = false;
+            val = newVal;
+        }
+        // deactivate the hue control
+        else if (_self.deactivateHue) {
+            val = "Greyscale";
+            _self._previousHue = _self.hue;
+        }
+        // activate the hue control and use the previous value if available
+        else if (_self._previousHue != null) {
+            val = _self._previousHue;
+        }
+
+        // change the displayed value
+        _self.hue = val;
+        _self.elem.querySelector(".sliderContainer[data-type='hue'] .attrRow .value").innerText = val;
+
+        //change the active classes
+        var hueControl = _self.elem.querySelector(".sliderContainer[data-type='hue'] .hue-container");
+        hueControl.querySelector('.slider').className = _self.deactivateHue ? "slider" : "slider active";
+
+        var hueControlBtn = hueControl.querySelector('.deactivate-hue');
+        hueControlBtn.className = !_self.deactivateHue ? "deactivate-hue" : "deactivate-hue active";
+        hueControlBtn.setAttribute('title', (_self.deactivateHue ? "Apply hue adjustment" : "Use greyscale"));
+    };
+
+    this.onClickDeactivateHue = function (event) {
+        _self.deactivateHue = !_self.deactivateHue;
+
+        // make sure the controls are correctly displayed
+        _self._setHueControlState();
+
+        // set te proper value
+        _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
+            id: _self.osdItemId,
+            type : 'deactivateHue',
+            value : _self.deactivateHue
+        });
+
+        event.stopPropagation();
+    };
+
     // Change the slider value
     this.onChangeSliderValue = function(){
         var type = this.parentNode.getAttribute("data-type"),
@@ -70,8 +122,7 @@ function ChannelItem(data){
                 _self.elem.querySelector(".sliderContainer[data-type='gamma'] .attrRow .value").innerText = value;
                 break;
             case "hue":
-                _self.hue = value;
-                _self.elem.querySelector(".sliderContainer[data-type='hue'] .attrRow .value").innerText = value;
+                _self._setHueControlState(value);
                 break;
         };
 
@@ -119,9 +170,12 @@ function ChannelItem(data){
                 "<span class='sliderContainer' data-type='hue'>",
                     "<span class='attrRow'>",
                         "<span class='name'>Hue</span>",
-                        "<span class='value'>"+ this.hue +"</span>",
+                        "<span class='value'>" + (this.deactivateHue ? "Greyscale" : this.hue) + "</span>",
                     "</span>",
-                    "<input type='range' class='slider' min='0' max='360' step='1' value='"+this.hue+"'>",
+                    "<span class='hue-container' data-type='hue'>",
+                        "<input type='range' class='slider " + (!this.deactivateHue ? "active" : "") + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                        "<span title='" + (this.deactivateHue ? "Apply hue adjustment" : "Use greyscale") + "' class='deactivate-hue " + (this.deactivateHue ? "active" : "") + "'></span>",
+                    "</span>",
                 "</span>",
             "</div>",
         ].join("");
@@ -132,6 +186,11 @@ function ChannelItem(data){
         this.elem = channeElem;
 
         // Binding events
+
+        //
+        this.elem.querySelectorAll(".hue-container .deactivate-hue").forEach(function(elem){
+            elem.addEventListener('click', this.onClickDeactivateHue);
+        }.bind(this));
 
         // Change the visibility of Openseadragon items
         this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
