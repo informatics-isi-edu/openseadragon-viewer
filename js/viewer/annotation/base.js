@@ -96,7 +96,6 @@ function Base(attrs){
         });
 
         rst += "></" + tag + ">";
-        console.log('rst', rst);
         return rst;
     }
 

@@ -252,7 +252,6 @@ function Viewer(parent, config) {
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
                 // alert("view start drawing")
-                console.log('adding tracker');
                 var tracker = new OpenSeadragon.MouseTracker({
                     element: _self.svg,
                     dragHandler: this.onMouseDragToDraw,
@@ -873,15 +872,11 @@ function Viewer(parent, config) {
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data){
 
-        console.log('mouse trackers removed', data);
-
         if(this.mouseTrackers.length > 0){
 
             while(this.mouseTrackers.length > 0){
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
-
-                console.log('userData', userData);
 
                 if(userData && userData.type != 'POLYGON'){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
