@@ -34,8 +34,6 @@ function Viewer(parent, config) {
     this.svgNotPresent = false;
     this.stayInsideImage = true;
 
-    this._currentDrawingEvent = null;
-
     this.svgFiles = {};
 
     // Init
