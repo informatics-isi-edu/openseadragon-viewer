@@ -34,9 +34,7 @@ function AnnotationTool(parent){
 
 
         _self.dispatchEvent("drawingStop", {'buttonType': btnType});
-        setTimeout(() => {
-            _self.updateMode(btnType);
-        }, 300);
+        _self.updateMode(btnType);
 
     }
 
