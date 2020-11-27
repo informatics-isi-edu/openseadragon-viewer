@@ -24,16 +24,10 @@ function AnnotationTool(parent){
         var btnType = this.getAttribute("data-type") || "";
 
         if(_self.curType == btnType){
-            console.log('same');
-            if (btnType == 'CURSOR') {
-                // we dont want to do anything if the cursor is clicked again
-                return;
-            }
-            btnType = 'CURSOR';
+            return;
         }
 
-
-        _self.dispatchEvent("drawingStop", {'buttonType': btnType});
+        _self.dispatchEvent("drawingStop");
         _self.updateMode(btnType);
 
     }
