@@ -815,7 +815,7 @@ function Viewer(parent, config) {
     // Drag to draw event handler end
     this.onMouseDragToDrawEnd = function(event){
         
-        if (event.userData.annotation._tag == "polygon") {
+        if (event.userData.type == "POLYGON") {
             event.userData.annotation.insertPointAtDrawEnd();
             return;
         }
