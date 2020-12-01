@@ -24,7 +24,11 @@ function AnnotationTool(parent){
         var btnType = this.getAttribute("data-type") || "";
 
         if(_self.curType == btnType){
-            return;
+            if (btnType == 'CURSOR') {
+                // we dont want to do anything if the cursor is clicked again
+                return;
+            }
+            btnType = 'CURSOR';
         }
 
         _self.dispatchEvent("drawingStop");
