@@ -814,9 +814,14 @@ function Viewer(parent, config) {
 
     // Drag to draw event handler end
     this.onMouseDragToDrawEnd = function(event){
+        
+        if (event.userData.type == "POLYGON") {
+            event.userData.annotation.insertPointAtDrawEnd();
+            return;
+        }
 
-        if(_self.mouseTrackers.length > 0){
-            setTimeout(function(){
+        if (_self.mouseTrackers.length > 0) {
+            setTimeout(function () {
                 _self.mouseTrackers[0].destroy();
                 _self.mouseTrackers.shift();
             }, 300)
@@ -829,8 +834,7 @@ function Viewer(parent, config) {
         var type = event.userData.type;
         var attrs = event.userData.attrs || {};
 
-
-        if(_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]){
+        if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
             event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
             event.userData.annotation.setupDrawingAttrs(attrs);
             event.userData.graphID = event.userData.annotation.id;
@@ -908,7 +912,7 @@ function Viewer(parent, config) {
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
 
-                if(userData){
+                if(userData && userData.type != 'POLYGON'){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
