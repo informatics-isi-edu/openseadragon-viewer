@@ -1,6 +1,6 @@
 #navMenuContent .groups .channelItem{
     /* border-bottom: 1px solid #cecece; */
-    padding: 10px 0;
+    padding: 5px 0;
     white-space: nowrap;
 }
 
@@ -44,6 +44,10 @@
 }
 
 #navMenuContent .groups .channelItem .toggleVisibility:hover{color: #fff;}
+
+#navMenuContent .groups .channelItem .toggleVisibility:active {
+    color: #4674A7;
+}
 
 #navMenuContent .groups .channelItem .setting{
     display: flex;
@@ -91,9 +95,13 @@
     border-radius: 2px;
     background: #a6a4a4;
     cursor: pointer;
-    font-family: "Font Awesome 5 Pro";
+    font-family: "Font Awesome 5 Free";
     font-weight: 900;
     position: relative;
+}
+
+#navMenuContent .groups .channelItem .deactivate-hue:hover {
+    color: #fff;
 }
 
 
@@ -104,11 +112,10 @@
 #navMenuContent .groups .channelItem .deactivate-hue.active:after {
     position: absolute;
     color: #4674A7;
-    top: 0;
+    top: -1px;
     left: 0;
     content: "\f00c";
-    font: normal normal normal 14px/1 FontAwesome;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 
