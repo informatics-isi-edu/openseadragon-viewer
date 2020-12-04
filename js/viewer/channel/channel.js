@@ -7,7 +7,6 @@ function Channel(osdItemID, name, options) {
     this.name = this.name.replace(/\_/g, " ");
     this.isMultiColor = options['isRGB'] || false;
     this.rgb = options["pseudoColor"] || null;
-    this.opacity = options["channelAlpha"] || 1;;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
     this.contrast = 1;
@@ -20,6 +19,8 @@ function Channel(osdItemID, name, options) {
       gamma: 0.875,
       hue: null,
     };
+
+    this.isDisplay = (typeof options["isDisplay"] === "boolean") ? options["isDisplay"] : true;
 
     // we might want to offer hue control but not apply it by default.
     // for example in case of a greyscale image with an unknown channelName
@@ -197,4 +198,8 @@ Channel.prototype.set = function (type, value) {
  //           processors: plist
  //        });
  //    }
+}
+
+Channel.prototype.setIsDisplay = function (isDisplay) {
+    this.isDisplay = (isDisplay == true);
 }

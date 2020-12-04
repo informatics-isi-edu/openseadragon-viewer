@@ -96,7 +96,7 @@ function Viewer(parent, config) {
 
                 // make sure all the tiles are fully loaded
                 for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
-                    if (!_self.osd.world.getItemAt(i).getFullyLoaded()) {
+                    if (_self.osd.world.getItemAt(i).opacity != 0 && !_self.osd.world.getItemAt(i).getFullyLoaded()) {
                         _self.resetSpinner(true);
                         return;
                     }
@@ -654,9 +654,21 @@ function Viewer(parent, config) {
         _self.resizeSVG();
     }
 
+    this.removeImages = function () {
+        for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
+            self.viewer.world.removeItem(self.viewer.world.getItemAt(i));
+        }
+    }
+
     // Load Image and Channel information
     this.loadImages = function (params) {
         var urls = params.images || [], channelList = [], i;
+
+        // show spinner is displayed
+        _self.resetSpinner(true);
+
+        // remove the existing images
+        _self.removeImages();
 
         // process the images
         for (i = 0; i < urls.length; i++) {
@@ -721,6 +733,9 @@ function Viewer(parent, config) {
                 options.isRGB = params.isRGB[i];
             }
 
+            // only show a few first
+            options["isDisplay"] = (i < _self.all_config.constants.MAX_NUM_DEFAULT_CHANNEL);
+
             // add to the list of channels
             channel = new Channel(i, channelName, options);
 
@@ -732,13 +747,15 @@ function Viewer(parent, config) {
                 gamma: channel["gamma"],
                 hue : channel["hue"],
                 deactivateHue : channel['deactivateHue'],
-                osdItemId: channel["id"]
+                osdItemId: channel["id"],
+                isDisplay: channel["isDisplay"]
             });
 
             // add the image
             this.osd.addTiledImage({
                 tileSource: tileSource,
-                compositeOperation: 'lighter'
+                compositeOperation: 'lighter',
+                opacity: (channel["isDisplay"] ? 1 : 0)
             });
         }
 
@@ -814,7 +831,7 @@ function Viewer(parent, config) {
 
     // Drag to draw event handler end
     this.onMouseDragToDrawEnd = function(event){
-        
+
         if (event.userData.type == "POLYGON") {
             event.userData.annotation.insertPointAtDrawEnd();
             return;
@@ -1054,8 +1071,8 @@ function Viewer(parent, config) {
     this.setItemVisibility = function (id, isDisplay) {
         var item = this.osd.world.getItemAt(id),
             opacity = (isDisplay) ? 1 : 0;
+        this.channels[id].setIsDisplay(isDisplay);
         item.setOpacity(opacity);
-        this.channels[id].opacity = opacity;
     }
 
     // Set Openseadragon viewer item channel values

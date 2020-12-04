@@ -14,11 +14,10 @@ function ChannelItem(data){
 
     this.deactivateHue = data["deactivateHue"] || false;
 
-    this.opacity = data["opacity"] || "";
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
-    this.isDisplay = true;
-    this.isExpand = true;
+    this.isDisplay = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
+    this.isExpand = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
     this.elem = null;
 
     this.getIconClass = function(type){
@@ -35,20 +34,28 @@ function ChannelItem(data){
     }
 
     // Click to expand/collapse the setting
-    this.onClickToggleExpand = function(){
-        _self.isExpand = !_self.isExpand;
+    this.onClickToggleExpand = function(expand){
+        if (typeof expand === "boolean") {
+            _self.isExpand = expand;
+        } else {
+            _self.isExpand = !_self.isExpand;
+        }
         _self.elem.querySelector(".setting").className = _self.isExpand ? "setting" : "setting collapse";
-        this.querySelector(".toggleSetting").innerHTML = "<i class='"+_self.getIconClass("expandPanel")+"'></i>";
+        _self.elem.querySelector(".toggleSetting").innerHTML = "<i class='"+_self.getIconClass("expandPanel")+"'></i>";
     };
 
     // Click to toggle overlay visibility
-    this.onClickToggleDisplay = function(event){
-        _self.isDisplay = !_self.isDisplay;
+    this.onClickToggleDisplay = function(event, isDisplay){
+        if (typeof isDisplay === "boolean") {
+            _self.isDisplay = isDisplay;
+        } else {
+            _self.isDisplay = !_self.isDisplay;
+        }
         _self.parent.dispatchEvent('changeOsdItemVisibility', {
             osdItemId : _self.osdItemId,
             isDisplay : _self.isDisplay
         })
-        this.innerHTML = "<i class='"+_self.getIconClass("toggleDisplay")+"'></i>";
+        _self.elem.querySelector(".toggleVisibility").innerHTML = "<i class='"+_self.getIconClass("toggleDisplay")+"'></i>";
         event.stopPropagation();
     };
 
@@ -145,7 +152,7 @@ function ChannelItem(data){
                 "<span class='channelName'>"+ this.name +"</span>",
                 "<span class='toggleVisibility' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
             "</div>",
-            "<div class='setting expand'>",
+            "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
                 "<span class='sliderContainer' data-type='contrast'>",
                     "<span class='attrRow'>",
                         "<span class='name'>Contrast</span>",
