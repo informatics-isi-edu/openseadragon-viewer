@@ -23,6 +23,11 @@ function AnnotationTool(parent){
     this.onClickChangeBtn = function(){
         var btnType = this.getAttribute("data-type") || "";
 
+        if (btnType == "HELP") {
+            _self.dispatchEvent('openDrawingHelpPage');
+            return;
+        }
+
         if(_self.curType == btnType){
             if (btnType == 'CURSOR') {
                 // we dont want to do anything if the cursor is clicked again
@@ -85,14 +90,12 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='ERASER' title='Erase drawing'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",
-                // TODO we need a configuration for help page
-                // "<span class='toolBtn' title='Help page'>",
-                //     "<a href='/chaise/help'><i class='fas fa-question-circle'></i></a>",
-                // "</span>",
+                "<span class='toolBtn' data-type='HELP' title='Learn how to annotate an image'>",
+                    "<i class='fas fa-question-circle'></i></a>",
+                "</span>"
                 // "<span class='toolBtn' data-type='SAVE'>",
                 //     "<i class='fa fa-floppy-o'></i>",
-                // "</span>",
-
+                // "</span>"
             ].join("");
 
             toolElem.querySelector(".toolBtn[data-type='"+this.curType+"']").className = "toolBtn selected";
