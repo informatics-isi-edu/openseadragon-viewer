@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/toolbar/channel-item.css">
     <link rel="stylesheet" href="css/viewer/openseadragonContainer.css">
     <link rel="stylesheet" href="css/viewer/annotationContainer.css">
+    <link rel="stylesheet" href="css/zAxisPreview.css">
     <title>2D+ overlay mviewer</title>
 </head>
 <body>
@@ -29,6 +30,110 @@
         </div>
         <div id="openseadragonContainer"></div>
     </div>
+    <div class="zAxisPreview" ng-controller="multiAxisController">
+        <div class="axis-info-container">
+            Z index: 3 (total of 16 generated)
+        </div>
+        <div class="preview-container">
+            <div class="button-container">
+                <svg class="button-svg" focusable="false" viewBox="0 0 24 24" aria-hidden="true" style="transform: rotate(180deg);">
+                    <path
+                        d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z">
+                    </path>
+                </svg>
+            </div>
+            <div class="single-previews">
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        1
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        2
+                    </div>
+                </div>
+                <div class="single-preview active">
+                    <div class="text-bottom-left">
+                        3
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        4
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        5
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        6
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        7
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        8
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        9
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        10
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        11
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        12
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        13
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        14
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        15
+                    </div>
+                </div>
+                <div class="single-preview">
+                    <div class="text-bottom-left">
+                        16
+                    </div>
+                </div>
+            </div>
+            <div class="button-container">
+                <svg class="button-svg" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Dependency  -->
     <script src="vendor/openseadragon.js"></script>

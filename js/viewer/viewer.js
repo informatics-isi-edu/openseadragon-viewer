@@ -656,6 +656,7 @@ function Viewer(parent, config) {
 
     // Load Image and Channel information
     this.loadImages = function (params) {
+        console.log('params = ', params);
         var urls = params.images || [], channelList = [], i;
 
         // process the images
@@ -740,6 +741,29 @@ function Viewer(parent, config) {
                 tileSource: tileSource,
                 compositeOperation: 'lighter'
             });
+            // var osdWorld = this.osd.world;
+            // setTimeout(() => {
+            //     this.osd.addTiledImage({
+            //         tileSource: "/iiif/2/https%3A%2F%2Fwww.gudmap.org%2Fhatrac%2Fresources%2Fgene_expression%2Fpyramidal_tiff%2F2018%2F8f8b80e1c2439cf889f77aacc9ae7a3f%3A4JSJY6L6I4J57LRXD72NUZSM5M/info.json",
+            //         compositeOperation: 'lighter',
+            //         success: function (event) {
+            //             var tiledImage = event.item;
+
+            //             console.log('new image added');
+
+            //             function ready() {
+            //                 osdWorld.removeItem(osdWorld.getItemAt(0));
+            //                 tiledImage.setOpacity(1);
+            //             }
+
+            //             if (tiledImage.getFullyLoaded()) {
+            //                 ready();
+            //             } else {
+            //                 tiledImage.addOnceHandler('fully-loaded-change', ready);
+            //             }
+            //         }
+            //     });
+            // }, 10000);
         }
 
         // Dispatch event to toolbar to update channel list
