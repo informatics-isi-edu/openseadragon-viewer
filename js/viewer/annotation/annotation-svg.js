@@ -364,6 +364,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polyline":
                 case "polygon":
                 case "rect":
+                case "line":
                     this.parseSVGNodes([node], styleSheet, node);
                     // annotation = group.addAnnotation(node.nodeName);
                     // annotation.setAttributesBySVG(node);
@@ -512,6 +513,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polyline":
                 case "polygon":
                 case "rect":
+                case "line":
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName);

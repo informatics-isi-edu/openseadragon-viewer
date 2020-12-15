@@ -23,6 +23,16 @@ function Base(attrs){
         "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT
     }
 
+    // the check that needs to be performed to prevent empty object
+    // can move this var to config and imported from there
+    this._attributeCheck = {
+        "rect": ["height", "width"],
+        "circle": ["cx", "cy", "r"],
+        "path": ["d"],
+        "line": ["x1", "x2", "y1", "y2"],
+        "polygon": ["points"]
+    }
+
     this._tag = "";
 
     // it stores all the attributes that we are not handling right now, so that they can be added to the output SVG file
@@ -33,17 +43,27 @@ function Base(attrs){
      * @param {object} attributes
      * @return {boolean} Boolean values representing if the component has valid dimensions
      */
-    this.hasDimensions = function(attributes) {
-        if ((attributes["height"] && attributes["width"]) || (attributes["d"]) || (attributes["cx"] && attributes["cy"] && attributes["r"])) {
-            return true;
+    this.hasDimensions = function(attributes, tag) {
+        // if the tag is not supported report the error
+        if (!this._attributeCheck[tag]) {
+            console.log(tag + " not supported currently");
+            return false;
         }
-        return false;
+
+        // check if all the required properties are present return false in case any of them is missing
+        for (i = 0; i < this._attributeCheck[tag].length; i++) {
+            if (!attributes[this._attributeCheck[tag][i]]) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     this.exportToSVG = function(){
 
         // Check to see if there are necessary dimensions needed to construct the component. This makes sure that no empty components are added to the final SVG output file.
-        if (!this.hasDimensions(this._attrs)) {
+        if (!this.hasDimensions(this._attrs, this._tag)) {
             return "";
         }
         var tag = this._tag;

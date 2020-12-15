@@ -6,28 +6,59 @@
     background: #2f2f2f;
     color: #c1c1c1;
     padding: 10px 0;
+    padding-bottom: 0;
 }
 
 
 #menuContainer #navMenuContent .channelList .title-container {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
+}
+
+#menuContainer #navMenuContent .channelList .title-content {
+    display: flex;
+    align-items: center;
+}
+
+#menuContainer #navMenuContent .channelList .channels-control {
+    padding: 0 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+#menuContainer #navMenuContent .channelList .channels-control:active {
+    color: #4674A7 !important;
+}
+#menuContainer #navMenuContent .channelList .channels-control:hover{
+    color: #fff;
+}
+
+#menuContainer #navMenuContent .channelList .channels-control.fa-caret-up,
+#menuContainer #navMenuContent .channelList .channels-control.fa-caret-down {
+    font-size: 20px;
+}
+
+#menuContainer #navMenuContent .channelList hr.section-separator {
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #5d5d5d;
+    margin: 5px 10px;
+    padding: 0;
 }
 
 #menuContainer #navMenuContent .channelList .title{
-    font-size: 14px;
+    font-size: 17px;
     font-weight: bold;
     color: #fff;
     text-align: left;
-    padding: 5px 10px 0;
+    padding: 5px 0;
 }
 
 #navMenuContent .channelList .groups{
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding: 5px 10px 5px 10px;
+    padding: 0px 10px 5px 10px;
     flex: 1;
 }
 #navMenuContent .channelList .dismiss-channel {
@@ -35,4 +66,5 @@
   background-color:transparent;
   float:right !important;
   color: white;
+  font-size: 17px;
 }

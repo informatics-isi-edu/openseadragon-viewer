@@ -121,6 +121,9 @@ var myApp = (function (_config) {
             case "downloadViewError":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            case "openDrawingHelpPage":
+                window.parent.postMessage({messageType: type}, window.location.origin);
+                break;
         }
     }
 

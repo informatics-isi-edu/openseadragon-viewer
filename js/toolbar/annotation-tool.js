@@ -23,10 +23,18 @@ function AnnotationTool(parent){
     this.onClickChangeBtn = function(){
         var btnType = this.getAttribute("data-type") || "";
 
-        if(_self.curType == btnType){
+        if (btnType == "HELP") {
+            _self.dispatchEvent('openDrawingHelpPage');
             return;
         }
 
+        if(_self.curType == btnType){
+            if (btnType == 'CURSOR') {
+                // we dont want to do anything if the cursor is clicked again
+                return;
+            }
+            btnType = 'CURSOR';
+        }
 
         _self.dispatchEvent("drawingStop");
         _self.updateMode(btnType);
@@ -61,25 +69,33 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='CURSOR' data-toggle='tooltip' data-placement='right' title='Tooltip on right'>",
                     "<i class='fa fa-mouse-pointer'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='CHANGE_COLOR'>",
+                "<span class='toolBtn' data-type='CHANGE_COLOR' title='Change Color'>",
                     "<input type='color' value='" + _self.curStroke + "' id='strokeColor'/>",
                 "</span>",
-                "<span class='toolBtn' data-type='PATH'>",
-                    "<i class='fa fa-pencil'></i>",
+                "<span class='toolBtn' data-type='PATH' title='Draw path'>",
+                    "<i class='fas fa-pencil-alt'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='RECT'>",
+                "<span class='toolBtn' data-type='RECT' title='Draw rectangle'>",
                     "<i class='fa fa-square'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='CIRCLE'>",
+                "<span class='toolBtn' data-type='CIRCLE' title='Draw circle'>",
                     "<i class='fa fa-circle'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='ERASER'>",
+                "<span class='toolBtn' data-type='LINE' title='Draw line'>",
+                    "<i class='fa fa-minus'></i>",
+                "</span>",
+                "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
+                    "<i class='fas fa-draw-polygon'></i>",
+                "</span>",
+                "<span class='toolBtn' data-type='ERASER' title='Erase drawing'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",
+                "<span class='toolBtn' data-type='HELP' title='Learn how to annotate an image'>",
+                    "<i class='fas fa-question-circle'></i></a>",
+                "</span>"
                 // "<span class='toolBtn' data-type='SAVE'>",
                 //     "<i class='fa fa-floppy-o'></i>",
-                // "</span>",
-
+                // "</span>"
             ].join("");
 
             toolElem.querySelector(".toolBtn[data-type='"+this.curType+"']").className = "toolBtn selected";
@@ -144,7 +160,6 @@ function AnnotationTool(parent){
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
         _self.curType = mode || 'CURSOR';
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
-
         switch(_self.curType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {
@@ -154,6 +169,8 @@ function AnnotationTool(parent){
             case "PATH":
             case "CIRCLE":
             case "RECT":
+            case "LINE":
+            case "POLYGON":
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,
                     groupID : _self.curGroupID,
