@@ -1,5 +1,5 @@
 function ToolbarController(parent, config){
-    
+
     if(!config){ return null; };
 
     var _self = this;
@@ -8,6 +8,7 @@ function ToolbarController(parent, config){
     this.annotationList = new AnnotationList(this);
     this.annotationTool = new AnnotationTool(this);
     this.channelList = new ChannelList(this);
+    this.zPlaneList = new ZPlaneList(this);
 
     // Set current selecting annotation
     this.changeSelectingAnnotation = function(data){
@@ -31,7 +32,7 @@ function ToolbarController(parent, config){
             default:
                 this.parent.dispatchEvent(type, data);
                 break;
-            
+
         }
     }
 
@@ -40,10 +41,10 @@ function ToolbarController(parent, config){
 
         // Drawing mode
         var mode = data.mode.toUpperCase();
-        // Check if the svg id exists 
+        // Check if the svg id exists
         var svgID = data.svgID || "";
         var groupID = data.groupID || "";
-        
+
         if(svgID != "" && groupID != ""){
             if(mode == "ON"){
                 // Save drawing SVG ID and group ID
@@ -57,7 +58,7 @@ function ToolbarController(parent, config){
                     groupID : ""
                 });
                 this._toolbarView.removeAnnotationTool(this.annotationTool);
-            }  
+            }
         }
     }
 
@@ -79,7 +80,7 @@ function ToolbarController(parent, config){
     // Binding events when toolbar menu get clicked by the user
     this.onClickedMenuHandler = function(clickMenuType, data){
 
-        // Trigger event handler for different menu type 
+        // Trigger event handler for different menu type
         switch (clickMenuType) {
             case "channelList":
                 this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.channelList);
@@ -103,7 +104,16 @@ function ToolbarController(parent, config){
 
     // update channel from viewer
     this.updateChannelList = function(data){
-        this.channelList.add(data);
+        this.channelList.replaceList(data);
+    }
+
+    // update the image gallery from outside (chaise)
+    this.updateZPlaneList = function(data){
+        this.zPlaneList.updateList(data);
+    }
+
+    this.initializeZPlaneList = function (data) {
+        this.zPlaneList.init(data);
     }
 
     // update current drawing svg Id if drawing mode is on
@@ -124,4 +134,3 @@ function ToolbarController(parent, config){
         }
     }
 }
-

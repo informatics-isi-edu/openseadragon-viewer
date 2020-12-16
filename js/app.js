@@ -121,6 +121,21 @@ var myApp = (function (_config) {
             case "downloadViewError":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            case "openDrawingHelpPage":
+                window.parent.postMessage({messageType: type}, window.location.origin);
+                break;
+            // initialzie the view
+            case "initializeZPlaneList":
+                toolbar && toolbar.initializeZPlaneList(data);
+                break;
+            // ask chaise to fetch new set of images
+            case "fetchZPlaneList":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            // update the displayed image
+            case "updateMainImage":
+                viewer.loadImages(data);
+                break;
         }
     }
 
@@ -132,6 +147,9 @@ var myApp = (function (_config) {
             switch (messageType) {
                 case 'initializeViewer':
                     viewer.init(utils, data);
+                    break;
+                case 'updateZPlaneList':
+                    toolbar && toolbar.updateZPlaneList(data);
                     break;
                 case 'filterChannels':
                     toolbar && toolbar.onClickedMenuHandler('channelList');

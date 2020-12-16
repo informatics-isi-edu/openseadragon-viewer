@@ -126,6 +126,15 @@ Utils.prototype.processParams = function(inp){
     var EMPTY = "null"; // this value should be ignored on all the attributes
     var parameters = {}, self = this, paramKey, paramValue, value;
 
+    parameters.mainImage = {
+        zIndex: 0,
+        info: [] // {url, channelNumber}
+    };
+    parameters.zPlaneList = []; // [{zIndex, info}]
+    parameters.channels = []; // [{channelNumber, channelName, aliasName, isRGB, pseudoColor}]
+    parameters.annotationSetURLs = []; // [""]
+    parameters.zPlaneTotalCount = 1;
+
     if (!inp) {
         return parameters;
     }
@@ -147,57 +156,61 @@ Utils.prototype.processParams = function(inp){
                     // Note : SVG file could also used in other image types as well, needs to check the use case and modify in the future
                     // TODO the path of svg files are hardcoded and need to change
                     if(value.indexOf(".svg") != -1 || value.indexOf('resources/gene_expression/annotations') != -1){
-                        parameters.svgs = parameters.svgs || [];
-                        parameters.svgs.push(value);
+                        parameters.annotationSetURLs = parameters.annotationSetURLs || [];
+                        parameters.annotationSetURLs.push(value);
+                        return;
                     }
-                    else if(value.indexOf("ImageProperties.xml") != -1){
-                        parameters.images = parameters.images || [];
-                        parameters.images.push(value);
-                        parameters.type = 'dzi';
-                    }
-                    else if(value.indexOf("info.json") != -1) {
-                        parameters.images = parameters.images || [];
-                        parameters.images.push(value);
-                        parameters.type = 'iiif';
-                    } else if (value.length > 0 && value !== EMPTY) {
-                        parameters.images = parameters.images || [];
-                        parameters.images.push(value);
-                        parameters.type = 'rest';
-                    }
+
+                    parameters.mainImage.info.push({
+                        url: value,
+                        channelNumber: parameters.mainImage.info.length
+                    });
                 });
                 break;
             // array of string
             case "aliasName":
             case "channelName":
-                paramValue.forEach(function (value) {
+                paramValue.forEach(function (value, index) {
                     if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
                         value = value.substr(1,value.length-2);
                     }
-                    if(!parameters[paramKey]){
-                        parameters[paramKey] = [];
+                    value = value.length > 0 && value !== EMPTY ? decodeURI(value) : null;
+                    if (!parameters.channels[index]) {
+                        parameters.channels[index] = {
+                            channelNumber: index
+                        };
                     }
-                    parameters[paramKey].push(value.length > 0 && value !== EMPTY ? decodeURI(value) : null);
+                    parameters.channels[index][paramKey] = value;
                 });
                 break;
             // array of boolean
             case "isRGB":
-                paramValue.forEach(function (value) {
+                paramValue.forEach(function (value, index) {
                     value = (value.toLocaleLowerCase() === "true") ? true : false;
-                    if(!parameters[paramKey]){
-                        parameters[paramKey] = [];
+                    if (!parameters.channels[index]) {
+                        parameters.channels[index] = {};
                     }
-                    parameters[paramKey].push(value);
+                    parameters.channels[index][paramKey] = value;
                 });
                 break;
             // array of color
             case "pseudoColor":
-                paramValue.forEach(function (value) {
+                paramValue.forEach(function (value, index) {
                     value = self.colorHexToRGB(decodeURI(value));
-                    if(!parameters[paramKey]){
-                        parameters[paramKey] = [];
+                    if (!parameters.channels[index]) {
+                        parameters.channels[index] = {};
                     }
-                    parameters[paramKey].push(value);
+                    parameters.channels[index][paramKey] = value;
                 });
+                break;
+            case "zIndex":
+                value = paramValue[0];
+                if( (value[0] == "\"" && value[value.length-1] == "\"") || (value[0] == "\'" && value[str.length-1] == "\'")){
+                    value = value.substr(1,value.length-2);
+                }
+                if (value.length > 0 && value !== EMPTY) {
+                    parameters.mainImage.zIndex = value;
+                }
                 break;
             // string
             case "zoomLineThickness":
@@ -298,26 +311,6 @@ Utils.prototype.colorHexToRGB = function (val) {
     }
 
     return res;
-}
-
-// Set the config based on the image type
-Utils.prototype.setOsdConfig =  function(parameters, configs) {
-  var config = null;
-  switch (parameters.type) {
-    case "iiif":
-      config = configs.iiif;
-      break;
-    case "dzi":
-      config = configs.rest;
-      break;
-    case "rest":
-      config = configs.rest;
-      break;
-    default:
-      break;
-
-  }
-  return config;
 }
 
 // Detect user's browser

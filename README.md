@@ -118,6 +118,8 @@ Since we support a mulit-channel view of image. There can be multiple values for
 
 The following are general parameters that will be applied to the whole view:
 
+> If you want to suppress the default value of each one, you can pass `null` as a value.
+
 <table>
   <tbody>
     <tr>

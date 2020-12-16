@@ -51,6 +51,9 @@ function ToolbarView(controller, config){
 
     // Render the annotation tool
     this.renderAnnotationTool = function(annotationTool){
+        //set the classname
+        this._drawToolElem.className = "expand";
+
         // Clear menu content
         this._drawToolElem.innerHTML = "";
 
@@ -64,6 +67,7 @@ function ToolbarView(controller, config){
     // Remove the annotaiton tool
     this.removeAnnotationTool = function(annotationTool){
         this._drawToolElem.innerHTML = "";
+        this._drawToolElem.className = "";
     }
 
     // Render the annotation group menu
