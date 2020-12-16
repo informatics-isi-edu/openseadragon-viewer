@@ -4,7 +4,7 @@ function Base(attrs){
     this.parent = attrs.parent;
     this.id = attrs["graph-id"] || -1;
     this.isDrawing = false;
-    this.constants = attrs.parent.parent.parent.all_config.constants;
+    this.constants = attrs.parent.parent.parent.config.constants;
     this.urlParams = attrs.parent.parent.parent.parameters;
 
     // this is used to make sure that any property that is added to the SVG for display purpose, is not added while saving
@@ -56,7 +56,7 @@ function Base(attrs){
                 return false;
             }
         }
-        
+
         return true;
     }
 

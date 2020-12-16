@@ -407,7 +407,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      */
     this.getStyleAttributes = function (node) {
 
-        styleAttributeList = parent.all_config.constants.STYLE_ATTRIBUTE_LIST;
+        styleAttributeList = parent.config.constants.STYLE_ATTRIBUTE_LIST;
 
         styleAttributeString = '';
 
@@ -452,7 +452,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      * @return {string}
      */
     this.getNodeID = function(node, parentNode) {
-        return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.all_config.constants.UNKNOWN_ANNNOTATION;
+        return node.getAttribute("id") || node.getAttribute("name") || parentNode.getAttribute("id") || parent.config.constants.UNKNOWN_ANNNOTATION;
     }
 
     /**
