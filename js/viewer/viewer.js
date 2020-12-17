@@ -731,6 +731,9 @@ function Viewer(parent, config) {
             // isRGB
             if (Array.isArray(params.isRGB) && (typeof params.isRGB[i] === 'boolean')) {
                 options.isRGB = params.isRGB[i];
+            } else if (urls.length === 1) {
+                // if single channel, the default value of isRGB is true
+                options.isRGB = true;
             }
 
             // only show a few first
