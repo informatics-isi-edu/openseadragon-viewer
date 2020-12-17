@@ -1,29 +1,29 @@
-.zIndexPreview {
+.z-planes-container {
 	height: 140px;
 	width: 100%;
 }
 
-.zIndexPreview .index-info-container {
+.z-planes-container .z-plane-info-container {
 	height: 20%;
 	width: 100%;
 	text-align: center;
 	font-size: 14px;
 }
 
-.zIndexPreview .preview-container {
+.z-planes-container .z-plane-carousel {
 	height: 80%;
 	width: 100%;
 	display: flex;
 }
 
-.zIndexPreview .preview-container .single-previews {
+.z-planes-container .z-plane-carousel .z-plane-container {
 	width: calc(100% - 70px);
 	display: flex;
 	align-items: center;
 	overflow-x: auto;
 }
 
-.zIndexPreview .preview-container .single-previews .single-preview2 {
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane {
 	margin: 4px;
 	padding: 4px;
 	border: 2px solid rgb(241, 241, 241);
@@ -31,16 +31,16 @@
 	position: relative;
 }
 
-.zIndexPreview .preview-container .single-previews .single-preview2:hover {
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane:hover {
 	border: 2px solid rgb(239, 235, 218);
 }
 
 
-.zIndexPreview .preview-container .single-previews .single-preview2 .preview-image {
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-image {
 	height: 100%;
 }
 
-.zIndexPreview .preview-container .single-previews .single-preview2 .preview-id {
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-id {
 	position: absolute;
 	bottom: 0px;
 	margin: 2px;
@@ -48,30 +48,49 @@
 	background: rgba(255,255,255,0.5);
 }
 
-.zIndexPreview .preview-container .active {
+.z-planes-container .z-plane-carousel .active {
 	border: 2px solid #4674A7 !important;
 }
 
-.zIndexPreview .preview-container .button-container {
+.z-planes-container .z-plane-carousel .button-container {
 	width: 35px;
 	height: 100%;
     vertical-align: middle;
-	opacity: 0.3;
 	display: flex;
 	align-items: center;
-	font-size: 35px;
+	font-size: 60px;
 }
 
-.zIndexPreview .preview-control-container .button-container {
-	padding-left: 5px;
-	height: 30px;
+.z-planes-container .z-plane-carousel .active-button{
+	color: #4674A7;
+	cursor: pointer;
 }
 
-.zIndexPreview .preview-control-container .button-container .button-svg{
-	height: 30px;
+.z-planes-container .z-plane-carousel .active-button:hover{
+	background-color: rgb(241, 241, 241);
+}
+
+.z-planes-container .z-plane-carousel .disabled{
+	color: black;
+	opacity: 0.3;
+	cursor: not-allowed;
 }
 
 .vertical-align-center {
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.loader-container {
+	width: calc(100% - 70px);
+	display: flex;
+	align-items: center;
+}
+
+.loader-container .loader-text {
+	font-size: 14px;
+}
+
+.loader-container .loader-image {
+	display: block;
 }
