@@ -53,6 +53,7 @@ function ZPlaneList(parent) {
      */
     this.init = function (data) {
         _self.totalCount = data.totalCount;
+        _self.mainImageZIndex = data.mainImageZIndex;
         _self._fetchList({});
     }
 

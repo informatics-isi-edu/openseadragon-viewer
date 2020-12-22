@@ -63,7 +63,10 @@ function Viewer(parent, config) {
 
         // if we're showing a multi-z view, we should start it
         if (this.parameters.zPlaneTotalCount > 1) {
-            this.dispatchEvent('initializeZPlaneList', {"totalCount": this.parameters.zPlaneTotalCount});
+            this.dispatchEvent('initializeZPlaneList', {
+                "totalCount": this.parameters.zPlaneTotalCount,
+                "mainImageZIndex": this.parameters.mainImage.zIndex
+            });
         }
 
         // Add a SVG container to contain annotations
