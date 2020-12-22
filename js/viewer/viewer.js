@@ -707,6 +707,8 @@ function Viewer(parent, config) {
 
             var channelInfo = this.getChannelInfo(info.channelNumber);
 
+            console.log("channel info: ", channelInfo);
+
             // The below code is for aliasName used in place of channelName
             var channelName = channelInfo.channelName ? channelInfo.channelName : "";
             if (channelInfo.aliasName) {
@@ -752,7 +754,9 @@ function Viewer(parent, config) {
 
             // pseudoColor
             if (typeof channelInfo.pseudoColor === 'string') {
-                options.pseudoColor = channelInfo.pseudoColor;
+                // it might be hex
+                var hexToRGB = this._utils.colorHexToRGB(channelInfo.pseudoColor);
+                options.pseudoColor = hexToRGB ? hexToRGB : channelInfo.pseudoColor;
             }
 
             // isRGB
