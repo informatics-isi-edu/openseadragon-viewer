@@ -62,8 +62,7 @@ function Viewer(parent, config) {
         this.loadImages(this.parameters.mainImage);
 
         // if we're showing a multi-z view, we should start it
-        // TODO should be changed to > 1 (only show zPlaneList control when we have to)
-        if (this.parameters.zPlaneTotalCount > 0) {
+        if (this.parameters.zPlaneTotalCount > 1) {
             this.dispatchEvent('initializeZPlaneList', {"totalCount": this.parameters.zPlaneTotalCount});
         }
 
@@ -681,7 +680,7 @@ function Viewer(parent, config) {
     }
 
     // Load Image and Channel information
-    // params: {zIndex, info: {url, channelNumber, displayMethod}}
+    // params: {zIndex, info: {url, channelNumber}}
     this.loadImages = function (params) {
         if (typeof params != 'object' && !Array.isArray(params.info)) {
             return;

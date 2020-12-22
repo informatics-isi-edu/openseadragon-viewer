@@ -60,9 +60,10 @@ function ZPlaneList(parent) {
      * after request is done in chaise, this will be called to show the result
      */
     this.updateList = function (data) {
+        console.log("updating the z-plane-list with the following data:", data)
         this.collection = data.images;
         this.hasPrevious = data.hasPrevious;
-        this.hasNext = hasNext;
+        this.hasNext = data.hasNext;
 
         // if this the first time rendering, we should adjust the pagesize based on what we got
         // our calculations might not be correct as what's in database might be less than total count
@@ -92,11 +93,11 @@ function ZPlaneList(parent) {
         }
 
         // TODO ask chaise to get the new images
-        // _self.parent.dispatchEvent('fetchZPlaneList', {
-        //     pageSize: _self.pageSize,
-        //     before: data.before,
-        //     after: data.after
-        // });
+        _self.parent.dispatchEvent('fetchZPlaneList', {
+            pageSize: _self.pageSize,
+            before: data.before,
+            after: data.after
+        });
     };
 
     /**
