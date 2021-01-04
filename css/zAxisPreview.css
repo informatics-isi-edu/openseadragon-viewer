@@ -54,11 +54,13 @@
 
 .z-planes-container .z-plane-carousel .button-container {
 	width: 35px;
-	height: 100%;
+	height: 104px;
     vertical-align: middle;
 	display: flex;
 	align-items: center;
 	font-size: 60px;
+	margin-top: 4px;
+	margin-bottom: 4px;
 }
 
 .z-planes-container .z-plane-carousel .active-button{
