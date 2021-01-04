@@ -48,6 +48,23 @@ function ZPlaneList(parent) {
      */
     this._isLoading = true;
 
+    this._carouselStyle = {
+        padding: 4,
+        margin: 4
+    };
+
+    this._thumbnailProperties = {
+        height: 92,
+        width: 72.3167
+    };
+
+    this.doit;
+
+    this._zPlaneContainer = document.getElementById('z-planes-container');
+    // new ResizeSensor(_self._zPlaneContainer, function () {
+    //     console.log('Changed to ' + _self._zPlaneContainer.clientWidth);
+    // });
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      */
@@ -112,9 +129,17 @@ function ZPlaneList(parent) {
     /**
      * used internally, called by fetchList and resizeSensor
      */
-    this._calculatePageSize = function () {
+    this._calculatePageSize = function (width) {
         // TODO based on the container size figure out the number of images that we should ask
-        _self.pageSize = 5;
+        console.log('width = ', width, _self._zPlaneContainer.offsetWidth - 70);
+        width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
+        var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
+        var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
+        if (pageSize != _self.pageSize) {
+            _self.pageSize = pageSize;
+            console.log('new page size = ', pageSize);
+            _self._renderZPlaneCarousel();
+        }
     };
 
     /**
@@ -122,12 +147,22 @@ function ZPlaneList(parent) {
      */
     this._onclickImageHandler = function (index) {
         // TODO highlight the image
-        _self.mainImageZIndex = _self.collection[zIndex];
+        // _self.mainImageZIndex = _self.collection[zIndex];
 
-        // ask viewer to change the image
-        _self.parent.dispatchEvent('updateMainImage', {
-            image: _self.collection[index]
-        });
+        // // ask viewer to change the image
+        // _self.parent.dispatchEvent('updateMainImage', {
+        //     image: _self.collection[index]
+        // });
+
+        // var mainImageUI = document.getElementById('main-image-z-index');
+        // mainImageUI.innerHTML = _self.mainImageZIndex;
+
+        if (index != _self.mainImageZIndex) {
+            console.log(index);
+            _self.mainImageZIndex = index;
+            _self._renderZPlaneInfo();
+            _self._renderActiveZPlane(index);
+        }
     };
 
     /**
@@ -143,6 +178,66 @@ function ZPlaneList(parent) {
         this._fetchList(data);
     };
 
+    this._renderZPlaneCarousel = function () {
+        var carousel = '';
+
+        for (var i = 0; i < _self.pageSize; i++) {
+            carousel += '' +
+                '<div class="z-plane">' +
+                    '<img src="./images/thumbnail.png" class="z-plane-image">' +
+                    '<div class="z-plane-id">' +
+                        (i+1).toString() +
+                    '</div>' +
+                '</div>';
+        }
+
+        var zPlaneContainer = document.getElementById('z-plane-container');
+        zPlaneContainer.innerHTML = carousel;
+        zPlaneContainer.querySelectorAll(".z-plane").forEach(function (elem) {
+            elem.addEventListener('click', function() {
+                _self._onclickImageHandler(parseInt(elem.children[1].innerHTML));
+            });
+        }.bind(this))
+        _self._renderActiveZPlane(_self.mainImageZIndex);
+        _self._renderNextPreviousButtons();
+    }
+
+    this._renderZPlaneInfo = function () {
+        var zPlaneInfo = document.getElementById('z-plane-info-container');
+        zPlaneInfo.innerHTML = 'Z index: <span id="main-image-z-index">' + _self.mainImageZIndex + '</span> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
+    }
+
+    this._renderNextPreviousButtons = function() {
+
+        // TODO get the elements properly and not by using getElementById
+        var previousButton = document.getElementById('previous-button');
+        previousButton.classList.remove('disabled', 'active-button');
+        if (_self.hasPrevious) {
+            previousButton.classList.add('active-button');
+        } else {
+            previousButton.classList.add('disabled');
+        }
+        
+
+        var nextButton = document.getElementById('next-button');
+        nextButton.classList.remove('disabled', 'active-button');
+        if (_self.hasNext) {
+            nextButton.classList.add('active-button');
+        } else {
+            nextButton.classList.add('disabled');
+        }
+    };
+
+    this._renderActiveZPlane = function(index) {
+        _self._zPlaneContainer.querySelectorAll('.z-plane').forEach(function (elem) {
+            if (parseInt(elem.children[1].innerHTML) == index) {
+                elem.classList.add('active');
+            } else if (elem.classList.contains('active')) {
+                elem.classList.remove('active');
+            }
+        }.bind(this));
+    }
+
     /**
      * render the element
      */
@@ -154,8 +249,51 @@ function ZPlaneList(parent) {
         // TODO create the static images for POC
         // use the _self._styles to position the buttons
 
+        var zPlaneInfo = '' +
+            '<div class="z-plane-info-container" id="z-plane-info-container">' +
+            '</div>';
+
+        var zPlaneCarousel = '' +
+            '<div class="z-plane-carousel">' +
+                '<div class="button-container" id="previous-button">' +
+                    '<i class="fa fa-angle-left vertical-align-center"></i>' +
+                '</div>' +
+                '<div class="z-plane-container" id="z-plane-container">' +
+                '</div>' +
+                '<div class="button-container" id="next-button">' +
+                    '<i class="fa fa-angle-right vertical-align-center"></i>' +
+                '</div>' +
+            '<div>';
+
+        _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
+
+        // TODO use resizeSensor
+        window.addEventListener("resize", function() {
+            clearTimeout(_self.doit);
+            _self.doit = setTimeout(function () {
+                _self._calculatePageSize(_self._zPlaneContainer.offsetWidth - 70);
+            }, 200);
+        });
+
+        _self._renderZPlaneInfo();
+        _self._renderZPlaneCarousel();
+
         _self.elem = ""; // TODO the element that you created
         // TODO create the reszieSensor here
     };
 
 }
+
+// var doit;
+// function resizedw() {
+//     console.log('changed');
+//     var div = document.getElementById('z-planes-container');
+//     console.log(div.offsetWidth, div.offsetHeight);
+// }
+// window.onresize = function () {
+//     clearTimeout(doit);
+//     doit = setTimeout(function () {
+//         resizedw();
+//     }, 200);
+// };
+
