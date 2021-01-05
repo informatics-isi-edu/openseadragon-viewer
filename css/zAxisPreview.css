@@ -19,8 +19,7 @@
 .z-planes-container .z-plane-carousel .z-plane-container {
 	width: calc(100% - 70px);
 	display: flex;
-	align-items: center;
-	overflow-x: auto;
+	justify-content: center;
 }
 
 .z-planes-container .z-plane-carousel .z-plane-container .z-plane {
