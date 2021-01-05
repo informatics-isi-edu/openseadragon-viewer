@@ -60,19 +60,29 @@ function ZPlaneList(parent) {
 
     this.doit;
 
-    this._zPlaneContainer = document.getElementById('z-planes-container');
-    this._resizeSensorContainer = document.getElementById('resize-sensor');
-    new ResizeSensor(_self._resizeSensorContainer, function () {
-        clearTimeout(_self.doit);
-        _self.doit = setTimeout(function () {
-            _self._calculatePageSize(_self._resizeSensorContainer.clientWidth - 70);
-        }, 200);
-    });
+    this._zPlaneContainer;
 
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      */
     this.init = function (data) {
+        console.log('init');
+
+        // reduce the height of the main container
+        var mainContainer = document.getElementById('container');
+        mainContainer.classList.add('adjust-to-z-index');
+
+        // add resize sensor
+        var resizeSensorContainer = document.getElementById('resize-sensor');
+        resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
+        _self._zPlaneContainer = document.getElementById('z-planes-container');
+        new ResizeSensor(resizeSensorContainer, function () {
+            clearTimeout(_self.doit);
+            _self.doit = setTimeout(function () {
+                _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
+            }, 200);
+        });
+
         _self.totalCount = data.totalCount;
         _self.mainImageZIndex = data.mainImageZIndex;
         _self._fetchList({});
@@ -185,27 +195,29 @@ function ZPlaneList(parent) {
     };
 
     this._renderZPlaneCarousel = function () {
-        var carousel = '';
+        var zPlaneContainer = document.getElementById('z-plane-container');
+        if (zPlaneContainer != null) {
+            var carousel = '';
 
-        for (var i = 0; i < _self.pageSize; i++) {
-            carousel += '' +
-                '<div class="z-plane">' +
+            for (var i = 0; i < _self.pageSize; i++) {
+                carousel += '' +
+                    '<div class="z-plane">' +
                     '<img src="./images/thumbnail.png" class="z-plane-image">' +
                     '<div class="z-plane-id">' +
-                        (i+1).toString() +
+                    (i + 1).toString() +
                     '</div>' +
-                '</div>';
-        }
+                    '</div>';
+            }
 
-        var zPlaneContainer = document.getElementById('z-plane-container');
-        zPlaneContainer.innerHTML = carousel;
-        zPlaneContainer.querySelectorAll(".z-plane").forEach(function (elem) {
-            elem.addEventListener('click', function() {
-                _self._onclickImageHandler(parseInt(elem.children[1].innerHTML));
-            });
-        }.bind(this))
-        _self._renderActiveZPlane(_self.mainImageZIndex);
-        _self._renderNextPreviousButtons();
+            zPlaneContainer.innerHTML = carousel;
+            zPlaneContainer.querySelectorAll(".z-plane").forEach(function (elem) {
+                elem.addEventListener('click', function () {
+                    _self._onclickImageHandler(parseInt(elem.children[1].innerHTML));
+                });
+            }.bind(this))
+            _self._renderActiveZPlane(_self.mainImageZIndex);
+            _self._renderNextPreviousButtons();
+        }
     }
 
     this._renderZPlaneInfo = function () {
