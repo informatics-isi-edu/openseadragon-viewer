@@ -61,9 +61,13 @@ function ZPlaneList(parent) {
     this.doit;
 
     this._zPlaneContainer = document.getElementById('z-planes-container');
-    // new ResizeSensor(_self._zPlaneContainer, function () {
-    //     console.log('Changed to ' + _self._zPlaneContainer.clientWidth);
-    // });
+    this._resizeSensorContainer = document.getElementById('resize-sensor');
+    new ResizeSensor(_self._resizeSensorContainer, function () {
+        clearTimeout(_self.doit);
+        _self.doit = setTimeout(function () {
+            _self._calculatePageSize(_self._resizeSensorContainer.clientWidth - 70);
+        }, 200);
+    });
 
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
@@ -139,6 +143,8 @@ function ZPlaneList(parent) {
             _self.pageSize = pageSize;
             console.log('new page size = ', pageSize);
             _self._renderZPlaneCarousel();
+        } else {
+            // TODO update margin between 2 indexes
         }
     };
 
@@ -253,6 +259,7 @@ function ZPlaneList(parent) {
             '<div class="z-plane-info-container" id="z-plane-info-container">' +
             '</div>';
 
+        // TODO attached onClick events to the previous & next buttons
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
                 '<div class="button-container" id="previous-button">' +
@@ -268,12 +275,12 @@ function ZPlaneList(parent) {
         _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
 
         // TODO use resizeSensor
-        window.addEventListener("resize", function() {
-            clearTimeout(_self.doit);
-            _self.doit = setTimeout(function () {
-                _self._calculatePageSize(_self._zPlaneContainer.offsetWidth - 70);
-            }, 200);
-        });
+        // window.addEventListener("resize", function() {
+        //     clearTimeout(_self.doit);
+        //     _self.doit = setTimeout(function () {
+        //         _self._calculatePageSize(_self._zPlaneContainer.offsetWidth - 70);
+        //     }, 200);
+        // });
 
         _self._renderZPlaneInfo();
         _self._renderZPlaneCarousel();
