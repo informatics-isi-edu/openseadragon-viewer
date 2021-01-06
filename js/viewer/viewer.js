@@ -728,13 +728,13 @@ function Viewer(parent, config) {
                 options.pseudoColor = params.pseudoColor[i];
             }
 
-            // isRGB
+            // isRGB (the parameter value will be either null or boolean)
             if (Array.isArray(params.isRGB) && (typeof params.isRGB[i] === 'boolean')) {
                 options.isRGB = params.isRGB[i];
-            } else if (urls.length === 1) {
-                // if single channel, the default value of isRGB is true
-                options.isRGB = true;
             }
+
+            // used for internal logic of channel
+            options['isMultiChannel'] = (urls.length > 1);
 
             // only show a few first
             options["isDisplay"] = (i < _self.all_config.constants.MAX_NUM_DEFAULT_CHANNEL);

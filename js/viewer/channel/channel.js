@@ -5,7 +5,7 @@ function Channel(osdItemID, name, options) {
     this.id = osdItemID;
     this.name = (typeof name === "string") ? name : "";
     this.name = this.name.replace(/\_/g, " ");
-    this.isMultiColor = options['isRGB'] || false;
+    this.isRGB = (typeof options['isRGB'] === 'boolean') ? options['isRGB'] : null;
     this.rgb = options["pseudoColor"] || null;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
@@ -21,6 +21,8 @@ function Channel(osdItemID, name, options) {
     };
 
     this.isDisplay = (typeof options["isDisplay"] === "boolean") ? options["isDisplay"] : true;
+
+    this.isMultiChannel = (options["isMultiChannel"] === true);
 
     // we might want to offer hue control but not apply it by default.
     // for example in case of a greyscale image with an unknown channelName
@@ -53,10 +55,7 @@ Channel.prototype.colorMapping = {
 
     //blue
     'DAPI': '0.000000 0.000000 1.000000',
-    'Hoechst': '0.000000 0.000000 1.000000',
-
-    // any uknown channel name will be mapped to this
-    'unknown': '1.000000 1.000000 1.000000'
+    'Hoechst': '0.000000 0.000000 1.000000'
 };
 
 Channel.prototype.getFiltersList = function () {
@@ -110,44 +109,58 @@ function _rgb2hsl(r, g, b) {
 
 
 function hueIs(rgb) { // Copied from old code  - need to how this works and when
+    if (typeof rgb != "string" || rgb.length == 0) {
+        return null;
+    }
     var _rgb=rgb.split(" ");
     var p=_rgb2hsl(parseFloat(_rgb[0]), parseFloat(_rgb[1]), parseFloat(_rgb[2]));
     var hue = p[0] * 360;
     return Math.round(hue);
 }
 
-Channel.prototype.setDefaultHue = function () {
-    // don't offer any hue control
-    if (this.isMultiColor) {
-        this.hue = null;
+/**
+ * Populate the default hue value that should be used (it will deactivate or hide the control if needed)
+ * - if isRGB=true -> null (no hue control)
+ * - if rgb!= null (pseudoColor) -> the hue value of rgb
+ * - if channelName in the list -> the hue value based on what's defined
+ * - if isRGB=null, and (single-channel or combo/Brightfield) -> null (no hue control)
+ * - otherwise -> use the default color and deactivate hue control by default
+ */
+function _populateDefaultHue(self) {
+    // if isRGB=true, then disable the hue control
+    if (self.isRGB === true) {
+        return null;
     }
-    // get hue from rgb value
-    else if (this.rgb != null) {
-        this.hue = hueIs(this.rgb);
-    }
-    // find the color mapping based on the channel name
-    else {
-      switch (this.name) {
-          case "combo":
-          case "TL Brightfield":
-              this.hue = null;
-              break;
-          default:
-              if (this.name in this.colorMapping) {
-                  this.hue = hueIs(this.colorMapping[this.name]);
-              } else {
-                  // make sure hue has a default value
-                  this.hue = hueIs(this.colorMapping['unknown']);
 
-                  // deactivate hue control
-                  this.deactivateHue = true;
-              }
-              break;
-      }
+    // if color is defined, offer hue control with the given color
+    if (self.rgb != null) {
+        return hueIs(self.rgb);
     }
-    this.initialProperty.hue = this.hue;
 
+    // if channelName is found in our list, use the default color
+    if (self.name in self.colorMapping) {
+        return hueIs(self.colorMapping[self.name]);
+    }
+
+    // if isRGB is not defined and,
+    //  - single channel
+    //  - or if combo/Brightfield:
+    // disable the hue control
+    if (self.isRGB == null && (!self.isMultiChannel || ["TL Brightfield", "combo"].indexOf(self.name) != -1)) {
+        return null;
+    }
+
+    // - isRGB is not defined and it's multi-channel
+    // - or isRGB=false and channelName wasn't found:
+    self.deactivateHue = true; // deactivate hue control
+    return 0; //default value
 }
+
+Channel.prototype.setDefaultHue = function () {
+    this.hue = _populateDefaultHue(this);
+
+    this.initialProperty.hue = this.hue;
+};
 
 Channel.prototype.setDefaultGamma = function () {
     if (this.name in this.colorMapping) {
