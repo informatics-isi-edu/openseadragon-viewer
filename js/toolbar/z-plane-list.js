@@ -58,8 +58,13 @@ function ZPlaneList(parent) {
         width: 72.3167
     };
 
-    this.doit;
+    /**
+     * this variable is used to delay the resizeSenor function call.
+     * @type {function}
+     */
+    this.delayedResizeSensorFunc;
 
+    // varibale to access the UI component of the z plane.
     this._zPlaneContainer;
 
     /**
@@ -77,8 +82,8 @@ function ZPlaneList(parent) {
         resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
         _self._zPlaneContainer = document.getElementById('z-planes-container');
         new ResizeSensor(resizeSensorContainer, function () {
-            clearTimeout(_self.doit);
-            _self.doit = setTimeout(function () {
+            clearTimeout(_self.delayedResizeSensorFunc);
+            _self.delayedResizeSensorFunc = setTimeout(function () {
                 _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
             }, 200);
         });
@@ -199,6 +204,9 @@ function ZPlaneList(parent) {
         this._fetchList(data);
     };
 
+    /**
+     * render the z plane carousel
+     */
     this._renderZPlaneCarousel = function () {
         var zPlaneContainer = document.getElementById('z-plane-container');
         if (zPlaneContainer != null) {
@@ -213,6 +221,7 @@ function ZPlaneList(parent) {
 
             var carousel = '';
 
+            // TODO update the src of the thumbnail
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
                 carousel += '' +
                     '<div class="z-plane">' +
@@ -234,11 +243,16 @@ function ZPlaneList(parent) {
         }
     }
 
+    /**
+     * render the z plane infrmation, i.e. the current selected index and total available indexes
+     */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
         zPlaneInfo.innerHTML = 'Z index: <span id="main-image-z-index">' + _self.mainImageZIndex + '</span> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
     }
-
+    /**
+     * render the previous and next buttons, attach the onclick event, set active or disabled view mode
+     */
     this._renderNextPreviousButtons = function() {
 
         var previousButton = _self._zPlaneContainer.querySelector('#previous-button');
@@ -259,6 +273,9 @@ function ZPlaneList(parent) {
         }
     };
 
+    /**
+     * renders the index which is active
+     */
     this._renderActiveZPlane = function(index) {
         _self._zPlaneContainer.querySelectorAll('.z-plane').forEach(function (elem) {
             if (parseInt(elem.children[1].innerHTML) == index) {
