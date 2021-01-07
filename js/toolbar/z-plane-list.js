@@ -241,8 +241,7 @@ function ZPlaneList(parent) {
 
     this._renderNextPreviousButtons = function() {
 
-        // TODO get the elements properly and not by using getElementById
-        var previousButton = document.getElementById('previous-button');
+        var previousButton = _self._zPlaneContainer.querySelector('#previous-button');
         previousButton.classList.remove('disabled', 'active-button');
         if (_self.hasPrevious) {
             previousButton.classList.add('active-button');
@@ -251,7 +250,7 @@ function ZPlaneList(parent) {
         }
         
 
-        var nextButton = document.getElementById('next-button');
+        var nextButton = _self._zPlaneContainer.querySelector('#next-button');
         nextButton.classList.remove('disabled', 'active-button');
         if (_self.hasNext) {
             nextButton.classList.add('active-button');
@@ -299,8 +298,6 @@ function ZPlaneList(parent) {
             '<div>';
 
         _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
-
-        // console.log(document.getElementById('z-plane-container'));
 
         _self._renderZPlaneInfo();
         _self._calculatePageSize();
