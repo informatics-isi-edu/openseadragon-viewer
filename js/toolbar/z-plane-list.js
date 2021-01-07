@@ -218,7 +218,7 @@ function ZPlaneList(parent) {
                     '<div class="z-plane">' +
                     '<img src="./images/thumbnail.png" class="z-plane-image">' +
                     '<div class="z-plane-id">' +
-                    (i + 1).toString() +
+                        (_self.collection[i].zIndex).toString() +
                     '</div>' +
                     '</div>';
             }
