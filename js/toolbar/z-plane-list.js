@@ -216,10 +216,10 @@ function ZPlaneList(parent) {
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
                 carousel += '' +
                     '<div class="z-plane">' +
-                    '<img src="./images/thumbnail.png" class="z-plane-image">' +
-                    '<div class="z-plane-id">' +
-                        (_self.collection[i].zIndex).toString() +
-                    '</div>' +
+                        '<img src="./images/thumbnail.png" class="z-plane-image">' +
+                        '<div class="z-plane-id">' +
+                            (_self.collection[i].zIndex).toString() +
+                        '</div>' +
                     '</div>';
             }
 
