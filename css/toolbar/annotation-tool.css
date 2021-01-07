@@ -1,6 +1,6 @@
 #drawToolContainer{
     position: absolute;
-    height: 100%;
+    height: inherit;
     display: flex;
     z-index: 1;
 }
