@@ -92,7 +92,7 @@ function ZPlaneList(parent) {
      * after request is done in chaise, this will be called to show the result
      */
     this.updateList = function (data) {
-        console.log("updating the z-plane-list with the following data:", data)
+        console.log("updating the z-plane-list with the following data:", data, data.images.length);
         this.collection = data.images;
         this.hasPrevious = data.hasPrevious;
         this.hasNext = data.hasNext;
@@ -156,6 +156,8 @@ function ZPlaneList(parent) {
         } else {
             // TODO update margin between 2 indexes
         }
+
+        // TODO if the number of available indexex are less than the page size then left align all the indexes, instead of center align
     };
 
     /**
@@ -286,14 +288,6 @@ function ZPlaneList(parent) {
 
         _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
 
-        // TODO use resizeSensor
-        // window.addEventListener("resize", function() {
-        //     clearTimeout(_self.doit);
-        //     _self.doit = setTimeout(function () {
-        //         _self._calculatePageSize(_self._zPlaneContainer.offsetWidth - 70);
-        //     }, 200);
-        // });
-
         _self._renderZPlaneInfo();
         _self._renderZPlaneCarousel();
 
@@ -302,17 +296,3 @@ function ZPlaneList(parent) {
     };
 
 }
-
-// var doit;
-// function resizedw() {
-//     console.log('changed');
-//     var div = document.getElementById('z-planes-container');
-//     console.log(div.offsetWidth, div.offsetHeight);
-// }
-// window.onresize = function () {
-//     clearTimeout(doit);
-//     doit = setTimeout(function () {
-//         resizedw();
-//     }, 200);
-// };
-
