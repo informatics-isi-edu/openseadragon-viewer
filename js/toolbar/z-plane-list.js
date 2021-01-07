@@ -64,6 +64,12 @@ function ZPlaneList(parent) {
      */
     this.delayedResizeSensorFunc;
 
+    /**
+     * the delay after which the page size should be calculated again
+     * @type {integer}
+     */
+    this._resizeSensorDelay = 200;   
+
     // varibale to access the UI component of the z plane.
     this._zPlaneContainer;
 
@@ -85,7 +91,7 @@ function ZPlaneList(parent) {
             clearTimeout(_self.delayedResizeSensorFunc);
             _self.delayedResizeSensorFunc = setTimeout(function () {
                 _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
-            }, 200);
+            }, _self._resizeSensorDelay);
         });
 
         _self.totalCount = data.totalCount;
