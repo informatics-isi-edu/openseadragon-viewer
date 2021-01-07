@@ -145,16 +145,19 @@ function ZPlaneList(parent) {
      */
     this._calculatePageSize = function (width) {
         // TODO based on the container size figure out the number of images that we should ask
-        console.log('width = ', width, _self._zPlaneContainer.offsetWidth - 70);
+        // console.log('width = ', width, _self._zPlaneContainer.offsetWidth - 70);
         width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
-        if (pageSize != _self.pageSize) {
+        console.log(pageSize, _self.pageSize);
+        if (_self.pageSize == null || pageSize < _self.pageSize) {
             _self.pageSize = pageSize;
-            console.log('new page size = ', pageSize);
+            // console.log('new page size = ', pageSize);
             _self._renderZPlaneCarousel();
-        } else {
-            // TODO update margin between 2 indexes
+        } else if (pageSize > _self.pageSize) {
+            // TODO call fetch list to get more indexes
+            _self.pageSize = pageSize;
+            _self._renderZPlaneCarousel();
         }
 
         // TODO if the number of available indexex are less than the page size then left align all the indexes, instead of center align
@@ -199,9 +202,18 @@ function ZPlaneList(parent) {
     this._renderZPlaneCarousel = function () {
         var zPlaneContainer = document.getElementById('z-plane-container');
         if (zPlaneContainer != null) {
+
+            // when the number of indexes is less than the page size, they should be left aligned to the left.
+            // TODO add check for last page too for left align
+            if (_self.pageSize > _self.collection.length) {
+                zPlaneContainer.style.justifyContent = 'left';
+            } else {
+                zPlaneContainer.style.justifyContent = 'center';
+            }
+
             var carousel = '';
 
-            for (var i = 0; i < _self.pageSize; i++) {
+            for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
                 carousel += '' +
                     '<div class="z-plane">' +
                     '<img src="./images/thumbnail.png" class="z-plane-image">' +
@@ -288,7 +300,10 @@ function ZPlaneList(parent) {
 
         _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
 
+        // console.log(document.getElementById('z-plane-container'));
+
         _self._renderZPlaneInfo();
+        _self._calculatePageSize();
         _self._renderZPlaneCarousel();
 
         _self.elem = ""; // TODO the element that you created
