@@ -322,6 +322,17 @@ function ZPlaneList(parent) {
 
         _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
 
+        // _onNextPreviousHandler
+        var prevButton = _self._zPlaneContainer.querySelector('#previous-button');
+        prevButton.addEventListener('click', function () {
+            _self._onNextPreviousHandler(false);
+        });
+
+        var nextButton = _self._zPlaneContainer.querySelector('#next-button');
+        nextButton.addEventListener('click', function () {
+            _self._onNextPreviousHandler(true);
+        });
+
         _self._renderZPlaneInfo();
         _self._calculatePageSize();
         _self._renderZPlaneCarousel();
