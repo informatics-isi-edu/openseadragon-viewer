@@ -31,7 +31,8 @@
 }
 
 .z-planes-container .z-plane-carousel .z-plane-container .z-plane:hover {
-	border: 2px solid rgb(239, 235, 218);
+	border: 2px solid #4674A7;
+	cursor: pointer;
 }
 
 
