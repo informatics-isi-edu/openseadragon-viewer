@@ -73,6 +73,9 @@ function ZPlaneList(parent) {
     // varibale to access the UI component of the z plane.
     this._zPlaneContainer;
 
+    // to check if the data (new z indexes fetched) needs to be appended or not
+    this.appendData = false;
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      */
@@ -104,9 +107,15 @@ function ZPlaneList(parent) {
      */
     this.updateList = function (data) {
         console.log("updating the z-plane-list with the following data:", data, data.images.length);
-        this.collection = data.images;
-        this.hasPrevious = data.hasPrevious;
-        this.hasNext = data.hasNext;
+
+        if (_self.appendData == false) {
+            this.collection = data.images;
+            this.hasPrevious = data.hasPrevious;
+        } else {
+            _self.appendData = false;
+            _self.collection = _self.collection.concat(data.images);
+        }
+        _self.hasNext = data.hasNext
 
         // if this the first time rendering, we should adjust the pagesize based on what we got
         // our calculations might not be correct as what's in database might be less than total count
@@ -163,12 +172,15 @@ function ZPlaneList(parent) {
         console.log(pageSize, _self.pageSize);
         if (_self.pageSize == null || pageSize < _self.pageSize) {
             _self.pageSize = pageSize;
+            _self.collection = _self.collection.splice(0, pageSize);
             // console.log('new page size = ', pageSize);
             _self._renderZPlaneCarousel();
         } else if (pageSize > _self.pageSize) {
             // TODO call fetch list to get more indexes
             _self.pageSize = pageSize;
-            _self._renderZPlaneCarousel();
+            _self.appendData = true;
+            _self._onNextPreviousHandler(true);
+            // _self._renderZPlaneCarousel();
         }
 
         // TODO if the number of available indexex are less than the page size then left align all the indexes, instead of center align
@@ -189,11 +201,15 @@ function ZPlaneList(parent) {
         // var mainImageUI = document.getElementById('main-image-z-index');
         // mainImageUI.innerHTML = _self.mainImageZIndex;
 
-        if (index != _self.mainImageZIndex) {
-            console.log(index);
-            _self.mainImageZIndex = index;
+        if (index < _self.collection.length && _self.collection[index].zIndex != _self.mainImageZIndex) {
+            console.log(_self.collection[index].zIndex);
+            _self.mainImageZIndex = _self.collection[index].zIndex;
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane(index);
+
+            // _self.parent.dispatchEvent('updateMainImage', {
+            //     image: _self.collection[index]
+            // });
         }
     };
 
@@ -230,7 +246,7 @@ function ZPlaneList(parent) {
             // TODO update the src of the thumbnail
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
                 carousel += '' +
-                    '<div class="z-plane">' +
+                    '<div class="z-plane" data-collection-index="' + i + '">' +
                         '<img src="./images/thumbnail.png" class="z-plane-image">' +
                         '<div class="z-plane-id">' +
                             (_self.collection[i].zIndex).toString() +
@@ -241,7 +257,7 @@ function ZPlaneList(parent) {
             zPlaneContainer.innerHTML = carousel;
             zPlaneContainer.querySelectorAll(".z-plane").forEach(function (elem) {
                 elem.addEventListener('click', function () {
-                    _self._onclickImageHandler(parseInt(elem.children[1].innerHTML));
+                    _self._onclickImageHandler(parseInt(elem.dataset.collectionIndex));
                 });
             }.bind(this))
             _self._renderActiveZPlane(_self.mainImageZIndex);
