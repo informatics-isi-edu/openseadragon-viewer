@@ -78,6 +78,20 @@
 	cursor: not-allowed;
 }
 
+.z-planes-container .z-plane-carousel .z-plane-loader {
+	height: inherit;
+	width: 100%;
+	position: absolute;
+	background: #d2d2d2b8;
+	z-index: 2;
+	display: none;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-loader .loader-image {
+	height: 50px;
+	margin: auto;
+}
+
 .vertical-align-center {
 	margin-left: auto;
 	margin-right: auto;

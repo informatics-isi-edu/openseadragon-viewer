@@ -123,7 +123,7 @@ function ZPlaneList(parent) {
             _self.pageSize = data.images.length;
             _self._setContainerStyle();
         }
-
+        _self._showSpinner(false);
         this._render();
     };
 
@@ -132,6 +132,18 @@ function ZPlaneList(parent) {
      */
     this._showSpinner = function (display) {
         // TOOD based on display change the class to show/hide the spinner
+        var loader = _self._zPlaneContainer.querySelector('#z-plane-loader');
+        if (loader != null) {
+            var carousel = _self._zPlaneContainer.querySelector('.z-plane-carousel');
+            if (display == true) {
+                carousel.style.pointerEvents = 'none';
+                loader.style.display = 'flex';
+
+            } else {
+                carousel.style.pointerEvents = 'initial';
+                loader.style.display = 'none';
+            }
+        }
     };
 
     /**
@@ -312,7 +324,6 @@ function ZPlaneList(parent) {
      * render the element
      */
     this._render = function () {
-        _self._showSpinner(false);
 
         // TODO (later) based on the type of images we show the thumbnails or not
 
@@ -326,6 +337,9 @@ function ZPlaneList(parent) {
         // TODO attached onClick events to the previous & next buttons
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
+                '<div id="z-plane-loader" class="z-plane-loader">' +
+                    '<img class="loader-image" src="./images/loader.gif">' +
+                '</div >' +
                 '<div class="button-container" id="previous-button">' +
                     '<i class="fa fa-angle-left vertical-align-center"></i>' +
                 '</div>' +
