@@ -678,7 +678,7 @@ function Viewer(parent, config) {
 
     this.removeImages = function () {
         for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
-            self.viewer.world.removeItem(self.viewer.world.getItemAt(i));
+            _self.osd.world.removeItem(_self.osd.world.getItemAt(i));
         }
     }
 
