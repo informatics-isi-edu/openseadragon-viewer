@@ -677,8 +677,8 @@ function Viewer(parent, config) {
     }
 
     this.removeImages = function () {
-        for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
-            _self.osd.world.removeItem(_self.osd.world.getItemAt(i));
+        if (_self.osd.world.getItemCount() > 0) {
+            _self.osd.world.removeAll();
         }
     }
 
@@ -708,7 +708,7 @@ function Viewer(parent, config) {
 
             var url = info.url;
 
-            var channelInfo = this.getChannelInfo(info.channelNumber);
+            var channelInfo = _self.getChannelInfo(info.channelNumber);
 
             console.log("channel info: ", channelInfo);
 
@@ -724,7 +724,7 @@ function Viewer(parent, config) {
 
             // create tileSource and options based on the image type
             if (url.indexOf('ImageProperties.xml') !== -1) {
-                var xmlString = this._utils.getUrlContent(url),
+                var xmlString = _self._utils.getUrlContent(url),
                     imgPath = url.replace('/ImageProperties.xml', ''),
                     xmlParser = new DOMParser();
 
@@ -733,7 +733,7 @@ function Viewer(parent, config) {
 
                 // we want to properly define how to get the images from the
                 // folder structure that we have for dzi images
-                tileSource = options = this.buildTileSource(xmlDoc, imgPath);
+                tileSource = options = _self.buildTileSource(xmlDoc, imgPath);
                 if (options.channelName) {
                     channelName = options.channelName;
                 }
@@ -750,15 +750,15 @@ function Viewer(parent, config) {
 
             // make sure the scale is properly defined
             meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
-            meterScaleInPixels = this.parameters.meterScaleInPixels ? this.parameters.meterScaleInPixels : meterScaleInPixels;
-            this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+            meterScaleInPixels = _self.parameters.meterScaleInPixels ? _self.parameters.meterScaleInPixels : meterScaleInPixels;
+            _self.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
 
-            this.resetScalebar(meterScaleInPixels);
+            _self.resetScalebar(meterScaleInPixels);
 
             // pseudoColor
             if (typeof channelInfo.pseudoColor === 'string') {
                 // it might be hex
-                var hexToRGB = this._utils.colorHexToRGB(channelInfo.pseudoColor);
+                var hexToRGB = _self._utils.colorHexToRGB(channelInfo.pseudoColor);
                 options.pseudoColor = hexToRGB ? hexToRGB : channelInfo.pseudoColor;
             }
 
@@ -773,7 +773,7 @@ function Viewer(parent, config) {
             // add to the list of channels
             channel = new Channel(i, channelName, options);
 
-            this.channels[i] = channel;
+            _self.channels[i] = channel;
             channelList.push({
                 name: channel.name,
                 contrast: channel["contrast"],
@@ -786,7 +786,7 @@ function Viewer(parent, config) {
             });
 
             // add the image
-            this.osd.addTiledImage({
+            _self.osd.addTiledImage({
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0)
@@ -794,7 +794,7 @@ function Viewer(parent, config) {
         }
 
         // Dispatch event to toolbar to update channel list
-        this.dispatchEvent('updateChannelList', channelList);
+        _self.dispatchEvent('updateChannelList', channelList);
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
