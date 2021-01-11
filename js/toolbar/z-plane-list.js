@@ -219,9 +219,7 @@ function ZPlaneList(parent) {
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane(index);
 
-            // _self.parent.dispatchEvent('updateMainImage', {
-            //     image: _self.collection[index]
-            // });
+            _self.parent.dispatchEvent('updateMainImage', _self.collection[index]);
         }
     };
 
