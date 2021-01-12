@@ -99,6 +99,7 @@ function ZPlaneList(parent) {
 
         _self.totalCount = data.totalCount;
         _self.mainImageZIndex = data.mainImageZIndex;
+        _self._render();
         _self._fetchList({});
     }
 
@@ -200,6 +201,7 @@ function ZPlaneList(parent) {
 
     /**
      * click handler for when an image is selected
+     * @param {interger} index 
      */
     this._onclickImageHandler = function (index) {
         // TODO highlight the image
@@ -217,7 +219,7 @@ function ZPlaneList(parent) {
             console.log(_self.collection[index].zIndex);
             _self.mainImageZIndex = _self.collection[index].zIndex;
             _self._renderZPlaneInfo();
-            _self._renderActiveZPlane(index);
+            _self._renderActiveZPlane();
 
             _self.parent.dispatchEvent('updateMainImage', _self.collection[index]);
         }
@@ -256,7 +258,7 @@ function ZPlaneList(parent) {
             // TODO update the src of the thumbnail
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
                 carousel += '' +
-                    '<div class="z-plane" data-collection-index="' + i + '">' +
+                    '<div class="z-plane" data-collection-index="' + i + '" data-z-index="' + _self.collection[i].zIndex + '">' +
                         '<img src="./images/thumbnail.png" class="z-plane-image">' +
                         '<div class="z-plane-id">' +
                             (_self.collection[i].zIndex).toString() +
@@ -270,7 +272,7 @@ function ZPlaneList(parent) {
                     _self._onclickImageHandler(parseInt(elem.dataset.collectionIndex));
                 });
             }.bind(this))
-            _self._renderActiveZPlane(_self.mainImageZIndex);
+            _self._renderActiveZPlane();
             _self._renderNextPreviousButtons();
         }
     }
@@ -310,11 +312,11 @@ function ZPlaneList(parent) {
     };
 
     /**
-     * renders the index which is active
+     * renders the index which is active, i.e. mainImageZIndex
      */
-    this._renderActiveZPlane = function(index) {
+    this._renderActiveZPlane = function() {
         _self._zPlaneContainer.querySelectorAll('.z-plane').forEach(function (elem) {
-            if (parseInt(elem.children[1].innerHTML) == index) {
+            if (elem.dataset.zIndex == _self.mainImageZIndex) {
                 elem.classList.add('active');
             } else if (elem.classList.contains('active')) {
                 elem.classList.remove('active');
