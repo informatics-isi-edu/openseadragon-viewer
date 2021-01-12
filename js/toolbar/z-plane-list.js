@@ -290,8 +290,10 @@ function ZPlaneList(parent) {
         var previousButton = _self._zPlaneContainer.querySelector('#previous-button');
         previousButton.classList.remove('disabled', 'active-button');
         if (_self.hasPrevious) {
+            previousButton.disabled = false;
             previousButton.classList.add('active-button');
         } else {
+            previousButton.disabled = true;
             previousButton.classList.add('disabled');
         }
         
@@ -299,8 +301,10 @@ function ZPlaneList(parent) {
         var nextButton = _self._zPlaneContainer.querySelector('#next-button');
         nextButton.classList.remove('disabled', 'active-button');
         if (_self.hasNext) {
+            nextButton.disabled = false;
             nextButton.classList.add('active-button');
         } else {
+            nextButton.disabled = true;
             nextButton.classList.add('disabled');
         }
     };
@@ -338,14 +342,14 @@ function ZPlaneList(parent) {
                 '<div id="z-plane-loader" class="z-plane-loader">' +
                     '<img class="loader-image" src="./images/loader.gif">' +
                 '</div >' +
-                '<div class="button-container" id="previous-button">' +
+                '<button class="button-container" id="previous-button">' +
                     '<i class="fa fa-angle-left vertical-align-center"></i>' +
-                '</div>' +
+                '</button>' +
                 '<div class="z-plane-container" id="z-plane-container">' +
                 '</div>' +
-                '<div class="button-container" id="next-button">' +
+                '<button class="button-container" id="next-button">' +
                     '<i class="fa fa-angle-right vertical-align-center"></i>' +
-                '</div>' +
+                '</button>' +
             '<div>';
 
         _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
