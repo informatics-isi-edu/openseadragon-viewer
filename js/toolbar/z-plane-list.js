@@ -342,7 +342,10 @@ function ZPlaneList(parent) {
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
                 '<div id="z-plane-loader" class="z-plane-loader">' +
-                    '<img class="loader-image" src="./images/loader.gif">' +
+                    '<div class="loader-container">' +
+                        '<img class="loader-image" src="./images/loader.gif">' +
+                        '<div class="loader-text">Loading...</div>' +
+                    '</div>' +
                 '</div >' +
                 '<button class="button-container" id="previous-button">' +
                     '<i class="fa fa-angle-left vertical-align-center"></i>' +
