@@ -689,7 +689,8 @@ function Viewer(parent, config) {
             return;
         }
 
-        console.log('params = ', params);
+        console.log('params: ', params);
+        console.log('channels:', _self.parameters.channels);
         var channelList = [], i;
 
         // show spinner is displayed
@@ -709,8 +710,6 @@ function Viewer(parent, config) {
             var url = info.url;
 
             var channelInfo = _self.getChannelInfo(info.channelNumber);
-
-            console.log("channel info: ", channelInfo);
 
             // The below code is for aliasName used in place of channelName
             var channelName = channelInfo.channelName ? channelInfo.channelName : "";
@@ -766,6 +765,9 @@ function Viewer(parent, config) {
             if (typeof channelInfo.isRGB === 'boolean') {
                 options.isRGB = channelInfo.isRGB;
             }
+
+            // used for internal logic of channel
+            options['isMultiChannel'] = (params.info.length > 1);
 
             // only show a few first
             options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);

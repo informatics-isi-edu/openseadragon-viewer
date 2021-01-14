@@ -1,14 +1,13 @@
 #navMenuContent .groups .channelItem{
     /* border-bottom: 1px solid #cecece; */
-    padding: 5px 0;
+    /* padding: 5px 0; */
     white-space: nowrap;
 }
 
 #navMenuContent .groups .channelItem .channelRow{
     display: flex;
-    /* padding: 5px 0; */
+    align-items: baseline;
     color: #c1c1c1;
-    height: 20px;
     font-size: 14px;
     cursor: pointer;
 }
@@ -18,9 +17,7 @@
 }
 
 #navMenuContent .groups .channelItem .toggleSetting{
-    align-items: center;
-    justify-content: center;
-    display: flex;
+    font-size: 20px;
 }
 
 
@@ -30,17 +27,10 @@
 
 
 #navMenuContent .groups .channelItem .channelName{
-    display: flex;
-    flex: 1;
-    justify-content: flex-start;
-    align-items: center;
     padding: 5px 5px 5px 10px;
-}
-
-#navMenuContent .groups .channelItem .toggleVisibility{
-    display: flex;
-    align-items: center;
-    color: #c1c1c1;
+    flex: 1;
+    /* make sure it correctly wraps */
+    white-space: initial;
 }
 
 #navMenuContent .groups .channelItem .toggleVisibility:hover{color: #fff;}
