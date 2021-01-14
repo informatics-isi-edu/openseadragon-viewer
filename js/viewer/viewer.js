@@ -59,6 +59,7 @@ function Viewer(parent, config) {
         this.osd.scalebar(this.config.scalebar);
 
         // load the images
+        console.log('channels:', _self.parameters.channels);
         this.loadImages(this.parameters.mainImage);
 
         // if we're showing a multi-z view, we should start it
@@ -676,12 +677,6 @@ function Viewer(parent, config) {
         return {};
     }
 
-    this.removeImages = function () {
-        if (_self.osd.world.getItemCount() > 0) {
-            _self.osd.world.removeAll();
-        }
-    }
-
     // Load Image and Channel information
     // params: {zIndex, info: {url, channelNumber}}
     this.loadImages = function (params) {
@@ -690,14 +685,21 @@ function Viewer(parent, config) {
         }
 
         console.log('params: ', params);
-        console.log('channels:', _self.parameters.channels);
-        var channelList = [], i;
+        var channelList = [], i, usePreviousChannelInfo = false;
 
         // show spinner is displayed
         _self.resetSpinner(true);
 
         // remove the existing images
-        _self.removeImages();
+        if (_self.osd.world.getItemCount() > 0) {
+
+            // if the number of channels between Zs didnt change
+            // (this should always be true, it's just an additional check)
+            usePreviousChannelInfo = (_self.osd.world.getItemCount() === Object.keys(_self.channels).length);
+
+            // remove existing images
+            _self.osd.world.removeAll();
+        }
 
         // process the images
         for (i = 0; i < params.info.length; i++) {
@@ -754,38 +756,43 @@ function Viewer(parent, config) {
 
             _self.resetScalebar(meterScaleInPixels);
 
-            // pseudoColor
-            if (typeof channelInfo.pseudoColor === 'string') {
-                // it might be hex
-                var hexToRGB = _self._utils.colorHexToRGB(channelInfo.pseudoColor);
-                options.pseudoColor = hexToRGB ? hexToRGB : channelInfo.pseudoColor;
+            if (usePreviousChannelInfo) {
+                channel = _self.channels[i];
+            } else {
+                // pseudoColor
+                if (typeof channelInfo.pseudoColor === 'string') {
+                    // it might be hex
+                    var hexToRGB = _self._utils.colorHexToRGB(channelInfo.pseudoColor);
+                    options.pseudoColor = hexToRGB ? hexToRGB : channelInfo.pseudoColor;
+                }
+
+                // isRGB
+                if (typeof channelInfo.isRGB === 'boolean') {
+                    options.isRGB = channelInfo.isRGB;
+                }
+
+                // used for internal logic of channel
+                options['isMultiChannel'] = (params.info.length > 1);
+
+                // only show a few first
+                options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);
+
+                // add to the list of channels
+                channel = new Channel(i, channelName, info.channelNumber, options);
+
+                _self.channels[i] = channel;
+                channelList.push({
+                    name: channel.name,
+                    contrast: channel["contrast"],
+                    brightness: channel["brightness"],
+                    gamma: channel["gamma"],
+                    hue : channel["hue"],
+                    deactivateHue : channel['deactivateHue'],
+                    osdItemId: channel["id"],
+                    isDisplay: channel["isDisplay"]
+                });
             }
 
-            // isRGB
-            if (typeof channelInfo.isRGB === 'boolean') {
-                options.isRGB = channelInfo.isRGB;
-            }
-
-            // used for internal logic of channel
-            options['isMultiChannel'] = (params.info.length > 1);
-
-            // only show a few first
-            options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);
-
-            // add to the list of channels
-            channel = new Channel(i, channelName, options);
-
-            _self.channels[i] = channel;
-            channelList.push({
-                name: channel.name,
-                contrast: channel["contrast"],
-                brightness: channel["brightness"],
-                gamma: channel["gamma"],
-                hue : channel["hue"],
-                deactivateHue : channel['deactivateHue'],
-                osdItemId: channel["id"],
-                isDisplay: channel["isDisplay"]
-            });
 
             // add the image
             _self.osd.addTiledImage({
@@ -795,8 +802,11 @@ function Viewer(parent, config) {
             });
         }
 
-        // Dispatch event to toolbar to update channel list
-        _self.dispatchEvent('updateChannelList', channelList);
+        if (!usePreviousChannelInfo) {
+            // Dispatch event to toolbar to update channel list
+            _self.dispatchEvent('replaceChannelList', channelList);
+        }
+
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer

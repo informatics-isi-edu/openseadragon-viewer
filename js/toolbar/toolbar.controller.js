@@ -104,7 +104,13 @@ function ToolbarController(parent, config){
 
     // update channel from viewer
     this.updateChannelList = function(data){
+        this.channelList.updateList(data);
+    }
+
+    // replace channel list from viewer
+    this.replaceChannelList = function(data){
         this.channelList.replaceList(data);
+        this._toolbarView.renderChannelContent(this.channelList);
     }
 
     // update the image gallery from outside (chaise)

@@ -40,6 +40,12 @@ function ChannelList(parent) {
 
     this.replaceList = function(items) {
         this.collection = {};
+        this.elem = null;
+        this.add(items);
+        this.render();
+    }
+
+    this.updateList = function (items) {
         this.add(items);
     }
 
