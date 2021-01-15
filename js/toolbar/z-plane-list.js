@@ -76,11 +76,15 @@ function ZPlaneList(parent) {
     // to check if the data (new z indexes fetched) needs to be appended or not
     this.appendData = false;
 
+    this._currentRequestID;
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      */
     this.init = function (data) {
         console.log('init');
+
+        _self._currentRequestID = -1;
 
         // reduce the height of the main container
         var mainContainer = document.getElementById('container');
@@ -107,6 +111,9 @@ function ZPlaneList(parent) {
      * after request is done in chaise, this will be called to show the result
      */
     this.updateList = function (data) {
+        if (data.requestID != _self._currentRequestID) 
+            return;
+
         console.log("updating the z-plane-list with the following data:", data, data.images.length);
 
         if (_self.appendData == false) {
@@ -161,7 +168,8 @@ function ZPlaneList(parent) {
         _self.parent.dispatchEvent('fetchZPlaneList', {
             pageSize: _self.pageSize,
             before: data.before,
-            after: data.after
+            after: data.after,
+            requestID: ++_self._currentRequestID
         });
     };
 
