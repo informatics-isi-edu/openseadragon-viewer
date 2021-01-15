@@ -76,6 +76,10 @@ function ZPlaneList(parent) {
     // to check if the data (new z indexes fetched) needs to be appended or not
     this.appendData = false;
 
+    /**
+     * it store the current request ID for the _fetchList function and makes sure that only the most recent response is used to update the data
+     * @type {integer}
+     */
     this._currentRequestID;
 
     /**
@@ -111,6 +115,7 @@ function ZPlaneList(parent) {
      * after request is done in chaise, this will be called to show the result
      */
     this.updateList = function (data) {
+        // in case of an old response return
         if (data.requestID != _self._currentRequestID) 
             return;
 
@@ -159,10 +164,6 @@ function ZPlaneList(parent) {
      */
     this._fetchList = function (data) {
         _self._showSpinner(true);
-
-        if (_self.pageSize == null) {
-            _self._calculatePageSize();
-        }
 
         // TODO ask chaise to get the new images
         _self.parent.dispatchEvent('fetchZPlaneList', {
