@@ -186,7 +186,11 @@ Utils.prototype.processParams = function(inp){
             // array of boolean
             case "isRGB":
                 paramValue.forEach(function (value, index) {
-                    value = (value.toLocaleLowerCase() === "true") ? true : false;
+                    if (["true", "false"].indexOf(value) != -1) {
+                        value = (value === "true");
+                    } else {
+                        value = null;
+                    }
                     if (!parameters.channels[index]) {
                         parameters.channels[index] = {};
                     }
