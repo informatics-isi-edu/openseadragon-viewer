@@ -370,6 +370,11 @@ mview.html?url=http://localhost/data/rbk/Sox9-488_Wk8-6.lif-c1-16bit.jpg&channel
     - All the variables MUST have a trailing `/`.
 
     - If you're installing remotely, since we're using the `WEB_INSTALL_ROOT` in `rsync` command, you can use a remote location `username@host:public_html/` for this variable.
+3. After making sure the variables are properly set, run the following command:
+
+    ```
+    $ make install
+    ```
 
 ## Chaise
 
