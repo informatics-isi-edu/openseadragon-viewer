@@ -19,9 +19,13 @@ OSD_VIEWER_BASE_PATH:=$(WEB_URL_ROOT)$(OSD_VIEWER_REL_PATH)
 
 
 .PHONY: install
-install: print_variables
+install: print_variables dont_install_in_root
 	$(info - deploying the package)
 	@rsync -avz --exclude='.*' --exclude='Makefile' . $(OSD_VIEWER_DIR)
+
+# make sure OSD_VIEWER_DIR is not the root
+dont_install_in_root:
+	@echo "$(OSD_VIEWER_DIR)" | egrep -vq "^/$$|.*:/$$"
 
 print_variables:
 	$(info =================)
