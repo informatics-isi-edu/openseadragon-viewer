@@ -136,7 +136,14 @@ var myApp = (function (_config) {
                 break;
             // update the displayed image
             case "updateMainImage":
+                // remove the annotations
+                viewer.removeAllSVGAnnotations();
+
+                // ask viewer to update the displayed image
                 viewer.loadImages(data);
+
+                // ask chaise to update the rest of page (fetch annotaion)
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
         }
     }

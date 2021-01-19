@@ -54,8 +54,9 @@ function ZPlaneList(parent) {
     };
 
     this._thumbnailProperties = {
-        height: 92,
-        width: 72.3167
+        height: 92, // this is fixed
+        width: 72, // this will change based on the aspect ratio
+        maxWidth: 150 // this is fixed (TODO should be changed based on what makes more sense.)
     };
 
     /**
@@ -68,7 +69,7 @@ function ZPlaneList(parent) {
      * the delay after which the page size should be calculated again
      * @type {integer}
      */
-    this._resizeSensorDelay = 200;   
+    this._resizeSensorDelay = 200;
 
     // varibale to access the UI component of the z plane.
     this._zPlaneContainer;
@@ -80,14 +81,19 @@ function ZPlaneList(parent) {
      * called on load to calculate the page size and then ask chaise to fetch the results
      */
     this.init = function (data) {
-        console.log('init');
+        console.log('init with ', data);
+
+        // change the width to be based on the image
+        if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
+            _self._thumbnailProperties.width = Math.ceil(_self._thumbnailProperties.height * (data.mainImageWidth / data.mainImageHeight));
+        }
 
         // reduce the height of the main container
         var mainContainer = document.getElementById('container');
         mainContainer.classList.add('adjust-to-z-index');
 
         // add resize sensor
-        var resizeSensorContainer = document.getElementById('resize-sensor');
+        var resizeSensorContainer = document.getElementById('z-plane-resize-sensor');
         resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
         _self._zPlaneContainer = document.getElementById('z-planes-container');
         new ResizeSensor(resizeSensorContainer, function () {
@@ -200,8 +206,34 @@ function ZPlaneList(parent) {
     };
 
     /**
+     * Given an index, will return the appropriate thumbnail image
+     * TODO should be moved to somewhere more appropriate
+     */
+    this._getThumbnailURL = function (index) {
+        if (index >= _self.collection.length) {
+            return "./images/placeholder.png";
+        }
+
+        var firstURL = _self.collection[index].info[0].url;
+
+        var width = _self._thumbnailProperties.width,
+            height = _self._thumbnailProperties.height;
+
+        // if iiif, use the api to get it
+        // NOTE this is hacky and should be documented as an assumption
+        // we're assuming that we can use the same iiif server as info.json location
+        // and we're ignoring the @id attribute inside the info.json
+        if (firstURL.indexOf("info.json") !== -1) {
+            return firstURL.replace("/info.json", "") + "/full/" + width + "," + height + "/0/default.jpg";
+        }
+
+        // use the default
+        return "./images/placeholder.png";
+    }
+
+    /**
      * click handler for when an image is selected
-     * @param {interger} index 
+     * @param {interger} index
      */
     this._onclickImageHandler = function (index) {
         // TODO highlight the image
@@ -253,13 +285,17 @@ function ZPlaneList(parent) {
                 zPlaneContainer.style.justifyContent = 'center';
             }
 
-            var carousel = '';
+            var carousel = '',
+                imgStyles = [
+                    "width:" + _self._thumbnailProperties.width + "px",
+                    "height:" + _self._thumbnailProperties.height + "px",
+                    "max-width:" + _self._thumbnailProperties.maxWidth + "px"
+                ]
 
-            // TODO update the src of the thumbnail
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
                 carousel += '' +
                     '<div class="z-plane" data-collection-index="' + i + '" data-z-index="' + _self.collection[i].zIndex + '">' +
-                        '<img src="./images/thumbnail.png" class="z-plane-image">' +
+                        '<img src="' + _self._getThumbnailURL(i) + '" style="' + imgStyles.join(";") + '" class="z-plane-image">' +
                         '<div class="z-plane-id">' +
                             (_self.collection[i].zIndex).toString() +
                         '</div>' +
@@ -298,7 +334,7 @@ function ZPlaneList(parent) {
             previousButton.disabled = true;
             previousButton.classList.add('disabled');
         }
-        
+
 
         var nextButton = _self._zPlaneContainer.querySelector('#next-button');
         nextButton.classList.remove('disabled', 'active-button');

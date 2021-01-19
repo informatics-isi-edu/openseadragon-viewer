@@ -62,14 +62,6 @@ function Viewer(parent, config) {
         console.log('channels:', _self.parameters.channels);
         this.loadImages(this.parameters.mainImage);
 
-        // if we're showing a multi-z view, we should start it
-        if (this.parameters.zPlaneTotalCount > 1) {
-            this.dispatchEvent('initializeZPlaneList', {
-                "totalCount": this.parameters.zPlaneTotalCount,
-                "mainImageZIndex": this.parameters.mainImage.zIndex
-            });
-        }
-
         // Add a SVG container to contain annotations
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this.config.annotation.id);
@@ -92,7 +84,25 @@ function Viewer(parent, config) {
         });
 
         // the finalizing tasks after images are load
+        var zPlaneInitialized = false;
         this.osd.world.addHandler('add-item', function(event) {
+            // we need the aspect ratio, so we have to wait for at least one image
+            if (!zPlaneInitialized) {
+                zPlaneInitialized = true;
+
+                // if we're showing a multi-z view, we should start it
+                if (_self.parameters.zPlaneTotalCount > 1) {
+                    var imageSize = event.item.getContentSize()
+
+                    _self.dispatchEvent('initializeZPlaneList', {
+                        "totalCount": _self.parameters.zPlaneTotalCount,
+                        "mainImageZIndex": _self.parameters.mainImage.zIndex,
+                        "mainImageWidth": imageSize.x,
+                        "mainImageHeight": imageSize.y
+                    });
+                }
+            }
+
             // display a spinner while the images are loading
             event.item.addHandler('fully-loaded-change', function() {
                 // make sure all the images are added
@@ -642,6 +652,7 @@ function Viewer(parent, config) {
 
     /**
      * Load the given list of svg urls and display them as annotations.
+     * NOTE: It will remove the existing annotations and only show the new given inputs
      * It will directly dispatch the following messages:
      *   - annotationsLoaded: when all the annotations are processed.
      *   - errorAnnotation: when encountered an error while loading annotations
@@ -653,7 +664,10 @@ function Viewer(parent, config) {
             return;
         }
         try {
+            // add the svgs
             _self.importAnnotationUnformattedSVG(svgURLs);
+
+            // let caller know that it is done
             _self.dispatchEvent('annotationsLoaded');
         } catch (err) {
             _self.dispatchEvent('errorAnnotation', err);
@@ -944,6 +958,14 @@ function Viewer(parent, config) {
 
             this.tooltipElem = d3.select("#annotationTooltip");
         }
+    }
+
+    this.removeAllSVGAnnotations = function () {
+        // remove the existing svgs
+        var svgIDs = Object.keys(_self.svgCollection);
+        svgIDs.forEach(function (id) {
+            _self.removeSVG(id);
+        });
     }
 
     // Remove specific svg object by svgID
