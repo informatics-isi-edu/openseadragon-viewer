@@ -78,6 +78,12 @@ function ZPlaneList(parent) {
     this.appendData = false;
 
     /**
+     * it store the current request ID for the _fetchList function and makes sure that only the most recent response is used to update the data
+     * @type {integer}
+     */
+    this._currentRequestID;
+
+    /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      */
     this.init = function (data) {
@@ -87,6 +93,8 @@ function ZPlaneList(parent) {
         if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
             _self._thumbnailProperties.width = Math.ceil(_self._thumbnailProperties.height * (data.mainImageWidth / data.mainImageHeight));
         }
+
+        _self._currentRequestID = -1;
 
         // reduce the height of the main container
         var mainContainer = document.getElementById('container');
@@ -113,6 +121,10 @@ function ZPlaneList(parent) {
      * after request is done in chaise, this will be called to show the result
      */
     this.updateList = function (data) {
+        // in case of an old response return
+        if (data.requestID != _self._currentRequestID) 
+            return;
+
         console.log("updating the z-plane-list with the following data:", data, data.images.length);
 
         if (_self.appendData == false) {
@@ -159,15 +171,12 @@ function ZPlaneList(parent) {
     this._fetchList = function (data) {
         _self._showSpinner(true);
 
-        if (_self.pageSize == null) {
-            _self._calculatePageSize();
-        }
-
         // TODO ask chaise to get the new images
         _self.parent.dispatchEvent('fetchZPlaneList', {
             pageSize: _self.pageSize,
             before: data.before,
-            after: data.after
+            after: data.after,
+            requestID: ++_self._currentRequestID
         });
     };
 
