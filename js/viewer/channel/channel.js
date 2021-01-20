@@ -113,6 +113,12 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
         return null;
     }
     var _rgb=rgb.split(" ");
+
+    // some shade of grey, so the hue of the color is useless
+    if (_rgb[0] == _rgb[1] && _rgb[1] == _rgb[2]) {
+        return null;
+    }
+
     var p=_rgb2hsl(parseFloat(_rgb[0]), parseFloat(_rgb[1]), parseFloat(_rgb[2]));
     var hue = p[0] * 360;
     return Math.round(hue);
@@ -121,7 +127,7 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
 /**
  * Populate the default hue value that should be used (it will deactivate or hide the control if needed)
  * - if isRGB=true -> null (no hue control)
- * - if rgb!= null (pseudoColor) -> the hue value of rgb
+ * - if rgb != null (pseudoColor) and color is valid (not grey/white/black) -> the hue value of rgb
  * - if channelName in the list -> the hue value based on what's defined
  * - if isRGB=null, and (single-channel or combo/Brightfield) -> null (no hue control)
  * - otherwise -> use the default color and deactivate hue control by default
@@ -134,7 +140,13 @@ function _populateDefaultHue(self) {
 
     // if color is defined, offer hue control with the given color
     if (self.rgb != null) {
-        return hueIs(self.rgb);
+        var hue = hueIs(self.rgb);
+        // if the given color is not a valid one (not a color, or any greyscale) don't use the color
+        if (hue != null) {
+            return hue;
+        } else {
+            window.OSDViewer.alertService.showPseudoColorAlert(self);
+        }
     }
 
     // if channelName is found in our list, use the default color
