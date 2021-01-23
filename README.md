@@ -2,8 +2,10 @@
 
 ## Overview
 
-  A 2D viewer based on OpenSeadragon with image annotation capability,
-  in-time filtering, in-view scalebar.
+  A 2D viewer based on [OpenSeadragon](https://openseadragon.github.io/) with image annotation capability,
+  in-time filtering, and in-view scalebar.
+  This application is mainly used in combination with
+  [Chaise viewer app](https://github.com/informatics-isi-edu/chaise/tree/master/docs/user-docs/viewer/viewer-app.md).
 
  >  There are two separate versions of viewer implemented in this repository.
   In this document we are mainly focused on the newest version. For more information about
@@ -11,11 +13,13 @@
 
 ## Installation
 
-See [OSD viewer installation](docs/user-docs/installation.md)
+See [OSD viewer installation](docs/user-docs/installation.md).
 
 ## Usage
 
-openseadragon can be used as a standalone web application, or inside an iframe to communicate with its parent web application. See [openseadargon-viewer usage](docs/user-docs/usage.md) for more details.
+openseadragon can be used as a standalone web application, or inside an iframe to communicate with its parent web application. It's mainly designed to work with [the Chaise viewer app](https://github.com/informatics-isi-edu/chaise/tree/master/docs/user-docs/viewer.md).
+
+See [openseadargon-viewer usage](docs/user-docs/usage.md) for more details.
 
 ## Code Contribute
 
@@ -39,10 +43,11 @@ Please direct questions and comments to the [project issue tracker](https://gith
 
 ## License
 
-Chaise is made available as open source under the Apache License, Version 2.0. Please see the [LICENSE file](LICENSE) for more information.
+openseadragon-viewer is made available as open source under the Apache License,
+Version 2.0. Please see the [LICENSE file](LICENSE) for more information.
 
 ## About Us
 
 openseadragon-viewer is developed in the
-[Informatics group](http://www.isi.edu/research_groups/informatics/home)
+[Informatics Systems Research Division](http://isrd.isi.edu/)
 at the [USC Information Sciences Institute](http://www.isi.edu).

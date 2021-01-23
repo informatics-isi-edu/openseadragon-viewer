@@ -1,10 +1,12 @@
 # Usage
 
-The entry point of openseadargon-viewer is the `mview.html` file. openseadragon-viewer is designed as a standalone application that can be initialized through url query parameters, or by using the [cross-window communication](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) APIs to communicate with the parent window (when used in an iframe.)
+The entry point of openseadargon-viewer is the `mview.html` file. openseadragon-viewer is designed as a standalone application that can be initialized through url query parameters, or by using the [cross-window communication](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) APIs to communicate with the parent window (when used in an iframe.) [Chaise viewer app](https://github.com/informatics-isi-edu/chaise/tree/master/docs/user-docs/viewer/viewer-app.md) is using this application by utilizing the cross-window communication.
+
+## Parameters
 
 The following sections will summarize the parameters that can be passed to openseadargon-viewer.
 
-## Channel parameters
+### Channel parameters
 Since we support a mulit-channel view of image. There can be multiple values for these query parameters. Each will represent a channel and will modify the settings related to that.
 
 <table>
@@ -77,7 +79,7 @@ Since we support a mulit-channel view of image. There can be multiple values for
   </tbody>
 </table>
 
-## General parameters
+### General parameters
 
 The following are general parameters that will be applied to the whole view:
 
@@ -170,7 +172,7 @@ The following are general parameters that will be applied to the whole view:
     </tr>
 </table>
 
-#### Usage of the `scale`, `ignoreReferencePoint`, `ignoreDimension` parameters
+### Usage of the `scale`, `ignoreReferencePoint`, `ignoreDimension` parameters
 
 - **Case 1 : Provided SVG has the same aspect ratio as the loaded `tif` image**
 

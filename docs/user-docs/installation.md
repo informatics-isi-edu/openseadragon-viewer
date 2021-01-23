@@ -37,6 +37,6 @@
     Notes:
       - If the given directory does not exist, it will first create it. So you may need to run `make install` with _super user_ privileges depending on the installation directory you choose.
 
-## Chaise
+## Usage
 
-Please refer to [Chaise installation guide](https://github.com/informatics-isi-edu/chaise/blob/master/docs/user-docs/installation.md#deploying) for more information.
+openseadragon can be used as a standalone web application, or inside an iframe to communicate with its parent web application. See [openseadargon-viewer usage](docs/user-docs/usage.md) for more details.
