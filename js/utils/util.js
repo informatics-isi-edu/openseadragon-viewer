@@ -317,6 +317,42 @@ Utils.prototype.colorHexToRGB = function (val) {
     return res;
 }
 
+/**
+ * Converrt the RGB color format that channel code understands
+ * ('#.###### #.###### #.######') to proper hex value.
+ * If the given input is not properly formatted, this function will return null.
+ */
+Utils.prototype.colorRGBToHex = function (val) {
+    if (typeof val !== "string" || val.length === 0) {
+        return null;
+    }
+
+    var isInvalid = false;
+    var rgb = val.split(" ").map(function (c) {
+        // parse string into float
+        c = parseFloat(c);
+
+        // make sure it's valid
+        if (isInvalid || c == NaN) {
+            isInvalid = true;
+            return;
+        }
+
+        // change to 0-255 format
+        c = c * 255;
+
+        // turn into hex
+        var hex = c.toString(16).toUpperCase();
+        return hex.length == 1 ? "0" + hex : hex;
+    });
+
+    if (rgb.length != 3 || isInvalid) {
+        return null;
+    }
+
+    return "#" + rgb.join("");
+}
+
 // Detect user's browser
 Utils.prototype.getUserBrowserType = function(){
 

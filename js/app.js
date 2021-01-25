@@ -1,9 +1,11 @@
-var myApp = (function (_config) {
+var OSDViewer = (function (_config) {
 
     var _config = _config || {},
         utils = new Utils(),
         viewer = null,
         toolbar = null;
+
+    var alertService = new AlertService(utils);
 
     var init = function(){
         viewer = new Viewer(this, _config.viewer);
@@ -27,6 +29,9 @@ var myApp = (function (_config) {
     var dispatchEvent = function(type, data){
 
         switch(type){
+            case "showAlert":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
             // [Events from Toolbar]
             case "changeAnnotationVisibility": // Change annotation group visibility
             case "highlightAnnotation": // Highlight selecting annotation group
@@ -277,10 +282,14 @@ var myApp = (function (_config) {
     }
 
     return {
+        alertService: alertService,
         init : init,
         dispatchEvent : dispatchEvent,
         receiveChaiseEvent : receiveChaiseEvent
     }
 }(_config));
 
-myApp.init();
+
+window.OSDViewer = OSDViewer;
+
+OSDViewer.init();
