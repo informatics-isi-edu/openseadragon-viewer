@@ -85,7 +85,7 @@ function ZPlaneList(parent) {
      * @param {object} data
      */
     this.init = function (data) {
-        console.log('init with ', data);
+        // console.log('init with ', data);
 
         // change the width to be based on the image
         if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
@@ -124,7 +124,7 @@ function ZPlaneList(parent) {
         if (data.requestID != _self._currentRequestID) 
             return;
 
-        console.log("updating the z-plane-list with the following data:", data, data.images.length);
+        // console.log("updating the z-plane-list with the following data:", data, data.images.length);
 
         if (_self.appendData == false) {
             this.collection = data.images;
@@ -184,7 +184,7 @@ function ZPlaneList(parent) {
      * @param {interger} width
      */
     this._calculatePageSize = function (width) {
-        
+
         width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
