@@ -82,6 +82,7 @@ function ZPlaneList(parent) {
 
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
+     * @param {object} data
      */
     this.init = function (data) {
         console.log('init with ', data);
@@ -116,9 +117,10 @@ function ZPlaneList(parent) {
 
     /**
      * after request is done in chaise, this will be called to show the result
+     * @param {object} data
      */
     this.updateList = function (data) {
-        // in case of an old response return
+        // in case of an old response -> return
         if (data.requestID != _self._currentRequestID) 
             return;
 
@@ -145,9 +147,10 @@ function ZPlaneList(parent) {
 
     /**
      * change the state of spinner
+     * @param {boolean} display
      */
     this._showSpinner = function (display) {
-        // TOOD based on display change the class to show/hide the spinner
+
         var loader = _self._zPlaneContainer.querySelector('#z-plane-loader');
         if (loader != null) {
             var carousel = _self._zPlaneContainer.querySelector('.z-plane-carousel');
@@ -178,9 +181,10 @@ function ZPlaneList(parent) {
 
     /**
      * used internally, called by fetchList and resizeSensor
+     * @param {interger} width
      */
     this._calculatePageSize = function (width) {
-        // TODO based on the container size figure out the number of images that we should ask
+        
         width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
@@ -238,6 +242,7 @@ function ZPlaneList(parent) {
 
     /**
      * click handler for previous and next buttons
+     * @param {boolean} isNext
      */
     this._onNextPreviousHandler = function (isNext) {
         var data = {};
