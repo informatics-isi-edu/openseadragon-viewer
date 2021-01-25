@@ -130,11 +130,18 @@ function ZPlaneList(parent) {
         if (_self.appendData == false) {
             this.collection = data.images;
             this.hasPrevious = data.hasPrevious;
+            _self.hasNext = data.hasNext;
         } else {
             _self.appendData = false;
             _self.collection = _self.collection.concat(data.images);
+            if (_self.collection.length > _self.pageSize) {
+                _self.collection = _self.collection.splice(0, _self.pageSize);
+                _self.hasNext = true;
+            } else {
+                _self.hasNext = data.hasNext;
+            }
         }
-        _self.hasNext = data.hasNext
+        
 
         // if this the first time rendering, we should adjust the pagesize based on what we got
         // our calculations might not be correct as what's in database might be less than total count
