@@ -5,9 +5,6 @@ function ZPlaneList(parent) {
     // the images that we're showing
     this.collection = [];
 
-    // the displayed element
-    this.elem = null;
-
     // toolbar controller
     this.parent = parent || null;
 
@@ -142,15 +139,8 @@ function ZPlaneList(parent) {
             }
         }
         
-
-        // if this the first time rendering, we should adjust the pagesize based on what we got
-        // our calculations might not be correct as what's in database might be less than total count
-        if (_self.elem == null) {
-            _self.pageSize = data.images.length;
-            _self._setContainerStyle();
-        }
         _self._showSpinner(false);
-        this._render();
+        _self._render();
     };
 
     /**
@@ -178,7 +168,6 @@ function ZPlaneList(parent) {
     this._fetchList = function (data) {
         _self._showSpinner(true);
 
-        // TODO ask chaise to get the new images
         _self.parent.dispatchEvent('fetchZPlaneList', {
             pageSize: _self.pageSize,
             before: data.before,
@@ -188,37 +177,22 @@ function ZPlaneList(parent) {
     };
 
     /**
-     * will be called to properly position next/prev buttons and other static styles by resizeSensor and on load
-     */
-    this._setContainerStyle = function () {
-        // TODO calculate based on the size and everything
-        this._styles = {};
-    };
-
-    /**
      * used internally, called by fetchList and resizeSensor
      */
     this._calculatePageSize = function (width) {
         // TODO based on the container size figure out the number of images that we should ask
-        // console.log('width = ', width, _self._zPlaneContainer.offsetWidth - 70);
         width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
-        console.log(pageSize, _self.pageSize);
         if (_self.pageSize == null || pageSize < _self.pageSize) {
             _self.pageSize = pageSize;
             _self.collection = _self.collection.splice(0, pageSize);
-            // console.log('new page size = ', pageSize);
             _self._renderZPlaneCarousel();
         } else if (pageSize > _self.pageSize) {
-            // TODO call fetch list to get more indexes
             _self.pageSize = pageSize;
             _self.appendData = true;
             _self._onNextPreviousHandler(true);
-            // _self._renderZPlaneCarousel();
         }
-
-        // TODO if the number of available indexex are less than the page size then left align all the indexes, instead of center align
     };
 
     /**
@@ -252,19 +226,8 @@ function ZPlaneList(parent) {
      * @param {interger} index
      */
     this._onclickImageHandler = function (index) {
-        // TODO highlight the image
-        // _self.mainImageZIndex = _self.collection[zIndex];
-
-        // // ask viewer to change the image
-        // _self.parent.dispatchEvent('updateMainImage', {
-        //     image: _self.collection[index]
-        // });
-
-        // var mainImageUI = document.getElementById('main-image-z-index');
-        // mainImageUI.innerHTML = _self.mainImageZIndex;
 
         if (index < _self.collection.length && _self.collection[index].zIndex != _self.mainImageZIndex) {
-            console.log(_self.collection[index].zIndex);
             _self.mainImageZIndex = _self.collection[index].zIndex;
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane();
@@ -283,7 +246,7 @@ function ZPlaneList(parent) {
         } else {
             data.before = _self.collection[0].zIndex;
         }
-        this._fetchList(data);
+        _self._fetchList(data);
     };
 
     /**
@@ -294,7 +257,6 @@ function ZPlaneList(parent) {
         if (zPlaneContainer != null) {
 
             // when the number of indexes is less than the page size, they should be left aligned to the left.
-            // TODO add check for last page too for left align
             if (_self.pageSize > _self.collection.length) {
                 zPlaneContainer.style.justifyContent = 'left';
             } else {
@@ -336,6 +298,7 @@ function ZPlaneList(parent) {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
         zPlaneInfo.innerHTML = 'Z index: <span id="main-image-z-index">' + _self.mainImageZIndex + '</span> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
     }
+
     /**
      * render the previous and next buttons, attach the onclick event, set active or disabled view mode
      */
@@ -383,14 +346,10 @@ function ZPlaneList(parent) {
 
         // TODO (later) based on the type of images we show the thumbnails or not
 
-        // TODO create the static images for POC
-        // use the _self._styles to position the buttons
-
         var zPlaneInfo = '' +
             '<div class="z-plane-info-container" id="z-plane-info-container">' +
             '</div>';
 
-        // TODO attached onClick events to the previous & next buttons
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
                 '<div id="z-plane-loader" class="z-plane-loader">' +
@@ -400,12 +359,12 @@ function ZPlaneList(parent) {
                     '</div>' +
                 '</div >' +
                 '<button class="button-container" id="previous-button">' +
-                    '<i class="fa fa-angle-left vertical-align-center"></i>' +
+                    '<i class="fa fa-angle-left" style="width:100%"></i>' +
                 '</button>' +
                 '<div class="z-plane-container" id="z-plane-container">' +
                 '</div>' +
                 '<button class="button-container" id="next-button">' +
-                    '<i class="fa fa-angle-right vertical-align-center"></i>' +
+                    '<i class="fa fa-angle-right" style="width:100%"></i>' +
                 '</button>' +
             '<div>';
 
@@ -425,9 +384,6 @@ function ZPlaneList(parent) {
         _self._renderZPlaneInfo();
         _self._calculatePageSize();
         _self._renderZPlaneCarousel();
-
-        _self.elem = ""; // TODO the element that you created
-        // TODO create the reszieSensor here
     };
 
 }
