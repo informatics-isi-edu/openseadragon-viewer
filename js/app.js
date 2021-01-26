@@ -96,9 +96,11 @@ var OSDViewer = (function (_config) {
             case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-            // Send the updated channel list to toolbar
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
+                break;
+            case "replaceChannelList":
+                toolbar && toolbar.replaceChannelList(data);
                 break;
             case "onChangeStrokeScale":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
@@ -129,6 +131,25 @@ var OSDViewer = (function (_config) {
             case "openDrawingHelpPage":
                 window.parent.postMessage({messageType: type}, window.location.origin);
                 break;
+            // initialzie the view
+            case "initializeZPlaneList":
+                toolbar && toolbar.initializeZPlaneList(data);
+                break;
+            // ask chaise to fetch new set of images
+            case "fetchZPlaneList":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            // update the displayed image
+            case "updateMainImage":
+                // remove the annotations
+                viewer.removeAllSVGAnnotations();
+
+                // ask viewer to update the displayed image
+                viewer.loadImages(data);
+
+                // ask chaise to update the rest of page (fetch annotaion)
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
         }
     }
 
@@ -140,6 +161,9 @@ var OSDViewer = (function (_config) {
             switch (messageType) {
                 case 'initializeViewer':
                     viewer.init(utils, data);
+                    break;
+                case 'updateZPlaneList':
+                    toolbar && toolbar.updateZPlaneList(data);
                     break;
                 case 'filterChannels':
                     toolbar && toolbar.onClickedMenuHandler('channelList');

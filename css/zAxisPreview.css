@@ -1,0 +1,124 @@
+.z-planes-container {
+	height: 140px;
+	width: 100%;
+}
+
+.z-planes-container .z-plane-info-container {
+	height: 25px;
+	width: 100%;
+	text-align: center;
+	font-size: 14px;
+}
+
+.z-planes-container .z-plane-carousel {
+	height: 110px;
+	width: 100%;
+	display: flex;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-container {
+	width: calc(100% - 70px);
+	display: flex;
+	justify-content: center;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane {
+	margin: 4px;
+	padding: 4px;
+	border: 2px solid rgb(241, 241, 241);
+	height: 104px;
+	position: relative;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane:hover {
+	border: 2px solid #4674A7;
+	cursor: pointer;
+}
+
+
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-image {
+	height: 100%;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-id {
+	position: absolute;
+	bottom: 0px;
+	margin: 2px;
+	padding: 4px;
+	background: rgba(255,255,255,0.5);
+}
+
+.z-planes-container .z-plane-carousel .active {
+	border: 2px solid #4674A7 !important;
+}
+
+.z-planes-container .z-plane-carousel .button-container {
+
+	/* style to remove the default CSS of the button */
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+
+	width: 35px;
+	height: 104px;
+    vertical-align: middle;
+	display: flex;
+	align-items: center;
+	font-size: 60px;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+.z-planes-container .z-plane-carousel .active-button{
+	color: #4674A7;
+	cursor: pointer;
+}
+
+.z-planes-container .z-plane-carousel .active-button:hover{
+	background-color: rgb(241, 241, 241);
+}
+
+.z-planes-container .z-plane-carousel .disabled{
+	color: black;
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-loader {
+	height: inherit;
+	width: 100%;
+	position: absolute;
+	background: #e8e8e8b8;
+	z-index: 2;
+	display: none;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-loader .loader-container {
+	height: 70px;
+	width: 120px;
+	margin: auto;
+	background: white;
+	border: 1px solid #ccc;
+	border-radius: 7px;
+	display: block;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-loader .loader-container .loader-image {
+	height: 32px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 44px;
+	opacity: 0.8;
+}
+
+.z-planes-container .z-plane-carousel .z-plane-loader .loader-container .loader-text {
+	font-size: 14px;
+	margin: auto;
+	width: 100%;
+	text-align: center;
+	color: #828282;
+}

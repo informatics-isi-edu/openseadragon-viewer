@@ -8,6 +8,7 @@ function ToolbarController(parent, config){
     this.annotationList = new AnnotationList(this);
     this.annotationTool = new AnnotationTool(this);
     this.channelList = new ChannelList(this);
+    this.zPlaneList = new ZPlaneList(this);
 
     // Set current selecting annotation
     this.changeSelectingAnnotation = function(data){
@@ -103,7 +104,22 @@ function ToolbarController(parent, config){
 
     // update channel from viewer
     this.updateChannelList = function(data){
+        this.channelList.updateList(data);
+    }
+
+    // replace channel list from viewer
+    this.replaceChannelList = function(data){
         this.channelList.replaceList(data);
+        this._toolbarView.renderChannelContent(this.channelList);
+    }
+
+    // update the image gallery from outside (chaise)
+    this.updateZPlaneList = function(data){
+        this.zPlaneList.updateList(data);
+    }
+
+    this.initializeZPlaneList = function (data) {
+        this.zPlaneList.init(data);
     }
 
     // update current drawing svg Id if drawing mode is on

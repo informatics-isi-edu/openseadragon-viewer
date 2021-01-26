@@ -1,10 +1,11 @@
-function Channel(osdItemID, name, options) {
+function Channel(osdItemID, name, number, options) {
     options = options || {};
 
     var _self = this;
     this.id = osdItemID;
     this.name = (typeof name === "string") ? name : "";
     this.name = this.name.replace(/\_/g, " ");
+    this.number=  number;
     this.isRGB = (typeof options['isRGB'] === 'boolean') ? options['isRGB'] : null;
     this.rgb = options["pseudoColor"] || null;
     this.width = +options["width"] || 0;

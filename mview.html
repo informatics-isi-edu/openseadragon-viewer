@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/toolbar/channel-item.css">
     <link rel="stylesheet" href="css/viewer/openseadragonContainer.css">
     <link rel="stylesheet" href="css/viewer/annotationContainer.css">
+    <link rel="stylesheet" href="css/zAxisPreview.css">
     <title>2D+ overlay mviewer</title>
 </head>
 <body>
@@ -29,6 +30,9 @@
         </div>
         <div id="openseadragonContainer"></div>
     </div>
+    <div id='z-plane-resize-sensor'>
+    </div>
+
 
     <!-- Dependency  -->
     <script src="vendor/openseadragon.js"></script>
@@ -39,6 +43,7 @@
     <script src="vendor/jquery-3.4.1.min.js"></script>
     <script src="vendor/popper.min.js"></script>
     <script src="vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="vendor/css-element-queries.js"></script>
 
     <!-- Application -->
     <script src="js/utils/util.js"></script>
@@ -50,6 +55,7 @@
     <script src="js/toolbar/annotation-tool.js"></script>
     <script src="js/toolbar/annotation-list.js"></script>
     <script src="js/toolbar/annotation-item.js"></script>
+    <script src="js/toolbar/z-plane-list.js"></script>
     <script src="js/viewer/viewer.js"></script>
     <script src="js/viewer/channel/channel.js"></script>
     <script src="js/viewer/annotation/annotation-utils.js"></script>

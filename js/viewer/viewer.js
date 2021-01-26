@@ -8,9 +8,7 @@ function Viewer(parent, config) {
     var _self = this;
 
     this._utils = null;
-    // this._config = config;
-    this.all_config = config;
-    this._config = null;
+    this.config = config;
 
     this.parent = parent;
     this.channels = {};
@@ -45,27 +43,28 @@ function Viewer(parent, config) {
         this._utils = utils;
 
         // Add each image source into Openseadragon viewer
-        this.parameters = this._utils.processParams(params);
-
-        // Setting the config based on the type of the image we get
-        this._config = this._utils.setOsdConfig(this.parameters, this.all_config);
-        // console.log("Config used: ",  this._config, this.parameters);  // TODO: If config is null, give an error.
+        if (!params.isProcessed) {
+            this.parameters = this._utils.processParams(params);
+        } else {
+            this.parameters = params;
+        }
 
         // configure osd
-        this.osd = OpenSeadragon(this._config.osd);
+        this.osd = OpenSeadragon(this.config.osd);
 
         // show spinner while initializing the page
         this.resetSpinner(true);
 
         // add the scalebar (might change based on the images)
-        this.osd.scalebar(this._config.scalebar);
+        this.osd.scalebar(this.config.scalebar);
 
         // load the images
-        this.loadImages(this.parameters)
+        console.log('channels:', _self.parameters.channels);
+        this.loadImages(this.parameters.mainImage);
 
         // Add a SVG container to contain annotations
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this.svg.setAttribute("id", 'annotationContainer');
+        this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
 
         // after each resize, make sure svgs are properly positioned
@@ -85,7 +84,25 @@ function Viewer(parent, config) {
         });
 
         // the finalizing tasks after images are load
+        var zPlaneInitialized = false;
         this.osd.world.addHandler('add-item', function(event) {
+            // we need the aspect ratio, so we have to wait for at least one image
+            if (!zPlaneInitialized) {
+                zPlaneInitialized = true;
+
+                // if we're showing a multi-z view, we should start it
+                if (_self.parameters.zPlaneTotalCount > 1) {
+                    var imageSize = event.item.getContentSize()
+
+                    _self.dispatchEvent('initializeZPlaneList', {
+                        "totalCount": _self.parameters.zPlaneTotalCount,
+                        "mainImageZIndex": _self.parameters.mainImage.zIndex,
+                        "mainImageWidth": imageSize.x,
+                        "mainImageHeight": imageSize.y
+                    });
+                }
+            }
+
             // display a spinner while the images are loading
             event.item.addHandler('fully-loaded-change', function() {
                 // make sure all the images are added
@@ -635,6 +652,7 @@ function Viewer(parent, config) {
 
     /**
      * Load the given list of svg urls and display them as annotations.
+     * NOTE: It will remove the existing annotations and only show the new given inputs
      * It will directly dispatch the following messages:
      *   - annotationsLoaded: when all the annotations are processed.
      *   - errorAnnotation: when encountered an error while loading annotations
@@ -646,7 +664,10 @@ function Viewer(parent, config) {
             return;
         }
         try {
+            // add the svgs
             _self.importAnnotationUnformattedSVG(svgURLs);
+
+            // let caller know that it is done
             _self.dispatchEvent('annotationsLoaded');
         } catch (err) {
             _self.dispatchEvent('errorAnnotation', err);
@@ -654,37 +675,63 @@ function Viewer(parent, config) {
         _self.resizeSVG();
     }
 
-    this.removeImages = function () {
-        for (var i = 0; i < _self.osd.world.getItemCount(); i++) {
-            self.viewer.world.removeItem(self.viewer.world.getItemAt(i));
+    // TODO should be moved
+    this.getChannelInfo = function (channelNumber) {
+        if (!Array.isArray(_self.parameters.channels)) {
+            return {};
         }
+
+        var item = _self.parameters.channels.filter(function (el) {
+            return el.channelNumber == channelNumber;
+        });
+
+        if (item.length === 1) {
+            return item[0];
+        }
+        return {};
     }
 
     // Load Image and Channel information
+    // params: {zIndex, info: {url, channelNumber}}
     this.loadImages = function (params) {
-        var urls = params.images || [], channelList = [], i;
+        if (typeof params != 'object' && !Array.isArray(params.info)) {
+            return;
+        }
+
+        console.log('params: ', params);
+        var channelList = [], i, usePreviousChannelInfo = false;
 
         // show spinner is displayed
         _self.resetSpinner(true);
 
         // remove the existing images
-        _self.removeImages();
+        if (_self.osd.world.getItemCount() > 0) {
+
+            // if the number of channels between Zs didnt change
+            // (this should always be true, it's just an additional check)
+            usePreviousChannelInfo = (_self.osd.world.getItemCount() === Object.keys(_self.channels).length);
+
+            // remove existing images
+            _self.osd.world.removeAll();
+        }
 
         // process the images
-        for (i = 0; i < urls.length; i++) {
+        for (i = 0; i < params.info.length; i++) {
             var channel,
                 tileSource,
-                url = urls[i],
+                info = params.info[i],
                 options = {},
                 meterScaleInPixels = null;
 
-            // TODO what if there are no channel names?
-            // The below code is for aliasName used in place of channelName
-            var channelName = Array.isArray(params.channelName) &&  params.channelName[i] ? params.channelName[i] : "";
-            if (params.aliasName && params.aliasName[i]) {
-                channelName = params.aliasName[i];
-            }
+            var url = info.url;
 
+            var channelInfo = _self.getChannelInfo(info.channelNumber);
+
+            // The below code is for aliasName used in place of channelName
+            var channelName = channelInfo.channelName ? channelInfo.channelName : "";
+            if (channelInfo.aliasName) {
+                channelName = channelInfo.aliasName;
+            }
             // use the index for the channelName
             if (typeof channelName !== "string" || channelName.length === 0) {
                 channelName = i.toString();
@@ -692,7 +739,7 @@ function Viewer(parent, config) {
 
             // create tileSource and options based on the image type
             if (url.indexOf('ImageProperties.xml') !== -1) {
-                var xmlString = this._utils.getUrlContent(url),
+                var xmlString = _self._utils.getUrlContent(url),
                     imgPath = url.replace('/ImageProperties.xml', ''),
                     xmlParser = new DOMParser();
 
@@ -701,7 +748,7 @@ function Viewer(parent, config) {
 
                 // we want to properly define how to get the images from the
                 // folder structure that we have for dzi images
-                tileSource = options = this.buildTileSource(xmlDoc, imgPath);
+                tileSource = options = _self.buildTileSource(xmlDoc, imgPath);
                 if (options.channelName) {
                     channelName = options.channelName;
                 }
@@ -718,52 +765,62 @@ function Viewer(parent, config) {
 
             // make sure the scale is properly defined
             meterScaleInPixels = options.meterScaleInPixels ? options.meterScaleInPixels : meterScaleInPixels;
-            meterScaleInPixels = params.meterScaleInPixels ? params.meterScaleInPixels : meterScaleInPixels;
-            this.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
+            meterScaleInPixels = _self.parameters.meterScaleInPixels ? _self.parameters.meterScaleInPixels : meterScaleInPixels;
+            _self.scale = (meterScaleInPixels != null) ? 1000000 / meterScaleInPixels : null;
 
-            this.resetScalebar(meterScaleInPixels);
+            _self.resetScalebar(meterScaleInPixels);
 
-            // pseudoColor
-            if (Array.isArray(params.pseudoColor) && (typeof params.pseudoColor[i] === 'string')) {
-                options.pseudoColor = params.pseudoColor[i];
+            if (usePreviousChannelInfo) {
+                channel = _self.channels[i];
+            } else {
+                // pseudoColor
+                if (typeof channelInfo.pseudoColor === 'string') {
+                    // it might be hex
+                    var hexToRGB = _self._utils.colorHexToRGB(channelInfo.pseudoColor);
+                    options.pseudoColor = hexToRGB ? hexToRGB : channelInfo.pseudoColor;
+                }
+
+                // isRGB
+                if (typeof channelInfo.isRGB === 'boolean') {
+                    options.isRGB = channelInfo.isRGB;
+                }
+
+                // used for internal logic of channel
+                options['isMultiChannel'] = (params.info.length > 1);
+
+                // only show a few first
+                options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);
+
+                // add to the list of channels
+                channel = new Channel(i, channelName, info.channelNumber, options);
+
+                _self.channels[i] = channel;
+                channelList.push({
+                    name: channel.name,
+                    contrast: channel["contrast"],
+                    brightness: channel["brightness"],
+                    gamma: channel["gamma"],
+                    hue : channel["hue"],
+                    deactivateHue : channel['deactivateHue'],
+                    osdItemId: channel["id"],
+                    isDisplay: channel["isDisplay"]
+                });
             }
 
-            // isRGB (the parameter value will be either null or boolean)
-            if (Array.isArray(params.isRGB) && (typeof params.isRGB[i] === 'boolean')) {
-                options.isRGB = params.isRGB[i];
-            }
-
-            // used for internal logic of channel
-            options['isMultiChannel'] = (urls.length > 1);
-
-            // only show a few first
-            options["isDisplay"] = (i < _self.all_config.constants.MAX_NUM_DEFAULT_CHANNEL);
-
-            // add to the list of channels
-            channel = new Channel(i, channelName, options);
-
-            this.channels[i] = channel;
-            channelList.push({
-                name: channel.name,
-                contrast: channel["contrast"],
-                brightness: channel["brightness"],
-                gamma: channel["gamma"],
-                hue : channel["hue"],
-                deactivateHue : channel['deactivateHue'],
-                osdItemId: channel["id"],
-                isDisplay: channel["isDisplay"]
-            });
 
             // add the image
-            this.osd.addTiledImage({
+            _self.osd.addTiledImage({
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0)
             });
         }
 
-        // Dispatch event to toolbar to update channel list
-        this.dispatchEvent('updateChannelList', channelList);
+        if (!usePreviousChannelInfo) {
+            // Dispatch event to toolbar to update channel list
+            _self.dispatchEvent('replaceChannelList', channelList);
+        }
+
     }
 
     // Show tooltip when mouse over the annotation on Openseadragon viewer
@@ -778,7 +835,7 @@ function Viewer(parent, config) {
                     "</span>",
                 "</div>"
             ].join("");
-            document.querySelector("#" + this._config.osd.id).insertAdjacentHTML('beforeend', tooltipElem);
+            document.querySelector("#" + this.config.osd.id).insertAdjacentHTML('beforeend', tooltipElem);
             this.tooltipElem = d3.select("div#annotationTooltip");
         }
 
@@ -903,6 +960,14 @@ function Viewer(parent, config) {
         }
     }
 
+    this.removeAllSVGAnnotations = function () {
+        // remove the existing svgs
+        var svgIDs = Object.keys(_self.svgCollection);
+        svgIDs.forEach(function (id) {
+            _self.removeSVG(id);
+        });
+    }
+
     // Remove specific svg object by svgID
     this.removeSVG = function(svgID){
         var svgObj = this.svgCollection[svgID];
@@ -948,8 +1013,8 @@ function Viewer(parent, config) {
     }
 
     this.resetSpinner = function (show) {
-        if (this._config.osd.spinnerID) {
-            var sp = document.querySelector("#" + this._config.osd.spinnerID);
+        if (this.config.osd.spinnerID) {
+            var sp = document.querySelector("#" + this.config.osd.spinnerID);
             if (sp) {
                 sp.style.display = (show ? 'block' : 'none');
             }
