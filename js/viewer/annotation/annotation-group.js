@@ -116,7 +116,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
     }
 
-    // Get number of annotations
+    // Get number of annotations that have been drawn
     this.getNumOfAnnotations = function () {
         // only count the images that have been drawn
         var count = 0;
