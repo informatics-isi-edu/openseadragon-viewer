@@ -117,8 +117,15 @@ function AnnotationGroup(id, anatomy, description, parent){
     }
 
     // Get number of annotations
-    this.getNumOfAnnotations = function(){
-        return this.annotations.length;
+    this.getNumOfAnnotations = function () {
+        // only count the images that have been drawn
+        var count = 0;
+        for (var i = 0; i < this.annotations.length; i++) {
+            if (this.annotations[i].isDrawing == false) {
+                count++;
+            }
+        }
+        return count;
     }
 
     this.getStrokeScale = function(){
