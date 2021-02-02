@@ -137,7 +137,13 @@ var OSDViewer = (function (_config) {
                 break;
             // ask chaise to fetch new set of images
             case "fetchZPlaneList":
+                console.log('fetchZPlaneList');
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            // ask chaise to fetch new set of images
+            case "fetchZPlaneListByZIndex":
+                console.log('fetchZPlaneListByZIndex');
+                window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
                 break;
             // update the displayed image
             case "updateMainImage":

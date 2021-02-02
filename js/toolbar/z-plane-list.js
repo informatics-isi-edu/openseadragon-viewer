@@ -180,6 +180,20 @@ function ZPlaneList(parent) {
     };
 
     /**
+     * calculate the page size if needed and ask chaise to fetch the new list by zIndex
+     */
+    this._fetchListByZIndex = function (zIndex) {
+
+        // TODO show spinner
+
+        _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
+            pageSize: _self.pageSize,
+            zIndex: zIndex,
+            requestID: ++_self._currentRequestID
+        });
+    };
+
+    /**
      * used internally, called by fetchList and resizeSensor
      * @param {interger} width
      */
@@ -384,6 +398,12 @@ function ZPlaneList(parent) {
         var nextButton = _self._zPlaneContainer.querySelector('#next-button');
         nextButton.addEventListener('click', function () {
             _self._onNextPreviousHandler(true);
+        });
+
+        var zPlaneInfo = _self._zPlaneContainer.querySelector('#z-plane-info-container');
+        zPlaneInfo.addEventListener('click', function() {
+            console.log('z plane info');
+            _self._fetchListByZIndex(20);
         });
 
         _self._renderZPlaneInfo();
