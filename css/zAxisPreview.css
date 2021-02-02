@@ -10,6 +10,12 @@
 	font-size: 14px;
 }
 
+.z-planes-container .z-plane-info-container .main-image-z-index {
+	width: 95px;
+	text-align: center;
+	height: 21px;
+}
+
 .z-planes-container .z-plane-carousel {
 	height: 110px;
 	width: 100%;

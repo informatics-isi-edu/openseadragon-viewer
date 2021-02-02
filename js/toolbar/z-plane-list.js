@@ -315,7 +315,7 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
-        zPlaneInfo.innerHTML = 'Z index: <span id="main-image-z-index">' + _self.mainImageZIndex + '</span> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
+        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" placeholder="Enter Z Index" value="' + _self.mainImageZIndex + '"> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
     }
 
     /**
@@ -403,7 +403,7 @@ function ZPlaneList(parent) {
         var zPlaneInfo = _self._zPlaneContainer.querySelector('#z-plane-info-container');
         zPlaneInfo.addEventListener('click', function() {
             console.log('z plane info');
-            _self._fetchListByZIndex(20);
+            // _self._fetchListByZIndex(200);
         });
 
         _self._renderZPlaneInfo();
