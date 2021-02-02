@@ -315,7 +315,23 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
-        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" placeholder="Enter Z Index" value="' + _self.mainImageZIndex + '"> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
+        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" placeholder="Enter Z Index" value="' + _self.mainImageZIndex + '">'+
+            '<button class="jump-to-buttom-container">'+
+                '<i class="fa fa-share jump-to-button"></i>'+
+            '</button>'+
+            '<span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
+
+        var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
+        jumpButtom.addEventListener('click', function () {
+            console.log('jump to', zPlaneInfo.querySelector('#main-image-z-index').value);
+            // _self._fetchListByZIndex(200);
+        });
+
+        var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
+        inputBox.addEventListener('keydown', event => {
+            console.log(event.keyCode);
+        });
+
     }
 
     /**
@@ -398,12 +414,6 @@ function ZPlaneList(parent) {
         var nextButton = _self._zPlaneContainer.querySelector('#next-button');
         nextButton.addEventListener('click', function () {
             _self._onNextPreviousHandler(true);
-        });
-
-        var zPlaneInfo = _self._zPlaneContainer.querySelector('#z-plane-info-container');
-        zPlaneInfo.addEventListener('click', function() {
-            console.log('z plane info');
-            // _self._fetchListByZIndex(200);
         });
 
         _self._renderZPlaneInfo();

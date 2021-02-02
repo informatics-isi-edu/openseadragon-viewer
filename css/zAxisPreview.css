@@ -8,12 +8,56 @@
 	width: 100%;
 	text-align: center;
 	font-size: 14px;
+	display: flex;
+	justify-content: center;
+	padding-top: 2px;
 }
 
 .z-planes-container .z-plane-info-container .main-image-z-index {
+	/* remove default CSS
+	border:none;
+    background-image:none;
+    background-color:transparent;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+	box-shadow: none; */
+	
 	width: 95px;
 	text-align: center;
 	height: 21px;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+	border-right: 0px;
+	margin-left: 4px;
+}
+
+.z-planes-container .z-plane-info-container .main-image-z-index:focus {
+	outline: none;
+}
+
+.z-planes-container .z-plane-info-container .jump-to-buttom-container {
+	/* style to remove the default CSS of the button */
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+
+
+	height: 21px;
+	padding-left: 4px;
+	padding-right: 4px;
+	background: rgb(70, 116, 167);
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	margin-right: 4px;
+}
+
+.z-planes-container .z-plane-info-container .jump-to-buttom-container .jump-to-button {
+	width: 100%;
+	color: white;
 }
 
 .z-planes-container .z-plane-carousel {
