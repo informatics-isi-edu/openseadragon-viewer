@@ -140,6 +140,10 @@ function ZPlaneList(parent) {
                 _self.hasNext = data.hasNext;
             }
         }
+
+        if (data.updateMainImage && data.mainImageZIndex >= 0) {
+            _self._onclickImageHandler(data.mainImageZIndex);
+        }
         
         _self._showSpinner(false);
         _self._render();
