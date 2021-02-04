@@ -315,7 +315,7 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
-        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" placeholder="Enter Z Index" value="' + _self.mainImageZIndex + '">'+
+        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" value="' + _self.mainImageZIndex + '">'+
             '<button class="jump-to-buttom-container">'+
                 '<i class="fa fa-share jump-to-button"></i>'+
             '</button>'+
@@ -323,8 +323,10 @@ function ZPlaneList(parent) {
 
         var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
         jumpButtom.addEventListener('click', function () {
-            console.log('jump to', zPlaneInfo.querySelector('#main-image-z-index').value);
-            // _self._fetchListByZIndex(200);
+            console.log('jump to');
+            // add check to make sure that it is int
+            var newIndex = zPlaneInfo.querySelector('#main-image-z-index').value;
+            _self._fetchListByZIndex(parseInt(newIndex));
         });
 
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
