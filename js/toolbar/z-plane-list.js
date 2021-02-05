@@ -320,7 +320,7 @@ function ZPlaneList(parent) {
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
         zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
-            '<button class="jump-to-buttom-container">'+
+            '<button class="jump-to-buttom-container" title="Jump to specific Z index">'+
                 '<i class="fa fa-share jump-to-button"></i>'+
             '</button>'+
             '<span>(total of ' + _self.totalCount + ' generated)</span>';
