@@ -7,10 +7,6 @@
   This application is mainly used in combination with
   [Chaise viewer app](https://github.com/informatics-isi-edu/chaise/tree/master/docs/user-docs/viewer/viewer-app.md).
 
- >  There are two separate versions of viewer implemented in this repository.
-  In this document we are mainly focused on the newest version. For more information about
-  the legacy version please refer to [this document](docs/user-docs/previous-version.md).
-
 ## Installation
 
 See [OSD viewer installation](docs/user-docs/installation.md).
