@@ -189,7 +189,11 @@ function ChannelItem(data){
         }
         
         // color settings
-        var attrs = ["contrast", "brightness", "gamma", "hue", "deactivateHue"];
+        var attrs = ["contrast", "brightness", "gamma"];
+        // if hue control is missing, we shouldn't update the settings either
+        if (og.hue != null) {
+            attrs.push("hue", "deactivateHue");
+        }
         var newSettings = {};
         attrs.forEach(function (attrName) {
             if (og[attrName] == null) return;
