@@ -62,7 +62,7 @@
 }
 
 #menuContainer #navMenuContent.expand{
-    width: 240px;
+    width: 250px;
     opacity: 1;
     display: flex;
     /* box-shadow: 0 0 5px #a29f9f; */

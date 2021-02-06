@@ -61,13 +61,13 @@ function ChannelList(parent) {
 
     this.expandAllChannels = function (event) {
         for (var id in _self.collection) {
-            _self.collection[id].onClickToggleExpand(true);
+            _self.collection[id].onClickToggleExpand(event, true);
         }
     };
 
     this.collapseAllChannels = function (event) {
         for (var id in _self.collection) {
-            _self.collection[id].onClickToggleExpand(false);
+            _self.collection[id].onClickToggleExpand(event, false);
         }
     };
 
@@ -82,6 +82,12 @@ function ChannelList(parent) {
             _self.collection[id].onClickToggleDisplay(event, false);
         }
     };
+    
+    this.resetAllChannels = function (event) {
+        for (var id in _self.collection) {
+            _self.collection[id].resetChannelSettings(event);
+        }
+    }
 
     // Render the view
     this.render = function() {
@@ -112,6 +118,7 @@ function ChannelList(parent) {
                         "<span title='Collapse all channel controls' class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
                         "<span title='Display all channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
                         "<span title='Hide all channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
+                        "<span title='Reset all channel settings' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
                     "</div>",
                 "</div>",
                 "<hr class='section-separator'/>",
@@ -139,6 +146,8 @@ function ChannelList(parent) {
         this.elem.querySelector('#show-all-channels').addEventListener('click', this.showAllChannels);
 
         this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
+        
+        this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
 
     }
 }

@@ -33,9 +33,13 @@
     white-space: initial;
 }
 
-#navMenuContent .groups .channelItem .toggleVisibility:hover{color: #fff;}
+#navMenuContent .groups .channelItem .channel-control-btn {
+    padding: 0 5px;
+}
 
-#navMenuContent .groups .channelItem .toggleVisibility:active {
+#navMenuContent .groups .channelItem .channel-control-btn:hover{color: #fff;}
+
+#navMenuContent .groups .channelItem .channel-control-btn:active {
     color: #4674A7;
 }
 
@@ -124,7 +128,7 @@
 }
 
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
-    width: 195px;
+    width: 200px;
     margin: 0;
     margin-right: 7px;
     background: -webkit-linear-gradient(left, hsla(0, 100%, 50%, 1),

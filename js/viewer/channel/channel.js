@@ -182,6 +182,15 @@ Channel.prototype.setDefaultGamma = function () {
     };
 }
 
+Channel.prototype.setMultiple = function (settings) {
+    var self = this, type;
+    for(type in settings) {
+        if (settings.hasOwnProperty(type)) {
+            self.set(type, settings[type]);
+        }
+    }
+}
+
 
 Channel.prototype.set = function (type, value) {
     // console.log(

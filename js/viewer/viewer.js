@@ -1148,8 +1148,11 @@ function Viewer(parent, config) {
         var channel = this.channels[data.id],
             item = this.osd.world.getItemAt(data.id);
         if (!channel || !item) { return; }
-        channel.set(data.type, data.value);
-        // console.log(data, channel, item);
+        if ("settings" in data) {
+            channel.setMultiple(data.settings);
+        } else {
+            channel.set(data.type, data.value);
+        }
 
         this.filters[data.id] = {
           items: [item],
