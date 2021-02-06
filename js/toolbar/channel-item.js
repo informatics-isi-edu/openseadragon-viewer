@@ -19,6 +19,16 @@ function ChannelItem(data){
     this.isDisplay = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
     this.isExpand = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
     this.elem = null;
+    
+    this.originalSettings = {
+        "contrast": this.contrast,
+        "brightness": this.brightness,
+        "gamma": this.gamma,
+        "hue": this.hue,
+        "deactivateHue": this.deactivateHue,
+        "isDisplay": this.isDisplay,
+        "isExpand": this.isExpand
+    };
 
     this.getIconClass = function(type){
         switch(type){
@@ -34,7 +44,7 @@ function ChannelItem(data){
     }
 
     // Click to expand/collapse the setting
-    this.onClickToggleExpand = function(expand){
+    this.onClickToggleExpand = function(event, expand){
         if (typeof expand === "boolean") {
             _self.isExpand = expand;
         } else {
@@ -94,8 +104,12 @@ function ChannelItem(data){
         hueControlBtn.setAttribute('title', (_self.deactivateHue ? "Apply hue adjustment" : "Use greyscale"));
     };
 
-    this.onClickDeactivateHue = function (event) {
-        _self.deactivateHue = !_self.deactivateHue;
+    this.onClickDeactivateHue = function (event, deactivateHue) {
+        if (typeof deactivateHue === "boolean") {
+            _self.deactivateHue = deactivateHue;
+        } else {
+            _self.deactivateHue = !_self.deactivateHue;
+        }
 
         // make sure the controls are correctly displayed
         _self._setHueControlState();
@@ -115,29 +129,87 @@ function ChannelItem(data){
         var type = this.parentNode.getAttribute("data-type"),
             value = +this.value;
 
-        switch(type){
-            case "contrast":
-                _self.contrast = value;
-                _self.elem.querySelector(".sliderContainer[data-type='contrast'] .attrRow .value").innerText = _self.getContrastText();
-                break;
-            case "brightness":
-                _self.brightness = value;
-                _self.elem.querySelector(".sliderContainer[data-type='brightness'] .attrRow .value").innerText = value;
-                break;
-            case "gamma":
-                _self.gamma = value;
-                _self.elem.querySelector(".sliderContainer[data-type='gamma'] .attrRow .value").innerText = value;
-                break;
-            case "hue":
-                _self._setHueControlState(value);
-                break;
-        };
+        _self._setChannelColorSetting(type, value);
 
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
             type : type,
             value : value
         })
+    };
+    
+    // make sure the corresponding attribute and UI element are updated
+    this._setChannelColorSetting = function (type, value)  {
+        switch(type){
+            case "contrast":
+                _self.contrast = value;
+                // make sure slider is showing the value
+                _self.elem.querySelector(".sliderContainer[data-type='contrast'] input").value = value;
+                // make sure the value is displayed
+                _self.elem.querySelector(".sliderContainer[data-type='contrast'] .attrRow .value").innerText = _self.getContrastText();
+                break;
+            case "brightness":
+                _self.brightness = value;
+                // make sure slider is showing the value
+                _self.elem.querySelector(".sliderContainer[data-type='brightness'] input").value = value;
+                // make sure the value is displayed
+                _self.elem.querySelector(".sliderContainer[data-type='brightness'] .attrRow .value").innerText = value;
+                break;
+            case "gamma":
+                _self.gamma = value;
+                // make sure slider is showing the value
+                _self.elem.querySelector(".sliderContainer[data-type='gamma'] input").value = value;
+                // make sure the value is displayed
+                _self.elem.querySelector(".sliderContainer[data-type='gamma'] .attrRow .value").innerText = value;
+                break;
+            case "hue":
+                // make sure slider is showing the value
+                _self.elem.querySelector(".sliderContainer[data-type='hue'] input").value = value;
+                // make sure the value is displayed
+                _self._setHueControlState(value);
+                break;
+            case "deactivateHue":
+                _self.deactivateHue = value;
+                _self._setHueControlState();
+                break;
+        };
+    }
+    
+    this.resetChannelSettings = function (event) {
+        var og = _self.originalSettings;
+        
+        // expand
+        if (_self.isExpand != og.isExpand) {
+            _self.onClickToggleExpand(event, og.isExpand);
+        }
+
+        // display
+        if (_self.isDisplay != og.isDisplay) {
+            _self.onClickToggleDisplay(event, og.isExpand);
+        }
+        
+        // color settings
+        var attrs = ["contrast", "brightness", "gamma"];
+        // if hue control is missing, we shouldn't update the settings either
+        if (og.hue != null) {
+            attrs.push("hue", "deactivateHue");
+        }
+        var newSettings = {};
+        attrs.forEach(function (attrName) {
+            if (og[attrName] == null) return;
+
+            newSettings[attrName] = og[attrName];
+            
+            // make sure the change is reflected in the UI
+            _self._setChannelColorSetting(attrName, og[attrName]);
+        })
+        
+        _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
+            id: _self.osdItemId,
+            settings: newSettings
+        })
+        
+        event.stopPropagation();
     };
 
     this.render = function(){
@@ -150,7 +222,10 @@ function ChannelItem(data){
             "<div class='channelRow'>",
                 "<span class='toggleSetting' data-type='setting'><i class='"+this.getIconClass("expandPanel")+"'></i></span>",
                 "<span class='channelName'>"+ this.name +"</span>",
-                "<span class='toggleVisibility' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
+                "<span class=channel-control-button-container''>",
+                    "<span class='channel-control-btn reset-settings' title='Reset the channel settings'><i class='fas fa-undo'></i></span>",
+                    "<span class='channel-control-btn toggleVisibility' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
+                "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
                 "<span class='sliderContainer' data-type='contrast'>",
@@ -193,6 +268,11 @@ function ChannelItem(data){
         this.elem = channeElem;
 
         // Binding events
+            
+        // reset button
+        this.elem.querySelectorAll(".channelRow .reset-settings").forEach(function(elem){
+            elem.addEventListener('click', this.resetChannelSettings);
+        }.bind(this));
 
         //
         this.elem.querySelectorAll(".hue-container .deactivate-hue").forEach(function(elem){
