@@ -158,13 +158,18 @@ function ZPlaneList(parent) {
         var loader = _self._zPlaneContainer.querySelector('#z-plane-loader');
         if (loader != null) {
             var carousel = _self._zPlaneContainer.querySelector('.z-plane-carousel');
+            var zIndexInput = _self._zPlaneContainer.querySelector('#main-image-z-index');
+            var zIndexSubmit = _self._zPlaneContainer.querySelector('#z-index-jump-button');
             if (display == true) {
                 carousel.style.pointerEvents = 'none';
                 loader.style.display = 'flex';
-
+                zIndexInput.disabled = true;
+                zIndexSubmit.disabled = true;
             } else {
                 carousel.style.pointerEvents = 'initial';
                 loader.style.display = 'none';
+                zIndexInput.disabled = false;
+                zIndexSubmit.disabled = false;
             }
         }
     };
@@ -323,7 +328,7 @@ function ZPlaneList(parent) {
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
         zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
-            '<button class="jump-to-buttom-container" title="Jump to specific Z index">'+
+            '<button id="z-index-jump-button" class="jump-to-buttom-container" title="Jump to specific Z index">'+
                 '<i class="fa fa-share jump-to-button"></i>'+
             '</button>'+
             '<span>(total of ' + _self.totalCount + ' generated)</span>';
