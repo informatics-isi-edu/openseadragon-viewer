@@ -116,10 +116,10 @@ var OSDViewer = (function (_config) {
             case "annotationsLoaded":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-            case "osdInitialized":
+            case "mainImageLoaded":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
-            case "osdInitializeFailed":
+            case "mainImageLoadFailed":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "downloadViewDone":
@@ -143,12 +143,12 @@ var OSDViewer = (function (_config) {
             case "updateMainImage":
                 // remove the annotations
                 viewer.removeAllSVGAnnotations();
+                
+                // ask chaise to update the rest of page (fetch annotaion, etc)
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
 
                 // ask viewer to update the displayed image
                 viewer.loadImages(data);
-
-                // ask chaise to update the rest of page (fetch annotaion)
-                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
         }
     }

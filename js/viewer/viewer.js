@@ -80,7 +80,7 @@ function Viewer(parent, config) {
         this.osd.world.addHandler('add-item-failed', function(event) {
             console.error("Failed to add an item to osd", event);
             _self.resetSpinner();
-            _self.dispatchEvent('osdInitializeFailed', {});
+            _self.dispatchEvent('mainImageLoadFailed', {});
         });
 
         // the finalizing tasks after images are load
@@ -645,9 +645,10 @@ function Viewer(parent, config) {
             }
 
             _self.isInitLoad = true;
-            _self.dispatchEvent('osdInitialized');
 
-        };
+        }
+
+        _self.dispatchEvent('mainImageLoaded');
     }
 
     /**
