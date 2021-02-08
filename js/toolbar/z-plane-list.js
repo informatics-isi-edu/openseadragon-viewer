@@ -188,13 +188,16 @@ function ZPlaneList(parent) {
      */
     this._fetchListByZIndex = function (zIndex) {
 
-        // TODO show spinner
+        if (isNaN(zIndex) == false && zIndex != _self.mainImageZIndex) {
 
-        _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
-            pageSize: _self.pageSize,
-            zIndex: zIndex,
-            requestID: ++_self._currentRequestID
-        });
+            _self._showSpinner(true);
+
+            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
+                pageSize: _self.pageSize,
+                zIndex: zIndex,
+                requestID: ++_self._currentRequestID
+            });
+        }
     };
 
     /**
