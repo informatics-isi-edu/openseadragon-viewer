@@ -9,4 +9,9 @@ function AlertService(utils) {
 
         OSDViewer.dispatchEvent( "showAlert", { type: "warning", message: message })
     }
-}
+
+    this.showInvalidInputAlert = function (message) {
+        console.log(message);
+        OSDViewer.dispatchEvent("showAlert", { type: "warning", message: message })
+    }
+ }
