@@ -190,11 +190,16 @@ function ZPlaneList(parent) {
 
     /**
      * calculate the page size if needed and ask chaise to fetch the new list by zIndex
+     * @param {string} zIndex
      */
     this._fetchListByZIndex = function (zIndex) {
 
-        if (isNaN(zIndex) == false && zIndex != _self.mainImageZIndex) {
-
+        if (String(parseInt(zIndex)) != zIndex) {
+            // TODO show alert
+            window.OSDViewer.alertService.showInvalidInputAlert('Invalid Input');
+        } else if (parseInt(zIndex) == _self.mainImageZIndex) {
+            // Do Nothing
+        } else {
             _self._showSpinner(true);
 
             _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
@@ -335,10 +340,9 @@ function ZPlaneList(parent) {
 
         var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
         jumpButtom.addEventListener('click', function () {
-            console.log('jump to');
             // add check to make sure that it is int
             var newIndex = zPlaneInfo.querySelector('#main-image-z-index').value;
-            _self._fetchListByZIndex(parseInt(newIndex));
+            _self._fetchListByZIndex(newIndex);
         });
 
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
@@ -346,7 +350,7 @@ function ZPlaneList(parent) {
             console.log(event.keyCode);
             if (event.keyCode == 13) {
                 var newIndex = zPlaneInfo.querySelector('#main-image-z-index').value;
-                _self._fetchListByZIndex(parseInt(newIndex));
+                _self._fetchListByZIndex(newIndex);
             }
         });
 
