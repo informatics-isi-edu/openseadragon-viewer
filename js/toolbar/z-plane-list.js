@@ -112,7 +112,7 @@ function ZPlaneList(parent) {
         _self.totalCount = data.totalCount;
         _self.mainImageZIndex = data.mainImageZIndex;
         _self._render();
-        _self._fetchList({});
+        _self._fetchListByZIndex('default');
     }
 
     /**
@@ -194,9 +194,18 @@ function ZPlaneList(parent) {
      */
     this._fetchListByZIndex = function (zIndex) {
 
-        if (String(parseInt(zIndex)) != zIndex) {
+        if (zIndex == 'default') {
+            // This is case during the init function
+            _self._showSpinner(true);
+
+            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
+                pageSize: _self.pageSize,
+                zIndex: _self.mainImageZIndex,
+                requestID: ++_self._currentRequestID
+            });
+        } else if (String(parseInt(zIndex)) != zIndex) {
             // TODO show alert
-            window.OSDViewer.alertService.showInvalidInputAlert('Invalid Input');
+            window.OSDViewer.alertService.showAlert('Invalid Input');
         } else if (parseInt(zIndex) == _self.mainImageZIndex) {
             // Do Nothing
         } else {
