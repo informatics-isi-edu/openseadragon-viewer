@@ -1067,6 +1067,9 @@ function Viewer(parent, config) {
 
     // Resize Annotation SVGs
     this.resizeSVG = function(){
+        // this might be called while we're changing the main image
+        if (_self.osd.world.getItemCount() == 0) return;
+
         var svgs = _self.svg.querySelectorAll(".annotationSVG"),
             // upperLeftPoint,
             // bottomRightPoint,
