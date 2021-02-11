@@ -196,7 +196,7 @@ function ZPlaneList(parent) {
     this._fetchListByZIndex = function (zIndex) {
         // removing leading zeros
         zIndex = zIndex.replace(/^0+/, '');
-        
+
         if (zIndex == 'default') {
             // This is case during the init function
             _self._showSpinner(true);
@@ -232,6 +232,9 @@ function ZPlaneList(parent) {
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
         if (_self.pageSize == null || pageSize < _self.pageSize) {
+            if (pageSize < _self.collection.length) {
+                _self.hasNext = true;
+            }
             _self.pageSize = pageSize;
             _self.collection = _self.collection.splice(0, pageSize);
             _self._renderZPlaneCarousel();
