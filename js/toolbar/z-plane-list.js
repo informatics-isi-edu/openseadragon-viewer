@@ -103,6 +103,7 @@ function ZPlaneList(parent) {
         resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
         _self._zPlaneContainer = document.getElementById('z-planes-container');
         new ResizeSensor(resizeSensorContainer, function () {
+            console.log('resize function: ', resizeSensorContainer.clientWidth);
             clearTimeout(_self.delayedResizeSensorFunc);
             _self.delayedResizeSensorFunc = setTimeout(function () {
                 _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
@@ -341,7 +342,7 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
-        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
+        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
             '<button id="z-index-jump-button" class="jump-to-buttom-container" title="Jump to specific Z index">'+
                 '<i class="fa fa-share jump-to-button"></i>'+
             '</button>'+
@@ -356,7 +357,6 @@ function ZPlaneList(parent) {
 
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
         inputBox.addEventListener('keydown', event => {
-            console.log(event.keyCode);
             if (event.keyCode == 13) {
                 var newIndex = zPlaneInfo.querySelector('#main-image-z-index').value;
                 _self._fetchListByZIndex(newIndex);
