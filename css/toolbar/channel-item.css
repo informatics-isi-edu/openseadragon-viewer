@@ -57,7 +57,7 @@
     /* height: 0; */
     overflow: hidden;
     transition: height 0.3s;
-    padding: 5px 10px 5px 10px;
+    padding: 5px 10px 10px 10px;
     background: #333;
 }
 
@@ -68,7 +68,7 @@
 
 #navMenuContent .groups .channelItem .attrRow{
     display: flex;
-    padding: 0 5px 5px;
+    padding: 7px 5px 1px;
     /* color: #808080; */
     font-size: 12px;
 }
@@ -85,6 +85,7 @@
     text-align: right;
     border: 1px solid #5b5b5b;
     border-radius: 2px;
+    color: white;
 }
 
 #navMenuContent .groups .channelItem .attrRow .value:focus {
