@@ -15,7 +15,7 @@ function Channel(osdItemID, name, number, options) {
     this.gamma = 0.875;
     this.hue = null;
     this.initialProperty = {
-      contrast: 100,
+      contrast: 1,
       brightness: 0,
       gamma: 0.875,
       hue: null,
@@ -62,17 +62,7 @@ Channel.prototype.colorMapping = {
 Channel.prototype.getFiltersList = function () {
     var list = [];
 
-    if (this.contrast != null) {
-      if (this.contrast != this.initialProperty.contrast) {
-        list.push(OpenSeadragon.Filters.CONTRAST(this.contrast));
-      }
-    }
-
-    if (this.brightness != null) {
-      if (this.brightness != this.initialProperty.brightness) {
-        list.push(OpenSeadragon.Filters.BRIGHTNESS(this.brightness));
-      }
-    }
+    list.push(OpenSeadragon.Filters.CONTRAST_BRIGHTNESS(this.contrast, this.brightness));
 
     if (this.gamma != null) {
         list.push(OpenSeadragon.Filters.GAMMA(this.gamma));
@@ -200,7 +190,7 @@ Channel.prototype.set = function (type, value) {
 
     switch (type.toUpperCase()) {
         case "CONTRAST":
-            this.contrast = value*100;
+            this.contrast = value;
             break;
         case "BRIGHTNESS":
             this.brightness = value;
