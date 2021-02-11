@@ -194,7 +194,9 @@ function ZPlaneList(parent) {
      * @param {string} zIndex
      */
     this._fetchListByZIndex = function (zIndex) {
-
+        // removing leading zeros
+        zIndex = zIndex.replace(/^0+/, '');
+        
         if (zIndex == 'default') {
             // This is case during the init function
             _self._showSpinner(true);
