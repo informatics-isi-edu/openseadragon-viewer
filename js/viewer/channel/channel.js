@@ -62,18 +62,17 @@ Channel.prototype.colorMapping = {
 Channel.prototype.getFiltersList = function () {
     var list = [];
 
-    list.push(OpenSeadragon.Filters.CONTRAST_BRIGHTNESS(this.contrast, this.brightness));
-
-    if (this.gamma != null) {
-        list.push(OpenSeadragon.Filters.GAMMA(this.gamma));
-    }
-
     // only apply hue if it's activated
     if (this.hue != null && !this.deactivateHue) {
         list.push(OpenSeadragon.Filters.HUE(this.hue));
     }
 
-    // console.log("list", list);
+    if (this.gamma != null) {
+        list.push(OpenSeadragon.Filters.GAMMA(this.gamma));
+    }
+
+    list.push(OpenSeadragon.Filters.CONTRAST_BRIGHTNESS(this.contrast, this.brightness));
+
     return list;
 }
 

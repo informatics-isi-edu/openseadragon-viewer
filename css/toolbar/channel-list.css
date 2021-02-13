@@ -4,7 +4,8 @@
     flex-direction: column;
     flex: 1;
     background: #1e1e1e;;
-    color: #c1c1c1;
+    /* color: #c1c1c1; */
+    color: #d9d6d6;
 }
 
 
@@ -12,7 +13,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 10px;
+    padding-top: 5px;
 }
 
 #menuContainer #navMenuContent .channelList .title-content {

@@ -10,7 +10,7 @@
 #navMenuContent .groups .channelItem .channelRow{
     display: flex;
     align-items: baseline;
-    color: #c1c1c1;
+    /* color: #c1c1c1; */
     font-size: 14px;
     cursor: pointer;
     padding: 2px 10px 3px 10px;
@@ -57,7 +57,7 @@
     /* height: 0; */
     overflow: hidden;
     transition: height 0.3s;
-    padding: 5px 10px 10px 10px;
+    padding: 5px 15px 10px 15px;
     background: #333;
 }
 
@@ -68,9 +68,13 @@
 
 #navMenuContent .groups .channelItem .attrRow{
     display: flex;
-    padding: 7px 5px 1px;
     /* color: #808080; */
     font-size: 12px;
+    margin-bottom: -5px;
+}
+
+#navMenuContent .groups .channelItem .attrRow.w-input {
+    /* padding: 4px 5px 3px; */
 }
 
 #navMenuContent .groups .channelItem .attrRow .name{
@@ -103,7 +107,6 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 0 5px;
 }
 
 #navMenuContent .groups .channelItem .deactivate-hue {
@@ -140,21 +143,21 @@
 #navMenuContent .groups .channelItem input.slider{
     -webkit-appearance: none;
     appearance: none;
-    height: 8px;
-    background:#407cca;
+    background-color:#4674A7;
     outline: none;
-    opacity: 0.8;
     -webkit-transition: .2s;
-    transition: opacity .2s;
-    /* width: 100%; */
-    margin: 0 5px;
+    transition: background-color .2s;
+    width: 100%;
     box-sizing: border-box;
+    cursor: pointer;
+    height: 2px;
 }
 
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
     width: 200px;
     margin: 0;
     margin-right: 7px;
+    height: 8px;
     background: -webkit-linear-gradient(left, hsla(0, 100%, 50%, 1),
         hsla(10, 100%, 50%, 1),hsla(20, 100%, 50%, 1),hsla(30, 100%, 50%, 1),
         hsla(40, 100%, 50%, 1),hsla(50, 100%, 50%, 1),hsla(60, 100%, 50%, 1),
@@ -185,28 +188,47 @@
 
 /* Mouse-over effects */
 #navMenuContent .groups .channelItem input.slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
+    background-color: #5B90CC;
 }
 
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-
-#navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb {
+#navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb,
+#navMenuContent .groups .channelItem input.slider::-moz-range-thumb {
     -webkit-appearance: none; /* Override default look */
     appearance: none;
-    width: 5px; /* Set a specific slider handle width */
-    height: 10px; /* Slider handle height */
-    /* background: #d2d6da; */
-    background: white;
-    cursor: pointer; /* Cursor on hover */
-    /* border: 1px solid #6797d4; */
-    border: 1px solid white;
-    border-radius : 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d9d6d6;
+    cursor: pointer;
+    border: none;
+    transition: all .1s linear;
 }
 
+#navMenuContent .groups .channelItem input.slider::-moz-range-thumb:hover {
+    height: 13px;
+    width: 13px;
+}
 
-#navMenuContent .groups .channelItem input.slider::-moz-range-thumb {
-    width: 5px; /* Set a specific slider handle width */
-    height: 10px; /* Slider handle height */
-    background: #d2d6da;
-    cursor: pointer; /* Cursor on hover */
+#navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb:hover {
+    height: 13px;
+    width: 13px;
+}
+
+#navMenuContent .groups .channelItem [data-type="hue"] input.slider::-webkit-slider-thumb,
+#navMenuContent .groups .channelItem [data-type="hue"] input.slider::-moz-range-thumb {
+    border: 1px solid #777;
+    width: 5px;
+    height: 13px;
+    border-radius: 2px;
+}
+
+#navMenuContent .groups .channelItem [data-type="hue"] input.slider::-moz-range-thumb:hover {
+    width: 6px;
+    height: 15px;
+}
+
+#navMenuContent .groups .channelItem [data-type="hue"] input.slider::-webkit-slider-thumb:hover {
+    width: 6px;
+    height: 15px;
 }

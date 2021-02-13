@@ -124,7 +124,7 @@ function ChannelItem(data){
 
     // Change the slider value
     this.onChangeSliderValue = function(){
-        var type = this.parentNode.getAttribute("data-type"),
+        var type = this.parentNode.parentNode.getAttribute("data-type"),
             value = +this.value;
 
         _self._setChannelColorSetting(type, value);
@@ -140,28 +140,14 @@ function ChannelItem(data){
     this._setChannelColorSetting = function (type, value)  {
         switch(type){
             case "contrast":
-                _self.contrast = value;
-                // make sure slider is showing the value
-                _self.elem.querySelector(".sliderContainer[data-type='contrast'] input").value = value;
-                // make sure the value is displayed
-                _self.elem.querySelector(".sliderContainer[data-type='contrast'] .attrRow .value").innerText = value;
-                // _self.elem.querySelector(".sliderContainer[data-type='contrast'] .attrRow .value").value = value;
-                break;
             case "brightness":
-                _self.brightness = value;
-                // make sure slider is showing the value
-                _self.elem.querySelector(".sliderContainer[data-type='brightness'] input").value = value;
-                // make sure the value is displayed
-                _self.elem.querySelector(".sliderContainer[data-type='brightness'] .attrRow .value").innerText = value;
-                // _self.elem.querySelector(".sliderContainer[data-type='brightness'] .attrRow .value").value = value;
-                break;
             case "gamma":
-                _self.gamma = value;
+                _self[type] = value;
                 // make sure slider is showing the value
-                _self.elem.querySelector(".sliderContainer[data-type='gamma'] input").value = value;
+                _self.elem.querySelector(".sliderContainer[data-type='" + type + "'] input").value = value;
                 // make sure the value is displayed
-                _self.elem.querySelector(".sliderContainer[data-type='gamma'] .attrRow .value").innerText = value;
-                // _self.elem.querySelector(".sliderContainer[data-type='gamma'] .attrRow .value").value = value;
+                _self.elem.querySelector(".sliderContainer[data-type='" + type + "'] .attrRow .value").innerText = value;
+                // _self.elem.querySelector(".sliderContainer[data-type='" + type + "'] .attrRow .value").value = value;
                 break;
             case "hue":
                 // make sure slider is showing the value
@@ -193,7 +179,7 @@ function ChannelItem(data){
         var attrs = ["contrast", "brightness", "gamma"];
         // if hue control is missing, we shouldn't update the settings either
         if (og.hue != null) {
-            attrs.push("hue", "deactivateHue");
+            attrs.push("deactivateHue", "hue");
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {
@@ -235,7 +221,9 @@ function ChannelItem(data){
                         "<span class='value'>"+ this.contrast +"</span>",
                         // "<input class='value' value=" + this.contrast + ">",
                     "</span>",
-                    "<input type='range' class='slider' min='0' max='10' step='0.1' value='"+this.contrast+"'>",
+                    "<span class='slider-wrapper'>",
+                        "<input type='range' class='slider' min='0' max='10' step='0.1' value='"+this.contrast+"'>",
+                    "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
                     "<span class='attrRow'>",
@@ -243,7 +231,9 @@ function ChannelItem(data){
                         "<span class='value'>"+ this.brightness +"</span>",
                         // "<input class='value' value=" + this.brightness + ">",
                     "</span>",
-                    "<input type='range' class='slider' min='-255' max='255' step='5' value='"+this.brightness+"'>",
+                    "<span class='slider-wrapper'>",
+                        "<input type='range' class='slider' min='-255' max='255' step='5' value='"+this.brightness+"'>",
+                    "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='gamma'>",
                     "<span class='attrRow'>",
@@ -251,7 +241,9 @@ function ChannelItem(data){
                         "<span class='value'>"+ this.gamma +"</span>",
                         // "<input class='value' value=" + this.gamma + ">",
                     "</span>",
-                    "<input type='range' class='slider' min='0' max='3' step='0.125' value='"+this.gamma+"'>",
+                    "<span class='slider-wrapper'>",
+                        "<input type='range' class='slider' min='0' max='3' step='0.125' value='"+this.gamma+"'>",
+                    "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='hue'>",
                     "<span class='attrRow'>",
@@ -259,7 +251,9 @@ function ChannelItem(data){
                         "<span class='value'>" + (this.deactivateHue ? "Greyscale" : this.hue) + "</span>",
                     "</span>",
                     "<span class='hue-container' data-type='hue'>",
-                        "<input type='range' class='slider " + (!this.deactivateHue ? "active" : "") + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                        "<span class='slider-wrapper'>",
+                            "<input type='range' class='slider " + (!this.deactivateHue ? "active" : "") + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                        "</span>",
                         "<span title='" + (this.deactivateHue ? "Apply hue adjustment" : "Use greyscale") + "' class='deactivate-hue " + (this.deactivateHue ? "active" : "") + "'></span>",
                     "</span>",
                 "</span>",
