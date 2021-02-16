@@ -80,10 +80,20 @@ function ZPlaneList(parent) {
      */
     this._currentRequestID;
 
-    this.lastRequest = {
+    /**
+     * it stores the current z plane fetch request that is being processed, and the data that was sent to process it.
+     * @type {object}
+     */
+    this.currentZPlaneRequest = {
         type: 'none',
         data: {}
     };
+
+    /**
+     * it store the valid fetch requests for fetching z plane list
+     * @type {Array}
+     */
+    this.validFetchRequests = ['fetchZPlaneListByZIndex', 'fetchZPlaneList'];
 
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
@@ -151,8 +161,8 @@ function ZPlaneList(parent) {
             _self._onclickImageHandler(data.mainImageZIndex);
         }
 
-        _self._updateLastRequest('none', {});
-        
+        _self._updateCurrentZPlaneRequestAndFetchData('none', {});
+
         _self._showSpinner(false);
         _self._render();
     };
@@ -182,19 +192,28 @@ function ZPlaneList(parent) {
         }
     };
 
-    this._updateLastRequest = function (requestType, requestData) {
-        _self.lastRequest = {
+    /**
+     * change the currentZPlaneRequest variable and fetch the data
+     * @param {string} requestType - must be present in validFetchRequests variable
+     * @param {object} requestData - the content of the fetch request. Make sure the requestData is valid, no such check is done in this function
+     */
+    this._updateCurrentZPlaneRequestAndFetchData = function (requestType, requestData) {
+        _self.currentZPlaneRequest = {
             type: requestType,
             data: requestData,
         };
-        console.log('_self.lastRequest', _self.lastRequest);
+
+        if (_self.validFetchRequests.includes(requestType)) {
+            _self.parent.dispatchEvent(requestType, requestData);
+            _self._showSpinner(true);
+        }
+        // console.log('_self.currentZPlaneRequest', _self.currentZPlaneRequest);
     }
 
     /**
      * calculate the page size if needed and ask chaise to fetch the new list
      */
     this._fetchList = function (data) {
-        _self._showSpinner(true);
 
         var requestData = {
             pageSize: _self.pageSize,
@@ -203,9 +222,7 @@ function ZPlaneList(parent) {
             requestID: ++_self._currentRequestID
         };
 
-        _self._updateLastRequest('fetchZPlaneList', requestData);
-
-        _self.parent.dispatchEvent('fetchZPlaneList', requestData);
+        _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneList', requestData);
     };
 
     /**
@@ -218,7 +235,6 @@ function ZPlaneList(parent) {
 
         if (zIndex == 'default') {
             // This is case during the init function
-            _self._showSpinner(true);
 
             var requestData = {
                 pageSize: _self.pageSize,
@@ -226,16 +242,13 @@ function ZPlaneList(parent) {
                 requestID: ++_self._currentRequestID
             };
 
-            _self._updateLastRequest('fetchZPlaneListByZIndex', requestData);
-
-            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', requestData);
+            _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
         } else if (String(parseInt(zIndex)) != zIndex) {
             // TODO show alert
             window.OSDViewer.alertService.showAlert('Invalid Input');
         } else if (parseInt(zIndex) == _self.mainImageZIndex) {
             // Do Nothing
         } else {
-            _self._showSpinner(true);
 
             var requestData = {
                 pageSize: _self.pageSize,
@@ -243,9 +256,7 @@ function ZPlaneList(parent) {
                 requestID: ++_self._currentRequestID
             };
 
-            _self._updateLastRequest('fetchZPlaneListByZIndex', requestData);
-
-            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', requestData);
+            _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
         }
     };
 
@@ -259,23 +270,20 @@ function ZPlaneList(parent) {
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
 
+        // in case the new page size is equal to the current page size, return
         if (_self.pageSize != null && pageSize == _self.pageSize) {
             return;
         }
 
-        console.log('_self.lastRequest.type =============== ', _self.lastRequest.type);
+        if (_self.currentZPlaneRequest.type != 'none') {
+            // There is a request that is currently being processed, and the page size is changed, so a new request needs to be sent out with the updated page size
 
-        if (_self.lastRequest.type != 'none') {
-            var requestData = _self.lastRequest.data;
+            var requestData = _self.currentZPlaneRequest.data;
             requestData.requestID = ++_self._currentRequestID;
             requestData.pageSize = pageSize;
             _self.pageSize = pageSize;
-            _self._updateLastRequest(_self.lastRequest.type, requestData);
+            _self._updateCurrentZPlaneRequestAndFetchData(_self.currentZPlaneRequest.type, requestData);
 
-            _self.parent.dispatchEvent(_self.lastRequest.type, requestData);
-            console.log('sending new request');
-
-            _self._showSpinner(true);
         } else {
             if (_self.pageSize == null || pageSize < _self.pageSize) {
                 if (pageSize < _self.collection.length) {
