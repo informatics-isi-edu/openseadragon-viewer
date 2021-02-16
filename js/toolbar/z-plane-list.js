@@ -243,9 +243,6 @@ function ZPlaneList(parent) {
             };
 
             _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
-        } else if (String(parseInt(zIndex)) != zIndex) {
-            // TODO show alert
-            window.OSDViewer.alertService.showAlert('Invalid Input');
         } else if (parseInt(zIndex) == _self.mainImageZIndex) {
             // Do Nothing
         } else {
