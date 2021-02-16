@@ -57,7 +57,7 @@
     /* height: 0; */
     overflow: hidden;
     transition: height 0.3s;
-    padding: 5px 15px 10px 15px;
+    padding: 5px 10px 10px 10px;
     background: #333;
 }
 
@@ -70,19 +70,15 @@
     display: flex;
     /* color: #808080; */
     font-size: 12px;
-    margin-bottom: -5px;
-}
-
-#navMenuContent .groups .channelItem .attrRow.w-input {
-    /* padding: 4px 5px 3px; */
+    margin-bottom: 0px;
 }
 
 #navMenuContent .groups .channelItem .attrRow .name{
     flex: 1;
-    /* color: #000; */
+    margin-top: 2px;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.value {
+#navMenuContent .groups .channelItem .attrRow input.number {
     background: transparent;
     height: 20px;
     width: 36px;
@@ -90,14 +86,23 @@
     border: 1px solid #5b5b5b;
     border-radius: 2px;
     color: white;
+    display: none;
 }
 
-#navMenuContent .groups .channelItem .attrRow .value:focus {
+#navMenuContent .groups .channelItem .attrRow input.number.active {
+    display: inline-block;
+}
+
+#navMenuContent .groups .channelItem .attrRow input.number.active + .greyscale {
+    display: none;
+}
+
+#navMenuContent .groups .channelItem .attrRow input.number:focus {
     outline: 0;
 }
 
 #navMenuContent .groups .channelItem .sliderContainer{
-    margin: 0 0 5px 0;
+    margin: 2px 0 1px 0;
     display: flex;
     flex-direction: column;
 }
@@ -151,11 +156,24 @@
     width: 100%;
     box-sizing: border-box;
     cursor: pointer;
-    height: 2px;
+    height: 10px;
+    background: transparent;
+    background-position-x: 0%;
+    background-position-y: 0%;
+    background-repeat: repeat;
+    background-image: none;
+    background-size: auto;
+    background-clip: border-box;
+    background-size: 100% 2px;
+    background-image: linear-gradient(90deg, #4674A7 50%, #4674A7 50%);
+    background-size: 100% 2px;
+    background-clip: content-box;
+    background-repeat: no-repeat;
+    background-position: 0;
 }
 
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
-    width: 200px;
+    width: 210px;
     margin: 0;
     margin-right: 7px;
     height: 8px;
@@ -189,13 +207,24 @@
 
 /* Mouse-over effects */
 #navMenuContent .groups .channelItem input.slider:hover {
-    background-color: #5B90CC;
+    background-image: linear-gradient(90deg, #5B90CC 50%, #5B90CC 50%);
+    background-size: 100% 5px;
 }
 
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-#navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb,
-#navMenuContent .groups .channelItem input.slider::-moz-range-thumb {
+/* NOTE had to write this in two different rules */
+#navMenuContent .groups .channelItem input.slider::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d9d6d6;
+    cursor: pointer;
+    border: none;
+    transition: all .1s linear;
+}
+
+#navMenuContent .groups .channelItem input.slider::-moz-range-thumb {
     appearance: none;
     width: 10px;
     height: 10px;
