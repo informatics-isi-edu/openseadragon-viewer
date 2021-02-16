@@ -80,6 +80,11 @@ function ZPlaneList(parent) {
      */
     this._currentRequestID;
 
+    this.lastRequest = {
+        type: 'none',
+        data: {}
+    };
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
@@ -145,6 +150,8 @@ function ZPlaneList(parent) {
         if (data.updateMainImage && data.mainImageZIndex >= 0) {
             _self._onclickImageHandler(data.mainImageZIndex);
         }
+
+        _self._updateLastRequest('none', {});
         
         _self._showSpinner(false);
         _self._render();
@@ -175,18 +182,30 @@ function ZPlaneList(parent) {
         }
     };
 
+    this._updateLastRequest = function (requestType, requestData) {
+        _self.lastRequest = {
+            type: requestType,
+            data: requestData,
+        };
+        console.log('_self.lastRequest', _self.lastRequest);
+    }
+
     /**
      * calculate the page size if needed and ask chaise to fetch the new list
      */
     this._fetchList = function (data) {
         _self._showSpinner(true);
 
-        _self.parent.dispatchEvent('fetchZPlaneList', {
+        var requestData = {
             pageSize: _self.pageSize,
             before: data.before,
             after: data.after,
             requestID: ++_self._currentRequestID
-        });
+        };
+
+        _self._updateLastRequest('fetchZPlaneList', requestData);
+
+        _self.parent.dispatchEvent('fetchZPlaneList', requestData);
     };
 
     /**
@@ -201,11 +220,15 @@ function ZPlaneList(parent) {
             // This is case during the init function
             _self._showSpinner(true);
 
-            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
+            var requestData = {
                 pageSize: _self.pageSize,
                 zIndex: _self.mainImageZIndex,
                 requestID: ++_self._currentRequestID
-            });
+            };
+
+            _self._updateLastRequest('fetchZPlaneListByZIndex', requestData);
+
+            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', requestData);
         } else if (String(parseInt(zIndex)) != zIndex) {
             // TODO show alert
             window.OSDViewer.alertService.showAlert('Invalid Input');
@@ -214,11 +237,15 @@ function ZPlaneList(parent) {
         } else {
             _self._showSpinner(true);
 
-            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', {
+            var requestData = {
                 pageSize: _self.pageSize,
                 zIndex: zIndex,
                 requestID: ++_self._currentRequestID
-            });
+            };
+
+            _self._updateLastRequest('fetchZPlaneListByZIndex', requestData);
+
+            _self.parent.dispatchEvent('fetchZPlaneListByZIndex', requestData);
         }
     };
 
@@ -231,17 +258,37 @@ function ZPlaneList(parent) {
         width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
-        if (_self.pageSize == null || pageSize < _self.pageSize) {
-            if (pageSize < _self.collection.length) {
-                _self.hasNext = true;
+
+        if (_self.pageSize != null && pageSize == _self.pageSize) {
+            return;
+        }
+
+        console.log('_self.lastRequest.type =============== ', _self.lastRequest.type);
+
+        if (_self.lastRequest.type != 'none') {
+            var requestData = _self.lastRequest.data;
+            requestData.requestID = ++_self._currentRequestID;
+            requestData.pageSize = pageSize;
+            _self.pageSize = pageSize;
+            _self._updateLastRequest(_self.lastRequest.type, requestData);
+
+            _self.parent.dispatchEvent(_self.lastRequest.type, requestData);
+            console.log('sending new request');
+
+            _self._showSpinner(true);
+        } else {
+            if (_self.pageSize == null || pageSize < _self.pageSize) {
+                if (pageSize < _self.collection.length) {
+                    _self.hasNext = true;
+                }
+                _self.pageSize = pageSize;
+                _self.collection = _self.collection.splice(0, pageSize);
+                _self._renderZPlaneCarousel();
+            } else if (pageSize > _self.pageSize) {
+                _self.pageSize = pageSize;
+                _self.appendData = true;
+                _self._onNextPreviousHandler(true);
             }
-            _self.pageSize = pageSize;
-            _self.collection = _self.collection.splice(0, pageSize);
-            _self._renderZPlaneCarousel();
-        } else if (pageSize > _self.pageSize) {
-            _self.pageSize = pageSize;
-            _self.appendData = true;
-            _self._onNextPreviousHandler(true);
         }
     };
 
