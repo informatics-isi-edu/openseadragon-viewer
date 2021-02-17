@@ -164,7 +164,6 @@ function ZPlaneList(parent) {
         // emptying currentZPlaneRequest so that to indicate that no z plane fetch request is pending
         _self._updateCurrentZPlaneRequestAndFetchData('none', {});
 
-        _self._showSpinner(false);
         _self._render();
     };
 
@@ -207,6 +206,8 @@ function ZPlaneList(parent) {
         if (_self.validFetchRequests.indexOf(requestType) != -1) {
             _self.parent.dispatchEvent(requestType, requestData);
             _self._showSpinner(true);
+        } else if (requestData == 'none') {
+            _self._showSpinner(false);
         }
         // console.log('_self.currentZPlaneRequest', _self.currentZPlaneRequest);
     }
