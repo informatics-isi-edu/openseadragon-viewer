@@ -232,8 +232,10 @@ function ZPlaneList(parent) {
      * @param {string} zIndex
      */
     this._fetchListByZIndex = function (zIndex) {
-        // removing leading zeros
-        zIndex = zIndex.replace(/^0+/, '');
+        // removing leading zeros, only if the string is not "0"
+        if (zIndex != '0') {
+            zIndex = zIndex.replace(/^0+/, '');
+        }
 
         if (zIndex == 'default') {
             // This is case during the init function
