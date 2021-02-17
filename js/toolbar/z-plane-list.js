@@ -100,7 +100,6 @@ function ZPlaneList(parent) {
      * @param {object} data
      */
     this.init = function (data) {
-        // console.log('init with ', data);
 
         // change the width to be based on the image
         if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
@@ -118,7 +117,6 @@ function ZPlaneList(parent) {
         resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
         _self._zPlaneContainer = document.getElementById('z-planes-container');
         new ResizeSensor(resizeSensorContainer, function () {
-            console.log('resize function: ', resizeSensorContainer.clientWidth);
             clearTimeout(_self.delayedResizeSensorFunc);
             _self.delayedResizeSensorFunc = setTimeout(function () {
                 _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
@@ -209,7 +207,6 @@ function ZPlaneList(parent) {
         } else if (requestData == 'none') {
             _self._showSpinner(false);
         }
-        // console.log('_self.currentZPlaneRequest', _self.currentZPlaneRequest);
     }
 
     /**
