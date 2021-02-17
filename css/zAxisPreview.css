@@ -155,7 +155,7 @@
 }
 
 .z-planes-container .z-plane-carousel .z-plane-loader {
-	height: inherit;
+	height: 115px;
 	width: 100%;
 	position: absolute;
 	background: #e8e8e8b8;
