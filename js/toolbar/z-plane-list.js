@@ -161,6 +161,7 @@ function ZPlaneList(parent) {
             _self._onclickImageHandler(data.mainImageZIndex);
         }
 
+        // emptying currentZPlaneRequest so that to indicate that no z plane fetch request is pending
         _self._updateCurrentZPlaneRequestAndFetchData('none', {});
 
         _self._showSpinner(false);
@@ -203,7 +204,7 @@ function ZPlaneList(parent) {
             data: requestData,
         };
 
-        if (_self.validFetchRequests.includes(requestType)) {
+        if (_self.validFetchRequests.indexOf(requestType) != -1) {
             _self.parent.dispatchEvent(requestType, requestData);
             _self._showSpinner(true);
         }
@@ -226,7 +227,7 @@ function ZPlaneList(parent) {
     };
 
     /**
-     * calculate the page size if needed and ask chaise to fetch the new list by zIndex
+     * calculate the page size if needed and ask chaise to fetch the new list by zIndex, make sure that zIndex is a valid integer. No such check is being done in this function
      * @param {string} zIndex
      */
     this._fetchListByZIndex = function (zIndex) {
@@ -243,9 +244,7 @@ function ZPlaneList(parent) {
             };
 
             _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
-        } else if (parseInt(zIndex) == _self.mainImageZIndex) {
-            // Do Nothing
-        } else {
+        } else if (parseInt(zIndex) != _self.mainImageZIndex) {
 
             var requestData = {
                 pageSize: _self.pageSize,
@@ -281,19 +280,21 @@ function ZPlaneList(parent) {
             _self.pageSize = pageSize;
             _self._updateCurrentZPlaneRequestAndFetchData(_self.currentZPlaneRequest.type, requestData);
 
-        } else {
-            if (_self.pageSize == null || pageSize < _self.pageSize) {
-                if (pageSize < _self.collection.length) {
-                    _self.hasNext = true;
-                }
-                _self.pageSize = pageSize;
-                _self.collection = _self.collection.splice(0, pageSize);
-                _self._renderZPlaneCarousel();
-            } else if (pageSize > _self.pageSize) {
-                _self.pageSize = pageSize;
-                _self.appendData = true;
-                _self._onNextPreviousHandler(true);
+        } else if (_self.pageSize == null || pageSize < _self.pageSize) {
+            // there is no current request pending, and the new page size is less than the current page size, so no new request is needed and we only need to truncate the exsisting data
+
+            if (pageSize < _self.collection.length) {
+                _self.hasNext = true;
             }
+            _self.pageSize = pageSize;
+            _self.collection = _self.collection.splice(0, pageSize);
+            _self._renderZPlaneCarousel();
+        } else if (pageSize > _self.pageSize) {
+            // // there is no current request pending, and the new page size is greater than the current page size, so a new request needs to be sent to fetch new data
+
+            _self.pageSize = pageSize;
+            _self.appendData = true;
+            _self._onNextPreviousHandler(true);
         }
     };
 
