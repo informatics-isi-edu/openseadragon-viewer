@@ -132,10 +132,10 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         _self.annotations.forEach(function(annotation){
             strokeWidth = parseFloat(annotation._attrs["stroke-width"]) || 1;
-            strokeWidth =  strokeWidth * strokeScale * 1.25 || 5;
+            strokeWidth =  strokeWidth * strokeScale * 2 || 5;
             annotation.highlight({
                 "stroke-width" : strokeWidth === 0 ? 5 : strokeWidth,
-                "stroke" : "yellow",
+                // "stroke" : "yellow",
             });
         })
     }
