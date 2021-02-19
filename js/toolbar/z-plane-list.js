@@ -68,6 +68,8 @@ function ZPlaneList(parent) {
      */
     this._resizeSensorDelay = 200;
 
+    this._zIndexInputDelay = 2000;
+
     // varibale to access the UI component of the z plane.
     this._zPlaneContainer;
 
@@ -135,7 +137,7 @@ function ZPlaneList(parent) {
      */
     this.updateList = function (data) {
         // in case of an old response -> return
-        if (data.requestID != _self._currentRequestID) 
+        if (data.requestID != _self._currentRequestID)
             return;
 
         console.log("updating the z-plane-list with the following data:", data, data.images.length);
@@ -229,11 +231,6 @@ function ZPlaneList(parent) {
      * @param {string} zIndex
      */
     this._fetchListByZIndex = function (zIndex) {
-        // removing leading zeros, only if the string is not "0"
-        if (zIndex != '0') {
-            zIndex = zIndex.replace(/^0+/, '');
-        }
-
         if (zIndex == 'default') {
             // This is case during the init function
 
@@ -244,7 +241,20 @@ function ZPlaneList(parent) {
             };
 
             _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
-        } else if (parseInt(zIndex) != _self.mainImageZIndex) {
+
+            return;
+        }
+
+        // turn the value into integer (takes care of leading zeros as well)
+        zIndex = parseInt(zIndex);
+
+        // make sure we're not sending invalid inputs to chaise
+        // NOTE this technically shouldn't happen and the calling site should take care of this
+        if (isNaN(zIndex)) {
+            return;
+        }
+
+        if (zIndex != _self.mainImageZIndex) {
 
             var requestData = {
                 pageSize: _self.pageSize,
@@ -406,19 +416,28 @@ function ZPlaneList(parent) {
             '</button>'+
             '<span>(total of ' + _self.totalCount + ' generated)</span>';
 
-        var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
-        jumpButtom.addEventListener('click', function () {
-            // add check to make sure that it is int
-            var newIndex = zPlaneInfo.querySelector('#main-image-z-index').value;
+        var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
+        var grabInputAndSearch = function (event) {
+            var newIndex = inputEl.value;
+            if (isNaN(parseInt(newIndex))) {
+                inputEl.value = _self.mainImageZIndex;
+                return;
+            }
             _self._fetchListByZIndex(newIndex);
-        });
+        }
+
+        var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
+        jumpButtom.addEventListener('click', grabInputAndSearch);
 
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
-        inputBox.addEventListener('keydown', event => {
-            if (event.keyCode == 13) {
-                var newIndex = zPlaneInfo.querySelector('#main-image-z-index').value;
-                _self._fetchListByZIndex(newIndex);
-            }
+        inputBox.addEventListener('change', grabInputAndSearch);
+
+        var inputChangedPromise = null;
+        inputBox.addEventListener('input', function (event) {
+            clearTimeout(inputChangedPromise);
+            inputChangedPromise = setTimeout(function () {
+                grabInputAndSearch(event);
+            }, _self._zIndexInputDelay);
         });
 
     }
