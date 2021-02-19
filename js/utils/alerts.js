@@ -11,7 +11,22 @@ function AlertService(utils) {
     }
 
     this.showAlert = function (message) {
-        console.log(message);
         OSDViewer.dispatchEvent("showAlert", { type: "warning", message: message })
     }
- }
+}
+
+
+function ErrorService(utils) {
+    var _self = this;
+
+    this._utils = utils;
+
+    this.showPopupError = function (header, message, isDismissible, clickActionMessage) {
+        OSDViewer.dispatchEvent("showPopupError", {
+            header: header,
+            message: message,
+            isDismissible: isDismissible,
+            clickActionMessage: clickActionMessage
+        });
+    }
+}

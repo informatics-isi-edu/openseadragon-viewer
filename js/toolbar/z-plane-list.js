@@ -132,7 +132,7 @@ function ZPlaneList(parent) {
     }
 
     /**
-     * after request is done in chaise, this will be called to show the result
+     * TODO list all the properties of the `data` and explain each one.
      * @param {object} data
      */
     this.updateList = function (data) {
@@ -157,8 +157,22 @@ function ZPlaneList(parent) {
             }
         }
 
-        if (data.updateMainImage && data.mainImageZIndex >= 0) {
-            _self._onclickImageHandler(data.mainImageZIndex);
+        // the used z-index is different from the input, so we should show an error message
+        if (data.updateMainImage) {
+            var usedZIndex = data.images[data.mainImageIndex].zIndex;
+            if (data.inputZIndex != usedZIndex) {
+                var message = "Could not find any image with Z index of <code>" + data.inputZIndex + "</code>.";
+                message += "Displaying the closest generated Z index of <code>" + usedZIndex + "</code> instead.";
+                window.OSDViewer.errorService.showPopupError(
+                    "Z Index Not Found",
+                    message,
+                    true
+                );
+            }
+        }
+
+        if (data.updateMainImage && data.mainImageIndex >= 0) {
+            _self._onclickImageHandler(data.mainImageIndex);
         }
 
         // emptying currentZPlaneRequest so that to indicate that no z plane fetch request is pending
@@ -255,7 +269,9 @@ function ZPlaneList(parent) {
         }
 
         if (zIndex != _self.mainImageZIndex) {
-
+            // since some requests might be stale and therefore not displayed,
+            // this has to be here and cannot be in chaise
+            // if we do this in chaise, it might show multiple errors
             var requestData = {
                 pageSize: _self.pageSize,
                 zIndex: zIndex,
@@ -416,8 +432,11 @@ function ZPlaneList(parent) {
             '</button>'+
             '<span>(total of ' + _self.totalCount + ' generated)</span>';
 
+        var inputChangedPromise = null;
         var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
+
         var grabInputAndSearch = function (event) {
+            clearTimeout(inputChangedPromise);
             var newIndex = inputEl.value;
             if (isNaN(parseInt(newIndex))) {
                 inputEl.value = _self.mainImageZIndex;
@@ -432,7 +451,6 @@ function ZPlaneList(parent) {
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
         inputBox.addEventListener('change', grabInputAndSearch);
 
-        var inputChangedPromise = null;
         inputBox.addEventListener('input', function (event) {
             clearTimeout(inputChangedPromise);
             inputChangedPromise = setTimeout(function () {
