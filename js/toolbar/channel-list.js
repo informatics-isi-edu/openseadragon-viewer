@@ -82,7 +82,7 @@ function ChannelList(parent) {
             _self.collection[id].onClickToggleDisplay(event, false);
         }
     };
-    
+
     this.resetAllChannels = function (event) {
         for (var id in _self.collection) {
             _self.collection[id].resetChannelSettings(event);
@@ -100,17 +100,14 @@ function ChannelList(parent) {
         if (collection, Object.keys(collection).length === 0 && collection.constructor === Object) {
             listElem.innerHTML = [
                 "<div class='title-container'>",
-                    "<button class='dismiss-channel' title='dismiss'><i class='fas fa-caret-left'></i></button>",
                     "<span class='title'>Channels</span>",
                 "</div>",
-                "<hr class='section-separator'/>",
                 "<div class='groups'> No Channels found</div>"
             ].join("");
         } else {
             listElem.innerHTML = [
                 "<div class='title-container'>",
                     "<div class='title-content'>",
-                        "<button class='dismiss-channel' title='dismiss'><i class='fas fa-caret-left'></i></button>",
                         "<span class='title'>Channels</span>",
                     "</div>",
                     "<div class='all-channel-controls'>",
@@ -121,7 +118,6 @@ function ChannelList(parent) {
                         "<span title='Reset all channel settings' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
                     "</div>",
                 "</div>",
-                "<hr class='section-separator'/>",
                 "<div class='groups'></div>"
             ].join("");
         }
@@ -135,10 +131,6 @@ function ChannelList(parent) {
 
         this.elem = listElem;
 
-        this.elem.querySelectorAll(".dismiss-channel").forEach(function(elem) {
-            elem.addEventListener('click', this.onClickedMenuHandler);
-        }.bind(this));
-
         this.elem.querySelector('#expand-all-channels').addEventListener('click', this.expandAllChannels);
 
         this.elem.querySelector('#collapse-all-channels').addEventListener('click', this.collapseAllChannels);
@@ -146,7 +138,7 @@ function ChannelList(parent) {
         this.elem.querySelector('#show-all-channels').addEventListener('click', this.showAllChannels);
 
         this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
-        
+
         this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
 
     }
