@@ -68,6 +68,8 @@ function ZPlaneList(parent) {
      */
     this._resizeSensorDelay = 200;
 
+    this._zIndexInputDelay = 2000;
+
     // varibale to access the UI component of the z plane.
     this._zPlaneContainer;
 
@@ -81,11 +83,25 @@ function ZPlaneList(parent) {
     this._currentRequestID;
 
     /**
+     * it stores the current z plane fetch request that is being processed, and the data that was sent to process it.
+     * @type {object}
+     */
+    this.currentZPlaneRequest = {
+        type: 'none',
+        data: {}
+    };
+
+    /**
+     * it store the valid fetch requests for fetching z plane list
+     * @type {Array}
+     */
+    this.validFetchRequests = ['fetchZPlaneListByZIndex', 'fetchZPlaneList'];
+
+    /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
      */
     this.init = function (data) {
-        // console.log('init with ', data);
 
         // change the width to be based on the image
         if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
@@ -112,19 +128,19 @@ function ZPlaneList(parent) {
         _self.totalCount = data.totalCount;
         _self.mainImageZIndex = data.mainImageZIndex;
         _self._render();
-        _self._fetchList({});
+        _self._fetchListByZIndex('default');
     }
 
     /**
-     * after request is done in chaise, this will be called to show the result
+     * TODO list all the properties of the `data` and explain each one.
      * @param {object} data
      */
     this.updateList = function (data) {
         // in case of an old response -> return
-        if (data.requestID != _self._currentRequestID) 
+        if (data.requestID != _self._currentRequestID)
             return;
 
-        // console.log("updating the z-plane-list with the following data:", data, data.images.length);
+        console.log("updating the z-plane-list with the following data:", data, data.images.length);
 
         if (_self.appendData == false) {
             this.collection = data.images;
@@ -140,8 +156,28 @@ function ZPlaneList(parent) {
                 _self.hasNext = data.hasNext;
             }
         }
-        
-        _self._showSpinner(false);
+
+        // the used z-index is different from the input, so we should show an error message
+        if (data.updateMainImage) {
+            var usedZIndex = data.images[data.mainImageIndex].zIndex;
+            if (data.inputZIndex != usedZIndex) {
+                var message = "Could not find any image with Z index of <code>" + data.inputZIndex + "</code>.";
+                message += "Displaying the closest generated Z index of <code>" + usedZIndex + "</code> instead.";
+                window.OSDViewer.errorService.showPopupError(
+                    "Z Index Not Found",
+                    message,
+                    true
+                );
+            }
+        }
+
+        if (data.updateMainImage && data.mainImageIndex >= 0) {
+            _self._onclickImageHandler(data.mainImageIndex);
+        }
+
+        // emptying currentZPlaneRequest so that to indicate that no z plane fetch request is pending
+        _self._updateCurrentZPlaneRequestAndFetchData('none', {});
+
         _self._render();
     };
 
@@ -154,29 +190,96 @@ function ZPlaneList(parent) {
         var loader = _self._zPlaneContainer.querySelector('#z-plane-loader');
         if (loader != null) {
             var carousel = _self._zPlaneContainer.querySelector('.z-plane-carousel');
+            var zIndexInput = _self._zPlaneContainer.querySelector('#main-image-z-index');
+            var zIndexSubmit = _self._zPlaneContainer.querySelector('#z-index-jump-button');
             if (display == true) {
                 carousel.style.pointerEvents = 'none';
                 loader.style.display = 'flex';
-
+                zIndexInput.disabled = true;
+                zIndexSubmit.disabled = true;
             } else {
                 carousel.style.pointerEvents = 'initial';
                 loader.style.display = 'none';
+                zIndexInput.disabled = false;
+                zIndexSubmit.disabled = false;
             }
         }
     };
 
     /**
+     * change the currentZPlaneRequest variable and fetch the data
+     * @param {string} requestType - must be present in validFetchRequests variable
+     * @param {object} requestData - the content of the fetch request. Make sure the requestData is valid, no such check is done in this function
+     */
+    this._updateCurrentZPlaneRequestAndFetchData = function (requestType, requestData) {
+        _self.currentZPlaneRequest = {
+            type: requestType,
+            data: requestData,
+        };
+
+        if (_self.validFetchRequests.indexOf(requestType) != -1) {
+            _self.parent.dispatchEvent(requestType, requestData);
+            _self._showSpinner(true);
+        } else if (requestData == 'none') {
+            _self._showSpinner(false);
+        }
+    }
+
+    /**
      * calculate the page size if needed and ask chaise to fetch the new list
      */
     this._fetchList = function (data) {
-        _self._showSpinner(true);
 
-        _self.parent.dispatchEvent('fetchZPlaneList', {
+        var requestData = {
             pageSize: _self.pageSize,
             before: data.before,
             after: data.after,
             requestID: ++_self._currentRequestID
-        });
+        };
+
+        _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneList', requestData);
+    };
+
+    /**
+     * calculate the page size if needed and ask chaise to fetch the new list by zIndex, make sure that zIndex is a valid integer. No such check is being done in this function
+     * @param {string} zIndex
+     */
+    this._fetchListByZIndex = function (zIndex) {
+        if (zIndex == 'default') {
+            // This is case during the init function
+
+            var requestData = {
+                pageSize: _self.pageSize,
+                zIndex: _self.mainImageZIndex,
+                requestID: ++_self._currentRequestID
+            };
+
+            _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
+
+            return;
+        }
+
+        // turn the value into integer (takes care of leading zeros as well)
+        zIndex = parseInt(zIndex);
+
+        // make sure we're not sending invalid inputs to chaise
+        // NOTE this technically shouldn't happen and the calling site should take care of this
+        if (isNaN(zIndex)) {
+            return;
+        }
+
+        if (zIndex != _self.mainImageZIndex) {
+            // since some requests might be stale and therefore not displayed,
+            // this has to be here and cannot be in chaise
+            // if we do this in chaise, it might show multiple errors
+            var requestData = {
+                pageSize: _self.pageSize,
+                zIndex: zIndex,
+                requestID: ++_self._currentRequestID
+            };
+
+            _self._updateCurrentZPlaneRequestAndFetchData('fetchZPlaneListByZIndex', requestData);
+        }
     };
 
     /**
@@ -188,11 +291,33 @@ function ZPlaneList(parent) {
         width = width ? width : _self._zPlaneContainer.offsetWidth - 70;
         var totalWidthOfSingleIndex = _self._thumbnailProperties.width + 2 * (_self._carouselStyle.padding + _self._carouselStyle.margin + 2);
         var pageSize = Math.floor(parseFloat(width)/totalWidthOfSingleIndex);
-        if (_self.pageSize == null || pageSize < _self.pageSize) {
+
+        // in case the new page size is equal to the current page size, return
+        if (_self.pageSize != null && pageSize == _self.pageSize) {
+            return;
+        }
+
+        if (_self.currentZPlaneRequest.type != 'none') {
+            // There is a request that is currently being processed, and the page size is changed, so a new request needs to be sent out with the updated page size
+
+            var requestData = _self.currentZPlaneRequest.data;
+            requestData.requestID = ++_self._currentRequestID;
+            requestData.pageSize = pageSize;
+            _self.pageSize = pageSize;
+            _self._updateCurrentZPlaneRequestAndFetchData(_self.currentZPlaneRequest.type, requestData);
+
+        } else if (_self.pageSize == null || pageSize < _self.pageSize) {
+            // there is no current request pending, and the new page size is less than the current page size, so no new request is needed and we only need to truncate the exsisting data
+
+            if (pageSize < _self.collection.length) {
+                _self.hasNext = true;
+            }
             _self.pageSize = pageSize;
             _self.collection = _self.collection.splice(0, pageSize);
             _self._renderZPlaneCarousel();
         } else if (pageSize > _self.pageSize) {
+            // // there is no current request pending, and the new page size is greater than the current page size, so a new request needs to be sent to fetch new data
+
             _self.pageSize = pageSize;
             _self.appendData = true;
             _self._onNextPreviousHandler(true);
@@ -301,7 +426,38 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
-        zPlaneInfo.innerHTML = 'Z index: <span id="main-image-z-index">' + _self.mainImageZIndex + '</span> <span style="opacity: 0.5;">(total of ' + _self.totalCount + ' generated)</span>';
+        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
+            '<button id="z-index-jump-button" class="jump-to-buttom-container" title="Jump to specific Z index">'+
+                '<i class="fa fa-share jump-to-button"></i>'+
+            '</button>'+
+            '<span>(total of ' + _self.totalCount + ' generated)</span>';
+
+        var inputChangedPromise = null;
+        var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
+
+        var grabInputAndSearch = function (event) {
+            clearTimeout(inputChangedPromise);
+            var newIndex = inputEl.value;
+            if (isNaN(parseInt(newIndex))) {
+                inputEl.value = _self.mainImageZIndex;
+                return;
+            }
+            _self._fetchListByZIndex(newIndex);
+        }
+
+        var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
+        jumpButtom.addEventListener('click', grabInputAndSearch);
+
+        var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
+        inputBox.addEventListener('change', grabInputAndSearch);
+
+        inputBox.addEventListener('input', function (event) {
+            clearTimeout(inputChangedPromise);
+            inputChangedPromise = setTimeout(function () {
+                grabInputAndSearch(event);
+            }, _self._zIndexInputDelay);
+        });
+
     }
 
     /**

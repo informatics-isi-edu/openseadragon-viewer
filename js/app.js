@@ -6,6 +6,7 @@ var OSDViewer = (function (_config) {
         toolbar = null;
 
     var alertService = new AlertService(utils);
+    var errorService = new ErrorService(utils);
 
     var init = function(){
         viewer = new Viewer(this, _config.viewer);
@@ -30,6 +31,7 @@ var OSDViewer = (function (_config) {
 
         switch(type){
             case "showAlert":
+            case "showPopupError":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             // [Events from Toolbar]
@@ -137,13 +139,19 @@ var OSDViewer = (function (_config) {
                 break;
             // ask chaise to fetch new set of images
             case "fetchZPlaneList":
+                console.log('fetchZPlaneList');
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
+            // ask chaise to fetch new set of images
+            case "fetchZPlaneListByZIndex":
+                console.log('fetchZPlaneListByZIndex');
+                window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
                 break;
             // update the displayed image
             case "updateMainImage":
                 // remove the annotations
                 viewer.removeAllSVGAnnotations();
-                
+
                 // ask chaise to update the rest of page (fetch annotaion, etc)
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
 
@@ -283,6 +291,7 @@ var OSDViewer = (function (_config) {
 
     return {
         alertService: alertService,
+        errorService: errorService,
         init : init,
         dispatchEvent : dispatchEvent,
         receiveChaiseEvent : receiveChaiseEvent
