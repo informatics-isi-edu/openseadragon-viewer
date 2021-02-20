@@ -146,9 +146,11 @@ function ChannelItem(data){
     };
 
     // Change the slider value
-    this.onChangeSliderValue = function(){
-        var type = this.parentNode.parentNode.getAttribute("data-type"),
-            value = +this.value;
+    this.onChangeSliderValue = function(event){
+        var target = event.target;
+
+        var type = target.parentNode.parentNode.getAttribute("data-type"),
+            value = +target.value;
 
         var res = _self._setChannelColorSetting(type, value);
 
@@ -163,9 +165,11 @@ function ChannelItem(data){
         });
     };
 
-    this.onValueChanged = function () {
-        var type = this.parentNode.parentNode.parentNode.getAttribute("data-type"),
-            value = +this.value;
+    this.onValueChanged = function (event) {
+        var target = event.target;
+
+        var type = target.parentNode.parentNode.parentNode.getAttribute("data-type"),
+            value = +target.value;
 
         // TODO validate the numbers
         var validate = _self._setChannelColorSetting(type, value, true);
@@ -350,8 +354,21 @@ function ChannelItem(data){
         }.bind(this));
 
         // change the input
+        var numberInputChangedTimer;
         this.elem.querySelectorAll("input.number").forEach(function(elem){
-            elem.addEventListener('change', this.onValueChanged);
+            // when enter is pressed
+            elem.addEventListener('change', function (event) {
+                clearTimeout(numberInputChangedTimer);
+                _self.onValueChanged(event);
+            });
+
+            // submit after 2 second delay
+            elem.addEventListener('input', function (event) {
+                clearTimeout(numberInputChangedTimer);
+                numberInputChangedTimer = setTimeout(function () {
+                    _self.onValueChanged(event);
+                }, 2000);
+            });
         }.bind(this));
 
         // Change the slider value
