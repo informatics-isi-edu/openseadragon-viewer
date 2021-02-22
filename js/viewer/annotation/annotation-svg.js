@@ -231,18 +231,30 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         // return matched group SVG content only if groupID provided
         if(groupID){
             if(this.groups.hasOwnProperty(groupID)){
-                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
-                svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
-                svg += this.groups[groupID].exportToSVG();
-                svg += "</svg>";
+                var innerSVG = this.groups[groupID].exportToSVG();
+                if (innerSVG != "") {
+                    svg += "<svg viewBox='" + this.getViewBox().join(" ") + "' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
+                    svg += "<scale x='" + imgScaleX + "' y='" + imgScaleY + "'/>";
+                    svg += innerSVG;
+                    svg += "</svg>";
 
-                rst.push({
-                    svgID : this.id,
-                    groupID : groupID,
-                    numOfAnnotations : this.groups[groupID].getNumOfAnnotations(),
-                    svg : svg,
-                    stroke: this.groups[groupID].stroke
-                });
+                    rst.push({
+                        svgID: this.id,
+                        groupID: groupID,
+                        numOfAnnotations: this.groups[groupID].getNumOfAnnotations(),
+                        svg: svg,
+                        stroke: this.groups[groupID].stroke
+                    });
+                } else {
+                    console.log('no svg');
+                    rst.push({
+                        svgID: this.id,
+                        groupID: groupID,
+                        numOfAnnotations: 0,
+                        svg: "",
+                        stroke: this.groups[groupID].stroke
+                    });
+                }
             }
         }
         // return all group content if groupID is not provided

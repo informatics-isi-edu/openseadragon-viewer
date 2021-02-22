@@ -97,13 +97,20 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         var rst = ["<g id='"+this.id+"'>"];
         var i;
+        var hasValidAnnotations = false;
         for(i = 0; i < this.annotations.length; i++){
             var content = this.annotations[i].exportToSVG();
+            if (content != "") {
+                hasValidAnnotations = true;
+            }
             rst.push(content);
         };
-
-        rst.push("</g>");
-        return rst.join("");
+        if (hasValidAnnotations) {
+            rst.push("</g>");
+            return rst.join("");
+        } else {
+            return "";
+        }
     }
 
     // Get box boundaries of the group
