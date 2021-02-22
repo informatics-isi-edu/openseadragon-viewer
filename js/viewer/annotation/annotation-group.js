@@ -105,10 +105,12 @@ function AnnotationGroup(id, anatomy, description, parent){
             }
             rst.push(content);
         };
+
         if (hasValidAnnotations) {
             rst.push("</g>");
             return rst.join("");
         } else {
+            // if no annotation (i.e. has no valid annotation) was added to the rst return empty string
             return "";
         }
     }

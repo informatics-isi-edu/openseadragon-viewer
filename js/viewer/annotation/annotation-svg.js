@@ -233,6 +233,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             if(this.groups.hasOwnProperty(groupID)){
                 var innerSVG = this.groups[groupID].exportToSVG();
                 if (innerSVG != "") {
+                    // if there is some content present in the innerSVG, only then add to rst, else return empty array.
                     svg += "<svg viewBox='" + this.getViewBox().join(" ") + "' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
                     svg += "<scale x='" + imgScaleX + "' y='" + imgScaleY + "'/>";
                     svg += innerSVG;
