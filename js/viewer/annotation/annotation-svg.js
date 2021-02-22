@@ -245,20 +245,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         svg: svg,
                         stroke: this.groups[groupID].stroke
                     });
-                } else {
-                    console.log('no svg');
-                    rst.push({
-                        svgID: this.id,
-                        groupID: groupID,
-                        numOfAnnotations: 0,
-                        svg: "",
-                        stroke: this.groups[groupID].stroke
-                    });
                 }
             }
         }
         // return all group content if groupID is not provided
         else{
+            // console.log('else exportToSVG')
             for(groupID in this.groups){
                 svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
                 svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
