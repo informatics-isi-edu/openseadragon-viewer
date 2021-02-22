@@ -154,9 +154,11 @@ function ZPlaneList(parent) {
             this.hasPrevious = data.hasPrevious;
             _self.hasNext = data.hasNext;
         } else {
+            // if appendData is true, this means that the new images that were fetched need to be added to the existing set of images.
             _self.appendData = false;
             _self.collection = _self.collection.concat(data.images);
             if (_self.collection.length > _self.pageSize) {
+                // if after appending the images the collection length is bigger than the page size, remove the unecessary images. Since iamges were removed, this means that there are more images and therefore 'hasNext' is set to true
                 _self.collection = _self.collection.splice(0, _self.pageSize);
                 _self.hasNext = true;
             } else {
