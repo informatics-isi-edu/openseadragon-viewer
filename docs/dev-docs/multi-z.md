@@ -71,8 +71,8 @@ When the width of the page is increased or decreased, the list of z planes shown
 
         This function as the name suggests fetches z indexes for the z plane list, It has 2 function parameters `beforeValue` and `afterValue`, which determine if the values that need to be fetched are before or after a given z index. The parameter `pageSize` determines the number of z indexes that will be fetched.
 
-    This function (`requestType`) is used:
-    - when next/previous buttons are clicked in the z plane list
+    This function (`requestType`) is used when:
+    - next/previous buttons are clicked in the z plane list
     - page size is increased
 
 2. `fetchZPlaneListByZIndex`
@@ -81,6 +81,6 @@ When the width of the page is increased or decreased, the list of z planes shown
 
     Eg. `fetchZPlaneListByZIndex(requestID, pageSize = 5, zIndex = 23);`. In this case the 2 sub requests would fetch the following results [19, 20, 21, 22, 23] and [24, 25, 26, 27, 28]. After combination the final result would have the following z indexes [21, 22, 23, 24, 25], i.e. centered around 23.
 
-    This function (`requestType`) is used:
+    This function (`requestType`) is used when:
     - page is loaded
     - z index is searched
