@@ -58,6 +58,15 @@ function ChannelItem(data){
         }
     }
 
+    this.getTooltip = function(type){
+        switch(type){
+            case "toggleDisplay":
+                return (this.isDisplay) ? 'Hide the channel' : 'Display the channel';
+            case "toggleGreyscale":
+                return (this.deactivateHue) ? "Apply color filter" : "Use greyscale";
+        }
+    }
+
 
     // Click to expand/collapse the setting
     this.onClickToggleExpand = function(event, expand){
@@ -82,6 +91,7 @@ function ChannelItem(data){
             isDisplay : _self.isDisplay
         })
         _self.elem.querySelector(".toggleVisibility").innerHTML = "<i class='"+_self.getIconClass("toggleDisplay")+"'></i>";
+        _self.elem.querySelector(".toggleVisibility")._tippy.setContent(_self.getTooltip('toggleDisplay'));
         event.stopPropagation();
     };
 
@@ -122,7 +132,7 @@ function ChannelItem(data){
 
         var hueControlBtn = hueControl.querySelector('.deactivate-hue');
         hueControlBtn.className = !_self.deactivateHue ? "deactivate-hue" : "deactivate-hue active";
-        hueControlBtn.setAttribute('title', (_self.deactivateHue ? "Apply hue adjustment" : "Use greyscale"));
+        hueControlBtn._tippy.setContent(_self.getTooltip('toggleGreyscale'))
     };
 
     this.onClickDeactivateHue = function (event, deactivateHue) {
@@ -151,6 +161,11 @@ function ChannelItem(data){
 
         var type = target.parentNode.parentNode.getAttribute("data-type"),
             value = +target.value;
+
+        // only show the tooltip while users are interacting with it
+        if (target._tippy) {
+            target._tippy.hide();
+        }
 
         var res = _self._setChannelColorSetting(type, value);
 
@@ -182,6 +197,19 @@ function ChannelItem(data){
             });
         }
     }
+
+    this.changeSliderTooltipValue = function (event) {
+        var target = event.target;
+
+        var type = target.parentNode.parentNode.getAttribute("data-type"),
+            value = +target.value;
+
+        if (target._tippy) {
+            target._tippy.setContent(value);
+            // target._tippy.setProps({offset: []})
+            target._tippy.show();
+        }
+    };
 
     // make sure the corresponding attribute and UI element are updated
     this._setChannelColorSetting = function (type, value, validate)  {
@@ -267,50 +295,96 @@ function ChannelItem(data){
                 "<span class='toggleSetting' data-type='setting'><i class='"+this.getIconClass("expandPanel")+"'></i></span>",
                 "<span class='channelName'>"+ this.name +"</span>",
                 "<span class=channel-control-button-container''>",
-                    "<span class='channel-control-btn reset-settings' title='Reset the channel settings'><i class='fas fa-undo'></i></span>",
-                    "<span class='channel-control-btn toggleVisibility' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
+                    "<span class='channel-control-btn reset-settings' data-tippy-content='Reset the channel settings'><i class='fas fa-undo'></i></span>",
+                    "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
                 "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
                 "<span class='sliderContainer' data-type='contrast'>",
                     "<span class='attrRow'>",
-                        "<span class='name'>Contrast</span>",
-                        // "<span class='value'>"+ this.contrast +"</span>",
+                        "<span class='name'>",
+                            "Contrast",
+                            "<i class='fas fa-info-circle setting-info' ",
+                            // "<i class='chaise-icon chaise-info' ",
+                                "data-tippy-placement='right'",
+                                "data-tippy-content='",
+                                    "Use the slider or input to change color contrast. <br>",
+                                    "Acceptable values: Numbers from <strong>0</strong> to <strong>10</strong>. <br>",
+                                    "Default value: <strong>1</strong>",
+                                "'",
+                                " >",
+                            "</i>",
+                        "</span>",
                         "<span class='value'>",
                             "<input class='number active' value=" + this.contrast + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' min='0' max='10' step='0.1' value='"+this.contrast+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.contrast + "' min='0' max='10' step='0.1' value='"+this.contrast+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
                     "<span class='attrRow'>",
-                        "<span class='name'>Brightness</span>",
-                        // "<span class='value'>"+ this.brightness +"</span>",
+                        "<span class='name'>",
+                            "Brightness",
+                            "<i class='fas fa-info-circle setting-info' ",
+                            // "<i class='chaise-icon chaise-info' ",
+                                "data-tippy-placement='right'",
+                                "data-tippy-content='",
+                                    "Use the slider or input to change brightness of image. <br>",
+                                    "Acceptable values: Integers from <strong>-255</strong> to <strong>255</strong>. <br>",
+                                    "Default value: <strong>0</strong>",
+                                    "<br>",
+                                "'",
+                                " >",
+                            "</i>",
+                        "</span>",
                         "<span class='value'>",
                             "<input class='number active' value=" + this.brightness + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' min='-255' max='255' step='5' value='"+this.brightness+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.brightness + "' min='-255' max='255' step='5' value='"+this.brightness+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='gamma'>",
                     "<span class='attrRow'>",
-                        "<span class='name'>Gamma</span>",
-                        // "<span class='value'>"+ this.gamma +"</span>",
+                        "<span class='name'>",
+                            "Gamma",
+                            "<i class='fas fa-info-circle setting-info' ",
+                            // "<i class='chaise-icon chaise-info' ",
+                                "data-tippy-placement='right'",
+                                "data-tippy-content='",
+                                    "Use the slider or input to apply Gamma filter. <br>",
+                                    "Acceptable values: Numbers from <strong>0</strong> to <strong>3</strong>. <br>",
+                                "'",
+                                " >",
+                            "</i>",
+                        "</span>",
                         "<span class='value'>",
                             "<input class='number active' value=" + this.gamma + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' min='0' max='3' step='0.125' value='"+this.gamma+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.gamma + "' min='0' max='3' step='0.125' value='"+this.gamma+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='hue'>",
                     "<span class='attrRow'>",
-                        "<span class='name'>Hue</span>",
+                        "<span class='name'>",
+                            "Hue",
+                            "<i class='fas fa-info-circle setting-info' ",
+                            // "<i class='chaise-icon chaise-info' ",
+                                "data-tippy-placement='right'",
+                                "data-tippy-content='",
+                                    "Use the slider or input to apply color. <br>",
+                                    "Acceptable values: Numbers from <strong>0</strong> to <strong>360</strong>. <br>",
+                                    "<br>",
+                                    "Use the checkbox to switch between Greyscale and color.",
+                                "'",
+                                " >",
+                            "</i>",
+                        "</span>",
                         "<span class='value'>",
                             "<input class='number " + (!this.deactivateHue ? "active" : "") + "' value=" + this.hue + ">",
                             "<span class='greyscale'>Greyscale</span>",
@@ -318,9 +392,9 @@ function ChannelItem(data){
                     "</span>",
                     "<span class='hue-container' data-type='hue'>",
                         "<span class='slider-wrapper'>",
-                            "<input type='range' class='slider " + (!this.deactivateHue ? "active" : "") + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                            "<input type='range' class='slider " + (!this.deactivateHue ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + this.hue + "' min='0' max='360' step='1' value='"+this.hue+"'>",
                         "</span>",
-                        "<span title='" + (this.deactivateHue ? "Apply hue adjustment" : "Use greyscale") + "' class='deactivate-hue " + (this.deactivateHue ? "active" : "") + "'></span>",
+                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getTooltip('toggleGreyscale') + "' class='deactivate-hue " + (this.deactivateHue ? "active" : "") + "'></span>",
                     "</span>",
                 "</span>",
             "</div>",
@@ -374,6 +448,8 @@ function ChannelItem(data){
         // Change the slider value
         this.elem.querySelectorAll("input.slider").forEach(function(elem){
             elem.addEventListener('change', this.onChangeSliderValue);
+
+            elem.addEventListener('input', this.changeSliderTooltipValue);
         }.bind(this));
     }
 }

@@ -81,6 +81,9 @@ function ToolbarView(controller, config){
         }
         // Append annotation list
         this._navMenuContentElem.appendChild(channelList.elem);
+
+        // make sure tooltips are added
+        tippy('[data-tippy-content]');
     }
 
     // Remove all the content from selected menu content

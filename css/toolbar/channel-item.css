@@ -29,6 +29,7 @@
     vertical-align: middle;
 }
 
+
 #navMenuContent .groups .channelItem .toggleSetting i.fa-chevron-right {
     margin-left: 5px;
 }
@@ -42,6 +43,11 @@
 
 #navMenuContent .groups .channelItem .channel-control-btn {
     padding: 0 5px;
+}
+
+/* make sure when switching between hide/show buttons don't move */
+#navMenuContent .groups .channelItem .channel-control-btn .fa-eye {
+    margin-left: 2px;
 }
 
 #navMenuContent .groups .channelItem .channel-control-btn:hover{color: #fff;}
@@ -78,6 +84,11 @@
     margin-top: 2px;
 }
 
+#navMenuContent .groups .channelItem .attrRow .setting-info{
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
 #navMenuContent .groups .channelItem .attrRow input.number {
     background: transparent;
     height: 20px;
@@ -105,6 +116,18 @@
     margin: 2px 0 1px 0;
     display: flex;
     flex-direction: column;
+}
+
+#navMenuContent .groups .channelItem .slider-wrapper {
+    position: relative;
+}
+
+.slider-wrapper .slider-bubble .osd-tippy-arrow {
+    transform: translate(9px);
+}
+
+.slider-wrapper .slider-bubble .osd-tippy-content {
+    padding: 5px;
 }
 
 #navMenuContent .groups .channelItem .hue-container {
