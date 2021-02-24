@@ -95,24 +95,20 @@ function AnnotationGroup(id, anatomy, description, parent){
             return "";
         }
 
-        var rst = ["<g id='"+this.id+"'>"];
-        var i;
-        var hasValidAnnotations = false;
-        for(i = 0; i < this.annotations.length; i++){
-            var content = this.annotations[i].exportToSVG();
-            if (content != "") {
-                hasValidAnnotations = true;
-            }
-            rst.push(content);
-        };
+        var rst = [], content;
 
-        if (hasValidAnnotations) {
-            rst.push("</g>");
-            return rst.join("");
-        } else {
-            // if no annotation (i.e. has no valid annotation) was added to the rst return empty string
+        this.annotations.forEach(function (annot) {
+            content = annot.exportToSVG();
+            if (content != "") {
+                rst.push(content);
+            }
+        });
+
+        if (rst.length === 0) {
             return "";
         }
+
+        return "<g id='" + this.id + "'>" + rst.join("") + "</g>";
     }
 
     // Get box boundaries of the group
