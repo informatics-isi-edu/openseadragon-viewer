@@ -103,6 +103,8 @@ function ZPlaneList(parent) {
      */
     this.init = function (data) {
 
+        // TODO use canUpdateDefaultZIndex
+
         // change the width to be based on the image
         if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
             _self._thumbnailProperties.width = Math.ceil(_self._thumbnailProperties.height * (data.mainImageWidth / data.mainImageHeight));
@@ -359,6 +361,10 @@ function ZPlaneList(parent) {
         return "./images/placeholder.png";
     }
 
+    this._saveDefaultZIndexHandler = function () {
+        _self.parent.dispatchEvent('updateDefaultZIndex', {zIndex: _self.mainImageZIndex});
+    };
+
     /**
      * click handler for when an image is selected
      * @param {interger} index
@@ -439,7 +445,8 @@ function ZPlaneList(parent) {
             '<button id="z-index-jump-button" class="jump-to-buttom-container" title="Jump to specific Z index">'+
                 '<i class="fa fa-share jump-to-button"></i>'+
             '</button>'+
-            '<span>(total of ' + _self.totalCount + ' generated)</span>';
+            '<span>(total of ' + _self.totalCount + ' generated)</span>' +
+            '<button id="save-default-z-index">save</button>';
 
         var inputChangedPromise = null;
         var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
@@ -466,6 +473,9 @@ function ZPlaneList(parent) {
                 grabInputAndSearch(event);
             }, _self._zIndexInputDelay);
         });
+
+        var saveDefaultZ = zPlaneInfo.querySelector("#save-default-z-index");
+        saveDefaultZ.addEventListener('click', _self._saveDefaultZIndexHandler);
 
     }
 

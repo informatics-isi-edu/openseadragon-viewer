@@ -158,6 +158,9 @@ var OSDViewer = (function (_config) {
                 // ask viewer to update the displayed image
                 viewer.loadImages(data);
                 break;
+            case "updateDefaultZIndex":
+                window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
+                break;
         }
     }
 
@@ -172,6 +175,9 @@ var OSDViewer = (function (_config) {
                     break;
                 case 'updateZPlaneList':
                     toolbar && toolbar.updateZPlaneList(data);
+                    break;
+                case 'updateDefaultZIndexDone':
+                    // TODO
                     break;
                 case 'filterChannels':
                     toolbar && toolbar.onClickedMenuHandler('channelList');
