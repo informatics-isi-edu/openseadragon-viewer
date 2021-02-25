@@ -129,6 +129,7 @@ function AnnotationTool(parent){
                     this.curSVGID = data.svgID;
                     break;
                 case "groupID":
+                    this.updateMode('CURSOR');
                     this.curGroupID = data.groupID;
                     break;
                 case "stroke":
