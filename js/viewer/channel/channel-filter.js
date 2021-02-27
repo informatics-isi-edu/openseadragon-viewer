@@ -234,119 +234,144 @@
         return globalProcessors ? globalProcessors : [];
     }
 
-    function _hsl2rgb(h, s, l) {
-        var r, g, b, q, p;
-
-        h /= 360;
-
-        if (s == 0) {
-            r = g = b = l;
-        } else {
-            function hue2rgb(p, q, t) {
-                if (t < 0) t++;
-                if (t > 1) t--;
-                if (t < 1/6) return p + (q - p) * 6 * t;
-                if (t < 1/2) return q;
-                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                return p;
-            }
-
-            q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            p = 2 * l - q;
-
-            r = hue2rgb(p, q, h + 1/3);
-            g = hue2rgb(p, q, h);
-            b = hue2rgb(p, q, h - 1/3);
-        }
-
-        return {
-            r: r * 255,
-            g: g * 255,
-            b: b * 255
-        };
-    }
-
     function _sanitizeValue(v) {
-        return Math.min(Math.max(v, 0), 255);
+        return Math.min(Math.max(v, 0), 100);
     }
 
     function _isInteger(value) {
         return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
     }
 
+    function _isNumber(value) {
+        return typeof value === 'number';
+    }
+
+    function _rgb2hsv(r, g, b, onlyV) {
+        var r1 = r / 255,
+            g1 = g / 255,
+            b1 = b / 255;
+
+        var maxc = Math.max(r1, g1, b1),
+            minc = Math.min(r1, g1, b1);
+
+        var h, s, v, rc, gc, bc;
+
+        v = maxc;
+
+        if (onlyV) {
+            return v * 100;
+        }
+
+        if (minc == maxc) {
+            return [0, 0, v * 100];
+        }
+
+        s = (maxc - minc) / maxc;
+        rc = (maxc - r1) / (maxc - minc);
+        gc = (maxc - g1) / (maxc - minc);
+        bc = (maxc - b1) / (maxc - minc);
+
+        if (r == maxc) {
+            h = bc - gc;
+        } else if (g == maxc) {
+            h = 2.0 + rc - bc;
+        } else {
+            h = 4.0 + gc - rc;
+        }
+
+        h = (h/6.0) % 1.0;
+        return [h * 360, s * 100, v * 100]
+    }
+
+    function _hsv2rgb (h, s, v) {
+        var h1 = h / 360, s1 = s / 100, v1 = v / 100;
+
+        var output = function (r, g, b) {
+            return [r * 255, g * 255, b * 255];
+        }
+
+        var i, f, p, q, t;
+
+        if (s1 === 0) {
+            return output(v1, v1, v1)
+        }
+        i = parseInt(h1 * 6.0);
+        f = (h1 * 6.0) - i;
+        p = v1 * (1.0 - s1);
+        q = v1 * (1.0 - (s1 * f));
+        t = v1 * (1.0 - (s1 * (1.0-f)));
+        i = i % 6;
+
+        if (i == 0) {
+            return output(v1, t, p);
+        }
+        if (i == 1) {
+            return output(q, v1, p);
+        }
+        if (i == 2) {
+            return output(p, v1, t);
+        }
+        if (i == 3) {
+            return output(p, q, v1);
+        }
+        if (i == 4) {
+            return output(t, p, v1);
+        }
+        if (i == 5) {
+            return output(v1, p, q);
+        }
+    }
+
     $.Filters = {
         VERSION: "0.1",
 
-        CONTRAST_BRIGHTNESS: function (contrast, brightness) {
-            if (!_isInteger(brightness) || brightness > 255 || brightness < -255) {
-                brightness = 0
-            }
-            if (typeof contrast !== "number" || contrast > 10 || contrast < 0) {
+        CHANGE_COLOR: function (contrast, brightness, gamma, saturation, hue, greyscale) {
+            if (!_isNumber(contrast) || contrast > 10 || contrast < 0) {
                 contrast = 1;
+            }
+            if (!_isNumber(brightness) || brightness > 100 || brightness < -100) {
+                brightness = 0;
+            }
+
+            if (!_isNumber(gamma) || gamma < 0) {
+                gamma = 0;
+            }
+
+            // TODO saturation
+
+            // if it's an rgb image, we shouldn't change the saturation or hue
+            var rgbImg = false;
+            if (!_isNumber(hue) || hue > 360 || hue < 0) {
+                rgbImg = true;
             }
 
             var precomputedRes = [];
-            for (var i = 0; i < 256; i++) {
-                precomputedRes[i] = _sanitizeValue(((i - 128) * contrast) + 128 + brightness);
+            for (var i = 0; i < 100; i++) {
+                precomputedRes[i] = _sanitizeValue( Math.pow( (((i - 50) * contrast) + 50 + brightness)/ 100, gamma) * 100 )
             }
+
             return function(context, callback) {
                 var imgData = context.getImageData(
                     0, 0, context.canvas.width, context.canvas.height);
                 var pixels = imgData.data;
                 for (var i = 0; i < pixels.length; i += 4) {
-                    pixels[i] = precomputedRes[pixels[i]];
-                    pixels[i + 1] = precomputedRes[pixels[i + 1]];
-                    pixels[i + 2] = precomputedRes[pixels[i + 2]];
+                    // turn rgb to hsv
+                    var hsv = _rgb2hsv(pixels[i], pixels[i+1], pixels[i+2]);
+
+
+                    var col = _hsv2rgb(
+                        rgbImg ? hsv[0] : hue,  // hue
+                        greyscale ? 0 : (rgbImg ? hsv[1] : 100), // saturation
+                        // _sanitizeValue( Math.pow( (((hsv[2] - 50) * contrast) + 50 + brightness)/ 100, gamma) * 100 ) // value
+                        precomputedRes[Math.floor(hsv[2])]
+                    );
+                    pixels[i] = col[0];
+                    pixels[i+1] = col[1];
+                    pixels[i+2] = col[2];
                 }
                 context.putImageData(imgData, 0, 0);
                 callback();
             }
-       },
-
-       GAMMA: function(adjustment) {
-           if (adjustment < 0) {
-               throw new Error('Gamma adjustment must be positive.');
-           }
-           var precomputedGamma = [];
-           for (var i = 0; i < 256; i++) {
-               precomputedGamma[i] = Math.pow(i / 255, adjustment) * 255;
-           }
-           return function(context, callback) {
-               var imgData = context.getImageData(
-                   0, 0, context.canvas.width, context.canvas.height);
-               var pixels = imgData.data;
-               for (var i = 0; i < pixels.length; i += 4) {
-                   pixels[i] = precomputedGamma[pixels[i]];
-                   pixels[i + 1] = precomputedGamma[pixels[i + 1]];
-                   pixels[i + 2] = precomputedGamma[pixels[i + 2]];
-               }
-               context.putImageData(imgData, 0, 0);
-               callback();
-           };
-       },
-
-       SATURATION: function (adjustment) {
-
-       },
-
-       HUE: function(angle) {
-           if (angle < 0) {
-               throw new Error("HUE angle must be greater than 0.");
-           }
-           return function(context, callback) {
-               var imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-               var pixels = imgData.data;
-               for (var i = 0; i < pixels.length; i += 4) {
-                   var lum = pixels[i] / 255;
-                   var col = _hsl2rgb(angle, 1, lum);
-
-                   pixels[i] = col.r;
-                   pixels[i+1] = col.g;
-                   pixels[i+2] = col.b;
-               }
-               context.putImageData(imgData, 0, 0);
-               callback();
-           };
-       }
+        },
     };
 })();

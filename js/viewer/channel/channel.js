@@ -62,16 +62,9 @@ Channel.prototype.colorMapping = {
 Channel.prototype.getFiltersList = function () {
     var list = [];
 
-    // only apply hue if it's activated
-    if (this.hue != null && !this.deactivateHue) {
-        list.push(OpenSeadragon.Filters.HUE(this.hue));
-    }
-
-    if (this.gamma != null) {
-        list.push(OpenSeadragon.Filters.GAMMA(this.gamma));
-    }
-
-    list.push(OpenSeadragon.Filters.CONTRAST_BRIGHTNESS(this.contrast, this.brightness));
+    // TODO The filter should be moved here. there's no point in having it in the channel-filter.js
+    // and most probably we should change it so it's not accepting array of filters
+    list.push(OpenSeadragon.Filters.CHANGE_COLOR(this.contrast, this.brightness, this.gamma, this.saturation, this.hue, this.deactivateHue));
 
     return list;
 }
