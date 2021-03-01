@@ -12,7 +12,7 @@ function Channel(osdItemID, name, number, options) {
     this.height = +options["height"] || 0;
     this.contrast = 1;
     this.brightness = 0;
-    this.gamma = 0.875;
+    this.gamma = 1;
     this.hue = null;
     this.initialProperty = {
       contrast: 1,
@@ -159,7 +159,7 @@ Channel.prototype.setDefaultHue = function () {
 
 Channel.prototype.setDefaultGamma = function () {
     if (this.name in this.colorMapping) {
-        this.gamma = 0.75;
+        this.gamma = 0.55;
         this.initialProperty.gamma = this.gamma;
     };
 }

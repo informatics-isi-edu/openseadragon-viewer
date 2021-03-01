@@ -338,6 +338,9 @@
             }
 
             // TODO saturation
+            if (!_isNumber(saturation) || saturation > 100 || saturation < -100) {
+                saturation = 100;
+            }
 
             // if it's an rgb image, we shouldn't change the saturation or hue
             var rgbImg = false;
@@ -361,7 +364,7 @@
 
                     var col = _hsv2rgb(
                         rgbImg ? hsv[0] : hue,  // hue
-                        greyscale ? 0 : (rgbImg ? hsv[1] : 100), // saturation
+                        greyscale ? 0 : (rgbImg ? hsv[1] : saturation), // saturation
                         // _sanitizeValue( Math.pow( (((hsv[2] - 50) * contrast) + 50 + brightness)/ 100, gamma) * 100 ) // value
                         precomputedRes[Math.floor(hsv[2])]
                     );
