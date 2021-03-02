@@ -97,6 +97,8 @@ function ZPlaneList(parent) {
      */
     this.validFetchRequests = ['fetchZPlaneListByZIndex', 'fetchZPlaneList'];
 
+    this.defaultZIndex = -1;
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
@@ -129,6 +131,8 @@ function ZPlaneList(parent) {
 
         _self.totalCount = data.totalCount;
         _self.mainImageZIndex = data.mainImageZIndex;
+        _self.defaultZIndex = data.mainImageZIndex;
+        _self.canUpdateDefaultZIndex = data.canUpdateDefaultZIndex;
         _self._render();
         _self._fetchListByZIndex('default');
     }
@@ -192,6 +196,25 @@ function ZPlaneList(parent) {
         _self._render();
     };
 
+    this.updatedDefaultZIndex = function (data) {
+
+        if ('zIndex' in data) {
+            _self.defaultZIndex = data['zIndex'];
+            _self._renderUpdateDefaultZButton();
+        }
+    };
+
+    this._renderUpdateDefaultZButton = function () {
+        var updateDeaultZButton = _self._zPlaneContainer.querySelector("#save-default-z-index");
+        if (updateDeaultZButton) {
+            if (_self.defaultZIndex == _self.mainImageZIndex) {
+                updateDeaultZButton.disabled = true;
+            } else {
+                updateDeaultZButton.disabled = false;
+            }
+        }
+    };
+
     /**
      * change the state of spinner
      * @param {boolean} display
@@ -203,16 +226,20 @@ function ZPlaneList(parent) {
             var carousel = _self._zPlaneContainer.querySelector('.z-plane-carousel');
             var zIndexInput = _self._zPlaneContainer.querySelector('#main-image-z-index');
             var zIndexSubmit = _self._zPlaneContainer.querySelector('#z-index-jump-button');
+            var updateDeaultZButton = _self._zPlaneContainer.querySelector("#save-default-z-index");
+            updateDeaultZButton = updateDeaultZButton ? updateDeaultZButton : {};
             if (display == true) {
                 carousel.style.pointerEvents = 'none';
                 loader.style.display = 'flex';
                 zIndexInput.disabled = true;
                 zIndexSubmit.disabled = true;
+                updateDeaultZButton.disabled = true;
             } else {
                 carousel.style.pointerEvents = 'initial';
                 loader.style.display = 'none';
                 zIndexInput.disabled = false;
                 zIndexSubmit.disabled = false;
+                updateDeaultZButton.disabled = false;
             }
         }
     };
@@ -363,6 +390,10 @@ function ZPlaneList(parent) {
 
     this._saveDefaultZIndexHandler = function () {
         _self.parent.dispatchEvent('updateDefaultZIndex', {zIndex: _self.mainImageZIndex});
+        var saveDefaultZ = _self._zPlaneContainer.querySelector("#save-default-z-index");
+        if (saveDefaultZ) {
+            saveDefaultZ.disabled = true;
+        }
     };
 
     /**
@@ -373,6 +404,7 @@ function ZPlaneList(parent) {
 
         if (index < _self.collection.length && _self.collection[index].zIndex != _self.mainImageZIndex) {
             _self.mainImageZIndex = _self.collection[index].zIndex;
+            _self._renderUpdateDefaultZButton();
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane();
 
@@ -441,12 +473,15 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
+        var updateButton = _self.canUpdateDefaultZIndex ? '<button id="save-default-z-index" class="update-default-z-index">Update Default Z</button>' : '';
         zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
             '<button id="z-index-jump-button" class="jump-to-buttom-container" title="Jump to specific Z index">'+
                 '<i class="fa fa-share jump-to-button"></i>'+
             '</button>'+
             '<span>(total of ' + _self.totalCount + ' generated)</span>' +
-            '<button id="save-default-z-index">save</button>';
+            updateButton;
+            
+        _self._renderUpdateDefaultZButton();
 
         var inputChangedPromise = null;
         var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
@@ -475,7 +510,9 @@ function ZPlaneList(parent) {
         });
 
         var saveDefaultZ = zPlaneInfo.querySelector("#save-default-z-index");
-        saveDefaultZ.addEventListener('click', _self._saveDefaultZIndexHandler);
+        if (saveDefaultZ) {
+            saveDefaultZ.addEventListener('click', _self._saveDefaultZIndexHandler);
+        }
 
     }
 

@@ -178,6 +178,7 @@ var OSDViewer = (function (_config) {
                     break;
                 case 'updateDefaultZIndexDone':
                     // TODO
+                    toolbar && toolbar.updatedDefaultZIndex(data);
                     break;
                 case 'filterChannels':
                     toolbar && toolbar.onClickedMenuHandler('channelList');
