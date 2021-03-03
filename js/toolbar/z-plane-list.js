@@ -196,17 +196,26 @@ function ZPlaneList(parent) {
         _self._render();
     };
 
+    /**
+     * This function updates the value of local default z index, with the value that is recieves, and then updates the 'Update default z' button
+     * @param {object} data
+     */
     this.updatedDefaultZIndex = function (data) {
 
         if ('zIndex' in data) {
             _self.defaultZIndex = data['zIndex'];
+            document.querySelector('#current-default-z-index').innerHTML = _self.defaultZIndex;
             _self._renderUpdateDefaultZButton();
         }
     };
 
+    /**
+     * This function renders the update default z button
+     */
     this._renderUpdateDefaultZButton = function () {
         var updateDeaultZButton = _self._zPlaneContainer.querySelector("#save-default-z-index");
         if (updateDeaultZButton) {
+            updateDeaultZButton.innerHTML = '<i class="fas fa-save update-default-z-button"></i>';
             if (_self.defaultZIndex == _self.mainImageZIndex) {
                 updateDeaultZButton.disabled = true;
             } else {
@@ -388,11 +397,14 @@ function ZPlaneList(parent) {
         return "./images/placeholder.png";
     }
 
+    /**
+     * This function sends a request to chaise to update the default z index, and shows a spinner in place of the save icon
+     */
     this._saveDefaultZIndexHandler = function () {
         _self.parent.dispatchEvent('updateDefaultZIndex', {zIndex: _self.mainImageZIndex});
         var saveDefaultZ = _self._zPlaneContainer.querySelector("#save-default-z-index");
         if (saveDefaultZ) {
-            saveDefaultZ.disabled = true;
+            saveDefaultZ.innerHTML = '<i class="fas fa-sync fa-spin update-default-z-button" ></i>'
         }
     };
 
@@ -473,13 +485,25 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
-        var updateButton = _self.canUpdateDefaultZIndex ? '<button id="save-default-z-index" class="update-default-z-index">Update Default Z</button>' : '';
+
+        if (_self.canUpdateDefaultZIndex == true) {
+            jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" title="Jump to specific Z index">' +
+                            '<i class="fa fa-share jump-to-button"></i>' +
+                        '</button>';
+            updateButton = '<button id="save-default-z-index" class="info-buttom-container last-button" title="Update default Z index">' +
+                                '<i class="fas fa-save update-default-z-button"></i>' +
+                            '</button>';
+        } else {
+            jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container last-button" title="Jump to specific Z index">' +
+                            '<i class="fa fa-share jump-to-button"></i>' +
+                        '</button>';
+            updateButton = '';
+        }
+        
         zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
-            '<button id="z-index-jump-button" class="jump-to-buttom-container" title="Jump to specific Z index">'+
-                '<i class="fa fa-share jump-to-button"></i>'+
-            '</button>'+
-            '<span>(total of ' + _self.totalCount + ' generated)</span>' +
-            updateButton;
+            jumpButtom +
+            updateButton+
+            '<span>(total of ' + _self.totalCount + ' generated, Default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>';
             
         _self._renderUpdateDefaultZButton();
 
@@ -496,7 +520,7 @@ function ZPlaneList(parent) {
             _self._fetchListByZIndex(newIndex);
         }
 
-        var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
+        var jumpButtom = zPlaneInfo.querySelector('#z-index-jump-button');
         jumpButtom.addEventListener('click', grabInputAndSearch);
 
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
