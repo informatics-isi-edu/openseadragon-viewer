@@ -6,6 +6,7 @@ function ChannelItem(data){
     this.contrast = data["contrast"] || 1;
     this.brightness = data["brightness"] || 0;
     this.gamma = data["gamma"] || "";
+    this.saturation = data["saturation"] || 100;
     if (data["hue"] >= 0) {
       this.hue = data["hue"]
     } else {
@@ -24,6 +25,7 @@ function ChannelItem(data){
         "contrast": this.contrast,
         "brightness": this.brightness,
         "gamma": this.gamma,
+        "saturation": this.saturation,
         "hue": this.hue,
         "deactivateHue": this.deactivateHue,
         "isDisplay": this.isDisplay,
@@ -226,6 +228,7 @@ function ChannelItem(data){
             case "contrast":
             case "brightness":
             case "gamma":
+            case "saturation":
                 _self[type] = value;
                 // make sure both slider and number are showing the value
                 el.querySelector("input.slider").value = value;
@@ -264,7 +267,7 @@ function ChannelItem(data){
         var attrs = ["contrast", "brightness", "gamma"];
         // if hue control is missing, we shouldn't update the settings either
         if (og.hue != null) {
-            attrs.push("deactivateHue", "hue");
+            attrs.push("deactivateHue", "hue", "saturation");
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {
@@ -366,6 +369,28 @@ function ChannelItem(data){
                         "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.gamma + "' min='0' max='3' step='0.01' value='"+this.gamma+"'>",
                     "</span>",
                 "</span>",
+                "<span class='sliderContainer' data-type='saturation'>",
+                    "<span class='attrRow'>",
+                        "<span class='name'>",
+                            "Saturation",
+                            "<i class='fas fa-info-circle setting-info' ",
+                                "data-tippy-placement='right'",
+                                "data-tippy-content='",
+                                    "Use the slider or input to modify the saturation. <br>",
+                                    "Acceptable values: Numbers from <strong>0</strong> to <strong>100</strong>. <br>",
+                                    "Default value: <strong>100</strong> <br>",
+                                "'",
+                                " >",
+                            "</i>",
+                        "</span>",
+                        "<span class='value'>",
+                            "<input class='number active' value=" + this.saturation + ">",
+                        "</span>",
+                    "</span>",
+                    "<span class='slider-wrapper'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.saturation + "' min='0' max='100' step='1' value='"+this.saturation+"'>",
+                    "</span>",
+                "</span>",
                 "<span class='sliderContainer' data-type='hue'>",
                     "<span class='attrRow'>",
                         "<span class='name'>",
@@ -398,6 +423,7 @@ function ChannelItem(data){
 
         if(this.hue == null){
             channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
+            channeElem.querySelector(".sliderContainer[data-type='saturation']").remove();
         }
         this.elem = channeElem;
 

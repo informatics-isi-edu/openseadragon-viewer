@@ -13,11 +13,13 @@ function Channel(osdItemID, name, number, options) {
     this.contrast = 1;
     this.brightness = 0;
     this.gamma = 1;
+    this.saturation = 100;
     this.hue = null;
     this.initialProperty = {
       contrast: 1,
       brightness: 0,
       gamma: 0.875,
+      saturation: 100,
       hue: null,
     };
 
@@ -175,9 +177,6 @@ Channel.prototype.setMultiple = function (settings) {
 
 
 Channel.prototype.set = function (type, value) {
-    // console.log(
-    //   "channel set" , type, value
-    // );
     if (!type) { return }
 
     switch (type.toUpperCase()) {
@@ -190,6 +189,9 @@ Channel.prototype.set = function (type, value) {
         case "GAMMA":
             this.gamma = value;
             break;
+        case "SATURATION":
+            this.saturation = value;
+            break;
         case "HUE":
             this.hue = value;
             // activate the hue control so the value change takes effect
@@ -199,22 +201,6 @@ Channel.prototype.set = function (type, value) {
             this.deactivateHue = (value === true);
             break;
     }
- //    if(!resetMode)
- //      plist.push(OpenSeadragon.Filters.GAMMA(gamma));
- //    if(this,hue < 0) { // special case.. this is a RGB full colored image
- //      filterList.push( {
- //         items: [myViewer.world.getItemAt(ItemID) ],
- //         processors: plist
- //      });
- //      } else {
- // // HUE always get called.
- // //       plist.push(OpenSeadragon.Filters.INVERT());
- //        plist.push(OpenSeadragon.Filters.HUE(angle));
- //        filterList.push( {
- //           items: [myViewer.world.getItemAt(ItemID) ],
- //           processors: plist
- //        });
- //    }
 }
 
 Channel.prototype.setIsDisplay = function (isDisplay) {

@@ -21,6 +21,7 @@ function ChannelList(parent) {
                     contrast: items[i]["contrast"],
                     brightness: items[i]["brightness"],
                     gamma: items[i]["gamma"],
+                    saturation: items[i]["saturation"],
                     hue: items[i]["hue"],
                     deactivateHue: items[i]["deactivateHue"],
                     osdItemId: id,

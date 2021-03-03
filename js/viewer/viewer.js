@@ -801,6 +801,7 @@ function Viewer(parent, config) {
                     contrast: channel["contrast"],
                     brightness: channel["brightness"],
                     gamma: channel["gamma"],
+                    saturation: channel["saturation"],
                     hue : channel["hue"],
                     deactivateHue : channel['deactivateHue'],
                     osdItemId: channel["id"],
