@@ -23,7 +23,7 @@ function ChannelList(parent) {
                     gamma: items[i]["gamma"],
                     saturation: items[i]["saturation"],
                     hue: items[i]["hue"],
-                    deactivateHue: items[i]["deactivateHue"],
+                    showGreyscale: items[i]["showGreyscale"],
                     osdItemId: id,
                     isDisplay: items[i]["isDisplay"],
                     parent: _self

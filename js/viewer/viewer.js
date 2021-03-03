@@ -803,7 +803,7 @@ function Viewer(parent, config) {
                     gamma: channel["gamma"],
                     saturation: channel["saturation"],
                     hue : channel["hue"],
-                    deactivateHue : channel['deactivateHue'],
+                    showGreyscale : channel['showGreyscale'],
                     osdItemId: channel["id"],
                     isDisplay: channel["isDisplay"]
                 });

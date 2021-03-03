@@ -29,7 +29,7 @@ function Channel(osdItemID, name, number, options) {
 
     // we might want to offer hue control but not apply it by default.
     // for example in case of a greyscale image with an unknown channelName
-    this.deactivateHue = false;
+    this.showGreyscale = false;
 
     // Set Default Values
     this.setDefaultHue();
@@ -66,7 +66,7 @@ Channel.prototype.getFiltersList = function () {
 
     // TODO The filter should be moved here. there's no point in having it in the channel-filter.js
     // and most probably we should change it so it's not accepting array of filters
-    list.push(OpenSeadragon.Filters.CHANGE_COLOR(this.contrast, this.brightness, this.gamma, this.saturation, this.hue, this.deactivateHue));
+    list.push(OpenSeadragon.Filters.CHANGE_COLOR(this.contrast, this.brightness, this.gamma, this.saturation, this.hue, this.showGreyscale));
 
     return list;
 }
@@ -110,12 +110,12 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
 }
 
 /**
- * Populate the default hue value that should be used (it will deactivate or hide the control if needed)
+ * Populate the default hue value that should be used (it will show greyscale or hide the control if needed)
  * - if isRGB=true -> null (no hue control)
  * - if rgb != null (pseudoColor) and color is valid (not grey/white/black) -> the hue value of rgb
  * - if channelName in the list -> the hue value based on what's defined
  * - if isRGB=null, and (single-channel or combo/Brightfield) -> null (no hue control)
- * - otherwise -> use the default color and deactivate hue control by default
+ * - otherwise -> use the default color and show greyscale by default
  */
 function _populateDefaultHue(self) {
     // if isRGB=true, then disable the hue control
@@ -149,7 +149,7 @@ function _populateDefaultHue(self) {
 
     // - isRGB is not defined and it's multi-channel
     // - or isRGB=false and channelName wasn't found:
-    self.deactivateHue = true; // deactivate hue control
+    self.showGreyscale = true; // show the greyscale image
     return 0; //default value
 }
 
@@ -191,14 +191,17 @@ Channel.prototype.set = function (type, value) {
             break;
         case "SATURATION":
             this.saturation = value;
+
+            // make sure saturation value applied
+            this.showGreyscale = false;
             break;
         case "HUE":
             this.hue = value;
-            // activate the hue control so the value change takes effect
-            this.deactivateHue = false;
+            // make sure hue value applied
+            this.showGreyscale = false;
             break;
-        case "DEACTIVATEHUE":
-            this.deactivateHue = (value === true);
+        case "SHOWGREYSCALE":
+            this.showGreyscale = (value === true);
             break;
     }
 }

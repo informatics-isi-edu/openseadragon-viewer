@@ -1,4 +1,4 @@
-function ChannelItem(data){
+function ChannelItem(data) {
 
     var _self = this;
 
@@ -13,7 +13,7 @@ function ChannelItem(data){
       this.hue = null;
     }
 
-    this.deactivateHue = data["deactivateHue"] || false;
+    this.showGreyscale = data["showGreyscale"] || false;
 
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
@@ -27,7 +27,7 @@ function ChannelItem(data){
         "gamma": this.gamma,
         "saturation": this.saturation,
         "hue": this.hue,
-        "deactivateHue": this.deactivateHue,
+        "showGreyscale": this.showGreyscale,
         "isDisplay": this.isDisplay,
         "isExpand": this.isExpand
     };
@@ -65,7 +65,7 @@ function ChannelItem(data){
             case "toggleDisplay":
                 return (this.isDisplay) ? 'Hide the channel' : 'Display the channel';
             case "toggleGreyscale":
-                return (this.deactivateHue) ? "Apply color filter" : "Use greyscale";
+                return (this.showGreyscale) ? "Apply hue and saturation" : "Display greyscale image";
         }
     }
 
@@ -98,60 +98,60 @@ function ChannelItem(data){
     };
 
     /**
-     * make sure the hue control attributes are properly set and it's displayed properly
-     * @param {String|Number=} newVal - the new value that should be used.
+     * make sure the hue and saturation control attributes are properly set and it's displayed properly
+     * if we switch to greyscale: saturation should show 0, hue should show "Greyscale"
+     * and vice versa
      */
-    this._setHueControlState = function (newVal) {
-        var val = 0,
-            el = _self.elem.querySelector(".sliderContainer[data-type='hue']");
+    this._setHueSaturationControlState = function () {
+        var displayedHue = _self.hue,
+            displayedSat = _self.saturation,
+            hueEl = _self.elem.querySelector(".sliderContainer[data-type='hue']"),
+            saturationEl = _self.elem.querySelector(".sliderContainer[data-type='saturation']");
 
-        // set the value to something new
-        if (newVal != null) {
-            _self.deactivateHue = false;
-            val = newVal;
-        }
-        // deactivate the hue control
-        else if (_self.deactivateHue) {
-            val = "Greyscale";
-            _self._previousHue = _self.hue;
-        }
-        // activate the hue control and use the previous value if available
-        else if (_self._previousHue != null) {
-            val = _self._previousHue;
+        // show the greyscale image
+        if (_self.showGreyscale) {
+            displayedHue = "Greyscale";
+            displayedSat = 0; // this will just change the displayed value
         }
 
         // change the displayed value
-        _self.hue = val;
-        if (val != "Greyscale") {
-            el.querySelector("input.number").value = val;
+        if (displayedHue != "Greyscale") {
+            hueEl.querySelector("input.slider").value = displayedHue;
+            hueEl.querySelector("input.number").value = displayedHue;
+        }
+
+        // change the displayed value of saturation
+        if (displayedSat != null) {
+            saturationEl.querySelector("input.number").value = displayedSat;
+            saturationEl.querySelector("input.slider").value = displayedSat;
         }
 
         //change the active classes
-        el.querySelector("input.number").className = _self.deactivateHue ? "number" : "number active";
+        hueEl.querySelector("input.number").className = _self.showGreyscale ? "number" : "number active";
 
-        var hueControl = el.querySelector(".hue-container");
-        hueControl.querySelector('.slider').className = _self.deactivateHue ? "slider" : "slider active";
+        var hueControl = hueEl.querySelector(".hue-container");
+        hueControl.querySelector('.slider').className = _self.showGreyscale ? "slider" : "slider active";
 
-        var hueControlBtn = hueControl.querySelector('.deactivate-hue');
-        hueControlBtn.className = !_self.deactivateHue ? "deactivate-hue" : "deactivate-hue active";
+        var hueControlBtn = hueControl.querySelector('.toggle-greyscale');
+        hueControlBtn.className = !_self.showGreyscale ? "toggle-greyscale" : "toggle-greyscale active";
         hueControlBtn._tippy.setContent(_self.getTooltip('toggleGreyscale'))
     };
 
-    this.onClickDeactivateHue = function (event, deactivateHue) {
-        if (typeof deactivateHue === "boolean") {
-            _self.deactivateHue = deactivateHue;
+    this.onClickToggleGreyscale = function (event, showGreyscale) {
+        if (typeof showGreyscale === "boolean") {
+            _self.showGreyscale = showGreyscale;
         } else {
-            _self.deactivateHue = !_self.deactivateHue;
+            _self.showGreyscale = !_self.showGreyscale;
         }
 
         // make sure the controls are correctly displayed
-        _self._setHueControlState();
+        _self._setHueSaturationControlState();
 
         // set te proper value
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
-            type : 'deactivateHue',
-            value : _self.deactivateHue
+            type : 'showGreyscale',
+            value : _self.showGreyscale
         });
 
         event.stopPropagation();
@@ -228,22 +228,24 @@ function ChannelItem(data){
             case "contrast":
             case "brightness":
             case "gamma":
-            case "saturation":
                 _self[type] = value;
                 // make sure both slider and number are showing the value
                 el.querySelector("input.slider").value = value;
                 el.querySelector("input.number").value = value;
                 break;
+            case "saturation":
             case "hue":
-                // make sure slider is showing the value
-                el.querySelector("input.slider").value = value;
+                _self[type] = value;
+
+                // make sure we're not using greyscale
+                _self.showGreyscale = false;
 
                 // make sure the value is displayed
-                _self._setHueControlState(value);
+                _self._setHueSaturationControlState();
                 break;
-            case "deactivateHue":
-                _self.deactivateHue = value;
-                _self._setHueControlState();
+            case "showGreyscale":
+                _self.showGreyscale = value;
+                _self._setHueSaturationControlState();
                 break;
         };
 
@@ -267,7 +269,7 @@ function ChannelItem(data){
         var attrs = ["contrast", "brightness", "gamma"];
         // if hue control is missing, we shouldn't update the settings either
         if (og.hue != null) {
-            attrs.push("deactivateHue", "hue", "saturation");
+            attrs.push("showGreyscale", "hue", "saturation");
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {
@@ -407,15 +409,15 @@ function ChannelItem(data){
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number " + (!this.deactivateHue ? "active" : "") + "' value=" + this.hue + ">",
+                            "<input class='number " + (!this.showGreyscale ? "active" : "") + "' value=" + this.hue + ">",
                             "<span class='greyscale'>Greyscale</span>",
                         "</span>",
                     "</span>",
                     "<span class='hue-container' data-type='hue'>",
                         "<span class='slider-wrapper'>",
-                            "<input type='range' class='slider " + (!this.deactivateHue ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + this.hue + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                            "<input type='range' class='slider " + (!this.showGreyscale ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + this.hue + "' min='0' max='360' step='1' value='"+this.hue+"'>",
                         "</span>",
-                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getTooltip('toggleGreyscale') + "' class='deactivate-hue " + (this.deactivateHue ? "active" : "") + "'></span>",
+                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getTooltip('toggleGreyscale') + "' class='toggle-greyscale " + (this.showGreyscale ? "active" : "") + "'></span>",
                     "</span>",
                 "</span>",
             "</div>",
@@ -435,8 +437,8 @@ function ChannelItem(data){
         }.bind(this));
 
         //
-        this.elem.querySelectorAll(".hue-container .deactivate-hue").forEach(function(elem){
-            elem.addEventListener('click', this.onClickDeactivateHue);
+        this.elem.querySelectorAll(".hue-container .toggle-greyscale").forEach(function(elem){
+            elem.addEventListener('click', this.onClickToggleGreyscale);
         }.bind(this));
 
         // Change the visibility of Openseadragon items
