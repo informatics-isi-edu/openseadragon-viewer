@@ -302,3 +302,7 @@ var OSDViewer = (function (_config) {
 window.OSDViewer = OSDViewer;
 
 OSDViewer.init();
+
+// allow tooltips to be defined as attribute
+tippy.setDefaultProps({theme: 'light', allowHTML: true});
+tippy('[data-tippy-content]');
