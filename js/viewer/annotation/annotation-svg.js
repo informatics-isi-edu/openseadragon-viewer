@@ -231,33 +231,22 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         // return matched group SVG content only if groupID provided
         if(groupID){
             if(this.groups.hasOwnProperty(groupID)){
-                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
-                svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
-                svg += this.groups[groupID].exportToSVG();
-                svg += "</svg>";
+                var innerSVG = this.groups[groupID].exportToSVG();
+                if (innerSVG != "") {
+                    // if there is some content present in the innerSVG, only then add to rst, else return empty array.
+                    svg += "<svg viewBox='" + this.getViewBox().join(" ") + "' xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
+                    svg += "<scale x='" + imgScaleX + "' y='" + imgScaleY + "'/>";
+                    svg += innerSVG;
+                    svg += "</svg>";
 
-                rst.push({
-                    svgID : this.id,
-                    groupID : groupID,
-                    numOfAnnotations : this.groups[groupID].getNumOfAnnotations(),
-                    svg : svg,
-                    stroke: this.groups[groupID].stroke
-                });
-            }
-        }
-        // return all group content if groupID is not provided
-        else{
-            for(groupID in this.groups){
-                svg += "<svg viewBox='"+this.getViewBox().join(" ")+"'  xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink'>";
-                svg += "<scale x='"+imgScaleX+"' y='"+imgScaleY+"'/>";
-                svg += this.groups[groupID].exportToSVG();
-                svg += "</svg>";
-
-                rst.push({
-                    groupID : groupID,
-                    svg : svg,
-                    stroke: this.groups[groupID].stroke
-                });
+                    rst.push({
+                        svgID: this.id,
+                        groupID: groupID,
+                        numOfAnnotations: this.groups[groupID].getNumOfAnnotations(),
+                        svg: svg,
+                        stroke: this.groups[groupID].stroke
+                    });
+                }
             }
         }
 
