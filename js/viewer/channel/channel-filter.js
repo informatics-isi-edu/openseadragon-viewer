@@ -326,10 +326,10 @@
         VERSION: "0.1",
 
         CHANGE_COLOR: function (contrast, brightness, gamma, saturation, hue, greyscale) {
-            if (!_isNumber(contrast) || contrast > 100 || contrast < -100) {
+            if (!_isNumber(contrast) || contrast > 1 || contrast < -1) {
                 contrast = 0;
             }
-            contrast = Math.pow(10, contrast / 100);
+            contrast = Math.pow(10, contrast);
 
             if (!_isNumber(brightness) || brightness > 100 || brightness < -100) {
                 brightness = 0;

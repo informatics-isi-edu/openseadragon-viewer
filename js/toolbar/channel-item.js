@@ -34,8 +34,8 @@ function ChannelItem(data) {
 
     this._minMaxValues = {
         contrast: {
-            MIN: -100,
-            MAX: 100
+            MIN: -1,
+            MAX: 1
         },
         brightness: {
             MIN: -100,
@@ -215,8 +215,7 @@ function ChannelItem(data) {
 
     // make sure the corresponding attribute and UI element are updated
     this._setChannelColorSetting = function (type, value, validate)  {
-        var el = _self.elem.querySelector(".sliderContainer[data-type='" + type + "']"),
-            validator = _self._minMaxValues[type],
+        var validator = _self._minMaxValues[type],
             numberVal = Number(value);
 
         // validate the given value
@@ -224,13 +223,23 @@ function ChannelItem(data) {
             _self._setChannelColorSetting(type, _self[type]);
             return false;
         }
+
+        // make sure the tooltip is correct
+        var el = el = _self.elem.querySelector(".sliderContainer[data-type='" + type + "']"), slider;
+        if (el) {
+            slider = el.querySelector("input.slider");
+            if (slider._tippy) {
+                slider._tippy.setContent(value);
+            }
+        }
+
         switch(type){
             case "contrast":
             case "brightness":
             case "gamma":
                 _self[type] = value;
                 // make sure both slider and number are showing the value
-                el.querySelector("input.slider").value = value;
+                slider.value = value;
                 el.querySelector("input.number").value = value;
                 break;
             case "saturation":
@@ -313,7 +322,7 @@ function ChannelItem(data) {
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
                                     "Use the slider or input to change color contrast. <br>",
-                                    "Acceptable values: Numbers from <strong>-100</strong> to <strong>100</strong>. <br>",
+                                    "Acceptable values: Numbers from <strong>-1</strong> to <strong>1</strong>. <br>",
                                     "Default value: <strong>0</strong> <br>",
                                 "'",
                                 " >",
@@ -324,7 +333,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.contrast + "' min='-100' max='100' step='1' value='"+this.contrast+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.contrast + "' min='-1' max='1' step='0.01' value='"+this.contrast+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
