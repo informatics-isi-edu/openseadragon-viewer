@@ -3,7 +3,7 @@ function ChannelItem(data) {
     var _self = this;
 
     this.name = data["name"] || "";
-    this.contrast = data["contrast"] || 1;
+    this.contrast = data["contrast"] || 0;
     this.brightness = data["brightness"] || 0;
     this.gamma = data["gamma"] || "";
     this.saturation = data["saturation"] || 100;
@@ -34,12 +34,12 @@ function ChannelItem(data) {
 
     this._minMaxValues = {
         contrast: {
-            MIN: 0,
-            MAX: 10
+            MIN: -100,
+            MAX: 100
         },
         brightness: {
-            MIN: -255,
-            MAX: 255
+            MIN: -100,
+            MAX: 100
         },
         gamma: {
             MIN: 0,
@@ -313,8 +313,8 @@ function ChannelItem(data) {
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
                                     "Use the slider or input to change color contrast. <br>",
-                                    "Acceptable values: Numbers from <strong>0</strong> to <strong>10</strong>. <br>",
-                                    "Default value: <strong>1</strong>",
+                                    "Acceptable values: Numbers from <strong>-100</strong> to <strong>100</strong>. <br>",
+                                    "Default value: <strong>0</strong> <br>",
                                 "'",
                                 " >",
                             "</i>",
@@ -324,7 +324,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.contrast + "' min='0' max='10' step='0.1' value='"+this.contrast+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.contrast + "' min='-100' max='100' step='1' value='"+this.contrast+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
@@ -336,8 +336,7 @@ function ChannelItem(data) {
                                 "data-tippy-content='",
                                     "Use the slider or input to change brightness of image. <br>",
                                     "Acceptable values: Integers from <strong>-100</strong> to <strong>100</strong>. <br>",
-                                    "Default value: <strong>0</strong>",
-                                    "<br>",
+                                    "Default value: <strong>0</strong> <br>",
                                 "'",
                                 " >",
                             "</i>",

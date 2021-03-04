@@ -326,9 +326,11 @@
         VERSION: "0.1",
 
         CHANGE_COLOR: function (contrast, brightness, gamma, saturation, hue, greyscale) {
-            if (!_isNumber(contrast) || contrast > 10 || contrast < 0) {
-                contrast = 1;
+            if (!_isNumber(contrast) || contrast > 100 || contrast < -100) {
+                contrast = 0;
             }
+            contrast = Math.pow(10, contrast / 100);
+
             if (!_isNumber(brightness) || brightness > 100 || brightness < -100) {
                 brightness = 0;
             }
@@ -347,6 +349,8 @@
             if (!_isNumber(hue) || hue > 360 || hue < 0) {
                 rgbImg = true;
             }
+
+            console.log("using ", contrast);
 
             var precomputedRes = [];
             for (var i = 0; i < 100; i++) {

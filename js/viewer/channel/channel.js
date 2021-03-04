@@ -10,13 +10,13 @@ function Channel(osdItemID, name, number, options) {
     this.rgb = options["pseudoColor"] || null;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
-    this.contrast = 1;
+    this.contrast = 0;
     this.brightness = 0;
-    this.gamma = 1;
+    this.gamma = 0.875;
     this.saturation = 100;
     this.hue = null;
     this.initialProperty = {
-      contrast: 1,
+      contrast: 0,
       brightness: 0,
       gamma: 0.875,
       saturation: 100,
