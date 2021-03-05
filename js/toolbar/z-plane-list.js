@@ -486,25 +486,26 @@ function ZPlaneList(parent) {
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
 
+
         if (_self.canUpdateDefaultZIndex == true) {
-            jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" title="Jump to specific Z index">' +
+            jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
                             '<i class="fa fa-share jump-to-button"></i>' +
                         '</button>';
-            updateButton = '<button id="save-default-z-index" class="info-buttom-container last-button" title="Update default Z index">' +
+            updateButton = '<button id="save-default-z-index" class="info-buttom-container last-button" data-tippy-placement="top" data-tippy-content="Update the default Z index">' +
                                 '<i class="fas fa-save update-default-z-button"></i>' +
                             '</button>';
         } else {
-            jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container last-button" title="Jump to specific Z index">' +
+            jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container last-button" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
                             '<i class="fa fa-share jump-to-button"></i>' +
                         '</button>';
             updateButton = '';
         }
-        
+
         zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
             jumpButtom +
             updateButton+
-            '<span>(total of ' + _self.totalCount + ' generated, Default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>';
-            
+            '<span>(total of ' + _self.totalCount + ' generated, default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>';
+
         _self._renderUpdateDefaultZButton();
 
         var inputChangedPromise = null;
@@ -625,6 +626,8 @@ function ZPlaneList(parent) {
         _self._renderZPlaneInfo();
         _self._calculatePageSize();
         _self._renderZPlaneCarousel();
+
+        tippy('#z-plane-resize-sensor [data-tippy-content]', {theme: "light"});
     };
 
 }
