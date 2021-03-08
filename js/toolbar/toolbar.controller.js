@@ -139,4 +139,8 @@ function ToolbarController(parent, config){
             });
         }
     }
+
+    this.updatedDefaultZIndex = function(data) {
+        this.zPlaneList.updatedDefaultZIndex(data);
+    }
 }

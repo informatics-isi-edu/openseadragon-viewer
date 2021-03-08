@@ -98,6 +98,12 @@ function ZPlaneList(parent) {
     this.validFetchRequests = ['fetchZPlaneListByZIndex', 'fetchZPlaneList'];
 
     /**
+     * it store the default z index for the image
+     * @type {integer}
+     */
+    this.defaultZIndex = -1;
+
+    /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
      */
@@ -127,15 +133,24 @@ function ZPlaneList(parent) {
 
         _self.totalCount = data.totalCount;
         _self.mainImageZIndex = data.mainImageZIndex;
+        _self.defaultZIndex = data.mainImageZIndex;
+        _self.canUpdateDefaultZIndex = data.canUpdateDefaultZIndex;
         _self._render();
         _self._fetchListByZIndex('default');
     }
 
     /**
-     * TODO list all the properties of the `data` and explain each one.
      * @param {object} data
+     * Properties of data
+     * requestID: the id of the request to which the data is the response of
+     * images: the array of images thaat need to be shown in the z plane list
+     * hasPrevious: boolean value, which determines if there is/are z planes with index less than the first z plane present in the 'images' array
+     * hasNext: boolean value, which determines if there is/are z planes with index more than the last z plane present in the 'images' array
+     * updateMainImage: boolean value, which determines whether the main image needs to be updated or not
+     * mainImageIndex: if 'updateMainImage' is true, the this gives the index to which the main images needs to be changed to.
      */
     this.updateList = function (data) {
+
         // in case of an old response -> return
         if (data.requestID != _self._currentRequestID)
             return;
@@ -147,9 +162,11 @@ function ZPlaneList(parent) {
             this.hasPrevious = data.hasPrevious;
             _self.hasNext = data.hasNext;
         } else {
+            // if appendData is true, this means that the new images that were fetched need to be added to the existing set of images.
             _self.appendData = false;
             _self.collection = _self.collection.concat(data.images);
             if (_self.collection.length > _self.pageSize) {
+                // if after appending the images the collection length is bigger than the page size, remove the unecessary images. Since iamges were removed, this means that there are more images and therefore 'hasNext' is set to true
                 _self.collection = _self.collection.splice(0, _self.pageSize);
                 _self.hasNext = true;
             } else {
@@ -182,6 +199,34 @@ function ZPlaneList(parent) {
     };
 
     /**
+     * This function updates the value of local default z index, with the value that is recieves, and then updates the 'Update default z' button
+     * @param {object} data
+     */
+    this.updatedDefaultZIndex = function (data) {
+
+        if ('zIndex' in data) {
+            _self.defaultZIndex = data['zIndex'];
+            document.querySelector('#current-default-z-index').innerHTML = _self.defaultZIndex;
+            _self._renderUpdateDefaultZButton();
+        }
+    };
+
+    /**
+     * This function renders the update default z button
+     */
+    this._renderUpdateDefaultZButton = function () {
+        var updateDeaultZButton = _self._zPlaneContainer.querySelector("#save-default-z-index");
+        if (updateDeaultZButton) {
+            updateDeaultZButton.innerHTML = '<i class="glyphicon glyphicon-saved update-default-z-button"></i>';
+            if (_self.defaultZIndex == _self.mainImageZIndex) {
+                updateDeaultZButton.disabled = true;
+            } else {
+                updateDeaultZButton.disabled = false;
+            }
+        }
+    };
+
+    /**
      * change the state of spinner
      * @param {boolean} display
      */
@@ -192,16 +237,20 @@ function ZPlaneList(parent) {
             var carousel = _self._zPlaneContainer.querySelector('.z-plane-carousel');
             var zIndexInput = _self._zPlaneContainer.querySelector('#main-image-z-index');
             var zIndexSubmit = _self._zPlaneContainer.querySelector('#z-index-jump-button');
+            var updateDeaultZButton = _self._zPlaneContainer.querySelector("#save-default-z-index");
+            updateDeaultZButton = updateDeaultZButton ? updateDeaultZButton : {};
             if (display == true) {
                 carousel.style.pointerEvents = 'none';
                 loader.style.display = 'flex';
                 zIndexInput.disabled = true;
                 zIndexSubmit.disabled = true;
+                updateDeaultZButton.disabled = true;
             } else {
                 carousel.style.pointerEvents = 'initial';
                 loader.style.display = 'none';
                 zIndexInput.disabled = false;
                 zIndexSubmit.disabled = false;
+                updateDeaultZButton.disabled = false;
             }
         }
     };
@@ -351,6 +400,18 @@ function ZPlaneList(parent) {
     }
 
     /**
+     * This function sends a request to chaise to update the default z index, and shows a spinner in place of the save icon
+     */
+    this._saveDefaultZIndexHandler = function () {
+        _self.parent.dispatchEvent('updateDefaultZIndex', {zIndex: _self.mainImageZIndex});
+        var saveDefaultZ = _self._zPlaneContainer.querySelector("#save-default-z-index");
+        if (saveDefaultZ) {
+            saveDefaultZ.innerHTML = '<i class="glyphicon glyphicon-refresh glyphicon-refresh-animate update-default-z-button" ></i>';
+            saveDefaultZ.disabled = true;
+        }
+    };
+
+    /**
      * click handler for when an image is selected
      * @param {interger} index
      */
@@ -358,6 +419,7 @@ function ZPlaneList(parent) {
 
         if (index < _self.collection.length && _self.collection[index].zIndex != _self.mainImageZIndex) {
             _self.mainImageZIndex = _self.collection[index].zIndex;
+            _self._renderUpdateDefaultZButton();
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane();
 
@@ -426,11 +488,27 @@ function ZPlaneList(parent) {
      */
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
+
+        var jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
+                            '<i class="glyphicon glyphicon-share-alt jump-to-button"></i>' +
+                        '</button>';
+        var updateButton = '';
+
+        if (_self.canUpdateDefaultZIndex == true) {
+            // add the update button if the default z index can be updated (derived from acl)
+            updateButton = '<button id="save-default-z-index" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Update the default Z index">' +
+                                '<i class="fas fa-save update-default-z-button"></i>' +
+                            '</button>';
+        }
+
         zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
-            '<button id="z-index-jump-button" class="jump-to-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">'+
-                '<i class="fa fa-share jump-to-button"></i>'+
-            '</button>'+
-            '<span>(total of ' + _self.totalCount + ' generated)</span>';
+            '<span>' +
+                jumpButtom +
+                updateButton +
+            '</span>' +
+            '<span>(total of ' + _self.totalCount + ' generated, default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>';
+
+        _self._renderUpdateDefaultZButton();
 
         var inputChangedPromise = null;
         var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
@@ -445,7 +523,7 @@ function ZPlaneList(parent) {
             _self._fetchListByZIndex(newIndex);
         }
 
-        var jumpButtom = zPlaneInfo.querySelector('.jump-to-buttom-container');
+        var jumpButtom = zPlaneInfo.querySelector('#z-index-jump-button');
         jumpButtom.addEventListener('click', grabInputAndSearch);
 
         var inputBox = zPlaneInfo.querySelector('#main-image-z-index');
@@ -458,6 +536,12 @@ function ZPlaneList(parent) {
             }, _self._zIndexInputDelay);
         });
 
+        var saveDefaultZ = zPlaneInfo.querySelector("#save-default-z-index");
+        if (saveDefaultZ) {
+            saveDefaultZ.addEventListener('click', _self._saveDefaultZIndexHandler);
+        }
+
+        tippy('#z-plane-info-container [data-tippy-content]', {theme: "light"});
     }
 
     /**
@@ -546,7 +630,7 @@ function ZPlaneList(parent) {
         _self._calculatePageSize();
         _self._renderZPlaneCarousel();
 
-        tippy('#z-plane-resize-sensor [data-tippy-content]', {theme: ""});
+        tippy('#z-plane-resize-sensor [data-tippy-content]', {theme: "light"});
     };
 
 }
