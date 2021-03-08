@@ -105,8 +105,6 @@ function ZPlaneList(parent) {
      */
     this.init = function (data) {
 
-        // TODO use canUpdateDefaultZIndex
-
         // change the width to be based on the image
         if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
             _self._thumbnailProperties.width = Math.ceil(_self._thumbnailProperties.height * (data.mainImageWidth / data.mainImageHeight));
