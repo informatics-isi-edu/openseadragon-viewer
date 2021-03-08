@@ -486,7 +486,7 @@ function ZPlaneList(parent) {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
 
         var jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
-                            '<i class="fa fa-share jump-to-button"></i>' +
+                            '<i class="glyphicon glyphicon-share-alt jump-to-button"></i>' +
                         '</button>';
         var updateButton = '';
 
