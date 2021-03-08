@@ -213,7 +213,7 @@ function ZPlaneList(parent) {
     this._renderUpdateDefaultZButton = function () {
         var updateDeaultZButton = _self._zPlaneContainer.querySelector("#save-default-z-index");
         if (updateDeaultZButton) {
-            updateDeaultZButton.innerHTML = '<i class="fas fa-save update-default-z-button"></i>';
+            updateDeaultZButton.innerHTML = '<i class="glyphicon glyphicon-saved update-default-z-button"></i>';
             if (_self.defaultZIndex == _self.mainImageZIndex) {
                 updateDeaultZButton.disabled = true;
             } else {
@@ -402,7 +402,8 @@ function ZPlaneList(parent) {
         _self.parent.dispatchEvent('updateDefaultZIndex', {zIndex: _self.mainImageZIndex});
         var saveDefaultZ = _self._zPlaneContainer.querySelector("#save-default-z-index");
         if (saveDefaultZ) {
-            saveDefaultZ.innerHTML = '<i class="fas fa-sync fa-spin update-default-z-button" ></i>'
+            saveDefaultZ.innerHTML = '<i class="glyphicon glyphicon-refresh glyphicon-refresh-animate update-default-z-button" ></i>';
+            saveDefaultZ.disabled = true;
         }
     };
 
