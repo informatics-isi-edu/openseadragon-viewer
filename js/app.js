@@ -144,7 +144,6 @@ var OSDViewer = (function (_config) {
                 break;
             // ask chaise to fetch new set of images
             case "fetchZPlaneListByZIndex":
-                console.log('fetchZPlaneListByZIndex');
                 window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
                 break;
             // update the displayed image
@@ -177,7 +176,6 @@ var OSDViewer = (function (_config) {
                     toolbar && toolbar.updateZPlaneList(data);
                     break;
                 case 'updateDefaultZIndexDone':
-                    // TODO
                     toolbar && toolbar.updatedDefaultZIndex(data);
                     break;
                 case 'filterChannels':

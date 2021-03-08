@@ -97,6 +97,10 @@ function ZPlaneList(parent) {
      */
     this.validFetchRequests = ['fetchZPlaneListByZIndex', 'fetchZPlaneList'];
 
+    /**
+     * it store the default z index for the image
+     * @type {integer}
+     */
     this.defaultZIndex = -1;
 
     /**
@@ -137,15 +141,15 @@ function ZPlaneList(parent) {
 
     /**
      * @param {object} data
+     * Properties of data
+     * requestID: the id of the request to which the data is the response of
+     * images: the array of images thaat need to be shown in the z plane list
+     * hasPrevious: boolean value, which determines if there is/are z planes with index less than the first z plane present in the 'images' array
+     * hasNext: boolean value, which determines if there is/are z planes with index more than the last z plane present in the 'images' array
+     * updateMainImage: boolean value, which determines whether the main image needs to be updated or not
+     * mainImageIndex: if 'updateMainImage' is true, the this gives the index to which the main images needs to be changed to.
      */
     this.updateList = function (data) {
-        // Properties of data
-        // requestID: the id of the request to which the data is the response of
-        // images: the array of images thaat need to be shown in the z plane list
-        // hasPrevious: boolean value, which determines if there is/are z planes with index less than the first z plane present in the 'images' array
-        // hasNext: boolean value, which determines if there is/are z planes with index more than the last z plane present in the 'images' array
-        // updateMainImage: boolean value, which determines whether the main image needs to be updated or not
-        // mainImageIndex: if 'updateMainImage' is true, the this gives the index to which the main images needs to be changed to.
 
         // in case of an old response -> return
         if (data.requestID != _self._currentRequestID)
