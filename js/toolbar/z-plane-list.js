@@ -539,6 +539,7 @@ function ZPlaneList(parent) {
             saveDefaultZ.addEventListener('click', _self._saveDefaultZIndexHandler);
         }
 
+        tippy('#z-plane-info-container [data-tippy-content]', {theme: "light"});
     }
 
     /**
