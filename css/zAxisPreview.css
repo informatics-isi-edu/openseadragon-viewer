@@ -9,8 +9,18 @@
 	text-align: center;
 	font-size: 14px;
 	display: flex;
-	justify-content: center;
+	/* justify-content: center; */
 	padding-top: 5px;
+}
+
+.z-planes-container .z-plane-info-container .col-1 {
+	width: 33%;
+	padding: 0 3%;
+	display: flex;
+}
+
+.z-planes-container .z-plane-info-container .col-2 {
+	/* width: 33%; */
 }
 
 .z-planes-container .z-plane-info-container .main-image-z-index {

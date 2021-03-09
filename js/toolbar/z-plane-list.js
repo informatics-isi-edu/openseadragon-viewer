@@ -489,6 +489,11 @@ function ZPlaneList(parent) {
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
 
+        var slider = '' +
+            '<div class="col-1">' +
+                '0 <input type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163"> 163' +
+            '</div>';
+
         var jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
                             '<i class="glyphicon glyphicon-share-alt jump-to-button"></i>' +
                         '</button>';
@@ -501,12 +506,17 @@ function ZPlaneList(parent) {
                             '</button>';
         }
 
-        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
-            '<span>' +
-                jumpButtom +
-                updateButton +
-            '</span>' +
-            '<span>(total of ' + _self.totalCount + ' generated, default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>';
+        zPlaneInfo.innerHTML = slider + 
+            '<div class="col-2">' +
+                'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
+                '<span>' +
+                    jumpButtom +
+                    updateButton +
+                '</span>' +
+                '<span>(total of ' + _self.totalCount + ' generated, default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>' +
+            '</div>';
+
+        // console.log(zPlaneInfo);
 
         _self._renderUpdateDefaultZButton();
 
@@ -542,6 +552,12 @@ function ZPlaneList(parent) {
         }
 
         tippy('#z-plane-info-container [data-tippy-content]', {theme: "light"});
+
+        var zIndexSlider = zPlaneInfo.querySelector('#z-index-slider');
+        zIndexSlider.addEventListener('change', function(event) {
+            console.log('slider changed', zIndexSlider.value);
+            _self._fetchListByZIndex(zIndexSlider.value);
+        });
     }
 
     /**
