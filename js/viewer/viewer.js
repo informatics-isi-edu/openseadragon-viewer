@@ -98,7 +98,8 @@ function Viewer(parent, config) {
                         "totalCount": _self.parameters.zPlaneTotalCount,
                         "mainImageZIndex": _self.parameters.mainImage.zIndex,
                         "mainImageWidth": imageSize.x,
-                        "mainImageHeight": imageSize.y
+                        "mainImageHeight": imageSize.y,
+                        "canUpdateDefaultZIndex": _self.parameters.mainImage.acls && _self.parameters.mainImage.acls.canUpdate
                     });
                 }
             }
