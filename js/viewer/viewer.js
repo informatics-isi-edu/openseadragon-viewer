@@ -67,6 +67,11 @@ function Viewer(parent, config) {
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
 
+        // overlay
+        var overlayContainer = document.createElement("div");
+        overlayContainer.setAttribute("id", "overlay-container");
+        this.osd.canvas.append(overlayContainer);
+
         // after each resize, make sure svgs are properly positioned
         this.osd.addHandler('resize', this.resizeSVG);
 

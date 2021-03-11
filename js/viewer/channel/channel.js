@@ -182,10 +182,7 @@ Channel.prototype.setMultiple = function (settings) {
 
 
 Channel.prototype.set = function (type, value) {
-    // console.log(
-    //   "channel set" , type, value
-    // );
-    if (!type) { return }
+    if (typeof type !== "string") type = "";
 
     switch (type.toUpperCase()) {
         case "CONTRAST":
@@ -205,25 +202,41 @@ Channel.prototype.set = function (type, value) {
         case "DEACTIVATEHUE":
             this.deactivateHue = (value === true);
             break;
+        default:
+            break;
     }
- //    if(!resetMode)
- //      plist.push(OpenSeadragon.Filters.GAMMA(gamma));
- //    if(this,hue < 0) { // special case.. this is a RGB full colored image
- //      filterList.push( {
- //         items: [myViewer.world.getItemAt(ItemID) ],
- //         processors: plist
- //      });
- //      } else {
- // // HUE always get called.
- // //       plist.push(OpenSeadragon.Filters.INVERT());
- //        plist.push(OpenSeadragon.Filters.HUE(angle));
- //        filterList.push( {
- //           items: [myViewer.world.getItemAt(ItemID) ],
- //           processors: plist
- //        });
- //    }
+
+    // make sure the label is updated
+    this.renderLabel();
 }
 
 Channel.prototype.setIsDisplay = function (isDisplay) {
     this.isDisplay = (isDisplay == true);
+
+    // make sure the label is updated
+    this.renderLabel();
+}
+
+
+Channel.prototype.renderLabel = function (imgWidth, imgHeight) {
+    if (!this.rendered) {
+        this.labelElement = document.createElement("div");
+        this.labelElement.innerHTML = this.name;
+        this.labelElement.setAttribute("class", "channel-label-overlay");
+    }
+
+    if (this.hue != null) {
+        this.labelElement.setAttribute("style", "color: rgb(" + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ")");
+    }
+
+    if (!this.isDisplay) {
+        this.labelElement.classList.remove("visible");
+    } else {
+        this.labelElement.classList.add("visible");
+    }
+
+    if (!this.rendered) {
+        this.rendered = true;
+        document.getElementById("overlay-container").appendChild(this.labelElement);
+    }
 }

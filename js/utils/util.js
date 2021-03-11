@@ -353,6 +353,52 @@ Utils.prototype.colorRGBToHex = function (val) {
     return "#" + rgb.join("");
 }
 
+
+/**
+ * h: 0-360
+ * s: 0-1
+ * v: 0-1
+ * returns array of [R, G, B] (8bit values)
+ */
+Utils.prototype.hsv2rgb = function (h, s, v) {
+    var h1 = h / 360, s1 = s, v1 = v;
+
+    var output = function (r, g, b) {
+        return [r * 255, g * 255, b * 255];
+    }
+
+    var i, f, p, q, t;
+
+    if (s1 === 0) {
+        return output(v1, v1, v1)
+    }
+    i = parseInt(h1 * 6.0);
+    f = (h1 * 6.0) - i;
+    p = v1 * (1.0 - s1);
+    q = v1 * (1.0 - (s1 * f));
+    t = v1 * (1.0 - (s1 * (1.0-f)));
+    i = i % 6;
+
+    if (i == 0) {
+        return output(v1, t, p);
+    }
+    if (i == 1) {
+        return output(q, v1, p);
+    }
+    if (i == 2) {
+        return output(p, v1, t);
+    }
+    if (i == 3) {
+        return output(p, q, v1);
+    }
+    if (i == 4) {
+        return output(t, p, v1);
+    }
+    if (i == 5) {
+        return output(v1, p, q);
+    }
+}
+
 // Detect user's browser
 Utils.prototype.getUserBrowserType = function(){
 
