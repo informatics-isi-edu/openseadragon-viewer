@@ -219,6 +219,10 @@ Channel.prototype.setIsDisplay = function (isDisplay) {
 
 
 Channel.prototype.renderLabel = function (imgWidth, imgHeight) {
+    if (!this.isMultiChannel) {
+        return;
+    }
+
     if (!this.rendered) {
         this.labelElement = document.createElement("div");
         this.labelElement.innerHTML = this.name;
@@ -227,6 +231,10 @@ Channel.prototype.renderLabel = function (imgWidth, imgHeight) {
 
     if (this.hue != null) {
         this.labelElement.setAttribute("style", "color: rgb(" + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ")");
+    }
+
+    if (this.deactivateHue) {
+        this.labelElement.setAttribute("style", "color: #ccc");
     }
 
     if (!this.isDisplay) {
