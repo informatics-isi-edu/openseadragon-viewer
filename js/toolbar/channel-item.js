@@ -38,8 +38,12 @@ function ChannelItem(data) {
             MAX: 1
         },
         brightness: {
-            MIN: -100,
-            MAX: 100
+            MIN: -1,
+            MAX: 1
+        },
+        saturation: {
+            min: 0,
+            max: 100
         },
         gamma: {
             MIN: 0,
@@ -51,6 +55,29 @@ function ChannelItem(data) {
         }
     };
 
+    this._tooltipSettings = {
+        default: {
+            addPlusSign: true,
+            suffix: ""
+        },
+        saturation: {
+            addPlusSign: false,
+            suffix: "%"
+        },
+        brightness: {
+            addPlusSign: true,
+            suffix: "x of contrast"
+        },
+        hue: {
+            addPlusSign: false,
+            suffix: ""
+        },
+        gamma: {
+            addPlusSign: false,
+            suffix: ""
+        }
+    }
+
     this.getIconClass = function(type){
         switch(type){
             case "toggleDisplay":
@@ -60,13 +87,24 @@ function ChannelItem(data) {
         }
     }
 
-    this.getTooltip = function(type){
+    this.getButtonTooltip = function(type){
         switch(type){
             case "toggleDisplay":
                 return (this.isDisplay) ? 'Hide the channel' : 'Display the channel';
             case "toggleGreyscale":
                 return (this.showGreyscale) ? "Apply hue and saturation" : "Display greyscale image";
         }
+    }
+
+    this.getSliderTooltip = function (type, value) {
+        var settings = (type in _self._tooltipSettings) ? _self._tooltipSettings[type] : _self._tooltipSettings.default;
+
+        if (settings.addPlusSign && value >= 0) {
+            value = "+" + value;
+        }
+
+        value += settings.suffix;
+        return value;
     }
 
 
@@ -93,7 +131,7 @@ function ChannelItem(data) {
             isDisplay : _self.isDisplay
         })
         _self.elem.querySelector(".toggleVisibility").innerHTML = "<i class='"+_self.getIconClass("toggleDisplay")+"'></i>";
-        _self.elem.querySelector(".toggleVisibility")._tippy.setContent(_self.getTooltip('toggleDisplay'));
+        _self.elem.querySelector(".toggleVisibility")._tippy.setContent(_self.getButtonTooltip('toggleDisplay'));
         event.stopPropagation();
     };
 
@@ -134,7 +172,7 @@ function ChannelItem(data) {
 
         var hueControlBtn = hueControl.querySelector('.toggle-greyscale');
         hueControlBtn.className = !_self.showGreyscale ? "toggle-greyscale" : "toggle-greyscale active";
-        hueControlBtn._tippy.setContent(_self.getTooltip('toggleGreyscale'))
+        hueControlBtn._tippy.setContent(_self.getButtonTooltip('toggleGreyscale'))
     };
 
     this.onClickToggleGreyscale = function (event, showGreyscale) {
@@ -169,7 +207,7 @@ function ChannelItem(data) {
             target._tippy.hide();
         }
 
-        var res = _self._setChannelColorSetting(type, value);
+        var res = _self._setChannelColorSetting(type, value, false, false);
 
         if (res === false) {
             return;
@@ -189,7 +227,7 @@ function ChannelItem(data) {
             value = +target.value;
 
         // TODO validate the numbers
-        var validate = _self._setChannelColorSetting(type, value, true);
+        var validate = _self._setChannelColorSetting(type, value, true, true);
 
         if (validate !== false) {
             _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
@@ -200,6 +238,11 @@ function ChannelItem(data) {
         }
     }
 
+    this._setInitialSliderTooltip = function (elem) {
+        var type = elem.parentNode.parentNode.getAttribute("data-type");
+        tippy(elem, {content: _self.getSliderTooltip(type, _self[type])});
+    }
+
     this.changeSliderTooltipValue = function (event) {
         var target = event.target;
 
@@ -207,20 +250,19 @@ function ChannelItem(data) {
             value = +target.value;
 
         if (target._tippy) {
-            target._tippy.setContent(value);
-            // target._tippy.setProps({offset: []})
+            target._tippy.setContent(_self.getSliderTooltip(type, value));
             target._tippy.show();
         }
     };
 
     // make sure the corresponding attribute and UI element are updated
-    this._setChannelColorSetting = function (type, value, validate)  {
+    this._setChannelColorSetting = function (type, value, validate, changeTooltip)  {
         var validator = _self._minMaxValues[type],
             numberVal = Number(value);
 
         // validate the given value
         if (validate  && (isNaN(value) || numberVal < validator.MIN || numberVal > validator.MAX)) {
-            _self._setChannelColorSetting(type, _self[type]);
+            _self._setChannelColorSetting(type, _self[type], false, changeTooltip);
             return false;
         }
 
@@ -228,8 +270,8 @@ function ChannelItem(data) {
         var el = el = _self.elem.querySelector(".sliderContainer[data-type='" + type + "']"), slider;
         if (el) {
             slider = el.querySelector("input.slider");
-            if (slider._tippy) {
-                slider._tippy.setContent(value);
+            if (slider._tippy && changeTooltip) {
+                slider._tippy.setContent(_self.getSliderTooltip(type, value));
             }
         }
 
@@ -287,7 +329,7 @@ function ChannelItem(data) {
             newSettings[attrName] = og[attrName];
 
             // make sure the change is reflected in the UI
-            _self._setChannelColorSetting(attrName, og[attrName]);
+            _self._setChannelColorSetting(attrName, og[attrName], false, true);
         })
 
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
@@ -310,7 +352,7 @@ function ChannelItem(data) {
                 "<span class='channelName'>"+ this.name +"</span>",
                 "<span class=channel-control-button-container''>",
                     "<span class='channel-control-btn reset-settings' data-tippy-content='Reset the channel settings'><i class='fas fa-undo'></i></span>",
-                    "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
+                    "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getButtonTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
                 "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
@@ -321,7 +363,7 @@ function ChannelItem(data) {
                             "<i class='fas fa-info-circle setting-info' ",
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
-                                    "Use the slider or input to change color contrast. <br>",
+                                    "Use the slider or input to change color contrast factor. <br>",
                                     "Acceptable values: Numbers from <strong>-1</strong> to <strong>1</strong>. <br>",
                                     "Default value: <strong>0</strong> <br>",
                                 "'",
@@ -333,7 +375,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.contrast + "' min='-1' max='1' step='0.01' value='"+this.contrast+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='-1' max='1' step='0.01' value='"+this.contrast+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
@@ -343,8 +385,8 @@ function ChannelItem(data) {
                             "<i class='fas fa-info-circle setting-info' ",
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
-                                    "Use the slider or input to change brightness of image. <br>",
-                                    "Acceptable values: Integers from <strong>-100</strong> to <strong>100</strong>. <br>",
+                                    "Use the slider or input to change brightness of image based on contrast factor. <br>",
+                                    "Acceptable values: Numbers from <strong>-1</strong> to <strong>1</strong>. <br>",
                                     "Default value: <strong>0</strong> <br>",
                                 "'",
                                 " >",
@@ -355,7 +397,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.brightness + "' min='-100' max='100' step='1' value='"+this.brightness+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='-1' max='1' step='0.01' value='"+this.brightness+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='gamma'>",
@@ -376,7 +418,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.gamma + "' min='0' max='3' step='0.01' value='"+this.gamma+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='0' max='3' step='0.01' value='"+this.gamma+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='saturation'>",
@@ -387,7 +429,7 @@ function ChannelItem(data) {
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
                                     "Use the slider or input to modify the saturation. <br>",
-                                    "Acceptable values: Numbers from <strong>0</strong> to <strong>100</strong>. <br>",
+                                    "Acceptable values: Percentage from <strong>0%</strong> to <strong>100%</strong>. <br>",
                                     "Default value: <strong>100</strong> <br>",
                                 "'",
                                 " >",
@@ -398,7 +440,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' data-tippy-content='" + this.saturation + "' min='0' max='100' step='1' value='"+this.saturation+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='0' max='100' step='1' value='"+this.saturation+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='hue'>",
@@ -423,9 +465,9 @@ function ChannelItem(data) {
                     "</span>",
                     "<span class='hue-container' data-type='hue'>",
                         "<span class='slider-wrapper'>",
-                            "<input type='range' class='slider " + (!this.showGreyscale ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + this.hue + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                            "<input type='range' class='slider " + (!this.showGreyscale ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + _self.getSliderTooltip("hue", this.hue) + "' min='0' max='360' step='1' value='"+this.hue+"'>",
                         "</span>",
-                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getTooltip('toggleGreyscale') + "' class='toggle-greyscale " + (this.showGreyscale ? "active" : "") + "'></span>",
+                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getButtonTooltip('toggleGreyscale') + "' class='toggle-greyscale " + (this.showGreyscale ? "active" : "") + "'></span>",
                     "</span>",
                 "</span>",
             "</div>",
@@ -479,8 +521,11 @@ function ChannelItem(data) {
 
         // Change the slider value
         this.elem.querySelectorAll("input.slider").forEach(function(elem){
+            // listener for the value
             elem.addEventListener('change', this.onChangeSliderValue);
 
+            // tooltip value
+            this._setInitialSliderTooltip(elem);
             elem.addEventListener('input', this.changeSliderTooltipValue);
         }.bind(this));
     }

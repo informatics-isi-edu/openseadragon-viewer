@@ -235,7 +235,7 @@
     }
 
     function _sanitizeValue(v) {
-        return Math.min(Math.max(v, 0), 100);
+        return Math.min(Math.max(v, 0), 1);
     }
 
     function _isInteger(value) {
@@ -246,6 +246,10 @@
         return typeof value === 'number';
     }
 
+    /**
+     * inout: 0-255, 0-255, 0-255
+     * output: [[0-360], [0-1], [0-1]]
+     */
     function _rgb2hsv(r, g, b, onlyV) {
         var r1 = r / 255,
             g1 = g / 255,
@@ -259,11 +263,11 @@
         v = maxc;
 
         if (onlyV) {
-            return v * 100;
+            return v;
         }
 
         if (minc == maxc) {
-            return [0, 0, v * 100];
+            return [0, 0, v];
         }
 
         s = (maxc - minc) / maxc;
@@ -280,11 +284,15 @@
         }
 
         h = (h/6.0) % 1.0;
-        return [h * 360, s * 100, v * 100]
+        return [h * 360, s, v]
     }
 
+    /**
+     * input: [[0-360], [0-1], [0-1]]
+     * output: 0-255, 0-255, 0-255
+     */
     function _hsv2rgb (h, s, v) {
-        var h1 = h / 360, s1 = s / 100, v1 = v / 100;
+        var h1 = h / 360, s1 = s, v1 = v;
 
         var output = function (r, g, b) {
             return [r * 255, g * 255, b * 255];
@@ -331,7 +339,7 @@
             }
             contrast = Math.pow(10, contrast);
 
-            if (!_isNumber(brightness) || brightness > 100 || brightness < -100) {
+            if (!_isNumber(brightness) || brightness > 1 || brightness < -1) {
                 brightness = 0;
             }
 
@@ -340,21 +348,15 @@
             }
 
             // TODO saturation
-            if (!_isNumber(saturation) || saturation > 100 || saturation < -100) {
+            if (!_isNumber(saturation) || saturation > 100 || saturation < 0) {
                 saturation = 100;
             }
+            saturation = saturation / 100;
 
             // if it's an rgb image, we shouldn't change the saturation or hue
             var rgbImg = false;
             if (!_isNumber(hue) || hue > 360 || hue < 0) {
                 rgbImg = true;
-            }
-
-            console.log("using ", contrast);
-
-            var precomputedRes = [];
-            for (var i = 0; i < 100; i++) {
-                precomputedRes[i] = _sanitizeValue( Math.pow( (((i - 50) * contrast) + 50 + brightness)/ 100, gamma) * 100 )
             }
 
             return function(context, callback) {
@@ -369,8 +371,7 @@
                     var col = _hsv2rgb(
                         rgbImg ? hsv[0] : hue,  // hue
                         greyscale ? 0 : (rgbImg ? hsv[1] : saturation), // saturation
-                        // _sanitizeValue( Math.pow( (((hsv[2] - 50) * contrast) + 50 + brightness)/ 100, gamma) * 100 ) // value
-                        precomputedRes[Math.floor(hsv[2])]
+                        _sanitizeValue( Math.pow( (((hsv[2] - 0.5) * contrast) + 0.5 + brightness), gamma) ) // value
                     );
                     pixels[i] = col[0];
                     pixels[i+1] = col[1];
