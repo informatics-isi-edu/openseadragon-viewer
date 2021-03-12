@@ -491,7 +491,11 @@ function ZPlaneList(parent) {
 
         var slider = '' +
             '<div class="col-1">' +
-                '0 <input type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163"> 163' +
+                '<div class="min-max">0</div>' + 
+                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
+                '<input class="slider" type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163">'+
+                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
+                '<div class="min-max">163</div>' + 
             '</div>';
 
         var jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +

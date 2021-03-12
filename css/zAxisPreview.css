@@ -19,6 +19,44 @@
 	display: flex;
 }
 
+.z-planes-container .z-plane-info-container .col-1 .min-max {
+	margin: 0 5px;
+}
+
+.z-planes-container .z-plane-info-container .col-1 .slider {
+	margin: 0 5px;
+}
+
+.z-planes-container .z-plane-info-container .col-1 .circular-button {
+	/* style to remove the default CSS of the button */
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+
+	height: 20px;
+	width: 28px;
+	border-radius: 50%;
+	background-color: rgb(70, 116, 167);
+	margin: 0 5px;
+
+	color: white;
+}
+
+.z-planes-container .z-plane-info-container .col-1 .circular-button .left {
+	margin-left: -3px;
+	margin-top: 2px;
+}
+
+.z-planes-container .z-plane-info-container .col-1 .circular-button .right {
+	margin-left: 3px;
+	margin-top: 2px;
+}
+
+
 .z-planes-container .z-plane-info-container .col-2 {
 	/* width: 33%; */
 }
