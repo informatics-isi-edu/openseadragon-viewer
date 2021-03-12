@@ -1,5 +1,5 @@
 .z-planes-container {
-	height: 145px;
+	height: 170px;
 	width: 100%;
 }
 
@@ -9,25 +9,30 @@
 	text-align: center;
 	font-size: 14px;
 	display: flex;
-	/* justify-content: center; */
+	justify-content: center;
 	padding-top: 5px;
 }
 
-.z-planes-container .z-plane-info-container .col-1 {
-	width: 33%;
-	padding: 0 3%;
+.z-planes-container .z-plane-slider {
+	height: 25px;
+	width: 100%;
+	text-align: center;
+	font-size: 14px;
 	display: flex;
+	justify-content: center;
+	padding-top: 5px;
 }
 
-.z-planes-container .z-plane-info-container .col-1 .min-max {
+.z-planes-container .z-plane-slider .min-max {
 	margin: 0 5px;
 }
 
-.z-planes-container .z-plane-info-container .col-1 .slider {
+.z-planes-container .z-plane-slider .slider {
 	margin: 0 5px;
+	width: 280px;
 }
 
-.z-planes-container .z-plane-info-container .col-1 .circular-button {
+.z-planes-container .z-plane-slider .circular-button {
 	/* style to remove the default CSS of the button */
 	background: none;
 	color: inherit;
@@ -38,7 +43,7 @@
 	outline: inherit;
 
 	height: 20px;
-	width: 28px;
+	width: 20px;
 	border-radius: 50%;
 	background-color: rgb(70, 116, 167);
 	margin: 0 5px;
@@ -46,12 +51,12 @@
 	color: white;
 }
 
-.z-planes-container .z-plane-info-container .col-1 .circular-button .left {
+.z-planes-container .z-plane-slider .circular-button .left {
 	margin-left: -3px;
 	margin-top: 2px;
 }
 
-.z-planes-container .z-plane-info-container .col-1 .circular-button .right {
+.z-planes-container .z-plane-slider .circular-button .right {
 	margin-left: 3px;
 	margin-top: 2px;
 }

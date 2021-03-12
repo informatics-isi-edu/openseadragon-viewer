@@ -489,15 +489,6 @@ function ZPlaneList(parent) {
     this._renderZPlaneInfo = function () {
         var zPlaneInfo = document.getElementById('z-plane-info-container');
 
-        var slider = '' +
-            '<div class="col-1">' +
-                '<div class="min-max">0</div>' + 
-                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
-                '<input class="slider" type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163">'+
-                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
-                '<div class="min-max">163</div>' + 
-            '</div>';
-
         var jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
                             '<i class="glyphicon glyphicon-share-alt jump-to-button"></i>' +
                         '</button>';
@@ -510,15 +501,13 @@ function ZPlaneList(parent) {
                             '</button>';
         }
 
-        zPlaneInfo.innerHTML = slider + 
-            '<div class="col-2">' +
-                'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
-                '<span>' +
-                    jumpButtom +
-                    updateButton +
-                '</span>' +
-                '<span>(total of ' + _self.totalCount + ' generated, default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>' +
-            '</div>';
+        zPlaneInfo.innerHTML = '' + 
+            'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">' +
+            '<span>' +
+            jumpButtom +
+            updateButton +
+            '</span>' +
+            '<span>(' + _self.totalCount + ' generated, default Z <span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
 
         // console.log(zPlaneInfo);
 
@@ -558,11 +547,26 @@ function ZPlaneList(parent) {
         tippy('#z-plane-info-container [data-tippy-content]', {theme: "light"});
 
         var zIndexSlider = zPlaneInfo.querySelector('#z-index-slider');
-        zIndexSlider.addEventListener('change', function(event) {
-            console.log('slider changed', zIndexSlider.value);
-            _self._fetchListByZIndex(zIndexSlider.value);
-        });
+        if (zIndexSlider) {
+            zIndexSlider.addEventListener('change', function(event) {
+                console.log('slider changed', zIndexSlider.value);
+                _self._fetchListByZIndex(zIndexSlider.value);
+            });
+        }
     }
+
+    this._renderZPlaneSlider = function () {
+        var zPlaneSlider = document.getElementById('z-plane-slider');
+        var slider = '' +
+            '<div class="z-plane-slider">' +
+                '<div class="min-max">0</div>' + 
+                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
+                '<input class="slider" type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163">'+
+                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
+                '<div class="min-max">163</div>' + 
+            '</div>';
+        zPlaneSlider.innerHTML = slider;
+    };
 
     /**
      * render the previous and next buttons, attach the onclick event, set active or disabled view mode
@@ -615,6 +619,10 @@ function ZPlaneList(parent) {
             '<div class="z-plane-info-container" id="z-plane-info-container">' +
             '</div>';
 
+        var zPlaneSlider = '' +
+            '<div class="z-plane-slider" id="z-plane-slider">' +
+            '</div>';
+
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
                 '<div id="z-plane-loader" class="z-plane-loader">' +
@@ -633,7 +641,7 @@ function ZPlaneList(parent) {
                 '</button>' +
             '<div>';
 
-        _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
+        _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneSlider + zPlaneCarousel;
 
         // _onNextPreviousHandler
         var prevButton = _self._zPlaneContainer.querySelector('#previous-button');
@@ -647,6 +655,7 @@ function ZPlaneList(parent) {
         });
 
         _self._renderZPlaneInfo();
+        _self._renderZPlaneSlider();
         _self._calculatePageSize();
         _self._renderZPlaneCarousel();
 
