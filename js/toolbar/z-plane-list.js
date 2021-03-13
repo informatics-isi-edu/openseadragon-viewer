@@ -124,11 +124,11 @@ function ZPlaneList(parent) {
         var mainContainer = document.getElementById('container');
         var height;
         if (mainContainer.offsetWidth < 800) {
-            height = mainContainer.offsetHeight - 170;
+            height = 'calc(100% - 170px)';
         } else {
-            height = mainContainer.offsetHeight - 145;
+            height = 'calc(100% - 145px)';
         }
-        mainContainer.style.height = height + 'px';
+        mainContainer.style.height = height;
 
         // add resize sensor
         var resizeSensorContainer = document.getElementById('z-plane-resize-sensor');
@@ -161,12 +161,12 @@ function ZPlaneList(parent) {
         var height;
         if (width < _self._minWidth) {
             // reduce the height of the main container
-            height = mainContainer.offsetHeight - 25;
+            height = 'calc(100% - 170px)';
         } else {
             // increase the height of the main container
-            height = mainContainer.offsetHeight + 25;
+            height = 'calc(100% - 145px)';
         }
-        mainContainer.style.height = height + 'px';
+        mainContainer.style.height = height;
     }
 
     /**
