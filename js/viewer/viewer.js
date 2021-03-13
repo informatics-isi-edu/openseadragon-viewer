@@ -67,6 +67,15 @@ function Viewer(parent, config) {
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
 
+
+        if (this.config.osd.showHistogram) {
+            this.histogramContainer = document.createElement("div");
+            this.histogramContainer.setAttribute("id", "histogram-container");
+            this.osd.canvas.append(this.histogramContainer);
+
+            this.osd.initializeColorHistogram("histogram-container");
+        }
+
         // after each resize, make sure svgs are properly positioned
         this.osd.addHandler('resize', this.resizeSVG);
 
@@ -122,6 +131,8 @@ function Viewer(parent, config) {
 
                 // hide the spinner (all images are added and loaded)
                 _self.resetSpinner();
+
+                _self.osd.drawColorHistogram();
             });
 
             // when all the images are added
@@ -1165,9 +1176,11 @@ function Viewer(parent, config) {
           processors: channel.getFiltersList()
         }
         var filters = [];
+        this.osd.emptyColorHistogram();
         for (var key in this.filters){
           filters.push(this.filters[key])
         }
+
         this.osd.setFilterOptions({
           filters: filters
         });
