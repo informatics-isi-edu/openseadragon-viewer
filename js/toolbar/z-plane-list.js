@@ -588,11 +588,11 @@ function ZPlaneList(parent) {
                 '<div class="min-max">163</div>';
         zPlaneSlider.innerHTML = slider;
         
-        var zIndexSlider = zPlaneInfo.querySelector('#z-index-slider');
-        if (zIndexSlider) {
-            zIndexSlider.addEventListener('change', function (event) {
-                console.log('slider changed', zIndexSlider.value);
-                _self._fetchListByZIndex(zIndexSlider.value);
+        var slider = zPlaneSlider.querySelector('#z-index-slider');
+        if (slider) {
+            slider.addEventListener('change', function (event) {
+                console.log('slider changed', slider.value);
+                _self._fetchListByZIndex(slider.value);
             });
         }
     };
