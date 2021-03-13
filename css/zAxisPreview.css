@@ -1,11 +1,11 @@
 .z-planes-container {
-	height: 170px;
+	/* height: 170px; */
 	width: 100%;
 }
 
 .z-planes-container .z-plane-info-container {
 	height: 25px;
-	width: 100%;
+	width: 400px;
 	text-align: center;
 	font-size: 14px;
 	display: flex;
@@ -15,7 +15,7 @@
 
 .z-planes-container .z-plane-slider {
 	height: 25px;
-	width: 100%;
+	width: 400px;
 	text-align: center;
 	font-size: 14px;
 	display: flex;
@@ -59,11 +59,6 @@
 .z-planes-container .z-plane-slider .circular-button .right {
 	margin-left: 3px;
 	margin-top: 2px;
-}
-
-
-.z-planes-container .z-plane-info-container .col-2 {
-	/* width: 33%; */
 }
 
 .z-planes-container .z-plane-info-container .main-image-z-index {
@@ -314,4 +309,10 @@
 	to {
 		-moz-transform: rotate(360deg);
 	}
+}
+
+.z-planes-container .info-slider-container {
+	display: flex;
+	justify-content: space-around;
+	flex-wrap: wrap;
 }

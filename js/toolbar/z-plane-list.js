@@ -103,6 +103,10 @@ function ZPlaneList(parent) {
      */
     this.defaultZIndex = -1;
 
+    this.previousContainerWidth = 0;
+
+    this._minWidth = 800;
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
@@ -118,16 +122,29 @@ function ZPlaneList(parent) {
 
         // reduce the height of the main container
         var mainContainer = document.getElementById('container');
-        mainContainer.classList.add('adjust-to-z-index');
+        var height;
+        if (mainContainer.offsetWidth < 800) {
+            height = mainContainer.offsetHeight - 170;
+        } else {
+            height = mainContainer.offsetHeight - 145;
+        }
+        mainContainer.style.height = height + 'px';
 
         // add resize sensor
         var resizeSensorContainer = document.getElementById('z-plane-resize-sensor');
         resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
+        _self.previousContainerWidth = resizeSensorContainer.clientWidth;
         _self._zPlaneContainer = document.getElementById('z-planes-container');
         new ResizeSensor(resizeSensorContainer, function () {
             clearTimeout(_self.delayedResizeSensorFunc);
             _self.delayedResizeSensorFunc = setTimeout(function () {
                 _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
+
+                // change the height of the main contaienr
+                if (_self.previousContainerWidth < _self._minWidth && resizeSensorContainer.clientWidth >= _self._minWidth || _self.previousContainerWidth >= _self._minWidth && resizeSensorContainer.clientWidth < _self._minWidth) {
+                    _self.changeContainerHeight(resizeSensorContainer.clientWidth);
+                }
+                _self.previousContainerWidth = resizeSensorContainer.clientWidth;
             }, _self._resizeSensorDelay);
         });
 
@@ -137,6 +154,19 @@ function ZPlaneList(parent) {
         _self.canUpdateDefaultZIndex = data.canUpdateDefaultZIndex;
         _self._render();
         _self._fetchListByZIndex('default');
+    }
+
+    this.changeContainerHeight = function(width) {
+        var mainContainer = document.getElementById('container');
+        var height;
+        if (width < _self._minWidth) {
+            // reduce the height of the main container
+            height = mainContainer.offsetHeight - 25;
+        } else {
+            // increase the height of the main container
+            height = mainContainer.offsetHeight + 25;
+        }
+        mainContainer.style.height = height + 'px';
     }
 
     /**
@@ -546,26 +576,25 @@ function ZPlaneList(parent) {
 
         tippy('#z-plane-info-container [data-tippy-content]', {theme: "light"});
 
-        var zIndexSlider = zPlaneInfo.querySelector('#z-index-slider');
-        if (zIndexSlider) {
-            zIndexSlider.addEventListener('change', function(event) {
-                console.log('slider changed', zIndexSlider.value);
-                _self._fetchListByZIndex(zIndexSlider.value);
-            });
-        }
     }
 
     this._renderZPlaneSlider = function () {
         var zPlaneSlider = document.getElementById('z-plane-slider');
         var slider = '' +
-            '<div class="z-plane-slider">' +
                 '<div class="min-max">0</div>' + 
                 '<button class="circular-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
                 '<input class="slider" type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163">'+
                 '<button class="circular-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
-                '<div class="min-max">163</div>' + 
-            '</div>';
+                '<div class="min-max">163</div>';
         zPlaneSlider.innerHTML = slider;
+        
+        var zIndexSlider = zPlaneInfo.querySelector('#z-index-slider');
+        if (zIndexSlider) {
+            zIndexSlider.addEventListener('change', function (event) {
+                console.log('slider changed', zIndexSlider.value);
+                _self._fetchListByZIndex(zIndexSlider.value);
+            });
+        }
     };
 
     /**
@@ -623,6 +652,12 @@ function ZPlaneList(parent) {
             '<div class="z-plane-slider" id="z-plane-slider">' +
             '</div>';
 
+        var infoSliderContainer = '' +
+            '<div class="info-slider-container" id="info-slider-container">' +
+                zPlaneInfo + 
+                zPlaneSlider +
+            '</div>';
+
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
                 '<div id="z-plane-loader" class="z-plane-loader">' +
@@ -641,7 +676,7 @@ function ZPlaneList(parent) {
                 '</button>' +
             '<div>';
 
-        _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneSlider + zPlaneCarousel;
+        _self._zPlaneContainer.innerHTML = infoSliderContainer + zPlaneCarousel;
 
         // _onNextPreviousHandler
         var prevButton = _self._zPlaneContainer.querySelector('#previous-button');
