@@ -107,6 +107,8 @@ function ZPlaneList(parent) {
 
     this._minWidth = 800;
 
+    this.sliderRange = {};
+
     /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
@@ -146,6 +148,11 @@ function ZPlaneList(parent) {
         _self.mainImageZIndex = data.mainImageZIndex;
         _self.defaultZIndex = data.mainImageZIndex;
         _self.canUpdateDefaultZIndex = data.canUpdateDefaultZIndex;
+        _self.sliderRange = {
+            'min': data.minZIndex,
+            'max': data.maxZIndex
+        };
+        
         _self._render();
         _self._fetchListByZIndex('default');
     }
@@ -577,11 +584,11 @@ function ZPlaneList(parent) {
     this._renderZPlaneSlider = function () {
         var zPlaneSlider = document.getElementById('z-plane-slider');
         var slider = '' +
-                '<div class="min-max">0</div>' + 
+                '<div class="min-max">'+_self.sliderRange.min+'</div>' + 
                 '<button class="circular-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
-                '<input class="slider" type="range" id="z-index-slider" value="'+_self.mainImageZIndex+'" min="0" max="163">'+
+                '<input class="slider" type="range" id="z-index-slider" value="' + _self.mainImageZIndex + '" min="' + _self.sliderRange.min + '" max="' + _self.sliderRange.max + '">'+
                 '<button class="circular-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
-                '<div class="min-max">163</div>';
+                '<div class="min-max">'+_self.sliderRange.max+'</div>';
         zPlaneSlider.innerHTML = slider;
         
         var slider = zPlaneSlider.querySelector('#z-index-slider');
