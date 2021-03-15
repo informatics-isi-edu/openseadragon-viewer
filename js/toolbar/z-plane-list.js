@@ -122,13 +122,7 @@ function ZPlaneList(parent) {
 
         // reduce the height of the main container
         var mainContainer = document.getElementById('container');
-        var height;
-        if (mainContainer.offsetWidth < 800) {
-            height = 'calc(100% - 170px)';
-        } else {
-            height = 'calc(100% - 145px)';
-        }
-        mainContainer.style.height = height;
+        mainContainer.style.height = _self.getContaierHeight(mainContainer.offsetWidth);
 
         // add resize sensor
         var resizeSensorContainer = document.getElementById('z-plane-resize-sensor');
@@ -156,17 +150,19 @@ function ZPlaneList(parent) {
         _self._fetchListByZIndex('default');
     }
 
-    this.changeContainerHeight = function(width) {
-        var mainContainer = document.getElementById('container');
-        var height;
+    this.getContaierHeight = function(width) {
         if (width < _self._minWidth) {
             // reduce the height of the main container
-            height = 'calc(100% - 170px)';
+            return 'calc(100% - 170px)';
         } else {
             // increase the height of the main container
-            height = 'calc(100% - 145px)';
+            return 'calc(100% - 145px)';
         }
-        mainContainer.style.height = height;
+    }
+
+    this.changeContainerHeight = function(width) {
+        var mainContainer = document.getElementById('container');
+        mainContainer.style.height = _self.getContaierHeight(width);
     }
 
     /**
