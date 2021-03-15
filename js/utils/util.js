@@ -130,10 +130,13 @@ Utils.prototype.processParams = function(inp){
         zIndex: 0,
         info: [] // {url, channelNumber}
     };
-    parameters.zPlaneList = []; // [{zIndex, info}]
     parameters.channels = []; // [{channelNumber, channelName, aliasName, isRGB, pseudoColor}]
     parameters.annotationSetURLs = []; // [""]
-    parameters.zPlaneTotalCount = 1;
+    parameters.zPlane = {
+        count: 1,
+        minZIndex: null,
+        maxZIndex: null
+    };
 
     if (!inp) {
         return parameters;

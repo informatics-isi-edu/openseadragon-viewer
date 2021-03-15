@@ -91,11 +91,13 @@ function Viewer(parent, config) {
                 zPlaneInitialized = true;
 
                 // if we're showing a multi-z view, we should start it
-                if (_self.parameters.zPlaneTotalCount > 1) {
+                if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
                     var imageSize = event.item.getContentSize()
 
                     _self.dispatchEvent('initializeZPlaneList', {
-                        "totalCount": _self.parameters.zPlaneTotalCount,
+                        "totalCount": _self.parameters.zPlane.count,
+                        "minZIndex": _self.parameters.zPlane.minZIndex,
+                        "maxZIndex": _self.parameters.zPlane.maxZIndex,
                         "mainImageZIndex": _self.parameters.mainImage.zIndex,
                         "mainImageWidth": imageSize.x,
                         "mainImageHeight": imageSize.y,
