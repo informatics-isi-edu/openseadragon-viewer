@@ -358,11 +358,13 @@
         u.exit().remove();
     }
 
-    var colorHistData = [];
+    var colorHistData = [], showColorHistogram = false;
     var colorHistSVG, colorHistX, colorHistXAxis, colorHistYAxis, colorHistMargin,
         colorHistWidth, colorHistHeight,colorHistSeries;
 
     $.Viewer.prototype.emptyColorHistogram = function () {
+        if (!showColorHistogram) return;
+
         console.log("clearing histogram");
         for (var i = 0; i <= 100; i++) {
             colorHistData[i] = {
@@ -373,14 +375,25 @@
         }
     };
 
-    $.Viewer.prototype.initializeColorHistogram = function (containerID) {
+    $.Viewer.prototype.initializeColorHistogram = function () {
+        showColorHistogram = true;
+
+        // show the container
+        document.querySelector('#color-histogram-container').style.display = "block";
+
+        var btn = document.querySelector('#color-histogram-btn'),
+            hist = document.querySelector('#color-histogram');
+        btn.onclick = function () {
+            hist.style.display = (hist.style.display == "none") ? "block" : "none";
+        };
+
         // set the dimensions and margin of the graph
-        colorHistMargin = {top: 10, right: 20, bottom: 90, left: 40},
+        colorHistMargin = {top: 40, right: 20, bottom: 90, left: 40},
         colorHistWidth = 700 - colorHistMargin.left - colorHistMargin.right,
         colorHistHeight = 650 - colorHistMargin.top - colorHistMargin.bottom;
 
         // append the svg object to the body of the page
-        colorHistSVG = d3.select("#" + containerID)
+        colorHistSVG = d3.select("#color-histogram")
             .append("svg")
                 .attr("width", colorHistWidth + colorHistMargin.left + colorHistMargin.right)
                 .attr("height", colorHistHeight + colorHistMargin.top + colorHistMargin.bottom)
@@ -437,8 +450,9 @@
             .append('g')
             .append("text")
             .attr("class", function(d) { return "histogram-legend histogram-legend-" + d.label; })
-            .attr("x", 120)
-            .attr("y", function(d,i){ return 100 + i*25})
+            .attr("y", 0)
+            // .attr("x", function(d,i){ return 30 + i*60})
+            .attr("x", function(d,i){ return [30, 90, 135, 200][i]})
             .text(function(d) { return d.label; })
             .style("fill", function(d, i){ return (d.color) })
             .attr("text-anchor", "left")
@@ -462,6 +476,8 @@
     }
 
     $.Viewer.prototype.drawColorHistogram = function () {
+        if (!showColorHistogram) return;
+
         console.log("drawing histogram");
 
         colorHistSeries.forEach(function (item) {
@@ -514,11 +530,12 @@
                         newVal // value
                     );
 
-
-                    colorHistData[Math.floor(newVal*100)].value++;
-                    colorHistData[Math.floor((col[0]/255)*100)].red++;
-                    colorHistData[Math.floor((col[1]/255)*100)].green++;
-                    colorHistData[Math.floor((col[2]/255)*100)].blue++;
+                    if (showColorHistogram) {
+                        colorHistData[Math.floor(newVal*100)].value++;
+                        colorHistData[Math.floor((col[0]/255)*100)].red++;
+                        colorHistData[Math.floor((col[1]/255)*100)].green++;
+                        colorHistData[Math.floor((col[2]/255)*100)].blue++;
+                    }
 
 
                     pixels[i] = col[0];

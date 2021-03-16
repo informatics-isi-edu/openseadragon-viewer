@@ -69,7 +69,7 @@ function Viewer(parent, config) {
 
 
         if (this.config.osd.showColorHistogram) {
-            this.osd.initializeColorHistogram("color-histogram-container");
+            this.osd.initializeColorHistogram();
         }
 
         // after each resize, make sure svgs are properly positioned

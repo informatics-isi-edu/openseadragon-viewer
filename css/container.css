@@ -15,24 +15,36 @@
 }
 
 #color-histogram-container {
-    width: 800px;
-    height: 700px;
+    display: none;
 }
 
-#color-histogram-container .histogram-axis line, #color-histogram-container .histogram-axis path {
+#color-histogram {
+    width: 800px;
+    height: 700px;
+    position: relative;
+}
+
+#color-histogram-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+}
+
+#color-histogram .histogram-axis line, #color-histogram-container .histogram-axis path {
     stroke: white;
 }
 
-#color-histogram-container .histogram-axis text {
+#color-histogram .histogram-axis text {
     fill: white;
 }
 
-#color-histogram-container .histogram-bar {
+#color-histogram .histogram-bar {
     opacity: 0.5;
 }
 
-#color-histogram-container .histogram-legend {
+#color-histogram .histogram-legend {
     cursor: pointer;
+    font-size: 1.2em;
 }
 
 #openseadragonSpinner {
