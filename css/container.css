@@ -5,6 +5,35 @@
     height: 100%;
 }
 
+#debugging-tools-container {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    opacity: 0.8;
+    background: black;
+    z-index: 999;
+}
+
+#color-histogram-container {
+    width: 800px;
+    height: 700px;
+}
+
+#color-histogram-container .histogram-axis line, #color-histogram-container .histogram-axis path {
+    stroke: white;
+}
+
+#color-histogram-container .histogram-axis text {
+    fill: white;
+}
+
+#color-histogram-container .histogram-bar {
+    opacity: 0.5;
+}
+
+#color-histogram-container .histogram-legend {
+    cursor: pointer;
+}
 
 #openseadragonSpinner {
     display: none;

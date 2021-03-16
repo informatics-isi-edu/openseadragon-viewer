@@ -3,23 +3,6 @@
     background-color: #000;
 }
 
-#histogram-container {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 465px;
-    height: 270px;
-    opacity: 0.8;
-    background: black;
-}
-
-.histogram-axis line, .histogram-axis path {
-    stroke: white;
-}
-
-.histogram-axis text {
-    fill: white;
-}
 
 #openseadragonContainer .annotation{
     cursor: pointer;

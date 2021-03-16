@@ -235,6 +235,7 @@
     }
 
     function _sanitizeValue(v) {
+        if (isNaN(v)) return 0;
         return Math.min(Math.max(v, 0), 1);
     }
 
@@ -330,12 +331,53 @@
         }
     }
 
-    var colorHistSVG, colorHistX, colorHistY, colorHistYAfter, colorHistXAxis, colorHistYAxis, colorHistMargin, colorHistWidth, colorHistHeight;
+    function _updateYValue(y, keyStr, color) {
+        // Update the Y axis
+        y.domain([0, d3.max(colorHistData, function(d) { return d[keyStr] }) ]);
+        // colorHistYAxis.transition().duration(1000).call(d3.axisLeft(y));
+
+        // Create the u variable
+        var u = colorHistSVG.selectAll(".histogram-bar-" + keyStr).data(colorHistData);
+
+        // u.exit().remove();
+
+        // existing value
+        u.enter()
+            .append("rect") // Add a new rect for each new elements
+            .merge(u) // get the already existing elements as well
+            .transition() // and apply changes to all of them
+            .duration(1000)
+            .attr("x", function(d) { return colorHistX(d.label); })
+            .attr("y", function(d) { return y(d[keyStr]); })
+            .attr("width", colorHistX.bandwidth())
+            .attr("height", function(d) { return colorHistHeight - y(d[keyStr]); })
+            .attr("class", "histogram-bar " + "histogram-bar-" + keyStr)
+            .attr("fill", color)
+
+        // If less group in the new dataset, I delete the ones not in use anymore
+        u.exit().remove();
+    }
+
+    var colorHistData = [];
+    var colorHistSVG, colorHistX, colorHistXAxis, colorHistYAxis, colorHistMargin,
+        colorHistWidth, colorHistHeight,colorHistSeries;
+
+    $.Viewer.prototype.emptyColorHistogram = function () {
+        console.log("clearing histogram");
+        for (var i = 0; i <= 100; i++) {
+            colorHistData[i] = {
+                label: i,
+                value: 0,
+                red: 0, green: 0, blue: 0,
+            };
+        }
+    };
+
     $.Viewer.prototype.initializeColorHistogram = function (containerID) {
         // set the dimensions and margin of the graph
         colorHistMargin = {top: 10, right: 20, bottom: 90, left: 40},
-        colorHistWidth = 450 - colorHistMargin.left - colorHistMargin.right,
-        colorHistHeight = 300 - colorHistMargin.top - colorHistMargin.bottom;
+        colorHistWidth = 700 - colorHistMargin.left - colorHistMargin.right,
+        colorHistHeight = 650 - colorHistMargin.top - colorHistMargin.bottom;
 
         // append the svg object to the body of the page
         colorHistSVG = d3.select("#" + containerID)
@@ -363,73 +405,68 @@
             .call(xAxis);
 
         // Initialize the Y axis
-        colorHistY = d3.scaleLinear()
-            .range([ colorHistHeight, 0]);
-        colorHistYAfter = d3.scaleLinear()
-            .range([ colorHistHeight, 0]);
-
         colorHistYAxis = colorHistSVG.append("g")
-          .attr("class", "histogram-axis")
-    }
+            .attr("class", "histogram-axis");
 
-    var colorHistData = [];
-    $.Viewer.prototype.emptyColorHistogram = function () {
-        console.log("clearing histogram");
-        for (var i = 0; i <= 100; i++) {
-            colorHistData[i] = {label: i, value: 0, after: 0};
-        }
-    };
+        colorHistSeries = [
+            {
+                axis: d3.scaleLinear().range([ colorHistHeight, 0]),
+                label: "value",
+                color: "#ccc"
+            },
+            {
+                axis: d3.scaleLinear().range([ colorHistHeight, 0]),
+                label: "red",
+                color: "red"
+            },
+            {
+                axis: d3.scaleLinear().range([ colorHistHeight, 0]),
+                label: "green",
+                color: "green"
+            },
+            {
+                axis: d3.scaleLinear().range([ colorHistHeight, 0]),
+                label: "blue",
+                color: "blue"
+            }
+        ];
+
+        colorHistSVG.selectAll(".histogram-legend")
+            .data(colorHistSeries)
+            .enter()
+            .append('g')
+            .append("text")
+            .attr("class", function(d) { return "histogram-legend histogram-legend-" + d.label; })
+            .attr("x", 120)
+            .attr("y", function(d,i){ return 100 + i*25})
+            .text(function(d) { return d.label; })
+            .style("fill", function(d, i){ return (d.color) })
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+            .style("font-size", 15)
+            .on("click", function(d, i){
+                // is the element currently visible ?
+                var chartSelector = ".histogram-bar-" + d.label,
+                    legendSelector = ".histogram-legend-" + d.label;
+
+                var currentOpacity = d3.selectAll(chartSelector).style("opacity");
+
+                if (currentOpacity == 0.5) {
+                    d3.selectAll(chartSelector).transition().style("opacity", 0);
+                    d3.selectAll(legendSelector).transition().style("text-decoration", "line-through");
+                } else {
+                    d3.selectAll(chartSelector).transition().style("opacity", 0.5);
+                    d3.selectAll(legendSelector).transition().style("text-decoration", "none");
+                }
+            });
+    }
 
     $.Viewer.prototype.drawColorHistogram = function () {
         console.log("drawing histogram");
 
-        // // random input
-        // var yMax = 1000, yMin = 0;
-        // for (var i = 0; i <= 100; i++) {
-        //     colorHistData[i] = {label: i, value: Math.floor(Math.random() * (yMax - yMin) + yMin)};
-        // }
-
-        // Update the X axis
-        // colorHistX.domain(colorHistData.map(function(d) { return d.label; }))
-        // colorHistXAxis.call(d3.axisBottom(colorHistX))
-
-        // Update the Y axis
-        colorHistY.domain([0, d3.max(colorHistData, function(d) { return d.value }) ]);
-        colorHistYAfter.domain([0, d3.max(colorHistData, function(d) { return d.after }) ]);
-        // colorHistYAxis.transition().duration(1000).call(d3.axisLeft(colorHistY));
-
-        // Create the u variable
-        var u = colorHistSVG.selectAll("rect").data(colorHistData);
-
-        u.enter()
-            .append("rect") // Add a new rect for each new elements
-            .merge(u) // get the already existing elements as well
-            .transition() // and apply changes to all of them
-            // .duration(1000)
-            .attr("x", function(d) { return colorHistX(d.label); })
-            .attr("y", function(d) { return colorHistY(d.value); })
-            .attr("width", colorHistX.bandwidth())
-            .attr("height", function(d) { return colorHistHeight - colorHistY(d.value); })
-            .attr("fill", "#0e4ca1")
-
-        // If less group in the new dataset, I delete the ones not in use anymore
-        u.exit().remove();
-
-        var t = colorHistSVG.selectAll("rect").data(colorHistData);
-
-        t.enter()
-            .append("rect") // Add a new rect for each new elements
-            // .merge(t) // get the already existing elements as well
-            // .transition() // and apply changes to all of them
-            // .duration(1000)
-            .attr("x", function(d) { return colorHistX(d.label); })
-            .attr("y", function(d) { return colorHistYAfter(d.after); })
-            .attr("width", colorHistX.bandwidth())
-            .attr("height", function(d) { return colorHistHeight - colorHistYAfter(d.after); })
-            .attr("fill", "#00ffc6")
-
-        // If less group in the new dataset, I delete the ones not in use anymore
-        // t.exit().remove();
+        colorHistSeries.forEach(function (item) {
+            _updateYValue(item.axis, item.label, item.color);
+        });
     }
 
     $.Filters = {
@@ -478,8 +515,11 @@
                     );
 
 
-                    colorHistData[Math.floor(hsv[2]*100)].value++;
-                    colorHistData[Math.floor(newVal*100)].after++;
+                    colorHistData[Math.floor(newVal*100)].value++;
+                    colorHistData[Math.floor((col[0]/255)*100)].red++;
+                    colorHistData[Math.floor((col[1]/255)*100)].green++;
+                    colorHistData[Math.floor((col[2]/255)*100)].blue++;
+
 
                     pixels[i] = col[0];
                     pixels[i+1] = col[1];

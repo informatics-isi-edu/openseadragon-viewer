@@ -12,7 +12,7 @@ var _config = {
         },
         osd: {
             // debugMode: true,
-            showHistogram: true,
+            showColorHistogram: true,
 
             id: 'openseadragonContainer',
             spinnerID: 'openseadragonSpinner',
