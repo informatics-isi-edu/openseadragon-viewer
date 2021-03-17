@@ -152,7 +152,7 @@ function ZPlaneList(parent) {
             'min': data.minZIndex,
             'max': data.maxZIndex
         };
-        
+
         _self._render();
         _self._fetchListByZIndex('default');
     }
@@ -581,14 +581,33 @@ function ZPlaneList(parent) {
 
     }
 
+    this.showHideZPlaneSliderTooltip = function (show, tooltip, sliderValue) {
+        if (show && tooltip) {
+            if (tooltip) {
+                tooltip.style.display = 'block';
+                tooltip.innerHTML = sliderValue;
+    
+                var delta = (sliderValue - _self.sliderRange.min) / (_self.sliderRange.max - _self.sliderRange.min);
+                var thumbRadius = 5;
+                tooltip.style.left = ((thumbRadius * 2) + ((270 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
+                // console.log(tooltip.style.left, tooltip.offsetWidth);
+            }
+        } else if (tooltip) {
+            tooltip.style.display = 'none';
+        }
+    }
+
     this._renderZPlaneSlider = function () {
         var zPlaneSlider = document.getElementById('z-plane-slider');
         var slider = '' +
+                '<button class="circular-button" id="slider-previous-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
                 '<div class="min-max">'+_self.sliderRange.min+'</div>' + 
-                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
-                '<input class="slider" type="range" id="z-index-slider" value="' + _self.mainImageZIndex + '" min="' + _self.sliderRange.min + '" max="' + _self.sliderRange.max + '">'+
-                '<button class="circular-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
-                '<div class="min-max">'+_self.sliderRange.max+'</div>';
+                '<div class="slider-tooltip-container">' +
+                    '<input class="slider" type="range" id="z-index-slider" value="' + _self.mainImageZIndex + '" min="' + _self.sliderRange.min + '" max="' + _self.sliderRange.max + '">'+
+                    '<div class="slider-tooltip" id="slider-tooltip">1</div>' +
+                '</div>' +
+                '<div class="min-max">'+_self.sliderRange.max+'</div>' +
+                '<button class="circular-button" id="slider-next-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' ;
         zPlaneSlider.innerHTML = slider;
         
         var slider = zPlaneSlider.querySelector('#z-index-slider');
@@ -597,7 +616,35 @@ function ZPlaneList(parent) {
                 console.log('slider changed', slider.value);
                 _self._fetchListByZIndex(slider.value);
             });
+
+            slider.addEventListener('input', function() {
+                // console.log('input changed');
+                var tooltip = zPlaneSlider.querySelector('#slider-tooltip');
+                _self.showHideZPlaneSliderTooltip(true, tooltip, slider.value);
+            });
+
+            slider.addEventListener('mouseup', function () {
+                // console.log('mouse up');
+                var tooltip = zPlaneSlider.querySelector('#slider-tooltip');
+                _self.showHideZPlaneSliderTooltip(false, tooltip);
+            })
         }
+
+        var prevButton = zPlaneSlider.querySelector('#slider-previous-button');
+        prevButton.addEventListener('click', function() {
+            _self._fetchListByZIndex(Math.max(_self.sliderRange.min, slider.value-1));
+        });
+
+        var nextButton = zPlaneSlider.querySelector('#slider-next-button');
+        nextButton.addEventListener('click', function () {
+            _self._fetchListByZIndex(Math.min(_self.sliderRange.max, slider.value + 1));
+        });
+
+        // tippy('#z-index-slider', {
+        //     content: 'hello',
+        //     trigger: 'click',
+        //     followCursor: 'true'
+        // })
     };
 
     /**

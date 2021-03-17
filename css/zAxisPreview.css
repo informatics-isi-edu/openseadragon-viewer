@@ -21,6 +21,7 @@
 	display: flex;
 	justify-content: center;
 	padding-top: 5px;
+	position: relative;
 }
 
 .z-planes-container .z-plane-slider .min-max {
@@ -29,7 +30,7 @@
 
 .z-planes-container .z-plane-slider .slider {
 	margin: 0 5px;
-	width: 280px;
+	width: 270px;
 	margin-top: 8px;
 }
 
@@ -84,6 +85,21 @@ input.slider{
 	margin: 0 5px;
 
 	color: white;
+}
+
+.z-planes-container .z-plane-slider .slider-tooltip-container {
+	position: relative;
+}
+
+.z-planes-container .z-plane-slider .slider-tooltip {
+	position: absolute;
+	display: none;
+	top: -25px;
+	background: white;
+	padding: 0 10px;
+	left: 0px;
+	border: 1px solid black;
+	border-radius: 5px;
 }
 
 .z-planes-container .z-plane-slider .circular-button .left {
