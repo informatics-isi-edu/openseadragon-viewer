@@ -634,10 +634,10 @@ function Viewer(parent, config) {
                 _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
 
-            // Check if annotation svg exists in the url
-            if(_self.parameters.svgs) {
+            // Check if annotation exists in the url
+            if(_self.parameters.annotationSetURLs) {
                 try {
-                    _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                    _self.importAnnotationUnformattedSVG(_self.parameters.annotationSetURLs);
                     _self.dispatchEvent('annotationsLoaded');
                 } catch (err) {
                     _self.dispatchEvent('errorAnnotation', err);
