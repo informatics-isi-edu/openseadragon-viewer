@@ -563,7 +563,7 @@ function ZPlaneList(parent) {
                 jumpButtom +
                 updateButton +
             '</span>' +
-            '<span>(' + _self.totalCount + ' generated, default Z <span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
+            '<span>(' + _self.totalCount + ' generated, default Z=<span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
 
         // console.log(zPlaneInfo);
 
