@@ -51,6 +51,10 @@ input.slider{
 	opacity: 1;
 }
 
+.slider:disabled {
+	cursor: not-allowed;
+}
+
 .slider::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
@@ -61,11 +65,19 @@ input.slider{
 	cursor: pointer;
 }
 
+.slider::-webkit-slider-thumb:disabled {
+	cursor: not-allowed;
+}
+
 .slider::-moz-range-thumb {
 	width: 10px;
 	height: 10px;
 	background: #4674a7;
 	cursor: pointer;
+}
+
+.slider::-moz-range-thumb:disabled {
+	cursor: not-allowed;
 }
 
 .z-planes-container .z-plane-slider .circular-button {
@@ -87,6 +99,21 @@ input.slider{
 	color: white;
 }
 
+.z-planes-container .z-plane-slider .circular-button:disabled {
+	background: #DDDDDD;
+	cursor: not-allowed;
+}
+
+.z-planes-container .z-plane-slider .circular-button .left {
+	margin-left: -3px;
+	margin-top: 2px;
+}
+
+.z-planes-container .z-plane-slider .circular-button .right {
+	margin-left: 3px;
+	margin-top: 2px;
+}
+
 .z-planes-container .z-plane-slider .slider-tooltip-container {
 	position: relative;
 }
@@ -100,16 +127,6 @@ input.slider{
 	left: 0px;
 	border: 1px solid black;
 	border-radius: 5px;
-}
-
-.z-planes-container .z-plane-slider .circular-button .left {
-	margin-left: -3px;
-	margin-top: 2px;
-}
-
-.z-planes-container .z-plane-slider .circular-button .right {
-	margin-left: 3px;
-	margin-top: 2px;
 }
 
 .z-planes-container .z-plane-info-container .main-image-z-index {

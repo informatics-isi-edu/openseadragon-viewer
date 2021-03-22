@@ -278,12 +278,14 @@ function ZPlaneList(parent) {
                 zIndexInput.disabled = true;
                 zIndexSubmit.disabled = true;
                 updateDeaultZButton.disabled = true;
+                _self._disableSlider(true);
             } else {
                 carousel.style.pointerEvents = 'initial';
                 loader.style.display = 'none';
                 zIndexInput.disabled = false;
                 zIndexSubmit.disabled = false;
                 updateDeaultZButton.disabled = false;
+                _self._disableSlider(false);
             }
         }
     };
@@ -455,6 +457,7 @@ function ZPlaneList(parent) {
             _self._renderUpdateDefaultZButton();
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane();
+            _self._renderZPlaneSlider();
 
             _self.parent.dispatchEvent('updateMainImage', _self.collection[index]);
         }
@@ -634,12 +637,36 @@ function ZPlaneList(parent) {
         prevButton.addEventListener('click', function() {
             _self.changeImageToPreviousNext(true);
         });
+        if (_self.mainImageZIndex == _self.sliderRange.min) {
+            prevButton.disabled = true;
+        }
 
         var nextButton = zPlaneSlider.querySelector('#slider-next-button');
         nextButton.addEventListener('click', function () {
             _self.changeImageToPreviousNext(false);
         });
+        if (_self.mainImageZIndex == _self.sliderRange.max) {
+            nextButton.disabled = true;
+        }
     };
+
+    this._disableSlider = function (disable) {
+        var zPlaneSlider = document.getElementById('z-plane-slider');
+        if (zPlaneSlider) {
+            var prevButton = zPlaneSlider.querySelector('#slider-previous-button');
+            var nextButton = zPlaneSlider.querySelector('#slider-next-button');
+            var slider = zPlaneSlider.querySelector('#z-index-slider');
+            if (disable) {
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                slider.disabled = true;
+            } else {
+                prevButton.disabled = false;
+                nextButton.disabled = false;
+                slider.disabled = false;
+            }
+        }
+    }
 
     this.changeImageToPreviousNext = function(previous) {
 
