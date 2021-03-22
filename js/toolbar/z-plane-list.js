@@ -103,10 +103,22 @@ function ZPlaneList(parent) {
      */
     this.defaultZIndex = -1;
 
+    /**
+     * it stores the of the container. It is used to make the UI containing the z plane info and slider responsive.
+     * @type {integer}
+     */
     this.previousContainerWidth = 0;
 
+    /**
+     * it is constant which tells after what width should the UI for z plane info split into 2 lines
+     * @type {integer}
+     */
     this._minWidth = 800;
 
+    /**
+     * it stores the min and max of the slider, i.e. min and max z index in the DB
+     * @type {object}
+     */
     this.sliderRange = {};
 
     /**
@@ -157,6 +169,10 @@ function ZPlaneList(parent) {
         _self._fetchListByZIndex('default');
     }
 
+    /**
+     * This function returns the new height of the container based on its width
+     * @param {integer} width
+     */
     this.getContaierHeight = function(width) {
         if (width < _self._minWidth) {
             // reduce the height of the main container
@@ -167,6 +183,10 @@ function ZPlaneList(parent) {
         }
     }
 
+    /**
+     * This function changes the height of the main container
+     * @param {integer} width
+     */
     this.changeContainerHeight = function(width) {
         var mainContainer = document.getElementById('container');
         mainContainer.style.height = _self.getContaierHeight(width);
@@ -540,8 +560,8 @@ function ZPlaneList(parent) {
         zPlaneInfo.innerHTML = '' + 
             'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">' +
             '<span>' +
-            jumpButtom +
-            updateButton +
+                jumpButtom +
+                updateButton +
             '</span>' +
             '<span>(' + _self.totalCount + ' generated, default Z <span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
 
@@ -584,6 +604,12 @@ function ZPlaneList(parent) {
 
     }
 
+    /**
+     * This function controls whether to show/hide the tooltip for the slider, where to show the tooltip and what value to show in the tooltip
+     * @param {boolean} show
+     * @param {object} tooltip
+     * @param {integer} sliderValue
+     */
     this.showHideZPlaneSliderTooltip = function (show, tooltip, sliderValue) {
         if (show && tooltip) {
             if (tooltip) {
@@ -600,6 +626,9 @@ function ZPlaneList(parent) {
         }
     }
 
+    /**
+     * This function render the slider
+     */
     this._renderZPlaneSlider = function () {
         var zPlaneSlider = document.getElementById('z-plane-slider');
         var slider = '' +
@@ -616,18 +645,17 @@ function ZPlaneList(parent) {
         var slider = zPlaneSlider.querySelector('#z-index-slider');
         if (slider) {
             slider.addEventListener('change', function (event) {
-                console.log('slider changed', slider.value);
                 _self._fetchListByZIndex(slider.value);
             });
 
             slider.addEventListener('input', function() {
-                // console.log('input changed');
+                // show tooltip
                 var tooltip = zPlaneSlider.querySelector('#slider-tooltip');
                 _self.showHideZPlaneSliderTooltip(true, tooltip, slider.value);
             });
 
             slider.addEventListener('mouseup', function () {
-                // console.log('mouse up');
+                // hide tooltip
                 var tooltip = zPlaneSlider.querySelector('#slider-tooltip');
                 _self.showHideZPlaneSliderTooltip(false, tooltip);
             })
@@ -637,6 +665,7 @@ function ZPlaneList(parent) {
         prevButton.addEventListener('click', function() {
             _self.changeImageToPreviousNext(true);
         });
+        // disable the prev button if the main image is the min z index available in the DB
         if (_self.mainImageZIndex == _self.sliderRange.min) {
             prevButton.disabled = true;
         }
@@ -645,11 +674,15 @@ function ZPlaneList(parent) {
         nextButton.addEventListener('click', function () {
             _self.changeImageToPreviousNext(false);
         });
+        // disable the next button if the main image is the max z index available in the DB
         if (_self.mainImageZIndex == _self.sliderRange.max) {
             nextButton.disabled = true;
         }
     };
 
+    /**
+     * This function is used to disable the slider when loading
+     */
     this._disableSlider = function (disable) {
         var zPlaneSlider = document.getElementById('z-plane-slider');
         if (zPlaneSlider) {
