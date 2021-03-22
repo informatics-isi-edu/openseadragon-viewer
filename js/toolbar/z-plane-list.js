@@ -701,7 +701,11 @@ function ZPlaneList(parent) {
         }
     }
 
-    this.changeImageToPreviousNext = function(previous) {
+    /**
+     * This function handles what to do when prev/next button is clicked in the slider
+     * @param {boolean} isPrevious - is previous clicked
+     */
+    this.changeImageToPreviousNext = function(isPrevious) {
 
         var mainImageCollectionIndex = -1;
         for (let i = 0; i < _self.collection.length; i++) {
@@ -712,7 +716,8 @@ function ZPlaneList(parent) {
         }
 
         if (mainImageCollectionIndex != -1) {
-            if (previous) {
+            // the main image is in the z plane list
+            if (isPrevious) {
                 if (mainImageCollectionIndex > 0) {
                     _self._onclickImageHandler(mainImageCollectionIndex - 1);
                 } else {
@@ -726,7 +731,8 @@ function ZPlaneList(parent) {
                 }
             }
         } else {
-            if (previous) {
+            // the main image is not in the z plane list
+            if (isPrevious) {
                 _self._fetchListByZIndex(Math.max(_self.sliderRange.min, _self.mainImageZIndex - 1));
             } else {
                 _self._fetchListByZIndex(Math.min(_self.sliderRange.max, _self.mainImageZIndex + 1));
