@@ -632,19 +632,46 @@ function ZPlaneList(parent) {
 
         var prevButton = zPlaneSlider.querySelector('#slider-previous-button');
         prevButton.addEventListener('click', function() {
-            _self._fetchListByZIndex(Math.max(_self.sliderRange.min, slider.value-1));
+            _self.changeImageToPreviousNext(true);
         });
 
         var nextButton = zPlaneSlider.querySelector('#slider-next-button');
         nextButton.addEventListener('click', function () {
-            _self._fetchListByZIndex(Math.min(_self.sliderRange.max, slider.value + 1));
+            _self.changeImageToPreviousNext(false);
         });
+    };
 
-        // tippy('#z-index-slider', {
-        //     content: 'hello',
-        //     trigger: 'click',
-        //     followCursor: 'true'
-        // })
+    this.changeImageToPreviousNext = function(previous) {
+
+        var mainImageCollectionIndex = -1;
+        for (let i = 0; i < _self.collection.length; i++) {
+            if (_self.collection[i]['zIndex'] == _self.mainImageZIndex) {
+                mainImageCollectionIndex = i;
+                break;
+            }
+        }
+
+        if (mainImageCollectionIndex != -1) {
+            if (previous) {
+                if (mainImageCollectionIndex > 0) {
+                    _self._onclickImageHandler(mainImageCollectionIndex - 1);
+                } else {
+                    _self._fetchListByZIndex(Math.max(_self.sliderRange.min, _self.mainImageZIndex - 1));
+                }
+            } else {
+                if (mainImageCollectionIndex < _self.collection.length - 1) {
+                    _self._onclickImageHandler(mainImageCollectionIndex + 1);
+                } else {
+                    _self._fetchListByZIndex(Math.min(_self.sliderRange.max, _self.mainImageZIndex + 1));
+                }
+            }
+        } else {
+            if (previous) {
+                _self._fetchListByZIndex(Math.max(_self.sliderRange.min, _self.mainImageZIndex - 1));
+            } else {
+                _self._fetchListByZIndex(Math.min(_self.sliderRange.max, _self.mainImageZIndex + 1));
+            }
+        }
     };
 
     /**
