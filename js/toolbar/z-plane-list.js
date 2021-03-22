@@ -565,8 +565,6 @@ function ZPlaneList(parent) {
             '</span>' +
             '<span>(' + _self.totalCount + ' generated, default Z=<span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
 
-        // console.log(zPlaneInfo);
-
         _self._renderUpdateDefaultZButton();
 
         var inputChangedPromise = null;
@@ -619,7 +617,6 @@ function ZPlaneList(parent) {
                 var delta = (sliderValue - _self.sliderRange.min) / (_self.sliderRange.max - _self.sliderRange.min);
                 var thumbRadius = 5;
                 tooltip.style.left = ((thumbRadius * 2) + ((270 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
-                // console.log(tooltip.style.left, tooltip.offsetWidth);
             }
         } else if (tooltip) {
             tooltip.style.display = 'none';
