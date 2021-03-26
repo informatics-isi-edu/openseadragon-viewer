@@ -242,6 +242,7 @@ Utils.prototype.processParams = function(inp){
             case "ignoreReferencePoint":
             case "ignoreDimension":
             case "enableSVGStrokeWidth":
+            case "showColorHistogram":
                 parameters[paramKey] = (paramValue[0].toLocaleLowerCase() === "true") ? true : false;
                 break;
             default:
@@ -431,4 +432,8 @@ Utils.prototype.downloadAsFile = function(fileName, dataUrl){
     }
 
 
+}
+
+Utils.prototype.round = function (value, decimals) {
+  return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }

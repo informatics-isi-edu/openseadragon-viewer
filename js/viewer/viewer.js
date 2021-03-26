@@ -67,7 +67,7 @@ function Viewer(parent, config) {
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
 
-
+        this.config.osd.showColorHistogram = this.config.osd.showColorHistogram || this.parameters.showColorHistogram;
         if (this.config.osd.showColorHistogram) {
             this.osd.initializeColorHistogram();
         }
@@ -98,13 +98,15 @@ function Viewer(parent, config) {
                 // if we're showing a multi-z view, we should start it
                 if (_self.parameters.zPlaneTotalCount > 1) {
                     var imageSize = event.item.getContentSize()
+                    var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
+                                    && _self.parameters._self.parameters.acls.mainImage.canUpdate;
 
                     _self.dispatchEvent('initializeZPlaneList', {
                         "totalCount": _self.parameters.zPlaneTotalCount,
                         "mainImageZIndex": _self.parameters.mainImage.zIndex,
                         "mainImageWidth": imageSize.x,
                         "mainImageHeight": imageSize.y,
-                        "canUpdateDefaultZIndex": _self.parameters.mainImage.acls && _self.parameters.mainImage.acls.canUpdate
+                        "canUpdateDefaultZIndex": canUpdate
                     });
                 }
             }
@@ -148,7 +150,8 @@ function Viewer(parent, config) {
                 for(var key in _self.channels){
                     var channel = _self.channels[key];
                     _self.setItemChannel({
-                        id : channel.id
+                        id : channel.id,
+                        init: true
                     });
                 }
             }
@@ -686,7 +689,9 @@ function Viewer(parent, config) {
         _self.resizeSVG();
     }
 
-    // TODO should be moved
+    /**
+     * {channelNumber, channelName, pseudoColor, meterScaleInPixels, channelConfig}
+     */
     this.getChannelInfo = function (channelNumber) {
         if (!Array.isArray(_self.parameters.channels)) {
             return {};
@@ -795,6 +800,11 @@ function Viewer(parent, config) {
                 if (typeof channelInfo.isRGB === 'boolean') {
                     options.isRGB = channelInfo.isRGB;
                 }
+                
+                // config
+                if (typeof channelInfo.channelConfig === "object") {
+                    options.colorConfig = channelInfo.channelConfig;
+                }
 
                 // used for internal logic of channel
                 options['isMultiChannel'] = (params.info.length > 1);
@@ -807,13 +817,14 @@ function Viewer(parent, config) {
 
                 _self.channels[i] = channel;
                 channelList.push({
+                    number: info.channelNumber,
                     name: channel.name,
                     contrast: channel["contrast"],
                     brightness: channel["brightness"],
                     gamma: channel["gamma"],
                     saturation: channel["saturation"],
                     hue : channel["hue"],
-                    showGreyscale : channel['showGreyscale'],
+                    displayGreyscale : channel['displayGreyscale'],
                     osdItemId: channel["id"],
                     isDisplay: channel["isDisplay"]
                 });
@@ -1171,10 +1182,10 @@ function Viewer(parent, config) {
 
         this.filters[data.id] = {
           items: [item],
-          processors: channel.getFiltersList()
+          processors: channel.getFiltersList(data.init)
         }
+
         var filters = [];
-        this.osd.emptyColorHistogram();
         for (var key in this.filters){
           filters.push(this.filters[key])
         }

@@ -7,7 +7,7 @@
     top: 0;
     left: 0px;
     opacity: 0.9;
-    z-index: 1;
+    z-index: 2;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */
@@ -62,7 +62,7 @@
 }
 
 #menuContainer #navMenuContent.expand{
-    width: 265px; /* 250 + 15 */
+    width: 285px; /* 270 + 15 */
     padding-right: 15px; /* The reserved space for scrollbar */
     opacity: 1;
     display: flex;

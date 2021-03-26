@@ -17,13 +17,14 @@ function ChannelList(parent) {
 
             if (!this.collection.hasOwnProperty(id)) {
                 item = new ChannelItem({
+                    number: items[i]["number"],
                     name: items[i]["name"],
                     contrast: items[i]["contrast"],
                     brightness: items[i]["brightness"],
                     gamma: items[i]["gamma"],
                     saturation: items[i]["saturation"],
                     hue: items[i]["hue"],
-                    showGreyscale: items[i]["showGreyscale"],
+                    displayGreyscale: items[i]["displayGreyscale"],
                     osdItemId: id,
                     isDisplay: items[i]["isDisplay"],
                     parent: _self
@@ -86,9 +87,39 @@ function ChannelList(parent) {
 
     this.resetAllChannels = function (event) {
         for (var id in _self.collection) {
-            _self.collection[id].resetChannelSettings(event);
+            _self.collection[id].resetChannelConfig(event);
         }
+    };
+
+    this.saveAllChannels = function (event) {
+        var data = [];
+        
+        var btn = _self.elem.querySelector("#save-all-channels");
+        btn.className = "channels-control glyphicon glyphicon-refresh glyphicon-refresh-animate";    
+        
+        for (var id in _self.collection) {
+            data.push(_self.collection[id].saveChannelSettings(event, true));
+        }
+        
+        _self.parent.dispatchEvent('changeOsdItemChannelSetting', data);
+    };
+    
+    this.updateChannelConfigDone = function (data) {
+        // make sure the save-all button icon is correct
+        var btn = _self.elem.querySelector("#save-all-channels");
+        btn.className = "channels-control glyphicon glyphicon-saved";
+        
+        // hide the spinner for the individual channels
+        data.forEach(function (d) {
+            var item;
+            for (var k in _self.collection) {
+                if (_self.collection[k].number === d.channelNumber) {
+                    _self.collection[k].showSpinner(false);
+                }
+            }
+        });
     }
+    
 
     // Render the view
     this.render = function() {
@@ -112,11 +143,12 @@ function ChannelList(parent) {
                         "<span class='title'>Channels</span>",
                     "</div>",
                     "<div class='all-channel-controls'>",
-                        "<span data-tippy-content='Expand all channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
+                        "<span data-tippy-content='Save all channel configurations' class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
+                        "<span data-tippy-content='Reset all channel configurations' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
                         "<span data-tippy-content='Collapse all channel controls' class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
-                        "<span data-tippy-content='Display all channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
+                        "<span data-tippy-content='Expand all channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
                         "<span data-tippy-content='Hide all channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
-                        "<span data-tippy-content='Reset all channel settings' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
+                        "<span data-tippy-content='Display all channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
                     "</div>",
                 "</div>",
                 "<div class='groups'></div>"
@@ -141,6 +173,8 @@ function ChannelList(parent) {
         this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
 
         this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
+
+        this.elem.querySelector('#save-all-channels').addEventListener('click', this.saveAllChannels);
 
     }
 }

@@ -113,6 +113,10 @@ function ToolbarController(parent, config){
         this._toolbarView.renderChannelContent(this.channelList);
     }
 
+    this.updateChannelConfigDone = function (data) {
+        this.channelList.updateChannelConfigDone(data);
+    }
+
     // update the image gallery from outside (chaise)
     this.updateZPlaneList = function(data){
         this.zPlaneList.updateList(data);

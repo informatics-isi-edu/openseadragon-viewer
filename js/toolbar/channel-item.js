@@ -1,19 +1,20 @@
 function ChannelItem(data) {
 
     var _self = this;
-
-    this.name = data["name"] || "";
-    this.contrast = data["contrast"] || 0;
-    this.brightness = data["brightness"] || 0;
-    this.gamma = data["gamma"] || "";
-    this.saturation = data["saturation"] || 100;
+    
+    this.number = data["number"];
+    this.name = data["name"];
+    this.contrast = data["contrast"];
+    this.brightness = data["brightness"];
+    this.gamma = data["gamma"];
+    this.saturation = data["saturation"];
     if (data["hue"] >= 0) {
       this.hue = data["hue"]
     } else {
       this.hue = null;
     }
 
-    this.showGreyscale = data["showGreyscale"] || false;
+    this.displayGreyscale = data["displayGreyscale"] || false;
 
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
@@ -27,15 +28,15 @@ function ChannelItem(data) {
         "gamma": this.gamma,
         "saturation": this.saturation,
         "hue": this.hue,
-        "showGreyscale": this.showGreyscale,
+        "displayGreyscale": this.displayGreyscale,
         "isDisplay": this.isDisplay,
         "isExpand": this.isExpand
     };
 
     this._minMaxValues = {
         contrast: {
-            MIN: -1,
-            MAX: 1
+            MIN: 0.05,
+            MAX: 20
         },
         brightness: {
             MIN: -1,
@@ -60,13 +61,17 @@ function ChannelItem(data) {
             addPlusSign: true,
             suffix: ""
         },
+        contrast: {
+            addPlusSign: false,
+            suffix: ""
+        },
         saturation: {
             addPlusSign: false,
             suffix: "%"
         },
         brightness: {
             addPlusSign: true,
-            suffix: "x of contrast"
+            suffix: ""
         },
         hue: {
             addPlusSign: false,
@@ -92,19 +97,49 @@ function ChannelItem(data) {
             case "toggleDisplay":
                 return (this.isDisplay) ? 'Hide the channel' : 'Display the channel';
             case "toggleGreyscale":
-                return (this.showGreyscale) ? "Apply hue and saturation" : "Display greyscale image";
+                return (this.displayGreyscale) ? "Apply hue and saturation" : "Display greyscale image";
         }
     }
 
     this.getSliderTooltip = function (type, value) {
         var settings = (type in _self._tooltipSettings) ? _self._tooltipSettings[type] : _self._tooltipSettings.default;
-
-        if (settings.addPlusSign && value >= 0) {
+        
+        // TODO cleaner
+        if (type == "contrast" && value < 1) {
+            value = "1/" + window.OSDViewer.utils.round(1/value, 0);
+        }
+        else if (settings.addPlusSign && value >= 0) {
             value = "+" + value;
         }
 
         value += settings.suffix;
         return value;
+    }
+    
+    // convert the value to what will be stored
+    this.convertOSDSliderToRawValue = function (type, value) {
+        switch (type) {
+            case "contrast":
+                if (value > 0) {
+                    return window.OSDViewer.utils.round(Math.pow(10, value), 0);
+                } else {
+                    var dispVal = window.OSDViewer.utils.round(1 / Math.pow(10, value), 0);
+                    return window.OSDViewer.utils.round(1 / dispVal, 2);
+                    // return window.OSDViewer.utils.round(Math.pow(10, value), 2);
+                }
+            default:
+                return value;
+        }
+    }
+    
+    // convert the value to what will be used by osd
+    this.convertRawToOSDSliderValue = function (type, value) {
+        switch (type) {
+            case "contrast":
+                return window.OSDViewer.utils.round(Math.log(value) / Math.log(10), 2);
+            default:
+                return value;
+        }
     }
 
 
@@ -147,7 +182,7 @@ function ChannelItem(data) {
             saturationEl = _self.elem.querySelector(".sliderContainer[data-type='saturation']");
 
         // show the greyscale image
-        if (_self.showGreyscale) {
+        if (_self.displayGreyscale) {
             displayedHue = "Greyscale";
             displayedSat = 0; // this will just change the displayed value
         }
@@ -165,21 +200,21 @@ function ChannelItem(data) {
         }
 
         //change the active classes
-        hueEl.querySelector("input.number").className = _self.showGreyscale ? "number" : "number active";
+        hueEl.querySelector("input.number").className = _self.displayGreyscale ? "number" : "number active";
 
         var hueControl = hueEl.querySelector(".hue-container");
-        hueControl.querySelector('.slider').className = _self.showGreyscale ? "slider" : "slider active";
+        hueControl.querySelector('.slider').className = _self.displayGreyscale ? "slider" : "slider active";
 
         var hueControlBtn = hueControl.querySelector('.toggle-greyscale');
-        hueControlBtn.className = !_self.showGreyscale ? "toggle-greyscale" : "toggle-greyscale active";
+        hueControlBtn.className = !_self.displayGreyscale ? "toggle-greyscale" : "toggle-greyscale active";
         hueControlBtn._tippy.setContent(_self.getButtonTooltip('toggleGreyscale'))
     };
 
-    this.onClickToggleGreyscale = function (event, showGreyscale) {
-        if (typeof showGreyscale === "boolean") {
-            _self.showGreyscale = showGreyscale;
+    this.onClickToggleGreyscale = function (event, displayGreyscale) {
+        if (typeof displayGreyscale === "boolean") {
+            _self.displayGreyscale = displayGreyscale;
         } else {
-            _self.showGreyscale = !_self.showGreyscale;
+            _self.displayGreyscale = !_self.displayGreyscale;
         }
 
         // make sure the controls are correctly displayed
@@ -188,8 +223,8 @@ function ChannelItem(data) {
         // set te proper value
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
-            type : 'showGreyscale',
-            value : _self.showGreyscale
+            type : 'displayGreyscale',
+            value : _self.displayGreyscale
         });
 
         event.stopPropagation();
@@ -200,14 +235,16 @@ function ChannelItem(data) {
         var target = event.target;
 
         var type = target.parentNode.parentNode.getAttribute("data-type"),
-            value = +target.value;
+            sliderValue = +target.value, value;
 
         // only show the tooltip while users are interacting with it
         if (target._tippy) {
             target._tippy.hide();
         }
+        
+        value = _self.convertOSDSliderToRawValue(type, sliderValue);
 
-        var res = _self._setChannelColorSetting(type, value, false, false);
+        var res = _self._setChannelColorSetting(type, value, sliderValue, false, false);
 
         if (res === false) {
             return;
@@ -227,7 +264,7 @@ function ChannelItem(data) {
             value = +target.value;
 
         // TODO validate the numbers
-        var validate = _self._setChannelColorSetting(type, value, true, true);
+        var validate = _self._setChannelColorSetting(type, value, _self.convertRawToOSDSliderValue(type, value), true, true);
 
         if (validate !== false) {
             _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
@@ -248,6 +285,8 @@ function ChannelItem(data) {
 
         var type = target.parentNode.parentNode.getAttribute("data-type"),
             value = +target.value;
+            
+        value = _self.convertOSDSliderToRawValue(type, value);
 
         if (target._tippy) {
             target._tippy.setContent(_self.getSliderTooltip(type, value));
@@ -256,13 +295,14 @@ function ChannelItem(data) {
     };
 
     // make sure the corresponding attribute and UI element are updated
-    this._setChannelColorSetting = function (type, value, validate, changeTooltip)  {
+    this._setChannelColorSetting = function (type, value, sliderValue, validate, changeTooltip)  {
         var validator = _self._minMaxValues[type],
             numberVal = Number(value);
 
         // validate the given value
         if (validate  && (isNaN(value) || numberVal < validator.MIN || numberVal > validator.MAX)) {
-            _self._setChannelColorSetting(type, _self[type], false, changeTooltip);
+            sliderValue = _self.convertRawToOSDSliderValue(type, _self[type]);
+            _self._setChannelColorSetting(type, _self[type], sliderValue, false, changeTooltip);
             return false;
         }
 
@@ -279,9 +319,10 @@ function ChannelItem(data) {
             case "contrast":
             case "brightness":
             case "gamma":
+                console.log(value);
                 _self[type] = value;
                 // make sure both slider and number are showing the value
-                slider.value = value;
+                slider.value = sliderValue;
                 el.querySelector("input.number").value = value;
                 break;
             case "saturation":
@@ -289,13 +330,13 @@ function ChannelItem(data) {
                 _self[type] = value;
 
                 // make sure we're not using greyscale
-                _self.showGreyscale = false;
+                _self.displayGreyscale = false;
 
                 // make sure the value is displayed
                 _self._setHueSaturationControlState();
                 break;
-            case "showGreyscale":
-                _self.showGreyscale = value;
+            case "displayGreyscale":
+                _self.displayGreyscale = value;
                 _self._setHueSaturationControlState();
                 break;
         };
@@ -320,7 +361,7 @@ function ChannelItem(data) {
         var attrs = ["contrast", "brightness", "gamma"];
         // if hue control is missing, we shouldn't update the settings either
         if (og.hue != null) {
-            attrs.push("showGreyscale", "hue", "saturation");
+            attrs.push("displayGreyscale", "hue", "saturation");
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {
@@ -329,16 +370,50 @@ function ChannelItem(data) {
             newSettings[attrName] = og[attrName];
 
             // make sure the change is reflected in the UI
-            _self._setChannelColorSetting(attrName, og[attrName], false, true);
+            _self._setChannelColorSetting(attrName, og[attrName], _self.convertRawToOSDSliderValue(attrName, og[attrName]), false, true);
         })
 
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
             settings: newSettings
-        })
+        });
 
         event.stopPropagation();
     };
+
+    this.saveChannelSettings = function (event, dontDispatch) {
+        event.stopPropagation();
+
+        _self.showSpinner(true);
+
+        var configConst = window.OSDViewer.constants.CHANNEL_CONFIG,
+            data = { channelNumber: _self.number, channelConfig: {}};
+        data.channelConfig[configConst.CONTRAST] = _self.contrast;
+        data.channelConfig[configConst.BRIGHTNESS] = _self.brightness;
+        data.channelConfig[configConst.GAMMA] = _self.gamma;
+        data.channelConfig[configConst.SATURATION] = _self.saturation;
+        data.channelConfig[configConst.HUE] = _self.hue;
+        data.channelConfig[configConst.DISPLAY_GREYSCALE] = _self.displayGreyscale;
+        
+        if (dontDispatch) {
+            return data;
+        } else {
+            _self.parent.dispatchEvent('updateChannelConfig', [data]);
+        }
+        
+    }
+    
+    this.showSpinner = function (show) {
+        // show/hide spinner
+        var spinner = _self.elem.querySelector(".channel-setting-spinner-overlay");
+        spinner.style.display = show ? "block" : "none";
+        
+        // change the save icon
+        var btn = _self.elem.querySelector(".save-settings i");
+        btn.className = show ? "glyphicon glyphicon-refresh glyphicon-refresh-animate" : "glyphicon glyphicon-saved";    
+    }
+
+    // this.getChannelConfig=  function 
 
     this.render = function(){
 
@@ -351,11 +426,18 @@ function ChannelItem(data) {
                 "<span class='toggleSetting' data-type='setting'><i class='"+this.getIconClass("expandPanel")+"'></i></span>",
                 "<span class='channelName'>"+ this.name +"</span>",
                 "<span class=channel-control-button-container''>",
+                    "<span class='channel-control-btn save-settings' data-tippy-content='Save the channel settings'><i class='glyphicon glyphicon-saved'></i></span>",
                     "<span class='channel-control-btn reset-settings' data-tippy-content='Reset the channel settings'><i class='fas fa-undo'></i></span>",
                     "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getButtonTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
                 "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
+                "<div class='channel-setting-spinner-overlay'>",
+                    "<div class='channel-setting-spinner-container'>",
+                        "<i class='glyphicon glyphicon-refresh glyphicon-refresh-animate'></i>",
+                        "<div class='channel-settings-spinner-text loading-w-dots'>Saving</div>",
+                    "</div>",
+                "</div>",
                 "<span class='sliderContainer' data-type='contrast'>",
                     "<span class='attrRow'>",
                         "<span class='name'>",
@@ -364,8 +446,8 @@ function ChannelItem(data) {
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
                                     "Use the slider or input to change color contrast factor. <br>",
-                                    "Acceptable values: Numbers from <strong>-1</strong> to <strong>1</strong>. <br>",
-                                    "Default value: <strong>0</strong> <br>",
+                                    "Acceptable values: Numbers from <strong>0.05</strong> to <strong>20</strong>. <br>",
+                                    "Default value: <strong>1</strong> <br>",
                                 "'",
                                 " >",
                             "</i>",
@@ -375,7 +457,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' min='-1' max='1' step='0.01' value='"+this.contrast+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='-1.3' max='1.3' step='0.01' value='"+ this.convertRawToOSDSliderValue("contrast", this.contrast) +"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
@@ -459,19 +541,21 @@ function ChannelItem(data) {
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number " + (!this.showGreyscale ? "active" : "") + "' value=" + this.hue + ">",
+                            "<input class='number " + (!this.displayGreyscale ? "active" : "") + "' value=" + this.hue + ">",
                             "<span class='greyscale'>Greyscale</span>",
                         "</span>",
                     "</span>",
                     "<span class='hue-container' data-type='hue'>",
                         "<span class='slider-wrapper'>",
-                            "<input type='range' class='slider " + (!this.showGreyscale ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + _self.getSliderTooltip("hue", this.hue) + "' min='0' max='360' step='1' value='"+this.hue+"'>",
+                            "<input type='range' class='slider " + (!this.displayGreyscale ? "active" : "") + "' data-tippy-placement='top' data-tippy-content='" + _self.getSliderTooltip("hue", this.hue) + "' min='0' max='360' step='1' value='"+this.hue+"'>",
                         "</span>",
-                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getButtonTooltip('toggleGreyscale') + "' class='toggle-greyscale " + (this.showGreyscale ? "active" : "") + "'></span>",
+                        "<span data-tippy-placement='right' data-tippy-content='" + _self.getButtonTooltip('toggleGreyscale') + "' class='toggle-greyscale " + (this.displayGreyscale ? "active" : "") + "'></span>",
                     "</span>",
                 "</span>",
             "</div>",
         ].join("");
+
+        // TODO only show save when from database..
 
         if(this.hue == null){
             channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
@@ -480,6 +564,9 @@ function ChannelItem(data) {
         this.elem = channeElem;
 
         // Binding events
+        this.elem.querySelectorAll(".channelRow .save-settings").forEach(function(elem){
+            elem.addEventListener('click', this.saveChannelSettings);
+        }.bind(this));
 
         // reset button
         this.elem.querySelectorAll(".channelRow .reset-settings").forEach(function(elem){
@@ -528,5 +615,5 @@ function ChannelItem(data) {
             this._setInitialSliderTooltip(elem);
             elem.addEventListener('input', this.changeSliderTooltipValue);
         }.bind(this));
-    }
+    };
 }

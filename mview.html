@@ -31,8 +31,14 @@
         </div>
         <div id="debugging-tools-container">
             <div id="color-histogram-container">
-                <div id="color-histogram"></div>
+                <div class="color-histogram" id="color-histogram"></div>
+                <div id="color-histogram-scale-checkbox">
+                    <input type="checkbox" value="logscale"></input>
+	                <label for="logscale">Use Log scale</label>
+                </div>
                 <div id="color-histogram-btn" class="btn btn-default">Toggle histogram</div>
+                <div class="color-histogram" id="color-histogram-original"></div>
+                <div id="color-histogram-original-btn" class="btn btn-default">Toggle original histogram</div>
             </div>
         </div>
         <div id="openseadragonContainer"></div>
@@ -53,6 +59,7 @@
     <script src="vendor/css-element-queries.js"></script>
 
     <!-- Application -->
+    <script src="js/utils/constants.js"></script>
     <script src="js/utils/util.js"></script>
     <script src="js/utils/alerts.js"></script>
     <script src="js/toolbar/toolbar.view.js"></script>
