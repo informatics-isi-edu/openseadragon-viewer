@@ -39,6 +39,16 @@ function ChannelList(parent) {
             }
         }
     }
+    
+    this.allowChannelConfigUpdate = function () {
+        this.canUpdateChannelConfig = true;
+        
+        // show all the save buttons
+        _self.elem.querySelector("#save-all-channels").style.display = "inline-block";
+        _self.elem.querySelectorAll(".save-settings").forEach(function(el) {
+            el.style.display = "inline-block";
+        });
+    }
 
     this.replaceList = function(items) {
         this.collection = {};
@@ -101,20 +111,20 @@ function ChannelList(parent) {
             data.push(_self.collection[id].saveChannelSettings(event, true));
         }
         
-        _self.parent.dispatchEvent('changeOsdItemChannelSetting', data);
+        _self.parent.dispatchEvent('updateChannelConfig', data);
     };
     
-    this.updateChannelConfigDone = function (data) {
+    this.saveAllChannelsDone = function (data) {
         // make sure the save-all button icon is correct
         var btn = _self.elem.querySelector("#save-all-channels");
         btn.className = "channels-control glyphicon glyphicon-saved";
         
         // hide the spinner for the individual channels
-        data.forEach(function (d) {
+        data.channels.forEach(function (d) {
             var item;
             for (var k in _self.collection) {
                 if (_self.collection[k].number === d.channelNumber) {
-                    _self.collection[k].showSpinner(false);
+                    _self.collection[k].saveChannelSettingsDone(data.success);
                 }
             }
         });
@@ -153,6 +163,10 @@ function ChannelList(parent) {
                 "</div>",
                 "<div class='groups'></div>"
             ].join("");
+            
+            if (!this.canUpdateChannelConfig) {
+                listElem.querySelector("#save-all-channels").style.display = "none";
+            }
         }
         // console.log("Collection are herre",  collection,Object.keys(collection).length === 0 && collection.constructor === Object);
         for (id in collection) {
@@ -173,7 +187,7 @@ function ChannelList(parent) {
         this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
 
         this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
-
+        
         this.elem.querySelector('#save-all-channels').addEventListener('click', this.saveAllChannels);
 
     }

@@ -571,7 +571,7 @@
                     // turn rgb to hsv
                     var hsv = _rgb2hsv(pixels[i], pixels[i+1], pixels[i+2]);
 
-                    var newVal = _sanitizeValue( Math.pow( _sanitizeValue(((hsv[2] - 0.5) * contrast) + 0.5 + brightness), gamma) );
+                    var newVal = _sanitizeValue( Math.pow( _sanitizeValue(((hsv[2] - 0.5) * contrast) + 0.5 + (brightness * contrast)), gamma) );
 
                     var col = _hsv2rgb(
                         rgbImg ? hsv[0] : hue,  // hue

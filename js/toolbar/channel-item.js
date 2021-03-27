@@ -36,7 +36,7 @@ function ChannelItem(data) {
     this._minMaxValues = {
         contrast: {
             MIN: 0.05,
-            MAX: 20
+            MAX: 19.95
         },
         brightness: {
             MIN: -1,
@@ -104,9 +104,8 @@ function ChannelItem(data) {
     this.getSliderTooltip = function (type, value) {
         var settings = (type in _self._tooltipSettings) ? _self._tooltipSettings[type] : _self._tooltipSettings.default;
         
-        // TODO cleaner
         if (type == "contrast" && value < 1) {
-            value = "1/" + window.OSDViewer.utils.round(1/value, 0);
+            value = "1/" + window.OSDViewer.utils.round(1/value, 2);
         }
         else if (settings.addPlusSign && value >= 0) {
             value = "+" + value;
@@ -116,17 +115,11 @@ function ChannelItem(data) {
         return value;
     }
     
-    // convert the value to what will be stored
+    // convert the value to what will be stored and displayed to the users
     this.convertOSDSliderToRawValue = function (type, value) {
         switch (type) {
             case "contrast":
-                if (value > 0) {
-                    return window.OSDViewer.utils.round(Math.pow(10, value), 0);
-                } else {
-                    var dispVal = window.OSDViewer.utils.round(1 / Math.pow(10, value), 0);
-                    return window.OSDViewer.utils.round(1 / dispVal, 2);
-                    // return window.OSDViewer.utils.round(Math.pow(10, value), 2);
-                }
+                return window.OSDViewer.utils.round(Math.pow(10, value), 2);
             default:
                 return value;
         }
@@ -243,6 +236,9 @@ function ChannelItem(data) {
         }
         
         value = _self.convertOSDSliderToRawValue(type, sliderValue);
+        
+        // don't do anything is value is the same
+        if (_self[type] == value) return;
 
         var res = _self._setChannelColorSetting(type, value, sliderValue, false, false);
 
@@ -262,6 +258,9 @@ function ChannelItem(data) {
 
         var type = target.parentNode.parentNode.parentNode.getAttribute("data-type"),
             value = +target.value;
+            
+        // don't do anything if the value is the same
+        if (_self[type] == value) return;
 
         // TODO validate the numbers
         var validate = _self._setChannelColorSetting(type, value, _self.convertRawToOSDSliderValue(type, value), true, true);
@@ -319,7 +318,6 @@ function ChannelItem(data) {
             case "contrast":
             case "brightness":
             case "gamma":
-                console.log(value);
                 _self[type] = value;
                 // make sure both slider and number are showing the value
                 slider.value = sliderValue;
@@ -345,6 +343,8 @@ function ChannelItem(data) {
     }
 
     this.resetChannelSettings = function (event) {
+        event.stopPropagation();
+
         var og = _self.originalSettings;
 
         // expand
@@ -365,20 +365,23 @@ function ChannelItem(data) {
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {
-            if (og[attrName] == null) return;
-
+            
+            // only add the ones that have changed or have value
+            if (og[attrName] == null || og[attrName] == _self[attrName]) return;
+            
             newSettings[attrName] = og[attrName];
 
             // make sure the change is reflected in the UI
             _self._setChannelColorSetting(attrName, og[attrName], _self.convertRawToOSDSliderValue(attrName, og[attrName]), false, true);
-        })
+        });
+            
+        // don't do anything if nothing has changed.
+        if (Object.keys(newSettings).length === 0) return;
 
         _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
             id: _self.osdItemId,
             settings: newSettings
         });
-
-        event.stopPropagation();
     };
 
     this.saveChannelSettings = function (event, dontDispatch) {
@@ -386,6 +389,7 @@ function ChannelItem(data) {
 
         _self.showSpinner(true);
 
+        // create the data that will be saved
         var configConst = window.OSDViewer.constants.CHANNEL_CONFIG,
             data = { channelNumber: _self.number, channelConfig: {}};
         data.channelConfig[configConst.CONTRAST] = _self.contrast;
@@ -395,12 +399,25 @@ function ChannelItem(data) {
         data.channelConfig[configConst.HUE] = _self.hue;
         data.channelConfig[configConst.DISPLAY_GREYSCALE] = _self.displayGreyscale;
         
+        
         if (dontDispatch) {
             return data;
         } else {
             _self.parent.dispatchEvent('updateChannelConfig', [data]);
         }
         
+    }
+    
+    this.saveChannelSettingsDone = function (success) {
+        //hide the spinner
+        _self.showSpinner(false);
+        
+        // change the original settings
+        if (success) {
+            ['contrast', 'brightness', 'gamma', 'saturation', 'hue', 'displayGreyscale'].forEach(function (attr) {
+                _self.originalSettings[attr] = _self[attr];
+            });
+        }
     }
     
     this.showSpinner = function (show) {
@@ -412,8 +429,6 @@ function ChannelItem(data) {
         var btn = _self.elem.querySelector(".save-settings i");
         btn.className = show ? "glyphicon glyphicon-refresh glyphicon-refresh-animate" : "glyphicon glyphicon-saved";    
     }
-
-    // this.getChannelConfig=  function 
 
     this.render = function(){
 
@@ -446,7 +461,7 @@ function ChannelItem(data) {
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
                                     "Use the slider or input to change color contrast factor. <br>",
-                                    "Acceptable values: Numbers from <strong>0.05</strong> to <strong>20</strong>. <br>",
+                                    "Acceptable values: Numbers from <strong>0.05</strong> to <strong>19.95</strong>. <br>",
                                     "Default value: <strong>1</strong> <br>",
                                 "'",
                                 " >",
@@ -511,7 +526,7 @@ function ChannelItem(data) {
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
                                     "Use the slider or input to modify the saturation. <br>",
-                                    "Acceptable values: Percentage from <strong>0%</strong> to <strong>100%</strong>. <br>",
+                                    "Acceptable values: Percentages from <strong>0%</strong> to <strong>100%</strong>. <br>",
                                     "Default value: <strong>100</strong> <br>",
                                 "'",
                                 " >",
@@ -555,18 +570,22 @@ function ChannelItem(data) {
             "</div>",
         ].join("");
 
-        // TODO only show save when from database..
-
         if(this.hue == null){
             channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
             channeElem.querySelector(".sliderContainer[data-type='saturation']").remove();
         }
+        
+        if (!this.parent.canUpdateChannelConfig) {
+            channeElem.querySelector(".save-settings").style.display = "none";
+        } 
+        
+        
         this.elem = channeElem;
 
         // Binding events
         this.elem.querySelectorAll(".channelRow .save-settings").forEach(function(elem){
-            elem.addEventListener('click', this.saveChannelSettings);
-        }.bind(this));
+                elem.addEventListener('click', this.saveChannelSettings);
+    }.bind(this));
 
         // reset button
         this.elem.querySelectorAll(".channelRow .reset-settings").forEach(function(elem){

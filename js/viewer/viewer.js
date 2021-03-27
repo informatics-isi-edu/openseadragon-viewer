@@ -66,10 +66,17 @@ function Viewer(parent, config) {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
-
+        
+        // whether we want to show the image color histogram or not
         this.config.osd.showColorHistogram = this.config.osd.showColorHistogram || this.parameters.showColorHistogram;
         if (this.config.osd.showColorHistogram) {
             this.osd.initializeColorHistogram();
+        }
+        
+        // if users can change the channel settings
+        if (this.parameters.acls && this.parameters.acls.channels &&
+            this.parameters.acls.channels.canUpdate) {
+            this.dispatchEvent('allowChannelConfigUpdate', {});
         }
 
         // after each resize, make sure svgs are properly positioned
@@ -803,7 +810,7 @@ function Viewer(parent, config) {
                 
                 // config
                 if (typeof channelInfo.channelConfig === "object") {
-                    options.colorConfig = channelInfo.channelConfig;
+                    options.channelConfig = channelInfo.channelConfig;
                 }
 
                 // used for internal logic of channel
