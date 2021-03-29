@@ -609,17 +609,21 @@ function ZPlaneList(parent) {
      * @param {integer} sliderValue
      */
     this.showHideZPlaneSliderTooltip = function (show, tooltip, sliderValue) {
+        var downArrow = document.getElementById('slider-tooltip-arrow');
         if (show && tooltip) {
             if (tooltip) {
                 tooltip.style.display = 'block';
-                tooltip.innerHTML = sliderValue;
+                downArrow.style.display = 'block';
+                tooltip.innerHTML = sliderValue || document.getElementById('z-index-slider').value || '0';
     
                 var delta = (sliderValue - _self.sliderRange.min) / (_self.sliderRange.max - _self.sliderRange.min);
                 var thumbRadius = 5;
-                tooltip.style.left = ((thumbRadius * 2) + ((270 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
+                tooltip.style.left = ((thumbRadius * 2) + ((268 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
+                downArrow.style.left = ((thumbRadius * 2) + ((268 - (thumbRadius * 2)) * delta) - (downArrow.offsetWidth / 2)) + 'px';
             }
         } else if (tooltip) {
             tooltip.style.display = 'none';
+            downArrow.style.display = 'none';
         }
     }
 
@@ -629,14 +633,15 @@ function ZPlaneList(parent) {
     this._renderZPlaneSlider = function () {
         var zPlaneSlider = document.getElementById('z-plane-slider');
         var slider = '' +
-                '<button class="circular-button" id="slider-previous-button"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
+                '<button class="circular-button" id="slider-previous-button" data-tippy-placement="top" data-tippy-content="Previous Z index"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
                 '<div class="min-max">'+_self.sliderRange.min+'</div>' + 
                 '<div class="slider-tooltip-container">' +
                     '<input class="slider" type="range" id="z-index-slider" value="' + _self.mainImageZIndex + '" min="' + _self.sliderRange.min + '" max="' + _self.sliderRange.max + '">'+
                     '<div class="slider-tooltip" id="slider-tooltip">1</div>' +
+                    '<div class="down-arrow" id="slider-tooltip-arrow"></div>' +
                 '</div>' +
                 '<div class="min-max">'+_self.sliderRange.max+'</div>' +
-                '<button class="circular-button" id="slider-next-button"><i class="glyphicon glyphicon-triangle-right right"></i></button>' ;
+                '<button class="circular-button" id="slider-next-button" data-tippy-placement="top" data-tippy-content="Next Z index"><i class="glyphicon glyphicon-triangle-right right"></i></button>' ;
         zPlaneSlider.innerHTML = slider;
         
         var slider = zPlaneSlider.querySelector('#z-index-slider');
