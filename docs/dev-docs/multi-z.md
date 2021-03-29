@@ -12,7 +12,7 @@ When the user clicks on an image, if the image has multiple z indexes, then the 
 
 When the page is loaded, we have a `default z index` (this is the index which is shown by default whenever an image is loaded), a request is sent to `chaise` to get a list of  indexes around the `default z index`. 'Around' here means that, if for eg the default z index = 11 and the `pageSize` (the number of z indexes that can be shown in the z plane list) is 5, then the z indexes shown to the user in the z plane list would be [9, 10, 11, 12, 13].
 
-TODO: Ask where to mention about different annotation for each index and channel configuration
+## Features
 
 ### Click on a Z index
 The user here has the ability to switch between the z indexes shown in the z plane list, by clicking on any one of them. When the user clicks on a different index, the image shown in the `OSD viewer` changes. When the z index is switched, the channel settings from the previous one are carried forward. Annotations are z index specific, thereofre changing the Z index would cause the annotations to change as well.
@@ -29,6 +29,12 @@ If the user enters a z index which is not present then an error message will be 
 When the width of the page is increased or decreased, the list of z planes shown to the user also changes. The change in the width of the page is determined by the `ResizeSensor`
 1. When the `pageSize` is increased (size of the window is increased), a request is sent to `chaise` to fetch more z indexes. Before sending this request, `appendData` is set to `true` indicating the indexes need to be appended to the existing values. When the response arrives, new indexes are added to the existing `collection` to fill up the empty space in the list (carousel), and `appendData` is reset to `false`.
 2. When the `pageSize` is decreased, indexes are removed from the `collection` to have only the appropriate number of indexes. Since no new data is required in this case, no request is sent.
+
+### Update Default Z Index
+After checking the access control of the user, a button will be shown beside the jump to z index input box, clicking on which will allow the user to default z index that is loaded when the image is loaded. For the button ti show up it is necessary for the user to be logged in.
+
+### Z Plane Slider
+On the right side of the z plane info, there is a slider which allow the user to move to any index by changinng the position of the thumb. There are 2 button on the extreme left and right of the slider namely Previous and Next respectively, which allow the user to change the value of the slider on a minute level (i.e. increment or decrement by 1).
 
 ### Request Handling
 	
