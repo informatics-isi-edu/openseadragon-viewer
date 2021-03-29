@@ -103,13 +103,15 @@ function Viewer(parent, config) {
                 zPlaneInitialized = true;
 
                 // if we're showing a multi-z view, we should start it
-                if (_self.parameters.zPlaneTotalCount > 1) {
+                if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
                     var imageSize = event.item.getContentSize()
                     var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
                                     && _self.parameters._self.parameters.acls.mainImage.canUpdate;
 
                     _self.dispatchEvent('initializeZPlaneList', {
-                        "totalCount": _self.parameters.zPlaneTotalCount,
+                        "totalCount": _self.parameters.zPlane.count,
+                        "minZIndex": _self.parameters.zPlane.minZIndex,
+                        "maxZIndex": _self.parameters.zPlane.maxZIndex,
                         "mainImageZIndex": _self.parameters.mainImage.zIndex,
                         "mainImageWidth": imageSize.x,
                         "mainImageHeight": imageSize.y,
@@ -653,10 +655,10 @@ function Viewer(parent, config) {
                 _self.osd.scalebar({stayInsideImage: _self.stayInsideImage});
             }
 
-            // Check if annotation svg exists in the url
-            if(_self.parameters.svgs) {
+            // Check if annotation exists in the url
+            if(_self.parameters.annotationSetURLs) {
                 try {
-                    _self.importAnnotationUnformattedSVG(_self.parameters.svgs);
+                    _self.importAnnotationUnformattedSVG(_self.parameters.annotationSetURLs);
                     _self.dispatchEvent('annotationsLoaded');
                 } catch (err) {
                     _self.dispatchEvent('errorAnnotation', err);
