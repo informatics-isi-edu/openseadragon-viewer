@@ -15,7 +15,7 @@ When the page is loaded, we have a `default z index` (this is the index which is
 TODO: Ask where to mention about different annotation for each index and channel configuration
 
 ### Click on a Z index
-The user here has the ability to switch between the z indexes shown in the z plane list, by clicking on any one of them. When the user clicks on a different index, the image shown in the `OSD viewer` changes. 
+The user here has the ability to switch between the z indexes shown in the z plane list, by clicking on any one of them. When the user clicks on a different index, the image shown in the `OSD viewer` changes. When the z index is switched, the channel settings from the previous one are carried forward. Annotations are z index specific, thereofre changing the Z index would cause the annotations to change as well.
 
 ### Next and Previous Buttons
 The z plane list shown to the user is paginated, therefore to see the other indexes the user has to click on the previous or next arrows (present on either side of the list). These arrows are enabled/disabled depending on the values of `hasNext` and `hasPrevious` variables, which determine if there are indexes with values greater than the last index in the list and less than the first element in the list, respectively. When they are disabled, the user cannot click on them.
