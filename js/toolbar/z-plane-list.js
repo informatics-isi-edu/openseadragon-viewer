@@ -556,7 +556,6 @@ function ZPlaneList(parent) {
                                 '<i class="fas fa-save update-default-z-button"></i>' +
                             '</button>';
         }
-
         zPlaneInfo.innerHTML = '' + 
             'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">' +
             '<span>' +
@@ -680,6 +679,10 @@ function ZPlaneList(parent) {
         if (_self.mainImageZIndex == _self.sliderRange.max) {
             nextButton.disabled = true;
         }
+
+        tippy('#z-plane-slider [data-tippy-content]', {
+            theme: "light",
+        });
     };
 
     /**
