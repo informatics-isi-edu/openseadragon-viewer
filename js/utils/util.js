@@ -354,6 +354,91 @@ Utils.prototype.colorRGBToHex = function (val) {
     return "#" + rgb.join("");
 }
 
+/**
+ * Convert 8bit r-g-b values to hsv
+ * inout: 0-255, 0-255, 0-255
+ * output: [[0-360], [0-1], [0-1]]
+ */
+Utils.prototype.rgb2hsv = function (r, g, b, onlyV) {
+    var r1 = r / 255,
+        g1 = g / 255,
+        b1 = b / 255;
+
+    var maxc = Math.max(r1, g1, b1),
+        minc = Math.min(r1, g1, b1);
+
+    var h, s, v, rc, gc, bc;
+
+    v = maxc;
+
+    if (onlyV) {
+        return v;
+    }
+
+    if (minc == maxc) {
+        return [0, 0, v];
+    }
+
+    s = (maxc - minc) / maxc;
+    rc = (maxc - r1) / (maxc - minc);
+    gc = (maxc - g1) / (maxc - minc);
+    bc = (maxc - b1) / (maxc - minc);
+
+    if (r == maxc) {
+        h = bc - gc;
+    } else if (g == maxc) {
+        h = 2.0 + rc - bc;
+    } else {
+        h = 4.0 + gc - rc;
+    }
+
+    h = (h/6.0) % 1.0;
+    return [h * 360, s, v]
+}
+
+/**
+ * input: [[0-360], [0-1], [0-1]]
+ * output: 0-255, 0-255, 0-255
+ */
+Utils.prototype.hsv2rgb = function (h, s, v) {
+    var h1 = h / 360, s1 = s, v1 = v;
+
+    var output = function (r, g, b) {
+        return [r * 255, g * 255, b * 255];
+    }
+
+    var i, f, p, q, t;
+
+    if (s1 === 0) {
+        return output(v1, v1, v1)
+    }
+    i = parseInt(h1 * 6.0);
+    f = (h1 * 6.0) - i;
+    p = v1 * (1.0 - s1);
+    q = v1 * (1.0 - (s1 * f));
+    t = v1 * (1.0 - (s1 * (1.0-f)));
+    i = i % 6;
+
+    if (i == 0) {
+        return output(v1, t, p);
+    }
+    if (i == 1) {
+        return output(q, v1, p);
+    }
+    if (i == 2) {
+        return output(p, v1, t);
+    }
+    if (i == 3) {
+        return output(p, q, v1);
+    }
+    if (i == 4) {
+        return output(t, p, v1);
+    }
+    if (i == 5) {
+        return output(v1, p, q);
+    }
+}
+
 // Detect user's browser
 Utils.prototype.getUserBrowserType = function(){
 

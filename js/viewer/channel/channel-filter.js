@@ -247,135 +247,32 @@
         return typeof value === 'number';
     }
 
-    /**
-     * inout: 0-255, 0-255, 0-255
-     * output: [[0-360], [0-1], [0-1]]
-     */
-    function _rgb2hsv(r, g, b, onlyV) {
-        var r1 = r / 255,
-            g1 = g / 255,
-            b1 = b / 255;
+    var showColorHistogram = false, colorHistMargin, colorHistWidth, colorHistHeight;
+    var colorHist = {
+        data: [], logData: [], log: false, graph: {selector: "#color-histogram", svg: null, x: null, series: []}
+    };
+    var colorHistOriginal = {
+        data: [], logData: [], log: false, graph: {selector: "#color-histogram-original", svg: null, x: null, series: []}
+    };
+    function _emptyData (hist, label) {
+        if (!showColorHistogram) return;
 
-        var maxc = Math.max(r1, g1, b1),
-            minc = Math.min(r1, g1, b1);
-
-        var h, s, v, rc, gc, bc;
-
-        v = maxc;
-
-        if (onlyV) {
-            return v;
+        for (var i = 0; i <= 100; i++) {
+            if (label) {
+                if (!hist.data[i]) {
+                    hist.data[i] = {};
+                }
+                hist.data[i][label] = 0;
+            } else {
+                hist.data[i] = {};
+            }
         }
-
-        if (minc == maxc) {
-            return [0, 0, v];
-        }
-
-        s = (maxc - minc) / maxc;
-        rc = (maxc - r1) / (maxc - minc);
-        gc = (maxc - g1) / (maxc - minc);
-        bc = (maxc - b1) / (maxc - minc);
-
-        if (r == maxc) {
-            h = bc - gc;
-        } else if (g == maxc) {
-            h = 2.0 + rc - bc;
-        } else {
-            h = 4.0 + gc - rc;
-        }
-
-        h = (h/6.0) % 1.0;
-        return [h * 360, s, v]
-    }
-
-    /**
-     * input: [[0-360], [0-1], [0-1]]
-     * output: 0-255, 0-255, 0-255
-     */
-    function _hsv2rgb (h, s, v) {
-        var h1 = h / 360, s1 = s, v1 = v;
-
-        var output = function (r, g, b) {
-            return [r * 255, g * 255, b * 255];
-        }
-
-        var i, f, p, q, t;
-
-        if (s1 === 0) {
-            return output(v1, v1, v1)
-        }
-        i = parseInt(h1 * 6.0);
-        f = (h1 * 6.0) - i;
-        p = v1 * (1.0 - s1);
-        q = v1 * (1.0 - (s1 * f));
-        t = v1 * (1.0 - (s1 * (1.0-f)));
-        i = i % 6;
-
-        if (i == 0) {
-            return output(v1, t, p);
-        }
-        if (i == 1) {
-            return output(q, v1, p);
-        }
-        if (i == 2) {
-            return output(p, v1, t);
-        }
-        if (i == 3) {
-            return output(p, q, v1);
-        }
-        if (i == 4) {
-            return output(t, p, v1);
-        }
-        if (i == 5) {
-            return output(v1, p, q);
-        }
-    }
-
-    function _updateYValue(hist, yScale) {
-        var y = yScale.y;
-        var data = hist.log ? hist.logData : hist.data;
-
-
-        // Update the Y axis
-        y.domain([0, d3.max(data, function(d) { return d[yScale.label] }) ]);
-
-        // Create the u variable
-        var u = hist.graph.svg.selectAll(".histogram-bar-" + yScale.label).data(data);
-
-        // u.exit().remove();
-
-        // existing value
-        u.enter()
-            .append("rect") // Add a new rect for each new elements
-            .merge(u) // get the already existing elements as well
-            .transition() // and apply changes to all of them
-            .duration(1000)
-            .attr("x", function(d) { return hist.graph.x(d.label); })
-            .attr("y", function(d) { return y(d[yScale.label]); })
-            .attr("width", hist.graph.x.bandwidth())
-            .attr("height", function(d) { return colorHistHeight - y(d[yScale.label]); })
-            .attr("class", "histogram-bar " + "histogram-bar-" + yScale.label)
-            .attr("fill", yScale.color)
-
-        // If less group in the new dataset, I delete the ones not in use anymore
-        u.exit().remove();
-    }
-
-    function _drawHistograms() {
-        console.log("drawing histogram");
-
-        colorHistOriginal.graph.series.forEach(function (item) {
-            _updateYValue(colorHistOriginal, item);
-        });
-
-        colorHist.graph.series.forEach(function (item) {
-            _updateYValue(colorHist, item);
-        });
-    }
-
-    function _createHistogram(hist, selector) {
+    };
+    
+    // create a histogram
+    function _createHistogram(hist) {
         // append the svg object to the body of the page
-        hist.graph.svg = d3.select(selector)
+        hist.graph.svg = d3.select(hist.graph.selector)
             .append("svg")
                 .attr("width", colorHistWidth + colorHistMargin.left + colorHistMargin.right)
                 .attr("height", colorHistHeight + colorHistMargin.top + colorHistMargin.bottom)
@@ -403,32 +300,83 @@
         hist.graph.svg.append("g")
             .attr("class", "histogram-axis");
 
-        hist.graph.series = [
-            {
-                y: d3.scaleLinear().range([ colorHistHeight, 0]),
-                label: "value",
-                color: "#ccc"
-            }
-        ];
+    }
+
+    // update the displayed value of y in the given histogram
+    function _updateYValue(hist, yScale) {
+        var y = yScale.y;
+        var data = hist.log ? hist.logData : hist.data;
+
+
+        // Update the Y axis
+        y.domain([0, d3.max(data, function(d) { return d[yScale.label] }) ]);
+
+        // Create the u variable
+        var u = hist.graph.svg.selectAll(".histogram-bar-" + yScale.label_no_space).data(data);
+
+        // u.exit().remove();
+
+        // existing value
+        u.enter()
+            .append("rect") // Add a new rect for each new elements
+            .merge(u) // get the already existing elements as well
+            .transition() // and apply changes to all of them
+            .duration(1000)
+            .attr("x", function(d, i) { return hist.graph.x(i); })
+            .attr("y", function(d) { 
+                var res = y(d[yScale.label])
+                return isNaN(res) ? 0 : res; 
+            })
+            .attr("width", hist.graph.x.bandwidth())
+            .attr("height", function(d) { 
+                var res = colorHistHeight - y(d[yScale.label]);
+                return isNaN(res) ? 0 : res; 
+            })
+            .attr("class", "histogram-bar " + "histogram-bar-" + yScale.label_no_space)
+            .attr("fill", yScale.color)
+
+        // If less group in the new dataset, I delete the ones not in use anymore
+        u.exit().remove();
+    }
+    
+    var usedBarColors = [];
+    // add a y value series
+    function _addSeries (hist, label, color) {
+        var el = {
+            y: d3.scaleLinear().range([ colorHistHeight, 0]),
+            label: label,
+            label_no_space: label.replaceAll(" ", ""),
+            color: color
+        };
+        
+        var x_pos = 30, before;
+        if (hist.graph.series.length > 0) {
+            before = hist.graph.series[hist.graph.series.length-1];
+            x_pos = before.legend_x_pos + (before.label.length*8) + 15;
+        }
+        
+        el.legend_x_pos = x_pos;
+        
+        hist.graph.series.push(el);
+        
+        hist.graph.svg.select("g.histogram-legend")
 
         hist.graph.svg.selectAll(".histogram-legend")
             .data(hist.graph.series)
             .enter()
             .append('g')
             .append("text")
-            .attr("class", function(d) { return "histogram-legend histogram-legend-" + d.label; })
+            .attr("class", function(d) { return "histogram-legend histogram-legend-" + d.label_no_space; })
             .attr("y", 0)
-            // .attr("x", function(d,i){ return 30 + i*60})
-            .attr("x", function(d,i){ return [30, 90, 135, 200][i]})
+            .attr("x", function (d) {return d.legend_x_pos;})
             .text(function(d) { return d.label; })
-            .style("fill", function(d, i){ return (d.color) })
+            .style("fill", function(d){ return (d.color) })
             .attr("text-anchor", "left")
             .style("alignment-baseline", "middle")
             .style("font-size", 15)
-            .on("click", function(d, i){
-                // is the element currently visible ?
-                var chartSelector = selector + " .histogram-bar-" + d.label,
-                    legendSelector = selector + " .histogram-legend-" + d.label;
+            .on("click", function(d){
+                var chartSelector = hist.graph.selector + " .histogram-bar-" + d.label_no_space,
+                    legendSelector = hist.graph.selector + " .histogram-legend-" + d.label_no_space;
 
                 try {
                     var currentOpacity = d3.selectAll(chartSelector).style("opacity");
@@ -445,24 +393,19 @@
                 }
             });
     }
+    
+    // draw the histograms
+    function _drawHistograms() {
+        console.log("drawing histogram");
 
-    var showColorHistogram = false, colorHistMargin, colorHistWidth, colorHistHeight;
-    var colorHist = {
-        data: [], logData: [], log: false, graph: {svg: null, x: null, series: []}
-    };
-    var colorHistOriginal = {
-        data: [], logData: [], log: false, graph: {svg: null, x: null, series: []}
-    };
-    function _emptyData (hist) {
-        if (!showColorHistogram) return;
+        colorHistOriginal.graph.series.forEach(function (item) {
+            _updateYValue(colorHistOriginal, item);
+        });
 
-        for (var i = 0; i <= 100; i++) {
-            hist.data[i] = {
-                label: i,
-                value: 0
-            };
-        }
-    };
+        colorHist.graph.series.forEach(function (item) {
+            _updateYValue(colorHist, item);
+        });
+    }
 
     $.Viewer.prototype.initializeColorHistogram = function () {
         showColorHistogram = true;
@@ -493,8 +436,11 @@
         colorHistWidth = 600 - colorHistMargin.left - colorHistMargin.right,
         colorHistHeight = 300 - colorHistMargin.top - colorHistMargin.bottom;
 
-        _createHistogram(colorHistOriginal, "#color-histogram-original");;
-        _createHistogram(colorHist, "#color-histogram");;
+        _createHistogram(colorHistOriginal);
+        _createHistogram(colorHist);
+        
+        _emptyData(colorHistOriginal);
+        _emptyData(colorHist);
     }
 
     $.Viewer.prototype.drawColorHistogram = function () {
@@ -504,11 +450,7 @@
         colorHist.data.forEach(function (d, i) {
             colorHist.logData[i] = {};
             for (var k in d) {
-                if (k != "label") {
-                    colorHist.logData[i][k] = (d[k] == 0) ? 0 : (Math.log(d[k]) / Math.log(10));
-                } else {
-                    colorHist.logData[i][k] = d[k];
-                }
+                colorHist.logData[i][k] = (d[k] == 0) ? 0 : (Math.log(d[k]) / Math.log(10));
             }
         });
 
@@ -516,11 +458,7 @@
         colorHistOriginal.data.forEach(function (d, i) {
             colorHistOriginal.logData[i] = {};
             for (var k in d) {
-                if (k != "label") {
-                    colorHistOriginal.logData[i][k] = (d[k] == 0) ? 0 : (Math.log(d[k]) / Math.log(10));
-                } else {
-                    colorHistOriginal.logData[i][k] = d[k];
-                }
+                colorHistOriginal.logData[i][k] = (d[k] == 0) ? 0 : (Math.log(d[k]) / Math.log(10));
             }
         });
 
@@ -558,9 +496,14 @@
 
             if (showColorHistogram) {
                 if (isInit) {
-                    _emptyData(colorHistOriginal);
+                    _emptyData(colorHistOriginal, name);
+                    
+                    var color = window.OSDViewer.utils.generateColor(usedBarColors);
+                    usedBarColors.push(color);
+                    _addSeries(colorHist, name, color);
+                    _addSeries(colorHistOriginal, name, color);
                 }
-                _emptyData(colorHist);
+                _emptyData(colorHist, name);
             }
 
             return function(context, callback) {
@@ -569,11 +512,11 @@
                 var pixels = imgData.data;
                 for (var i = 0; i < pixels.length; i += 4) {
                     // turn rgb to hsv
-                    var hsv = _rgb2hsv(pixels[i], pixels[i+1], pixels[i+2]);
+                    var hsv = window.OSDViewer.utils.rgb2hsv(pixels[i], pixels[i+1], pixels[i+2]);
 
                     var newVal = _sanitizeValue( Math.pow( _sanitizeValue(((hsv[2] - 0.5) * contrast) + 0.5 + (brightness * contrast)), gamma) );
 
-                    var col = _hsv2rgb(
+                    var col = window.OSDViewer.utils.hsv2rgb(
                         rgbImg ? hsv[0] : hue,  // hue
                         greyscale ? 0 : (rgbImg ? hsv[1] : saturation), // saturation
                         newVal // value
@@ -581,10 +524,18 @@
 
                     if (showColorHistogram) {
                         if (isInit) {
-                            colorHistOriginal.data[Math.floor(hsv[2]*100)].value++;
+                            var origEl = colorHistOriginal.data[Math.floor(hsv[2]*100)];
+                            if (!(name in origEl)) {
+                                origEl[name] = 0;
+                            }
+                            origEl[name]++;
                         }
-
-                        colorHist.data[Math.floor(newVal*100)].value++;
+                        
+                        var el = colorHist.data[Math.floor(newVal*100)];
+                        if (!(name in el)) {
+                            el[name] = 0;
+                        }
+                        el[name]++;
                     }
 
 
