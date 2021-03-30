@@ -610,16 +610,22 @@ function ZPlaneList(parent) {
     this.showHideZPlaneSliderTooltip = function (show, tooltip, sliderValue) {
         var downArrow = document.getElementById('slider-tooltip-arrow');
         if (show && tooltip) {
-            if (tooltip) {
-                tooltip.style.display = 'block';
-                downArrow.style.display = 'block';
-                tooltip.innerHTML = sliderValue || document.getElementById('z-index-slider').value || '0';
-    
-                var delta = (sliderValue - _self.sliderRange.min) / (_self.sliderRange.max - _self.sliderRange.min);
-                var thumbRadius = 5;
-                tooltip.style.left = ((thumbRadius * 2) + ((268 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
-                downArrow.style.left = ((thumbRadius * 2) + ((268 - (thumbRadius * 2)) * delta) - (downArrow.offsetWidth / 2)) + 'px';
-            }
+            tooltip.style.display = 'block';
+            downArrow.style.display = 'block';
+            tooltip.innerHTML = sliderValue || document.getElementById('z-index-slider').value || '0';
+
+            // delta presents the percentage distance from the left end point of the slider
+            var delta = (sliderValue - _self.sliderRange.min) / (_self.sliderRange.max - _self.sliderRange.min);
+
+            // ths is the thumb radius of the slider + the border in it
+            var thumbRadius = 5 + 1;
+
+            // 270 = width of the slider
+            // 270 - (thumbRadius * 2) = available moving space for the slider
+            // (thumbRadius - 1) * 2) = left correction added because the slider thumb wont go beyond the slider boundary
+            // (offsetWidth / 2) = half the contaienr width, that is subtracted to center align the tooltip with the thumb
+            tooltip.style.left = (((thumbRadius - 1) * 2) + ((270 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
+            downArrow.style.left = (((thumbRadius - 1) * 2) + ((270 - (thumbRadius * 2)) * delta) - (downArrow.offsetWidth / 2)) + 'px';
         } else if (tooltip) {
             tooltip.style.display = 'none';
             downArrow.style.display = 'none';
@@ -719,6 +725,8 @@ function ZPlaneList(parent) {
                 break;
             }
         }
+
+        // TODO: improve the corner case, where the prev/next does not appear in the collection and we are calling _fetchListByZIndex. This could renturn the same value.
 
         if (mainImageCollectionIndex != -1) {
             // the main image is in the z plane list
