@@ -63,7 +63,3 @@
         width: 1.25em;
     }
 }
-
-.adjust-to-z-index {
-    height: calc(100% - 145px) !important;
-}
