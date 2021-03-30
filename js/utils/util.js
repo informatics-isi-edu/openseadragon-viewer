@@ -132,7 +132,7 @@ Utils.prototype.processParams = function(inp){
     };
     parameters.channels = []; // [{channelNumber, channelName, aliasName, isRGB, pseudoColor}]
     parameters.annotationSetURLs = []; // [""]
-    parameters.parameters.zPlane = {
+    parameters.zPlane = {
         count: 1,
         minZIndex: null,
         maxZIndex: null
