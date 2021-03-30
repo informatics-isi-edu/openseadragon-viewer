@@ -472,7 +472,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' min='-1.3' max='1.3' step='0.01' value='"+ this.convertRawToOSDSliderValue("contrast", this.contrast) +"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='-1.3' max='1.3' step='0.025' value='"+ this.convertRawToOSDSliderValue("contrast", this.contrast) +"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='brightness'>",
