@@ -248,3 +248,13 @@ Channel.prototype.renderLabel = function (imgWidth, imgHeight) {
         document.getElementById("overlay-container").appendChild(this.labelElement);
     }
 }
+
+Channel.prototype.getTextColor = function() {
+    if (this.deactivateHue) {
+        return "#ccc";
+    }
+    if (this.hue != null) {
+        return 'rgb(' + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ')';
+    }
+    return 'white';
+}
