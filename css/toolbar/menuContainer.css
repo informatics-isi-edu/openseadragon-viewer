@@ -62,7 +62,7 @@
 }
 
 #menuContainer #navMenuContent.expand{
-    width: 285px; /* 270 + 15 */
+    width: 295px; /* 270 + 15 */
     padding-right: 15px; /* The reserved space for scrollbar */
     opacity: 1;
     display: flex;

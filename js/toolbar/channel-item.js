@@ -16,6 +16,8 @@ function ChannelItem(data) {
 
     this.displayGreyscale = data["displayGreyscale"] || false;
 
+    this.colorRangeMin = 0;
+    this.colorRangeMax = 100;
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
     this.isDisplay = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
@@ -453,6 +455,27 @@ function ChannelItem(data) {
                         "<div class='channel-settings-spinner-text loading-w-dots'>Saving</div>",
                     "</div>",
                 "</div>",
+                "<span class='sliderContainer' data-type='color-range'>",
+                    "<span class='attrRow'>",
+                        "<span class='name'>",
+                            "Color range",
+                            "<i class='fas fa-info-circle setting-info' ",
+                                "data-tippy-placement='right'",
+                                "data-tippy-content='",
+                                    "Use the slider or input to change color contrast factor. <br>",
+                                    "Acceptable values: Numbers from <strong>0.05</strong> to <strong>19.95</strong>. <br>",
+                                    "Default value: <strong>1</strong> <br>",
+                                "'",
+                                " >",
+                            "</i>",
+                        "</span>",
+                    "</span>",
+                    "<span class='color-range-container' data-type='color-range'>",
+                        "<input class='channel-input active color-range-input color-range-input-min' value=" + this.colorRangeMin + ">",
+                        "<div class='color-range-slider'></div>",
+                        "<input class='channel-input active color-range-input color-range-input-max' value=" + this.colorRangeMax + ">",
+                    "</span>",
+                "</span>",
                 "<span class='sliderContainer' data-type='contrast'>",
                     "<span class='attrRow'>",
                         "<span class='name'>",
@@ -468,7 +491,7 @@ function ChannelItem(data) {
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number active' value=" + this.contrast + ">",
+                            "<input class='channel-input number active' value=" + this.contrast + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
@@ -490,7 +513,7 @@ function ChannelItem(data) {
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number active' value=" + this.brightness + ">",
+                            "<input class='channel-input number active' value=" + this.brightness + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
@@ -511,7 +534,7 @@ function ChannelItem(data) {
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number active' value=" + this.gamma + ">",
+                            "<input class='channel-input number active' value=" + this.gamma + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
@@ -533,7 +556,7 @@ function ChannelItem(data) {
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number active' value=" + this.saturation + ">",
+                            "<input class='channel-input number active' value=" + this.saturation + ">",
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
@@ -556,7 +579,7 @@ function ChannelItem(data) {
                             "</i>",
                         "</span>",
                         "<span class='value'>",
-                            "<input class='number " + (!this.displayGreyscale ? "active" : "") + "' value=" + this.hue + ">",
+                            "<input class='channel-input number " + (!this.displayGreyscale ? "active" : "") + "' value=" + this.hue + ">",
                             "<span class='greyscale'>Greyscale</span>",
                         "</span>",
                     "</span>",
@@ -606,6 +629,29 @@ function ChannelItem(data) {
         this.elem.querySelectorAll(".channelRow").forEach(function(elem){
             elem.addEventListener('click', this.onClickToggleExpand);
         }.bind(this));
+        
+        // color range events
+        this.elem.querySelectorAll(".color-range-slider").forEach(function (elem) {
+            noUiSlider.create(elem, {
+                start: [_self.colorRangeMin, _self.colorRangeMax],
+                connect: true,
+                range: {
+                    'min': [0],
+                    'max': [1]
+                }
+            });
+            
+            elem.noUiSlider.on('update', function (values, handle) {
+                var value = values[handle];
+                if (handle == 0) {
+                    _self.colorRangeMin = value;
+                    _self.elem.querySelector(".color-range-input-min").value = value;
+                } else {
+                    _self.colorRangeMax = value;
+                    _self.elem.querySelector(".color-range-input-max").value = value;
+                }
+            });
+        });
 
         // change the input
         var numberInputChangedTimer;

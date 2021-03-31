@@ -110,7 +110,7 @@
     vertical-align: middle;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number {
+#navMenuContent .groups .channelItem .channel-input {
     background: transparent;
     height: 20px;
     width: 36px;
@@ -121,15 +121,15 @@
     display: none;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number.active {
+#navMenuContent .groups .channelItem .channel-input.active {
     display: inline-block;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number.active + .greyscale {
+#navMenuContent .groups .channelItem .channel-input.active + .greyscale {
     display: none;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number:focus {
+#navMenuContent .groups .channelItem .channel-input:focus {
     outline: 0;
 }
 
@@ -137,10 +137,6 @@
     margin: 2px 0 1px 0;
     display: flex;
     flex-direction: column;
-}
-
-#navMenuContent .groups .channelItem .slider-wrapper {
-    position: relative;
 }
 
 /* not applied to hue, for hue it's 5px */
@@ -310,4 +306,72 @@
 #navMenuContent .groups .channelItem [data-type="hue"] input.slider::-webkit-slider-thumb:hover {
     width: 6px;
     height: 15px;
+}
+
+.color-range-container {
+    position: relative;
+    height: 20px;
+    margin-bottom: 8px;
+}
+
+.color-range-input {
+    position: absolute;
+}
+.color-range-input-min {
+    left: 0;
+    top: 0;
+}
+.color-range-input-max {
+    right: 0;
+    top: 0;
+}
+
+.color-range-slider {
+    width: 170px;
+    left: 45px;
+    height: 2px;
+    top: 8px;
+    border: none;
+    background: #939191;
+    transition: all .1s linear;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.color-range-slider:hover {
+    height: 5px;
+}
+
+
+.color-range-slider .noUi-handle {
+    width: 10px;
+    right: -5px; /* (width / 2) */
+    height: 10px;
+    border-radius: 50%;
+    background: #b3b3b3;
+    cursor: pointer;
+    border: none;
+    transition: all .1s linear;
+    margin-top: 3px;
+    box-shadow: none;
+    border: none;
+}
+
+.color-range-slider .noUi-handle:hover {
+    height: 13px;
+    width: 13px;
+    right: -6.5px; /* (width / 2) */
+}
+
+.color-range-slider .noUi-handle:before,
+.color-range-slider .noUi-handle::after {
+    display: none !important;
+}
+
+.color-range-slider .noUi-connect {
+    background: #4674A7;
+}
+
+.color-range-slider:hover .noUi-connect {
+    background: #5B90CC;
 }
