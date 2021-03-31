@@ -486,12 +486,17 @@ function Viewer(parent, config) {
             svgProcessedCount = 0, svgTotalCount = 0,
             svgAttrs = ["x", "y", "width", "height"], svgDimension = [], svgAttr;
 
+        var channelArray = [];
+        for (id in this.channels) {
+            channelArray.push([this.channels[id].name, this.channels[id].getTextColor()])
+        }
+
         // add watermark and download the file
         var finalize = function () {
             if (errored) return;
 
             // add the water mark to the image
-            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance);
+            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray);
 
             // turn it into an image
             rawImg = newCanvas.toDataURL("image/jpeg", 1);

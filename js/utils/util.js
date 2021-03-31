@@ -17,8 +17,14 @@ Utils.prototype.queryForRetina = function(canvas) {
 
 // Add attribution watermark
 
-Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
+Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, channelData) {
     if(!watermark || !canvas) return;
+
+    if (!channelData) {
+        channelData = [];
+    }
+
+    console.log('watermark = ', watermark);
 
     var fsize = 20,
         h = canvas.height,
@@ -81,6 +87,24 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar) {
     ctx.textAlign = "left";
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
+
+    // ctx.font = 12 + "pt Sans-serif";
+    var xx = 0
+    for (let i = 0; i < channelData.length; i++) {
+        // ctx.fillStyle = channelData[i][1];
+        // ctx.fillText(channelData[i][0], 100 + xx, 50);
+        xx += ctx.measureText(channelData[i][0]).width + 20
+    }
+    xx -= 20;
+
+    var channelXOffeset = (w - xx)/2;
+    console.log(channelXOffeset, w, xx);
+    var xx = 0
+    for (let i = 0; i < channelData.length; i++) {
+        ctx.fillStyle = channelData[i][1];
+        ctx.fillText(channelData[i][0], channelXOffeset + xx, 50);
+        xx += ctx.measureText(channelData[i][0]).width + 20
+    }
 
 
     ctx.restore();
