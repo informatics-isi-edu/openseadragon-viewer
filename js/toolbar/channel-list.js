@@ -19,8 +19,8 @@ function ChannelList(parent) {
                 item = new ChannelItem({
                     number: items[i]["number"],
                     name: items[i]["name"],
-                    contrast: items[i]["contrast"],
-                    brightness: items[i]["brightness"],
+                    blackLevel: items[i]["blackLevel"],
+                    whiteLevel: items[i]["whiteLevel"],
                     gamma: items[i]["gamma"],
                     saturation: items[i]["saturation"],
                     hue: items[i]["hue"],

@@ -828,8 +828,8 @@ function Viewer(parent, config) {
                 channelList.push({
                     number: info.channelNumber,
                     name: channel.name,
-                    contrast: channel["contrast"],
-                    brightness: channel["brightness"],
+                    blackLevel: channel["blackLevel"],
+                    whiteLevel: channel["whiteLevel"],
                     gamma: channel["gamma"],
                     saturation: channel["saturation"],
                     hue : channel["hue"],

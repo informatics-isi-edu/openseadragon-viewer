@@ -218,7 +218,7 @@
 }
 
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
-    width: 230px;
+    width: 240px;
     margin: 0;
     margin-right: 7px;
     height: 8px;
@@ -308,42 +308,46 @@
     height: 15px;
 }
 
-.color-range-container {
+.intensity-range-container {
     position: relative;
     height: 20px;
     margin-bottom: 8px;
+    margin-top: 10px;
 }
 
-.color-range-input {
+.intensity-range-input {
     position: absolute;
 }
-.color-range-input-min {
+.intensity-range-input-min {
     left: 0;
     top: 0;
 }
-.color-range-input-max {
+.intensity-range-input-max {
     right: 0;
     top: 0;
 }
 
-.color-range-slider {
+.intensity-range-slider {
     width: 170px;
     left: 45px;
     height: 2px;
-    top: 8px;
+    top: 9px;
     border: none;
     background: #939191;
     transition: all .1s linear;
     cursor: pointer;
     box-shadow: none;
+    
+    /* height: 20px;
+    top: 0; */
 }
 
-.color-range-slider:hover {
+.intensity-range-slider:hover {
     height: 5px;
 }
 
 
-.color-range-slider .noUi-handle {
+.intensity-range-slider .noUi-handle {
     width: 10px;
     right: -5px; /* (width / 2) */
     height: 10px;
@@ -355,23 +359,59 @@
     margin-top: 3px;
     box-shadow: none;
     border: none;
+    
+    /* border-radius: 2px;
+    height: 26px;
+    border: 1px solid #777; */
 }
 
-.color-range-slider .noUi-handle:hover {
+.intensity-range-slider .noUi-handle:hover {
     height: 13px;
     width: 13px;
     right: -6.5px; /* (width / 2) */
+    
+    /* height: 30px; */
 }
 
-.color-range-slider .noUi-handle:before,
-.color-range-slider .noUi-handle::after {
+.intensity-range-slider .noUi-handle:before,
+.intensity-range-slider .noUi-handle::after {
     display: none !important;
 }
 
-.color-range-slider .noUi-connect {
+.intensity-range-slider .noUi-connect {
     background: #4674A7;
+    /* background: linear-gradient(to bottom right, #333 0%, #333 50%, #4674A7 50%, #4674A7 100%); */
 }
 
-.color-range-slider:hover .noUi-connect {
+.intensity-range-slider:hover .noUi-connect {
     background: #5B90CC;
+    /* background: linear-gradient(to bottom right, #333 0%, #333 50%, #5B90CC 50%, #5B90CC 100%); */
+}
+
+
+.intensity-range-slider .noUi-tooltip {
+    display: none;
+    background: white;
+    box-shadow: none;
+    border: 0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+.intensity-range-slider .noUi-active .noUi-tooltip {
+    display: block;
+}
+
+/* the arrow below the tooltip */
+.intensity-range-slider .noUi-active .noUi-touch-area::before {
+    content: "";
+    background: white;
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    left: 0px;
+    border-radius: 3px;
+    top: -12px;
+    transform: rotateY(0deg) rotate(45deg);
 }

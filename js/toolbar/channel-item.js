@@ -4,8 +4,8 @@ function ChannelItem(data) {
     
     this.number = data["number"];
     this.name = data["name"];
-    this.contrast = data["contrast"];
-    this.brightness = data["brightness"];
+    this.blackLevel = data["blackLevel"];
+    this.whiteLevel = data["whiteLevel"];
     this.gamma = data["gamma"];
     this.saturation = data["saturation"];
     if (data["hue"] >= 0) {
@@ -16,8 +16,6 @@ function ChannelItem(data) {
 
     this.displayGreyscale = data["displayGreyscale"] || false;
 
-    this.colorRangeMin = 0;
-    this.colorRangeMax = 100;
     this.osdItemId = data["osdItemId"];
     this.parent = data.parent || null;
     this.isDisplay = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
@@ -25,8 +23,8 @@ function ChannelItem(data) {
     this.elem = null;
 
     this.originalSettings = {
-        "contrast": this.contrast,
-        "brightness": this.brightness,
+        "blackLevel": this.blackLevel,
+        "whiteLevel": this.whiteLevel,
         "gamma": this.gamma,
         "saturation": this.saturation,
         "hue": this.hue,
@@ -36,13 +34,13 @@ function ChannelItem(data) {
     };
 
     this._minMaxValues = {
-        contrast: {
-            MIN: 0.05,
-            MAX: 19.95
+        blackLevel: {
+            MIN: 0,
+            MAX: 255
         },
-        brightness: {
-            MIN: -1,
-            MAX: 1
+        whiteLevel: {
+            MIN: 0,
+            MAX: 255
         },
         saturation: {
             min: 0,
@@ -63,17 +61,9 @@ function ChannelItem(data) {
             addPlusSign: true,
             suffix: ""
         },
-        contrast: {
-            addPlusSign: false,
-            suffix: ""
-        },
         saturation: {
             addPlusSign: false,
             suffix: "%"
-        },
-        brightness: {
-            addPlusSign: true,
-            suffix: ""
         },
         hue: {
             addPlusSign: false,
@@ -106,37 +96,13 @@ function ChannelItem(data) {
     this.getSliderTooltip = function (type, value) {
         var settings = (type in _self._tooltipSettings) ? _self._tooltipSettings[type] : _self._tooltipSettings.default;
         
-        if (type == "contrast" && value < 1) {
-            value = "1/" + window.OSDViewer.utils.round(1/value, 2);
-        }
-        else if (settings.addPlusSign && value >= 0) {
+        if (settings.addPlusSign && value >= 0) {
             value = "+" + value;
         }
 
         value += settings.suffix;
         return value;
     }
-    
-    // convert the value to what will be stored and displayed to the users
-    this.convertOSDSliderToRawValue = function (type, value) {
-        switch (type) {
-            case "contrast":
-                return window.OSDViewer.utils.round(Math.pow(10, value), 2);
-            default:
-                return value;
-        }
-    }
-    
-    // convert the value to what will be used by osd
-    this.convertRawToOSDSliderValue = function (type, value) {
-        switch (type) {
-            case "contrast":
-                return window.OSDViewer.utils.round(Math.log(value) / Math.log(10), 2);
-            default:
-                return value;
-        }
-    }
-
 
     // Click to expand/collapse the setting
     this.onClickToggleExpand = function(event, expand){
@@ -195,7 +161,7 @@ function ChannelItem(data) {
         }
 
         //change the active classes
-        hueEl.querySelector("input.number").className = _self.displayGreyscale ? "number" : "number active";
+        hueEl.querySelector("input.number").className = _self.displayGreyscale ? "channel-input number" : "channel-input number active";
 
         var hueControl = hueEl.querySelector(".hue-container");
         hueControl.querySelector('.slider').className = _self.displayGreyscale ? "slider" : "slider active";
@@ -230,19 +196,17 @@ function ChannelItem(data) {
         var target = event.target;
 
         var type = target.parentNode.parentNode.getAttribute("data-type"),
-            sliderValue = +target.value, value;
+            value = +target.value;
 
         // only show the tooltip while users are interacting with it
         if (target._tippy) {
             target._tippy.hide();
         }
         
-        value = _self.convertOSDSliderToRawValue(type, sliderValue);
-        
         // don't do anything is value is the same
         if (_self[type] == value) return;
 
-        var res = _self._setChannelColorSetting(type, value, sliderValue, false, false);
+        var res = _self._setChannelColorSetting(type, value, false, false);
 
         if (res === false) {
             return;
@@ -265,7 +229,7 @@ function ChannelItem(data) {
         if (_self[type] == value) return;
 
         // TODO validate the numbers
-        var validate = _self._setChannelColorSetting(type, value, _self.convertRawToOSDSliderValue(type, value), true, true);
+        var validate = _self._setChannelColorSetting(type, value, true, true);
 
         if (validate !== false) {
             _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
@@ -286,8 +250,6 @@ function ChannelItem(data) {
 
         var type = target.parentNode.parentNode.getAttribute("data-type"),
             value = +target.value;
-            
-        value = _self.convertOSDSliderToRawValue(type, value);
 
         if (target._tippy) {
             target._tippy.setContent(_self.getSliderTooltip(type, value));
@@ -296,14 +258,13 @@ function ChannelItem(data) {
     };
 
     // make sure the corresponding attribute and UI element are updated
-    this._setChannelColorSetting = function (type, value, sliderValue, validate, changeTooltip)  {
+    this._setChannelColorSetting = function (type, value, validate, changeTooltip)  {
         var validator = _self._minMaxValues[type],
             numberVal = Number(value);
 
         // validate the given value
         if (validate  && (isNaN(value) || numberVal < validator.MIN || numberVal > validator.MAX)) {
-            sliderValue = _self.convertRawToOSDSliderValue(type, _self[type]);
-            _self._setChannelColorSetting(type, _self[type], sliderValue, false, changeTooltip);
+            _self._setChannelColorSetting(type, _self[type], value, false, changeTooltip);
             return false;
         }
 
@@ -311,18 +272,33 @@ function ChannelItem(data) {
         var el = el = _self.elem.querySelector(".sliderContainer[data-type='" + type + "']"), slider;
         if (el) {
             slider = el.querySelector("input.slider");
-            if (slider._tippy && changeTooltip) {
+            if (slider && slider._tippy && changeTooltip) {
                 slider._tippy.setContent(_self.getSliderTooltip(type, value));
             }
         }
 
         switch(type){
-            case "contrast":
-            case "brightness":
+            case "blackLevel":
+            case "whiteLevel":
+                var rangeMin = null, rangeMax = null;
+                if (type == "whiteLevel") {
+                    rangeMax = value;
+                } else {
+                    rangeMin = value;
+                }
+
+                _self[type] = value;
+                
+                // change the input value
+                _self.elem.querySelector(".intensity-range-input[data-type='" + type + "']").value = value;
+                
+                // make sure the range is showing correct values
+                _self.elem.querySelector(".intensity-range-slider").noUiSlider.set([rangeMin, rangeMax]);
+                break;
             case "gamma":
                 _self[type] = value;
                 // make sure both slider and number are showing the value
-                slider.value = sliderValue;
+                slider.value = value;
                 el.querySelector("input.number").value = value;
                 break;
             case "saturation":
@@ -343,6 +319,21 @@ function ChannelItem(data) {
 
         return true;
     }
+    
+    this.onIntensityRangeInputValueChanged = function (event) {
+        var type = event.target.getAttribute("data-type"),
+            value = +event.target.value;
+        
+        var validate = _self._setChannelColorSetting(type, value, true, true)
+
+        if (validate !== false) {
+            _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
+                id: _self.osdItemId,
+                type: type,
+                value: value
+            });
+        }
+    }
 
     this.resetChannelSettings = function (event) {
         event.stopPropagation();
@@ -360,7 +351,7 @@ function ChannelItem(data) {
         }
 
         // color settings
-        var attrs = ["contrast", "brightness", "gamma"];
+        var attrs = ["blackLevel", "whiteLevel", "gamma"];
         // if hue control is missing, we shouldn't update the settings either
         if (og.hue != null) {
             attrs.push("displayGreyscale", "hue", "saturation");
@@ -374,8 +365,10 @@ function ChannelItem(data) {
             newSettings[attrName] = og[attrName];
 
             // make sure the change is reflected in the UI
-            _self._setChannelColorSetting(attrName, og[attrName], _self.convertRawToOSDSliderValue(attrName, og[attrName]), false, true);
+            _self._setChannelColorSetting(attrName, og[attrName], false, true);
         });
+        
+        // TODO take care of range min and range max
             
         // don't do anything if nothing has changed.
         if (Object.keys(newSettings).length === 0) return;
@@ -394,8 +387,8 @@ function ChannelItem(data) {
         // create the data that will be saved
         var configConst = window.OSDViewer.constants.CHANNEL_CONFIG,
             data = { channelNumber: _self.number, channelConfig: {}};
-        data.channelConfig[configConst.CONTRAST] = _self.contrast;
-        data.channelConfig[configConst.BRIGHTNESS] = _self.brightness;
+        data.channelConfig[configConst.BLACK_LEVEL] = _self.blackLevel;
+        data.channelConfig[configConst.WHITE_LEVEL] = _self.whiteLevel;
         data.channelConfig[configConst.GAMMA] = _self.gamma;
         data.channelConfig[configConst.SATURATION] = _self.saturation;
         data.channelConfig[configConst.HUE] = _self.hue;
@@ -416,7 +409,7 @@ function ChannelItem(data) {
         
         // change the original settings
         if (success) {
-            ['contrast', 'brightness', 'gamma', 'saturation', 'hue', 'displayGreyscale'].forEach(function (attr) {
+            ['blackLevel', 'whiteLevel', 'gamma', 'saturation', 'hue', 'displayGreyscale'].forEach(function (attr) {
                 _self.originalSettings[attr] = _self[attr];
             });
         }
@@ -455,69 +448,25 @@ function ChannelItem(data) {
                         "<div class='channel-settings-spinner-text loading-w-dots'>Saving</div>",
                     "</div>",
                 "</div>",
-                "<span class='sliderContainer' data-type='color-range'>",
+                "<span class='sliderContainer' data-type='intensity-range'>",
                     "<span class='attrRow'>",
                         "<span class='name'>",
-                            "Color range",
+                            "Intensity range",
                             "<i class='fas fa-info-circle setting-info' ",
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
-                                    "Use the slider or input to change color contrast factor. <br>",
-                                    "Acceptable values: Numbers from <strong>0.05</strong> to <strong>19.95</strong>. <br>",
-                                    "Default value: <strong>1</strong> <br>",
+                                   "Choose black-level and white-level to define displayed intenstiy range. <br>",
+                                   "All the values in between will be scaled linearly. <br>",
+                                   "Acceptable values: Integers from <strong>0</strong> to <strong>255</strong>. <br>",
                                 "'",
                                 " >",
                             "</i>",
                         "</span>",
                     "</span>",
-                    "<span class='color-range-container' data-type='color-range'>",
-                        "<input class='channel-input active color-range-input color-range-input-min' value=" + this.colorRangeMin + ">",
-                        "<div class='color-range-slider'></div>",
-                        "<input class='channel-input active color-range-input color-range-input-max' value=" + this.colorRangeMax + ">",
-                    "</span>",
-                "</span>",
-                "<span class='sliderContainer' data-type='contrast'>",
-                    "<span class='attrRow'>",
-                        "<span class='name'>",
-                            "Contrast",
-                            "<i class='fas fa-info-circle setting-info' ",
-                                "data-tippy-placement='right'",
-                                "data-tippy-content='",
-                                    "Use the slider or input to change color contrast factor. <br>",
-                                    "Acceptable values: Numbers from <strong>0.05</strong> to <strong>19.95</strong>. <br>",
-                                    "Default value: <strong>1</strong> <br>",
-                                "'",
-                                " >",
-                            "</i>",
-                        "</span>",
-                        "<span class='value'>",
-                            "<input class='channel-input number active' value=" + this.contrast + ">",
-                        "</span>",
-                    "</span>",
-                    "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' min='-1.3' max='1.3' step='0.025' value='"+ this.convertRawToOSDSliderValue("contrast", this.contrast) +"'>",
-                    "</span>",
-                "</span>",
-                "<span class='sliderContainer' data-type='brightness'>",
-                    "<span class='attrRow'>",
-                        "<span class='name'>",
-                            "Brightness",
-                            "<i class='fas fa-info-circle setting-info' ",
-                                "data-tippy-placement='right'",
-                                "data-tippy-content='",
-                                    "Use the slider or input to change brightness of image based on contrast factor. <br>",
-                                    "Acceptable values: Numbers from <strong>-1</strong> to <strong>1</strong>. <br>",
-                                    "Default value: <strong>0</strong> <br>",
-                                "'",
-                                " >",
-                            "</i>",
-                        "</span>",
-                        "<span class='value'>",
-                            "<input class='channel-input number active' value=" + this.brightness + ">",
-                        "</span>",
-                    "</span>",
-                    "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' min='-1' max='1' step='0.01' value='"+this.brightness+"'>",
+                    "<span class='intensity-range-container' data-type='intensity-range'>",
+                        "<input data-type='blackLevel' class='channel-input active intensity-range-input intensity-range-input-min' value=" + this.blackLevel + ">",
+                        "<div class='intensity-range-slider'></div>",
+                        "<input data-type='whiteLevel' class='channel-input active intensity-range-input intensity-range-input-max' value=" + this.whiteLevel + ">",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='gamma'>",
@@ -631,27 +580,63 @@ function ChannelItem(data) {
         }.bind(this));
         
         // color range events
-        this.elem.querySelectorAll(".color-range-slider").forEach(function (elem) {
+        this.elem.querySelectorAll(".intensity-range-slider").forEach(function (elem) {
             noUiSlider.create(elem, {
-                start: [_self.colorRangeMin, _self.colorRangeMax],
+                start: [_self.blackLevel, _self.whiteLevel],
                 connect: true,
+                tooltips: true,
+                step: 1,
+                margin: 5,
+                format: {
+                    from: function(value) {
+                        return parseInt(value);
+                    },
+                    to: function(value) {
+                        return parseInt(value);
+                    }
+                },
                 range: {
                     'min': [0],
-                    'max': [1]
+                    'max': [255]
                 }
             });
             
-            elem.noUiSlider.on('update', function (values, handle) {
-                var value = values[handle];
+            elem.noUiSlider.on('change', function (values, handle) {
+                var value = values[handle], type;
                 if (handle == 0) {
-                    _self.colorRangeMin = value;
-                    _self.elem.querySelector(".color-range-input-min").value = value;
+                    type = "blackLevel";
+                    _self.elem.querySelector(".intensity-range-input-min").value = value;
                 } else {
-                    _self.colorRangeMax = value;
-                    _self.elem.querySelector(".color-range-input-max").value = value;
+                    type = "whiteLevel";
+                    _self.elem.querySelector(".intensity-range-input-max").value = value;
                 }
+                
+                _self[type] = value;
+                _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
+                    id: _self.osdItemId,
+                    type: type,
+                    value: +value
+                });
             });
         });
+        
+        // color range inputs
+        var colorRangeNumberInputChangedTimer;
+        this.elem.querySelectorAll(".intensity-range-input").forEach(function(elem){
+            // when enter is pressed
+            elem.addEventListener('change', function (event) {
+                clearTimeout(colorRangeNumberInputChangedTimer);
+                _self.onIntensityRangeInputValueChanged(event);
+            });
+
+            // submit after 2 second delay
+            elem.addEventListener('input', function (event) {
+                clearTimeout(colorRangeNumberInputChangedTimer);
+                colorRangeNumberInputChangedTimer = setTimeout(function () {
+                    _self.onIntensityRangeInputValueChanged(event);
+                }, 2000);
+            });
+        }.bind(this));
 
         // change the input
         var numberInputChangedTimer;

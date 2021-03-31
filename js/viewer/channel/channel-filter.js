@@ -339,7 +339,6 @@
         u.exit().remove();
     }
     
-    var usedBarColors = [];
     // add a y value series
     function _addSeries (hist, label, color) {
         var el = {
@@ -359,8 +358,6 @@
         
         hist.graph.series.push(el);
         
-        hist.graph.svg.select("g.histogram-legend")
-
         hist.graph.svg.selectAll(".histogram-legend")
             .data(hist.graph.series)
             .enter()
@@ -392,6 +389,23 @@
                     // there might not be any data
                 }
             });
+    }
+    
+    function _updateSeriersColor(hist, label, color) {
+        var series = hist.graph.series.filter(function (s) {
+            return s.label == label;
+        });
+        
+        if (series.length != 1 || series[0].color == color) return;
+
+        series[0].color = color;
+        
+        // update legend color
+        hist.graph.svg.selectAll(".histogram-legend.histogram-legend-" + series[0].label_no_space)
+            .style("fill", color);
+        
+        // update bar color
+        _updateYValue(hist, series[0]);
     }
     
     // draw the histograms
@@ -467,22 +481,39 @@
 
     $.Filters = {
         VERSION: "1.0",
-
-        CHANGE_COLOR: function (name, contrast, brightness, gamma, saturation, hue, greyscale, isInit) {
-            if (!_isNumber(contrast)) {
-                contrast = 1;
+        
+        /**
+         * Change the pixel colors of the displayed canvas
+         * @param {String} name - the channel name (used for color histogram)
+         * @param {Boolean} isInit - if this is for the initialization (used for color histogram)
+         * @param {Integer} blackLevel - (0-255) 
+         * @param {Integer} whiteLevel - (0-255)
+         * @param {Float} gamma - (> 0)
+         * @param {Integer} saturation - (0-100)
+         * @param {Integer|null} hue - (0-360) or null when rgb
+         * @param {Boolean} greyscale - whether we should show greyscale or not
+         */
+        CHANGE_COLOR: function (name, isInit, blackLevel, whiteLevel, gamma, saturation, hue, greyscale) {
+            if (!_isNumber(whiteLevel)  || whiteLevel < 0 || whiteLevel > 255) {
+                whiteLevel = 255;
             }
-            // contrast = Math.pow(10, contrast);
-
-            if (!_isNumber(brightness) || brightness > 1 || brightness < -1) {
-                brightness = 0;
+            if (!_isNumber(blackLevel) || blackLevel < 0 || blackLevel > 255 || blackLevel >= whiteLevel) {
+                blackLevel = 0;
             }
+            /**
+             * convert blackLevel and whiteLevel to contrast and brightness
+             * contrast = 1 / (whiteLevel - blackLevel)
+             * brightness = -1 * contrast * blackLevel             
+             * output = (contrast * value) +  brightness
+             */
+            blackLevel = blackLevel / 255; whiteLevel = whiteLevel / 255;
+            var contrast = 1 / (whiteLevel - blackLevel);
+            var brightness = -1 * contrast * blackLevel;
 
             if (!_isNumber(gamma) || gamma < 0) {
                 gamma = 0;
             }
 
-            // TODO saturation
             if (!_isNumber(saturation) || saturation > 100 || saturation < 0) {
                 saturation = 100;
             }
@@ -494,14 +525,19 @@
                 rgbImg = true;
             }
 
+            // change the histogram data
             if (showColorHistogram) {
+                var color = (rgbImg || greyscale) ? "#ccc" : ("rgb(" + window.OSDViewer.utils.hsv2rgb(hue,1,1) + ")");
                 if (isInit) {
                     _emptyData(colorHistOriginal, name);
                     
-                    var color = window.OSDViewer.utils.generateColor(usedBarColors);
-                    usedBarColors.push(color);
+                    // add a new series to the histogram
                     _addSeries(colorHist, name, color);
                     _addSeries(colorHistOriginal, name, color);
+                } else {
+                    // make sure colors are correct
+                    _updateSeriersColor(colorHist, name, color);
+                    _updateSeriersColor(colorHistOriginal, name, color);
                 }
                 _emptyData(colorHist, name);
             }
@@ -514,14 +550,17 @@
                     // turn rgb to hsv
                     var hsv = window.OSDViewer.utils.rgb2hsv(pixels[i], pixels[i+1], pixels[i+2]);
 
-                    var newVal = _sanitizeValue( Math.pow( _sanitizeValue(((hsv[2] - 0.5) * contrast) + 0.5 + (brightness * contrast)), gamma) );
-
+                    // output = Math.pow( ( (contrast * value) +  brightness) ,gamma)
+                    var newVal = _sanitizeValue( Math.pow( _sanitizeValue((contrast * hsv[2]) + brightness), gamma) );
+                    
+                    // compute the transformed color
                     var col = window.OSDViewer.utils.hsv2rgb(
                         rgbImg ? hsv[0] : hue,  // hue
                         greyscale ? 0 : (rgbImg ? hsv[1] : saturation), // saturation
                         newVal // value
                     );
 
+                    // update histogram data
                     if (showColorHistogram) {
                         if (isInit) {
                             var origEl = colorHistOriginal.data[Math.floor(hsv[2]*100)];
@@ -537,8 +576,8 @@
                         }
                         el[name]++;
                     }
-
-
+                    
+                    // set the canvas color
                     pixels[i] = col[0];
                     pixels[i+1] = col[1];
                     pixels[i+2] = col[2];

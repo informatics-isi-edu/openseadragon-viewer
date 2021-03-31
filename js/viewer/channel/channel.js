@@ -16,8 +16,8 @@ function Channel(osdItemID, name, number, options) {
     var colorConfig = (typeof options['channelConfig'] === "object" && options['channelConfig'] != null) ? options['channelConfig'] : {};
     var configConst = window.OSDViewer.constants.CHANNEL_CONFIG;
     
-    this.contrast = (configConst.CONTRAST in colorConfig) ? parseFloat(colorConfig[configConst.CONTRAST]) : 1
-    this.brightness = (configConst.BRIGHTNESS in colorConfig) ? parseFloat(colorConfig[configConst.BRIGHTNESS]) : 0;
+    this.blackLevel = (configConst.BLACK_LEVEL in colorConfig) ? parseFloat(colorConfig[configConst.BLACK_LEVEL]) : 0;
+    this.whiteLevel = (configConst.WHITE_LEVEL in colorConfig) ? parseFloat(colorConfig[configConst.WHITE_LEVEL]) : 255;
     this.gamma = (configConst.GAMMA in colorConfig) ? parseFloat(colorConfig[configConst.GAMMA]) : _populateDefaultGamma(this);
     this.saturation = (configConst.SATURATION in colorConfig) ? parseFloat(colorConfig[configConst.SATURATION]) : 100;
     
@@ -60,7 +60,15 @@ Channel.prototype.getFiltersList = function (isInit) {
 
     // TODO The filter should be moved here. there's no point in having it in the channel-filter.js
     // and most probably we should change it so it's not accepting array of filters
-    list.push(OpenSeadragon.Filters.CHANGE_COLOR(this.name, this.contrast, this.brightness, this.gamma, this.saturation, this.hue, this.displayGreyscale, isInit));
+    list.push(
+        OpenSeadragon.Filters.CHANGE_COLOR(
+            this.name, 
+            isInit,
+            this.blackLevel, this.whiteLevel, this.gamma, // set v
+            this.saturation,  // set s
+            this.hue, this.displayGreyscale,  // set h
+        )
+    );
 
     return list;
 }
@@ -167,28 +175,24 @@ Channel.prototype.setMultiple = function (settings) {
 Channel.prototype.set = function (type, value) {
     if (!type) { return }
 
-    switch (type.toUpperCase()) {
-        case "CONTRAST":
-            this.contrast = value;
+    switch (type) {
+        case "blackLevel":
+        case "whiteLevel":
+        case "gamma":
+            this[type] = value;
             break;
-        case "BRIGHTNESS":
-            this.brightness = value;
-            break;
-        case "GAMMA":
-            this.gamma = value;
-            break;
-        case "SATURATION":
+        case "saturation":
             this.saturation = value;
 
             // make sure saturation value applied
             this.displayGreyscale = false;
             break;
-        case "HUE":
+        case "hue":
             this.hue = value;
             // make sure hue value applied
             this.displayGreyscale = false;
             break;
-        case "SHOWGREYSCALE":
+        case "displayGreyscale":
             this.displayGreyscale = (value === true);
             break;
     }
