@@ -66,13 +66,13 @@ function Viewer(parent, config) {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
-        
+
         // whether we want to show the image color histogram or not
         this.config.osd.showColorHistogram = this.config.osd.showColorHistogram || this.parameters.showColorHistogram;
         if (this.config.osd.showColorHistogram) {
             this.osd.initializeColorHistogram();
         }
-        
+
         // if users can change the channel settings
         if (this.parameters.acls && this.parameters.acls.channels &&
             this.parameters.acls.channels.canUpdate) {
@@ -106,7 +106,7 @@ function Viewer(parent, config) {
                 if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
                     var imageSize = event.item.getContentSize()
                     var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
-                                    && _self.parameters._self.parameters.acls.mainImage.canUpdate;
+                                    && _self.parameters.acls.mainImage.canUpdate;
 
                     _self.dispatchEvent('initializeZPlaneList', {
                         "totalCount": _self.parameters.zPlane.count,
@@ -809,7 +809,7 @@ function Viewer(parent, config) {
                 if (typeof channelInfo.isRGB === 'boolean') {
                     options.isRGB = channelInfo.isRGB;
                 }
-                
+
                 // config
                 if (typeof channelInfo.channelConfig === "object") {
                     options.channelConfig = channelInfo.channelConfig;
