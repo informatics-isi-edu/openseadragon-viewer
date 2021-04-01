@@ -88,22 +88,23 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
-    // ctx.font = 12 + "pt Sans-serif";
+    // Find width of all the text
     var xx = 0
     for (let i = 0; i < channelData.length; i++) {
-        // ctx.fillStyle = channelData[i][1];
-        // ctx.fillText(channelData[i][0], 100 + xx, 50);
-        xx += ctx.measureText(channelData[i][0]).width + 20
+        xx += ctx.measureText(channelData[i][0]).width + 20;
     }
     xx -= 20;
 
+    ctx.fillStyle = 'black';
     var channelXOffeset = (w - xx)/2;
+    ctx.fillRect(channelXOffeset - 10, 50 - 30, xx + 20, 50-5);
+
     console.log(channelXOffeset, w, xx);
     var xx = 0
     for (let i = 0; i < channelData.length; i++) {
         ctx.fillStyle = channelData[i][1];
         ctx.fillText(channelData[i][0], channelXOffeset + xx, 50);
-        xx += ctx.measureText(channelData[i][0]).width + 20
+        xx += ctx.measureText(channelData[i][0]).width + 20;
     }
 
 
