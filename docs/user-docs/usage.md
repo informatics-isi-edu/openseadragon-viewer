@@ -170,6 +170,13 @@ The following are general parameters that will be applied to the whole view:
             </ul>
         </td>
     </tr>
+    <tr>
+        <td><strong>showHistogram</strong></td>
+        <td>boolean</td>
+        <td>
+            set <code>true</code> to display the intensity histogram debugging tool.
+        </td>
+    </tr>
 </table>
 
 ### Usage of the `scale`, `ignoreReferencePoint`, `ignoreDimension` parameters

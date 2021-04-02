@@ -218,7 +218,7 @@
 }
 
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
-    width: 240px;
+    width: 245px;
     margin: 0;
     margin-right: 7px;
     height: 8px;
@@ -328,7 +328,7 @@
 }
 
 .intensity-range-slider {
-    width: 170px;
+    width: 175px;
     left: 45px;
     height: 2px;
     top: 9px;
@@ -337,7 +337,7 @@
     transition: all .1s linear;
     cursor: pointer;
     box-shadow: none;
-    
+
     /* height: 20px;
     top: 0; */
 }
@@ -359,7 +359,7 @@
     margin-top: 3px;
     box-shadow: none;
     border: none;
-    
+
     /* border-radius: 2px;
     height: 26px;
     border: 1px solid #777; */
@@ -369,7 +369,7 @@
     height: 13px;
     width: 13px;
     right: -6.5px; /* (width / 2) */
-    
+
     /* height: 30px; */
 }
 

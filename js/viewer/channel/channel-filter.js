@@ -247,7 +247,7 @@
         return typeof value === 'number';
     }
 
-    var showColorHistogram = false, colorHistMargin, colorHistWidth, colorHistHeight;
+    var showHistogram = false, colorHistMargin, colorHistWidth, colorHistHeight;
     var colorHist = {
         data: [], logData: [], log: false, graph: {selector: "#color-histogram", svg: null, x: null, series: []}
     };
@@ -255,7 +255,7 @@
         data: [], logData: [], log: false, graph: {selector: "#color-histogram-original", svg: null, x: null, series: []}
     };
     function _emptyData (hist, label) {
-        if (!showColorHistogram) return;
+        if (!showHistogram) return;
 
         for (var i = 0; i <= 100; i++) {
             if (label) {
@@ -268,7 +268,7 @@
             }
         }
     };
-    
+
     // create a histogram
     function _createHistogram(hist) {
         // append the svg object to the body of the page
@@ -323,14 +323,14 @@
             .transition() // and apply changes to all of them
             .duration(1000)
             .attr("x", function(d, i) { return hist.graph.x(i); })
-            .attr("y", function(d) { 
+            .attr("y", function(d) {
                 var res = y(d[yScale.label])
-                return isNaN(res) ? 0 : res; 
+                return isNaN(res) ? 0 : res;
             })
             .attr("width", hist.graph.x.bandwidth())
-            .attr("height", function(d) { 
+            .attr("height", function(d) {
                 var res = colorHistHeight - y(d[yScale.label]);
-                return isNaN(res) ? 0 : res; 
+                return isNaN(res) ? 0 : res;
             })
             .attr("class", "histogram-bar " + "histogram-bar-" + yScale.label_no_space)
             .attr("fill", yScale.color)
@@ -338,26 +338,26 @@
         // If less group in the new dataset, I delete the ones not in use anymore
         u.exit().remove();
     }
-    
+
     // add a y value series
     function _addSeries (hist, label, color) {
         var el = {
             y: d3.scaleLinear().range([ colorHistHeight, 0]),
             label: label,
-            label_no_space: label.replaceAll(" ", ""),
+            label_no_space: String(label).replace(/[^\w-]+/g, '-'),
             color: color
         };
-        
+
         var x_pos = 30, before;
         if (hist.graph.series.length > 0) {
             before = hist.graph.series[hist.graph.series.length-1];
             x_pos = before.legend_x_pos + (before.label.length*8) + 15;
         }
-        
+
         el.legend_x_pos = x_pos;
-        
+
         hist.graph.series.push(el);
-        
+
         hist.graph.svg.selectAll(".histogram-legend")
             .data(hist.graph.series)
             .enter()
@@ -372,42 +372,51 @@
             .style("alignment-baseline", "middle")
             .style("font-size", 15)
             .on("click", function(d){
-                var chartSelector = hist.graph.selector + " .histogram-bar-" + d.label_no_space,
-                    legendSelector = hist.graph.selector + " .histogram-legend-" + d.label_no_space;
-
-                try {
-                    var currentOpacity = d3.selectAll(chartSelector).style("opacity");
-
-                    if (currentOpacity == 0.5) {
-                        d3.selectAll(chartSelector).transition().style("opacity", 0);
-                        d3.selectAll(legendSelector).transition().style("text-decoration", "line-through");
-                    } else {
-                        d3.selectAll(chartSelector).transition().style("opacity", 0.5);
-                        d3.selectAll(legendSelector).transition().style("text-decoration", "none");
-                    }
-                } catch (exp) {
-                    // there might not be any data
-                }
+                _toggleSeries(hist, d);
             });
     }
-    
+
+    function _toggleSeries(hist, yScale, show) {
+        var chartSelector = hist.graph.selector + " .histogram-bar-" + yScale.label_no_space,
+            legendSelector = hist.graph.selector + " .histogram-legend-" + yScale.label_no_space;
+
+        try {
+            var currentOpacity = d3.selectAll(chartSelector).style("opacity");
+
+            // if the state is not forced, toggle it
+            if (typeof show != "boolean") {
+                show = currentOpacity != 0.5;
+            }
+
+            if (!show) {
+                d3.selectAll(chartSelector).transition().style("opacity", 0);
+                d3.selectAll(legendSelector).transition().style("text-decoration", "line-through");
+            } else {
+                d3.selectAll(chartSelector).transition().style("opacity", 0.5);
+                d3.selectAll(legendSelector).transition().style("text-decoration", "none");
+            }
+        } catch (exp) {
+            // there might not be any data
+        }
+    }
+
     function _updateSeriersColor(hist, label, color) {
         var series = hist.graph.series.filter(function (s) {
             return s.label == label;
         });
-        
+
         if (series.length != 1 || series[0].color == color) return;
 
         series[0].color = color;
-        
+
         // update legend color
         hist.graph.svg.selectAll(".histogram-legend.histogram-legend-" + series[0].label_no_space)
             .style("fill", color);
-        
+
         // update bar color
         _updateYValue(hist, series[0]);
     }
-    
+
     // draw the histograms
     function _drawHistograms() {
         console.log("drawing histogram");
@@ -422,7 +431,7 @@
     }
 
     $.Viewer.prototype.initializeColorHistogram = function () {
-        showColorHistogram = true;
+        showHistogram = true;
 
         // show the container
         document.querySelector('#color-histogram-container').style.display = "block";
@@ -452,13 +461,13 @@
 
         _createHistogram(colorHistOriginal);
         _createHistogram(colorHist);
-        
+
         _emptyData(colorHistOriginal);
         _emptyData(colorHist);
     }
 
     $.Viewer.prototype.drawColorHistogram = function () {
-        if (!showColorHistogram) return;
+        if (!showHistogram) return;
 
         colorHist.logData = [];
         colorHist.data.forEach(function (d, i) {
@@ -479,14 +488,28 @@
         _drawHistograms();
     }
 
+    $.Viewer.prototype.toggleColorHistogramBar = function (label, show) {
+        var series = colorHist.graph.series.filter(function (s) {
+            return s.label == label;
+        });
+        if (series.length != 1) return;
+        _toggleSeries(colorHist, series[0], show);
+
+        series = colorHistOriginal.graph.series.filter(function (s) {
+            return s.label == label;
+        });
+        if (series.length != 1) return;
+        _toggleSeries(colorHistOriginal, series[0], show);
+    }
+
     $.Filters = {
         VERSION: "1.0",
-        
+
         /**
          * Change the pixel colors of the displayed canvas
          * @param {String} name - the channel name (used for color histogram)
          * @param {Boolean} isInit - if this is for the initialization (used for color histogram)
-         * @param {Integer} blackLevel - (0-255) 
+         * @param {Integer} blackLevel - (0-255)
          * @param {Integer} whiteLevel - (0-255)
          * @param {Float} gamma - (> 0)
          * @param {Integer} saturation - (0-100)
@@ -503,7 +526,7 @@
             /**
              * convert blackLevel and whiteLevel to contrast and brightness
              * contrast = 1 / (whiteLevel - blackLevel)
-             * brightness = -1 * contrast * blackLevel             
+             * brightness = -1 * contrast * blackLevel
              * output = (contrast * value) +  brightness
              */
             blackLevel = blackLevel / 255; whiteLevel = whiteLevel / 255;
@@ -526,11 +549,11 @@
             }
 
             // change the histogram data
-            if (showColorHistogram) {
+            if (showHistogram) {
                 var color = (rgbImg || greyscale) ? "#ccc" : ("rgb(" + window.OSDViewer.utils.hsv2rgb(hue,1,1) + ")");
                 if (isInit) {
                     _emptyData(colorHistOriginal, name);
-                    
+
                     // add a new series to the histogram
                     _addSeries(colorHist, name, color);
                     _addSeries(colorHistOriginal, name, color);
@@ -552,7 +575,7 @@
 
                     // output = Math.pow( ( (contrast * value) +  brightness) ,gamma)
                     var newVal = _sanitizeValue( Math.pow( _sanitizeValue((contrast * hsv[2]) + brightness), gamma) );
-                    
+
                     // compute the transformed color
                     var col = window.OSDViewer.utils.hsv2rgb(
                         rgbImg ? hsv[0] : hue,  // hue
@@ -561,7 +584,7 @@
                     );
 
                     // update histogram data
-                    if (showColorHistogram) {
+                    if (showHistogram) {
                         if (isInit) {
                             var origEl = colorHistOriginal.data[Math.floor(hsv[2]*100)];
                             if (!(name in origEl)) {
@@ -569,14 +592,14 @@
                             }
                             origEl[name]++;
                         }
-                        
+
                         var el = colorHist.data[Math.floor(newVal*100)];
                         if (!(name in el)) {
                             el[name] = 0;
                         }
                         el[name]++;
                     }
-                    
+
                     // set the canvas color
                     pixels[i] = col[0];
                     pixels[i+1] = col[1];

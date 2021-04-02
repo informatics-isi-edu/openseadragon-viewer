@@ -1,7 +1,7 @@
 function ChannelItem(data) {
 
     var _self = this;
-    
+
     this.number = data["number"];
     this.name = data["name"];
     this.blackLevel = data["blackLevel"];
@@ -33,14 +33,22 @@ function ChannelItem(data) {
         "isExpand": this.isExpand
     };
 
-    this._minMaxValues = {
+    this._validators = {
         blackLevel: {
             MIN: 0,
-            MAX: 255
+            MAX: 255,
+            IS_INT: true,
+            FN: function (val) {
+                return _self.whiteLevel - 5 > val;
+            }
         },
         whiteLevel: {
             MIN: 0,
-            MAX: 255
+            MAX: 255,
+            IS_INT: true,
+            FN: function (val) {
+                return _self.blackLevel + 5 < val;
+            }
         },
         saturation: {
             min: 0,
@@ -95,7 +103,7 @@ function ChannelItem(data) {
 
     this.getSliderTooltip = function (type, value) {
         var settings = (type in _self._tooltipSettings) ? _self._tooltipSettings[type] : _self._tooltipSettings.default;
-        
+
         if (settings.addPlusSign && value >= 0) {
             value = "+" + value;
         }
@@ -202,7 +210,7 @@ function ChannelItem(data) {
         if (target._tippy) {
             target._tippy.hide();
         }
-        
+
         // don't do anything is value is the same
         if (_self[type] == value) return;
 
@@ -224,7 +232,7 @@ function ChannelItem(data) {
 
         var type = target.parentNode.parentNode.parentNode.getAttribute("data-type"),
             value = +target.value;
-            
+
         // don't do anything if the value is the same
         if (_self[type] == value) return;
 
@@ -259,13 +267,28 @@ function ChannelItem(data) {
 
     // make sure the corresponding attribute and UI element are updated
     this._setChannelColorSetting = function (type, value, validate, changeTooltip)  {
-        var validator = _self._minMaxValues[type],
-            numberVal = Number(value);
+        var validator = _self._validators[type];
+
+        if (validator.IS_INT) {
+            value = parseInt(value);
+        }
+
 
         // validate the given value
-        if (validate  && (isNaN(value) || numberVal < validator.MIN || numberVal > validator.MAX)) {
-            _self._setChannelColorSetting(type, _self[type], value, false, changeTooltip);
-            return false;
+        if (validate) {
+            // min - max
+            var numberVal = Number(value);
+            var invalid = isNaN(value) || numberVal < validator.MIN || numberVal > validator.MAX;
+
+            // fn
+            if (invalid || (validator.FN && !validator.FN(value))) {
+                invalid = true;
+            }
+
+            if (invalid) {
+                _self._setChannelColorSetting(type, _self[type], value, false, changeTooltip);
+                return false;
+            }
         }
 
         // make sure the tooltip is correct
@@ -288,10 +311,10 @@ function ChannelItem(data) {
                 }
 
                 _self[type] = value;
-                
+
                 // change the input value
                 _self.elem.querySelector(".intensity-range-input[data-type='" + type + "']").value = value;
-                
+
                 // make sure the range is showing correct values
                 _self.elem.querySelector(".intensity-range-slider").noUiSlider.set([rangeMin, rangeMax]);
                 break;
@@ -319,11 +342,11 @@ function ChannelItem(data) {
 
         return true;
     }
-    
+
     this.onIntensityRangeInputValueChanged = function (event) {
         var type = event.target.getAttribute("data-type"),
             value = +event.target.value;
-        
+
         var validate = _self._setChannelColorSetting(type, value, true, true)
 
         if (validate !== false) {
@@ -358,18 +381,18 @@ function ChannelItem(data) {
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {
-            
+
             // only add the ones that have changed or have value
             if (og[attrName] == null || og[attrName] == _self[attrName]) return;
-            
+
             newSettings[attrName] = og[attrName];
 
             // make sure the change is reflected in the UI
             _self._setChannelColorSetting(attrName, og[attrName], false, true);
         });
-        
+
         // TODO take care of range min and range max
-            
+
         // don't do anything if nothing has changed.
         if (Object.keys(newSettings).length === 0) return;
 
@@ -393,20 +416,20 @@ function ChannelItem(data) {
         data.channelConfig[configConst.SATURATION] = _self.saturation;
         data.channelConfig[configConst.HUE] = _self.hue;
         data.channelConfig[configConst.DISPLAY_GREYSCALE] = _self.displayGreyscale;
-        
-        
+
+
         if (dontDispatch) {
             return data;
         } else {
             _self.parent.dispatchEvent('updateChannelConfig', [data]);
         }
-        
+
     }
-    
+
     this.saveChannelSettingsDone = function (success) {
         //hide the spinner
         _self.showSpinner(false);
-        
+
         // change the original settings
         if (success) {
             ['blackLevel', 'whiteLevel', 'gamma', 'saturation', 'hue', 'displayGreyscale'].forEach(function (attr) {
@@ -414,15 +437,15 @@ function ChannelItem(data) {
             });
         }
     }
-    
+
     this.showSpinner = function (show) {
         // show/hide spinner
         var spinner = _self.elem.querySelector(".channel-setting-spinner-overlay");
         spinner.style.display = show ? "block" : "none";
-        
+
         // change the save icon
         var btn = _self.elem.querySelector(".save-settings i");
-        btn.className = show ? "glyphicon glyphicon-refresh glyphicon-refresh-animate" : "glyphicon glyphicon-saved";    
+        btn.className = show ? "glyphicon glyphicon-refresh glyphicon-refresh-animate" : "glyphicon glyphicon-saved";
     }
 
     this.render = function(){
@@ -455,7 +478,7 @@ function ChannelItem(data) {
                             "<i class='fas fa-info-circle setting-info' ",
                                 "data-tippy-placement='right'",
                                 "data-tippy-content='",
-                                   "Choose black-level and white-level to define displayed intenstiy range. <br>",
+                                   "Choose black-level and white-level to define the displayed intenstiy range. <br>",
                                    "All the values in between will be scaled linearly. <br>",
                                    "Acceptable values: Integers from <strong>0</strong> to <strong>255</strong>. <br>",
                                 "'",
@@ -509,7 +532,7 @@ function ChannelItem(data) {
                         "</span>",
                     "</span>",
                     "<span class='slider-wrapper'>",
-                        "<input type='range' class='slider' data-tippy-placement='top' min='0' max='100' step='1' value='"+this.saturation+"'>",
+                        "<input type='range' class='slider' data-tippy-placement='top' min='0' max='100' step='0.5' value='"+this.saturation+"'>",
                     "</span>",
                 "</span>",
                 "<span class='sliderContainer' data-type='hue'>",
@@ -546,12 +569,12 @@ function ChannelItem(data) {
             channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
             channeElem.querySelector(".sliderContainer[data-type='saturation']").remove();
         }
-        
+
         if (!this.parent.canUpdateChannelConfig) {
             channeElem.querySelector(".save-settings").style.display = "none";
-        } 
-        
-        
+        }
+
+
         this.elem = channeElem;
 
         // Binding events
@@ -578,7 +601,7 @@ function ChannelItem(data) {
         this.elem.querySelectorAll(".channelRow").forEach(function(elem){
             elem.addEventListener('click', this.onClickToggleExpand);
         }.bind(this));
-        
+
         // color range events
         this.elem.querySelectorAll(".intensity-range-slider").forEach(function (elem) {
             noUiSlider.create(elem, {
@@ -600,7 +623,7 @@ function ChannelItem(data) {
                     'max': [255]
                 }
             });
-            
+
             elem.noUiSlider.on('change', function (values, handle) {
                 var value = values[handle], type;
                 if (handle == 0) {
@@ -610,7 +633,7 @@ function ChannelItem(data) {
                     type = "whiteLevel";
                     _self.elem.querySelector(".intensity-range-input-max").value = value;
                 }
-                
+
                 _self[type] = value;
                 _self.parent.dispatchEvent('changeOsdItemChannelSetting', {
                     id: _self.osdItemId,
@@ -619,7 +642,7 @@ function ChannelItem(data) {
                 });
             });
         });
-        
+
         // color range inputs
         var colorRangeNumberInputChangedTimer;
         this.elem.querySelectorAll(".intensity-range-input").forEach(function(elem){

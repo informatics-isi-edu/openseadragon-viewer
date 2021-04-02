@@ -245,7 +245,7 @@ Utils.prototype.processParams = function(inp){
             case "ignoreReferencePoint":
             case "ignoreDimension":
             case "enableSVGStrokeWidth":
-            case "showColorHistogram":
+            case "showHistogram":
                 parameters[paramKey] = (paramValue[0].toLocaleLowerCase() === "true") ? true : false;
                 break;
             default:

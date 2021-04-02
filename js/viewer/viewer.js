@@ -68,8 +68,8 @@ function Viewer(parent, config) {
         this.osd.canvas.append(this.svg);
 
         // whether we want to show the image color histogram or not
-        this.config.osd.showColorHistogram = this.config.osd.showColorHistogram || this.parameters.showColorHistogram;
-        if (this.config.osd.showColorHistogram) {
+        this.config.osd.showHistogram = this.config.osd.showHistogram || this.parameters.showHistogram;
+        if (this.config.osd.showHistogram) {
             this.osd.initializeColorHistogram();
         }
 
@@ -139,7 +139,7 @@ function Viewer(parent, config) {
                 // hide the spinner (all images are added and loaded)
                 _self.resetSpinner();
 
-                if (_self.config.osd.showColorHistogram) {
+                if (_self.config.osd.showHistogram) {
                     _self.osd.drawColorHistogram();
                 }
             });
@@ -1176,6 +1176,10 @@ function Viewer(parent, config) {
             opacity = (isDisplay) ? 1 : 0;
         this.channels[id].setIsDisplay(isDisplay);
         item.setOpacity(opacity);
+
+        if (_self.config.osd.showHistogram) {
+            _self.osd.toggleColorHistogramBar(this.channels[id].name, isDisplay);
+        }
     }
 
     // Set Openseadragon viewer item channel values
