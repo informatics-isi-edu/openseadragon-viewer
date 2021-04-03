@@ -269,13 +269,12 @@ function ChannelItem(data) {
     this._setChannelColorSetting = function (type, value, validate, changeTooltip)  {
         var validator = _self._validators[type];
 
-        if (validator.IS_INT) {
-            value = parseInt(value);
-        }
-
-
         // validate the given value
-        if (validate) {
+        if (validator && validate) {
+            if (validator.IS_INT) {
+                value = parseInt(value);
+            }
+
             // min - max
             var numberVal = Number(value);
             var invalid = isNaN(value) || numberVal < validator.MIN || numberVal > validator.MAX;
@@ -568,6 +567,7 @@ function ChannelItem(data) {
         if(this.hue == null){
             channeElem.querySelector(".sliderContainer[data-type='hue']").remove();
             channeElem.querySelector(".sliderContainer[data-type='saturation']").remove();
+            channeElem.querySelector(".setting").classList.add("no-hue");
         }
 
         if (!this.parent.canUpdateChannelConfig) {

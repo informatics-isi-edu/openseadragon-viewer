@@ -39,10 +39,10 @@ function ChannelList(parent) {
             }
         }
     }
-    
+
     this.allowChannelConfigUpdate = function () {
         this.canUpdateChannelConfig = true;
-        
+
         // show all the save buttons
         _self.elem.querySelector("#save-all-channels").style.display = "inline-block";
         _self.elem.querySelectorAll(".save-settings").forEach(function(el) {
@@ -97,28 +97,28 @@ function ChannelList(parent) {
 
     this.resetAllChannels = function (event) {
         for (var id in _self.collection) {
-            _self.collection[id].resetChannelConfig(event);
+            _self.collection[id].resetChannelSettings(event);
         }
     };
 
     this.saveAllChannels = function (event) {
         var data = [];
-        
+
         var btn = _self.elem.querySelector("#save-all-channels");
-        btn.className = "channels-control glyphicon glyphicon-refresh glyphicon-refresh-animate";    
-        
+        btn.className = "channels-control glyphicon glyphicon-refresh glyphicon-refresh-animate";
+
         for (var id in _self.collection) {
             data.push(_self.collection[id].saveChannelSettings(event, true));
         }
-        
+
         _self.parent.dispatchEvent('updateChannelConfig', data);
     };
-    
+
     this.saveAllChannelsDone = function (data) {
         // make sure the save-all button icon is correct
         var btn = _self.elem.querySelector("#save-all-channels");
         btn.className = "channels-control glyphicon glyphicon-saved";
-        
+
         // hide the spinner for the individual channels
         data.channels.forEach(function (d) {
             var item;
@@ -129,7 +129,7 @@ function ChannelList(parent) {
             }
         });
     }
-    
+
 
     // Render the view
     this.render = function() {
@@ -163,7 +163,7 @@ function ChannelList(parent) {
                 "</div>",
                 "<div class='groups'></div>"
             ].join("");
-            
+
             if (!this.canUpdateChannelConfig) {
                 listElem.querySelector("#save-all-channels").style.display = "none";
             }
@@ -187,7 +187,7 @@ function ChannelList(parent) {
         this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
 
         this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
-        
+
         this.elem.querySelector('#save-all-channels').addEventListener('click', this.saveAllChannels);
 
     }

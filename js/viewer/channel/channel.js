@@ -10,22 +10,22 @@ function Channel(osdItemID, name, number, options) {
     this.rgb = options["pseudoColor"] || null;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
-    
+
     this.isMultiChannel = (options["isMultiChannel"] === true);
-    
+
     var colorConfig = (typeof options['channelConfig'] === "object" && options['channelConfig'] != null) ? options['channelConfig'] : {};
     var configConst = window.OSDViewer.constants.CHANNEL_CONFIG;
-    
-    this.blackLevel = (configConst.BLACK_LEVEL in colorConfig) ? parseFloat(colorConfig[configConst.BLACK_LEVEL]) : 0;
-    this.whiteLevel = (configConst.WHITE_LEVEL in colorConfig) ? parseFloat(colorConfig[configConst.WHITE_LEVEL]) : 255;
-    this.gamma = (configConst.GAMMA in colorConfig) ? parseFloat(colorConfig[configConst.GAMMA]) : _populateDefaultGamma(this);
-    this.saturation = (configConst.SATURATION in colorConfig) ? parseFloat(colorConfig[configConst.SATURATION]) : 100;
-    
+
+    this.blackLevel = _populateAttributeByConfig(this, colorConfig, configConst.BLACK_LEVEL, 0);
+    this.whiteLevel = _populateAttributeByConfig(this, colorConfig, configConst.WHITE_LEVEL, 255);
+    this.gamma = _populateAttributeByConfig(this, colorConfig, configConst.GAMMA, null, _populateDefaultGamma);
+    this.saturation = _populateAttributeByConfig(this, colorConfig, configConst.SATURATION, 100);
+
     // we might want to offer hue control but not apply it by default.
     // for example in case of a greyscale image with an unknown channelName
-    this.displayGreyscale = (configConst.DISPLAY_GREYSCALE == "true" || colorConfig[configConst.DISPLAY_GREYSCALE] == true);
-    
-    this.hue = (configConst.HUE in colorConfig) ? parseFloat(colorConfig[configConst.HUE]) : _populateDefaultHue(this);
+    this.displayGreyscale = colorConfig[configConst.DISPLAY_GREYSCALE] === true;
+
+    this.hue = _populateAttributeByConfig(this, colorConfig, configConst.HUE, null, _populateDefaultHue);
 
     this.isDisplay = (typeof options["isDisplay"] === "boolean") ? options["isDisplay"] : true;
 }
@@ -62,7 +62,7 @@ Channel.prototype.getFiltersList = function (isInit) {
     // and most probably we should change it so it's not accepting array of filters
     list.push(
         OpenSeadragon.Filters.CHANGE_COLOR(
-            this.name, 
+            this.name,
             isInit,
             this.blackLevel, this.whiteLevel, this.gamma, // set v
             this.saturation,  // set s
@@ -71,6 +71,22 @@ Channel.prototype.getFiltersList = function (isInit) {
     );
 
     return list;
+};
+
+function _populateAttributeByConfig(self, config, configAttr, defaultVal, defaultFn) {
+    var res;
+    if (configAttr in config) {
+        res = parseFloat(config[configAttr]);
+    }
+    if (res == null || isNaN(res)) {
+        if (defaultVal != null) {
+            res = defaultVal;
+        }
+        if (defaultFn != null) {
+            res = defaultFn(self);
+        }
+    }
+    return res;
 }
 
 function _rgb2hsl(r, g, b) {

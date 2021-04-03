@@ -88,9 +88,13 @@
     display: none;
 }
 
-#navMenuContent .groups .channelItem .channel-setting-spinner-container {
+#navMenuContent .groups .channelItem .setting .channel-setting-spinner-container {
     text-align: center;
     margin: 75px auto;
+}
+
+#navMenuContent .groups .channelItem .setting.no-hue .channel-setting-spinner-container {
+    margin: 35px auto;
 }
 
 #navMenuContent .groups .channelItem .attrRow{
