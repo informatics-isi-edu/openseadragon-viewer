@@ -67,6 +67,18 @@ function Viewer(parent, config) {
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
 
+        // whether we want to show the image color histogram or not
+        this.config.osd.showHistogram = this.config.osd.showHistogram || this.parameters.showHistogram;
+        if (this.config.osd.showHistogram) {
+            this.osd.initializeColorHistogram();
+        }
+
+        // if users can change the channel settings
+        if (this.parameters.acls && this.parameters.acls.channels &&
+            this.parameters.acls.channels.canUpdate) {
+            this.dispatchEvent('allowChannelConfigUpdate', {});
+        }
+
         // after each resize, make sure svgs are properly positioned
         this.osd.addHandler('resize', this.resizeSVG);
 
@@ -93,6 +105,8 @@ function Viewer(parent, config) {
                 // if we're showing a multi-z view, we should start it
                 if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
                     var imageSize = event.item.getContentSize()
+                    var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
+                                    && _self.parameters.acls.mainImage.canUpdate;
 
                     _self.dispatchEvent('initializeZPlaneList', {
                         "totalCount": _self.parameters.zPlane.count,
@@ -101,7 +115,7 @@ function Viewer(parent, config) {
                         "mainImageZIndex": _self.parameters.mainImage.zIndex,
                         "mainImageWidth": imageSize.x,
                         "mainImageHeight": imageSize.y,
-                        "canUpdateDefaultZIndex": _self.parameters.mainImage.acls && _self.parameters.mainImage.acls.canUpdate
+                        "canUpdateDefaultZIndex": canUpdate
                     });
                 }
             }
@@ -124,6 +138,10 @@ function Viewer(parent, config) {
 
                 // hide the spinner (all images are added and loaded)
                 _self.resetSpinner();
+
+                if (_self.config.osd.showHistogram) {
+                    _self.osd.drawColorHistogram();
+                }
             });
 
             // when all the images are added
@@ -141,7 +159,8 @@ function Viewer(parent, config) {
                 for(var key in _self.channels){
                     var channel = _self.channels[key];
                     _self.setItemChannel({
-                        id : channel.id
+                        id : channel.id,
+                        init: true
                     });
                 }
             }
@@ -679,7 +698,9 @@ function Viewer(parent, config) {
         _self.resizeSVG();
     }
 
-    // TODO should be moved
+    /**
+     * {channelNumber, channelName, pseudoColor, meterScaleInPixels, channelConfig}
+     */
     this.getChannelInfo = function (channelNumber) {
         if (!Array.isArray(_self.parameters.channels)) {
             return {};
@@ -789,6 +810,11 @@ function Viewer(parent, config) {
                     options.isRGB = channelInfo.isRGB;
                 }
 
+                // config
+                if (typeof channelInfo.channelConfig === "object") {
+                    options.channelConfig = channelInfo.channelConfig;
+                }
+
                 // used for internal logic of channel
                 options['isMultiChannel'] = (params.info.length > 1);
 
@@ -800,12 +826,14 @@ function Viewer(parent, config) {
 
                 _self.channels[i] = channel;
                 channelList.push({
+                    number: info.channelNumber,
                     name: channel.name,
-                    contrast: channel["contrast"],
-                    brightness: channel["brightness"],
+                    blackLevel: channel["blackLevel"],
+                    whiteLevel: channel["whiteLevel"],
                     gamma: channel["gamma"],
+                    saturation: channel["saturation"],
                     hue : channel["hue"],
-                    deactivateHue : channel['deactivateHue'],
+                    displayGreyscale : channel['displayGreyscale'],
                     osdItemId: channel["id"],
                     isDisplay: channel["isDisplay"]
                 });
@@ -1148,6 +1176,10 @@ function Viewer(parent, config) {
             opacity = (isDisplay) ? 1 : 0;
         this.channels[id].setIsDisplay(isDisplay);
         item.setOpacity(opacity);
+
+        if (_self.config.osd.showHistogram) {
+            _self.osd.toggleColorHistogramBar(this.channels[id].name, isDisplay);
+        }
     }
 
     // Set Openseadragon viewer item channel values
@@ -1163,12 +1195,14 @@ function Viewer(parent, config) {
 
         this.filters[data.id] = {
           items: [item],
-          processors: channel.getFiltersList()
+          processors: channel.getFiltersList(data.init)
         }
+
         var filters = [];
         for (var key in this.filters){
           filters.push(this.filters[key])
         }
+
         this.osd.setFilterOptions({
           filters: filters
         });

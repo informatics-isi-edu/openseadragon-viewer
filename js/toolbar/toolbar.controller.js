@@ -112,6 +112,14 @@ function ToolbarController(parent, config){
         this.channelList.replaceList(data);
         this._toolbarView.renderChannelContent(this.channelList);
     }
+    
+    this.allowChannelConfigUpdate = function () {
+        this.channelList.allowChannelConfigUpdate();
+    }
+
+    this.updateChannelConfigDone = function (data) {
+        this.channelList.saveAllChannelsDone(data);
+    }
 
     // update the image gallery from outside (chaise)
     this.updateZPlaneList = function(data){
