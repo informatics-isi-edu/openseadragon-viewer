@@ -412,9 +412,12 @@ function ChannelItem(data) {
         data.channelConfig[configConst.BLACK_LEVEL] = _self.blackLevel;
         data.channelConfig[configConst.WHITE_LEVEL] = _self.whiteLevel;
         data.channelConfig[configConst.GAMMA] = _self.gamma;
-        data.channelConfig[configConst.SATURATION] = _self.saturation;
-        data.channelConfig[configConst.HUE] = _self.hue;
-        data.channelConfig[configConst.DISPLAY_GREYSCALE] = _self.displayGreyscale;
+
+        if (_self.hue != null) {
+            data.channelConfig[configConst.SATURATION] = _self.saturation;
+            data.channelConfig[configConst.HUE] = _self.hue;
+            data.channelConfig[configConst.DISPLAY_GREYSCALE] = _self.displayGreyscale;
+        }
 
 
         if (dontDispatch) {
