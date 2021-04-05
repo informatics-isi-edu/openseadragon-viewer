@@ -490,6 +490,8 @@ function Viewer(parent, config) {
         for (id in this.channels) {
             channelArray.push([this.channels[id].name, this.channels[id].getTextColor()])
         }
+        channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray))))))))));
+        console.log(channelArray);
 
         // add watermark and download the file
         var finalize = function () {

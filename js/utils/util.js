@@ -88,6 +88,24 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
+    var start = 0, end = 0, line = 0;
+    while (start < channelData.length && line < 3) {
+        var xx = 0
+        while (end < channelData.length && xx < 0.8 * w) {
+            xx += ctx.measureText(channelData[end][0]).width + 20;
+            end += 1;
+        }
+        this.addChannelLine(ctx, channelData.slice(start, end), line, w);
+        line += 1;
+        start = end;
+    }
+
+
+    ctx.restore();
+    // return ctx;
+}
+
+Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth) {
     // Find width of all the text
     var xx = 0
     for (let i = 0; i < channelData.length; i++) {
@@ -95,21 +113,23 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     }
     xx -= 20;
 
-    ctx.fillStyle = 'black';
-    var channelXOffeset = (w - xx)/2;
-    ctx.fillRect(channelXOffeset - 10, 50 - 30, xx + 20, 50-5);
+    // set the black background
+    // ctx.fillStyle = 'black';
+    var channelXOffeset = (canvasWidth - xx) / 2;
+    // ctx.fillRect(channelXOffeset - 10, 50 - 30, xx + 20, 50 - 5);
 
-    console.log(channelXOffeset, w, xx);
+    console.log(channelXOffeset, canvasWidth, xx);
+    // write the text
     var xx = 0
     for (let i = 0; i < channelData.length; i++) {
         ctx.fillStyle = channelData[i][1];
-        ctx.fillText(channelData[i][0], channelXOffeset + xx, 50);
+        ctx.fillText(channelData[i][0], channelXOffeset + xx, 50 + 50*line);
         xx += ctx.measureText(channelData[i][0]).width + 20;
     }
-
-
-    ctx.restore();
-    // return ctx;
+    if (line == 2) {
+        ctx.fillStyle = 'white';
+        ctx.fillText('...', channelXOffeset + xx, 50 + 50 * line);
+    }
 }
 
 // Get file content from a url
