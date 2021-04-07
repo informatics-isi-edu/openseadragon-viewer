@@ -600,6 +600,10 @@
                         el[name]++;
                     }
 
+                    if (col[0] != pixels[i] || pixels[i+1] != col[1] || pixels[i+2] != col[2]) {
+                        var diff = true;
+                    }
+
                     // set the canvas color
                     pixels[i] = col[0];
                     pixels[i+1] = col[1];

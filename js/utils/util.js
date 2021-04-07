@@ -359,87 +359,54 @@ Utils.prototype.colorRGBToHex = function (val) {
 
 /**
  * Convert 8bit r-g-b values to hsv
+ * borrowed from: https://stackoverflow.com/a/17243070
  * inout: 0-255, 0-255, 0-255
  * output: [[0-360], [0-1], [0-1]]
  */
-Utils.prototype.rgb2hsv = function (r, g, b, onlyV) {
-    var r1 = r / 255,
-        g1 = g / 255,
-        b1 = b / 255;
+Utils.prototype.rgb2hsv = function (r, g, b) {
+    if (arguments.length === 1) {
+        g = r.g, b = r.b, r = r.r;
+    }
+    var max = Math.max(r, g, b), min = Math.min(r, g, b),
+        d = max - min,
+        h,
+        s = (max === 0 ? 0 : d / max),
+        v = max / 255;
 
-    var maxc = Math.max(r1, g1, b1),
-        minc = Math.min(r1, g1, b1);
-
-    var h, s, v, rc, gc, bc;
-
-    v = maxc;
-
-    if (onlyV) {
-        return v;
+    switch (max) {
+        case min: h = 0; break;
+        case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+        case g: h = (b - r) + d * 2; h /= 6 * d; break;
+        case b: h = (r - g) + d * 4; h /= 6 * d; break;
     }
 
-    if (minc == maxc) {
-        return [0, 0, v];
-    }
-
-    s = (maxc - minc) / maxc;
-    rc = (maxc - r1) / (maxc - minc);
-    gc = (maxc - g1) / (maxc - minc);
-    bc = (maxc - b1) / (maxc - minc);
-
-    if (r == maxc) {
-        h = bc - gc;
-    } else if (g == maxc) {
-        h = 2.0 + rc - bc;
-    } else {
-        h = 4.0 + gc - rc;
-    }
-
-    h = (h/6.0) % 1.0;
-    return [h * 360, s, v]
+    return [Math.round(h*360), s , v];
 }
 
 /**
+ * Convert hsv to 8bit r-g-b values
+ * borrowed from: https://stackoverflow.com/a/17243070
  * input: [[0-360], [0-1], [0-1]]
  * output: 0-255, 0-255, 0-255
  */
 Utils.prototype.hsv2rgb = function (h, s, v) {
-    var h1 = h / 360, s1 = s, v1 = v;
+    var r, g, b, i, f, p, q, t;
 
-    var output = function (r, g, b) {
-        return [r * 255, g * 255, b * 255];
+    h = h / 360;
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
     }
-
-    var i, f, p, q, t;
-
-    if (s1 === 0) {
-        return output(v1, v1, v1)
-    }
-    i = parseInt(h1 * 6.0);
-    f = (h1 * 6.0) - i;
-    p = v1 * (1.0 - s1);
-    q = v1 * (1.0 - (s1 * f));
-    t = v1 * (1.0 - (s1 * (1.0-f)));
-    i = i % 6;
-
-    if (i == 0) {
-        return output(v1, t, p);
-    }
-    if (i == 1) {
-        return output(q, v1, p);
-    }
-    if (i == 2) {
-        return output(p, v1, t);
-    }
-    if (i == 3) {
-        return output(p, q, v1);
-    }
-    if (i == 4) {
-        return output(t, p, v1);
-    }
-    if (i == 5) {
-        return output(v1, p, q);
-    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
 // Detect user's browser
