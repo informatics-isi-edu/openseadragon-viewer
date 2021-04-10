@@ -119,11 +119,13 @@ Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, h
     lineWidth -= 20;
 
     // set the black background
-    // ctx.fillStyle = 'black';
+    ctx.fillStyle = 'wheat';
     var leftMargin = (canvasWidth - lineWidth) / 2;
-    // ctx.fillRect(leftMargin - 10, 50 - 30 + (50 * line), lineWidth + 20, 50 - 5 + (50 * line));
+    var x1 = leftMargin - 10, x2 = lineWidth + 20, y1 = (50 - 30 + (50 * line)), y2 = (50 - 5 + (50 * line));
+    console.log(x1, y1, x2, y2);
+    ctx.fillRect(x1, y1, x2, 45);
 
-    console.log(leftMargin, canvasWidth, lineWidth);
+    // console.log(leftMargin, canvasWidth, lineWidth);
     // write the text
     var lineWidth = 0
     for (let i = 0; i < channelData.length; i++) {
