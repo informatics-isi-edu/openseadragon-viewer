@@ -90,12 +90,16 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
 
     var start = 0, end = 0, line = 0;
     while (start < channelData.length && line < 3) {
-        var xx = 0
-        while (end < channelData.length && xx < 0.8 * w) {
-            xx += ctx.measureText(channelData[end][0]).width + 20;
+        var lineWidth = 0
+        while (end < channelData.length && lineWidth < 0.8 * w) {
+            lineWidth += ctx.measureText(channelData[end][0]).width + 20;
             end += 1;
         }
-        this.addChannelLine(ctx, channelData.slice(start, end), line, w);
+        var hasMore = true;
+        if (end >= channelData.length) {
+            hasMore = false
+        }
+        this.addChannelLine(ctx, channelData.slice(start, end), line, w, hasMore);
         line += 1;
         start = end;
     }
@@ -105,30 +109,31 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     // return ctx;
 }
 
-Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth) {
+Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, hasMore) {
+    hasMore = hasMore ? hasMore : false;
     // Find width of all the text
-    var xx = 0
+    var lineWidth = 0
     for (let i = 0; i < channelData.length; i++) {
-        xx += ctx.measureText(channelData[i][0]).width + 20;
+        lineWidth += ctx.measureText(channelData[i][0]).width + 20;
     }
-    xx -= 20;
+    lineWidth -= 20;
 
     // set the black background
     // ctx.fillStyle = 'black';
-    var channelXOffeset = (canvasWidth - xx) / 2;
-    // ctx.fillRect(channelXOffeset - 10, 50 - 30, xx + 20, 50 - 5);
+    var leftMargin = (canvasWidth - lineWidth) / 2;
+    // ctx.fillRect(leftMargin - 10, 50 - 30 + (50 * line), lineWidth + 20, 50 - 5 + (50 * line));
 
-    console.log(channelXOffeset, canvasWidth, xx);
+    console.log(leftMargin, canvasWidth, lineWidth);
     // write the text
-    var xx = 0
+    var lineWidth = 0
     for (let i = 0; i < channelData.length; i++) {
         ctx.fillStyle = channelData[i][1];
-        ctx.fillText(channelData[i][0], channelXOffeset + xx, 50 + 50*line);
-        xx += ctx.measureText(channelData[i][0]).width + 20;
+        ctx.fillText(channelData[i][0], leftMargin + lineWidth, 50 + 50*line);
+        lineWidth += ctx.measureText(channelData[i][0]).width + 20;
     }
-    if (line == 2) {
+    if (line == 2 && hasMore) {
         ctx.fillStyle = 'white';
-        ctx.fillText('...', channelXOffeset + xx, 50 + 50 * line);
+        ctx.fillText('...', leftMargin + lineWidth, 50 + 50 * line);
     }
 }
 
