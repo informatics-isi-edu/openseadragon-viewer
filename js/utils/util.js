@@ -116,14 +116,17 @@ Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, h
     for (let i = 0; i < channelData.length; i++) {
         lineWidth += ctx.measureText(channelData[i][0]).width + 20;
     }
-    lineWidth -= 20;
+    if (line == 2 && hasMore) {
+        lineWidth += ctx.measureText('...').width
+    } else {
+        lineWidth -= 20;
+    }
 
     // set the black background
-    ctx.fillStyle = 'wheat';
+    ctx.fillStyle = 'black';
     var leftMargin = (canvasWidth - lineWidth) / 2;
-    var x1 = leftMargin - 10, x2 = lineWidth + 20, y1 = (50 - 30 + (50 * line)), y2 = (50 - 5 + (50 * line));
-    console.log(x1, y1, x2, y2);
-    ctx.fillRect(x1, y1, x2, 45);
+    var x = leftMargin - 10, bgWidth = lineWidth + 20, y = (50 - 30 + (50 * line)), bgHeight = 45;
+    ctx.fillRect(x, y, bgWidth, bgHeight);
 
     // console.log(leftMargin, canvasWidth, lineWidth);
     // write the text
