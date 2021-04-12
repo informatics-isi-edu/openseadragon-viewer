@@ -487,8 +487,11 @@ function Viewer(parent, config) {
             svgAttrs = ["x", "y", "width", "height"], svgDimension = [], svgAttr;
 
         var channelArray = [];
+
         for (id in this.channels) {
-            channelArray.push([this.channels[id].name, this.channels[id].getTextColor()])
+            if (this.channels[id].isDisplay) {
+                channelArray.push([this.channels[id].name, this.channels[id].getTextColor()])
+            }
         }
         channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray))))))))));
         console.log(channelArray);
