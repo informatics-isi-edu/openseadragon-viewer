@@ -7,6 +7,30 @@
 .tippy-box[data-theme~=light][data-placement^=top]>.tippy-arrow:before{border-top-color:#fff}.tippy-box[data-theme~=light][data-placement^=bottom]>.tippy-arrow:before{border-bottom-color:#fff}.tippy-box[data-theme~=light][data-placement^=left]>.tippy-arrow:before{border-left-color:#fff}.tippy-box[data-theme~=light][data-placement^=right]>.tippy-arrow:before{border-right-color:#fff}.tippy-box[data-theme~=light]>.tippy-backdrop{background-color:#fff}.tippy-box[data-theme~=light]>.tippy-svg-arrow{fill:#fff}
 
 
+.tippy-box ul, .tippy-box ol {
+    padding: 0 !important;
+    margin: 0;
+}
+
+.tippy-box ul {
+    list-style-type: disc !important;
+}
+
+.tippy-box ol {
+    list-style-type: decimal !important;
+}
+
+.tippy-box li {
+    list-style: inherit !important;
+    margin-left: 1em;
+    padding-left: 0;
+}
+.tippy-box li:only-child {
+    margin-left: 0;
+    list-style: none;
+}
+
+
 /* fake tooltips */
 .osd-tippy-box[data-animation="fade"][data-state="hidden"] {
     opacity: 0;

@@ -150,15 +150,15 @@ function ChannelList(parent) {
             listElem.innerHTML = [
                 "<div class='title-container'>",
                     "<div class='title-content'>",
-                        "<span class='title'>Channels</span>",
+                        "<span data-tippy-content='Hide the channel list' class='title' id='dismiss-channel-panel'>Channels</span>",
                     "</div>",
                     "<div class='all-channel-controls'>",
-                        "<span data-tippy-content='Save all channel configurations' class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
-                        "<span data-tippy-content='Reset all channel configurations' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
-                        "<span data-tippy-content='Collapse all channel controls' class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
-                        "<span data-tippy-content='Expand all channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
-                        "<span data-tippy-content='Hide all channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
-                        "<span data-tippy-content='Display all channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
+                        "<span data-tippy-content='Save the current settings for all the channels' class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
+                        "<span data-tippy-content='Reset settings of all the channels' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
+                        "<span data-tippy-content='Collapse all the channel controls' class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
+                        "<span data-tippy-content='Expand all the channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
+                        "<span data-tippy-content='Hide all the channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
+                        "<span data-tippy-content='Display all the channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
                     "</div>",
                 "</div>",
                 "<div class='groups'></div>"
@@ -189,6 +189,8 @@ function ChannelList(parent) {
         this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
 
         this.elem.querySelector('#save-all-channels').addEventListener('click', this.saveAllChannels);
+
+        this.elem.querySelector("#dismiss-channel-panel").addEventListener('click', this.onClickedMenuHandler);
 
     }
 }

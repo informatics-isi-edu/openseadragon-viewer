@@ -8,6 +8,10 @@
     color: #d9d6d6;
 }
 
+#menuContainer #navMenuContent #dismiss-channel-panel {
+    cursor: pointer;
+}
+
 
 #menuContainer #navMenuContent .channelList .title-container {
     display: flex;
