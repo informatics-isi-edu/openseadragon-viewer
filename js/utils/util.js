@@ -88,6 +88,8 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
+    ctx.font = this.getFontSize(ctx, channelData, w) + "pt Sans-serif";
+
     var start = 0, end = 0, line = 0;
     while (start < channelData.length && line < 3) {
         var lineWidth = 0
@@ -107,6 +109,33 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
 
     ctx.restore();
     // return ctx;
+}
+
+Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
+    var font = 20;
+    var maxLines = 3
+
+    while (font >= 14) {
+        // min font value would be 12
+
+        var curWidth = 0;
+        var curLine = 0
+        ctx.font = font + "pt Sans-serif";
+        var i;
+        for (i = 0; i < channelData.length && curLine < maxLines; i++) {
+            curWidth += ctx.measureText(channelData[i][0]).width + 20
+            if (i + 1 < channelData.length && curWidth + ctx.measureText(channelData[i+1][0]).width + 20 >= 0.8 * canvasWidth) {
+                curWidth = 0
+                curLine += 1
+            }
+        }
+        if (i == channelData.length) {
+            return font;
+        }
+        font -= 2;
+    }
+
+    return font;
 }
 
 Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, hasMore) {
