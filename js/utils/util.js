@@ -24,7 +24,7 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
         channelData = [];
     }
 
-    console.log('watermark = ', watermark);
+    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
     var fsize = 20,
         h = canvas.height,
@@ -88,18 +88,21 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
+    // Find the font size that would fit all the content
     ctx.font = this.getFontSize(ctx, channelData, w) + "pt Sans-serif";
 
+    // Update the channel names to the they can fit in a single line, if the name is too long by truncating the name & add ...
     for (let i = 0; i < channelData.length; i++) {
         channelData[i][0] = this.getUpdatedChannelName(channelData[i][0], ctx, w);
     }
 
-    console.log(channelData);
-
+    // start adding the words to the canvas
     var start = 0, end = 0, line = 0;
-    while (start < channelData.length && line < 3) {
+    while (start < channelData.length && line < constants.MAX_LINES) {
+
+        // find how many names can fit in a single line
         var lineWidth = 0
-        while (end < channelData.length && lineWidth + ctx.measureText(channelData[end][0]).width < 0.8 * w) {
+        while (end < channelData.length && lineWidth + ctx.measureText(channelData[end][0]).width < constants.USABLE_AREA * w) {
             lineWidth += ctx.measureText(channelData[end][0]).width + 20;
             end += 1;
         }
@@ -107,6 +110,8 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
         if (end >= channelData.length) {
             hasMore = false
         }
+
+        // draw the line & names
         this.addChannelLine(ctx, channelData.slice(start, end), line, w, hasMore);
         line += 1;
         start = end;
@@ -117,12 +122,14 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
 }
 
 Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) {
-    if (ctx.measureText(channelName).width < canvasWidth * 0.8) {
+    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+
+    if (ctx.measureText(channelName).width < canvasWidth * constants.USABLE_AREA) {
         return channelName;
     }
 
     for (let i = channelName.length - 1; i >= 0; i--) {
-        if (ctx.measureText(channelName.slice(0, i) + '...').width < canvasWidth * 0.8) {
+        if (ctx.measureText(channelName.slice(0, i) + '...').width < canvasWidth * constants.USABLE_AREA) {
             console.log('new channel name == ', channelName.slice(0, i) + '...');
             return channelName.slice(0, i) + '...';
         }
@@ -130,8 +137,10 @@ Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) 
 }
 
 Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
-    var font = 20;
-    var maxLines = 3
+    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+
+    var font = constants.MAX_FONT;
+    var maxLines = constants.MAX_LINES
 
     while (font >= 14) {
         // min font value would be 12
@@ -142,7 +151,7 @@ Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
         var i;
         for (i = 0; i < channelData.length && curLine < maxLines; i++) {
             curWidth += ctx.measureText(channelData[i][0]).width + 20
-            if (i + 1 < channelData.length && curWidth + ctx.measureText(channelData[i+1][0]).width + 20 >= 0.8 * canvasWidth) {
+            if (i + 1 < channelData.length && curWidth + ctx.measureText(channelData[i + 1][0]).width + 20 >= constants.USABLE_AREA * canvasWidth) {
                 curWidth = 0
                 curLine += 1
             }
@@ -153,17 +162,19 @@ Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
         font -= 2;
     }
 
-    return font;
+    return Math.max(constants.MAX_FONT, font);
 }
 
 Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, hasMore) {
+    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+
     hasMore = hasMore ? hasMore : false;
     // Find width of all the text
     var lineWidth = 0
     for (let i = 0; i < channelData.length; i++) {
         lineWidth += ctx.measureText(channelData[i][0]).width + 20;
     }
-    if (line == 2 && hasMore) {
+    if (line == constants.MAX_LINES - 1 && hasMore) {
         lineWidth += ctx.measureText('...').width
     } else {
         lineWidth -= 20;
@@ -183,7 +194,7 @@ Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, h
         ctx.fillText(channelData[i][0], leftMargin + lineWidth, 50 + 50*line);
         lineWidth += ctx.measureText(channelData[i][0]).width + 20;
     }
-    if (line == 2 && hasMore) {
+    if (line == constants.MAX_LINES - 1 && hasMore) {
         ctx.fillStyle = 'white';
         ctx.fillText('...', leftMargin + lineWidth, 50 + 50 * line);
     }
