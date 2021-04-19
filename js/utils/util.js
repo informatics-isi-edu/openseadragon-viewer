@@ -136,29 +136,42 @@ Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) 
     }
 }
 
+/**
+ * This function returns the font size which will be used in the screenshot. We start with font 20 and reduce it by 2 until the channel data can fit into the canvas. The min font size is 14.
+ * @param {context} ctx
+ * @param {Array} channelData
+ * @param {Int} canvasWidth
+ */
 Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
     var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
     var font = constants.MAX_FONT;
     var maxLines = constants.MAX_LINES
 
-    while (font >= 14) {
-        // min font value would be 12
+    while (font > 14) {
+        // min font value would be 14
 
         var curWidth = 0;
         var curLine = 0
         ctx.font = font + "pt Sans-serif";
         var i;
+        
         for (i = 0; i < channelData.length && curLine < maxLines; i++) {
+            // add each channel name
             curWidth += ctx.measureText(channelData[i][0]).width + 20
             if (i + 1 < channelData.length && curWidth + ctx.measureText(channelData[i + 1][0]).width + 20 >= constants.USABLE_AREA * canvasWidth) {
+                // if the next name wont fit in the current line, add a new line
                 curWidth = 0
                 curLine += 1
             }
         }
+
         if (i == channelData.length) {
+            // if all the data fit, then return the current font
             return font;
         }
+
+        // reduce the font size by 2, as the channel data did not fit
         font -= 2;
     }
 
