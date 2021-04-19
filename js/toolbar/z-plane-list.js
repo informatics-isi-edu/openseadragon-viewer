@@ -104,6 +104,24 @@ function ZPlaneList(parent) {
     this.defaultZIndex = -1;
 
     /**
+     * it stores the of the container. It is used to make the UI containing the z plane info and slider responsive.
+     * @type {integer}
+     */
+    this.previousContainerWidth = 0;
+
+    /**
+     * it is constant which tells after what width should the UI for z plane info split into 2 lines
+     * @type {integer}
+     */
+    this._minWidth = 800;
+
+    /**
+     * it stores the min and max of the slider, i.e. min and max z index in the DB
+     * @type {object}
+     */
+    this.sliderRange = {};
+
+    /**
      * called on load to calculate the page size and then ask chaise to fetch the results
      * @param {object} data
      */
@@ -118,16 +136,23 @@ function ZPlaneList(parent) {
 
         // reduce the height of the main container
         var mainContainer = document.getElementById('container');
-        mainContainer.classList.add('adjust-to-z-index');
+        mainContainer.style.height = _self.getContaierHeight(mainContainer.offsetWidth);
 
         // add resize sensor
         var resizeSensorContainer = document.getElementById('z-plane-resize-sensor');
         resizeSensorContainer.innerHTML = '<div class="z-planes-container" id="z-planes-container"></div>';
+        _self.previousContainerWidth = resizeSensorContainer.clientWidth;
         _self._zPlaneContainer = document.getElementById('z-planes-container');
         new ResizeSensor(resizeSensorContainer, function () {
             clearTimeout(_self.delayedResizeSensorFunc);
             _self.delayedResizeSensorFunc = setTimeout(function () {
                 _self._calculatePageSize(resizeSensorContainer.clientWidth - 70);
+
+                // change the height of the main contaienr
+                if (_self.previousContainerWidth < _self._minWidth && resizeSensorContainer.clientWidth >= _self._minWidth || _self.previousContainerWidth >= _self._minWidth && resizeSensorContainer.clientWidth < _self._minWidth) {
+                    _self.changeContainerHeight(resizeSensorContainer.clientWidth);
+                }
+                _self.previousContainerWidth = resizeSensorContainer.clientWidth;
             }, _self._resizeSensorDelay);
         });
 
@@ -135,8 +160,36 @@ function ZPlaneList(parent) {
         _self.mainImageZIndex = data.mainImageZIndex;
         _self.defaultZIndex = data.mainImageZIndex;
         _self.canUpdateDefaultZIndex = data.canUpdateDefaultZIndex;
+        _self.sliderRange = {
+            'min': data.minZIndex,
+            'max': data.maxZIndex
+        };
+
         _self._render();
-        _self._fetchListByZIndex('default');
+        _self._fetchListByZIndex('default', window.OSDViewer.constants.RELOAD_CAUSES.DEFAULT_Z);
+    }
+
+    /**
+     * This function returns the new height of the container based on its width
+     * @param {integer} width
+     */
+    this.getContaierHeight = function(width) {
+        if (width < _self._minWidth) {
+            // reduce the height of the main container
+            return 'calc(100% - 170px)';
+        } else {
+            // increase the height of the main container
+            return 'calc(100% - 145px)';
+        }
+    }
+
+    /**
+     * This function changes the height of the main container
+     * @param {integer} width
+     */
+    this.changeContainerHeight = function(width) {
+        var mainContainer = document.getElementById('container');
+        mainContainer.style.height = _self.getContaierHeight(width);
     }
 
     /**
@@ -245,12 +298,14 @@ function ZPlaneList(parent) {
                 zIndexInput.disabled = true;
                 zIndexSubmit.disabled = true;
                 updateDeaultZButton.disabled = true;
+                _self._disableSlider(true);
             } else {
                 carousel.style.pointerEvents = 'initial';
                 loader.style.display = 'none';
                 zIndexInput.disabled = false;
                 zIndexSubmit.disabled = false;
                 updateDeaultZButton.disabled = false;
+                _self._disableSlider(false);
             }
         }
     };
@@ -283,6 +338,7 @@ function ZPlaneList(parent) {
             pageSize: _self.pageSize,
             before: data.before,
             after: data.after,
+            reloadCauses: data.reloadCauses,
             requestID: ++_self._currentRequestID
         };
 
@@ -293,13 +349,14 @@ function ZPlaneList(parent) {
      * calculate the page size if needed and ask chaise to fetch the new list by zIndex, make sure that zIndex is a valid integer. No such check is being done in this function
      * @param {string} zIndex
      */
-    this._fetchListByZIndex = function (zIndex) {
+    this._fetchListByZIndex = function (zIndex, source) {
         if (zIndex == 'default') {
             // This is case during the init function
 
             var requestData = {
                 pageSize: _self.pageSize,
                 zIndex: _self.mainImageZIndex,
+                source: source,
                 requestID: ++_self._currentRequestID
             };
 
@@ -324,6 +381,7 @@ function ZPlaneList(parent) {
             var requestData = {
                 pageSize: _self.pageSize,
                 zIndex: zIndex,
+                source: source,
                 requestID: ++_self._currentRequestID
             };
 
@@ -369,7 +427,7 @@ function ZPlaneList(parent) {
 
             _self.pageSize = pageSize;
             _self.appendData = true;
-            _self._onNextPreviousHandler(true);
+            _self._onNextPreviousHandler(true, true);
         }
     };
 
@@ -422,6 +480,7 @@ function ZPlaneList(parent) {
             _self._renderUpdateDefaultZButton();
             _self._renderZPlaneInfo();
             _self._renderActiveZPlane();
+            _self._renderZPlaneSlider();
 
             _self.parent.dispatchEvent('updateMainImage', _self.collection[index]);
         }
@@ -431,13 +490,19 @@ function ZPlaneList(parent) {
      * click handler for previous and next buttons
      * @param {boolean} isNext
      */
-    this._onNextPreviousHandler = function (isNext) {
+    this._onNextPreviousHandler = function (isNext, isResize) {
         var data = {};
         if (isNext) {
             data.after = _self.collection[_self.collection.length-1].zIndex;
         } else {
             data.before = _self.collection[0].zIndex;
         }
+
+        // TODO when there's a queueing, this should return all the actions in between
+        // it should properly send the elapsed time as well
+        var causes = window.OSDViewer.constants.RELOAD_CAUSES;
+        data.reloadCauses = [isResize ? causes.PAGE_LIMIT : (isNext ? causes.PAGE_NEXT : causes.PAGE_PREV)];
+
         _self._fetchList(data);
     };
 
@@ -500,13 +565,13 @@ function ZPlaneList(parent) {
                                 '<i class="fas fa-save update-default-z-button"></i>' +
                             '</button>';
         }
-
-        zPlaneInfo.innerHTML = 'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">'+
+        zPlaneInfo.innerHTML = '' +
+            'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">' +
             '<span>' +
                 jumpButtom +
                 updateButton +
             '</span>' +
-            '<span>(total of ' + _self.totalCount + ' generated, default Z index is <span id="current-default-z-index">'+_self.defaultZIndex+'</span>)</span>';
+            '<span>(' + _self.totalCount + ' generated, default Z=<span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
 
         _self._renderUpdateDefaultZButton();
 
@@ -520,7 +585,7 @@ function ZPlaneList(parent) {
                 inputEl.value = _self.mainImageZIndex;
                 return;
             }
-            _self._fetchListByZIndex(newIndex);
+            _self._fetchListByZIndex(newIndex, window.OSDViewer.constants.RELOAD_CAUSES.SEARCH_BOX);
         }
 
         var jumpButtom = zPlaneInfo.querySelector('#z-index-jump-button');
@@ -542,7 +607,172 @@ function ZPlaneList(parent) {
         }
 
         tippy('#z-plane-info-container [data-tippy-content]', {theme: "light"});
+
     }
+
+    /**
+     * This function controls whether to show/hide the tooltip for the slider, where to show the tooltip and what value to show in the tooltip
+     * @param {boolean} show
+     * @param {object} tooltip
+     * @param {integer} sliderValue
+     */
+    this.showHideZPlaneSliderTooltip = function (show, tooltip, sliderValue) {
+        var downArrow = document.getElementById('slider-tooltip-arrow');
+        if (show && tooltip) {
+            tooltip.style.display = 'block';
+            downArrow.style.display = 'block';
+            tooltip.innerHTML = sliderValue || document.getElementById('z-index-slider').value || '0';
+
+            // delta presents the percentage distance from the left end point of the slider
+            var delta = (sliderValue - _self.sliderRange.min) / (_self.sliderRange.max - _self.sliderRange.min);
+
+            // ths is the thumb radius of the slider + the border in it
+            var thumbRadius = 5 + 1;
+
+            // 270 = width of the slider
+            // 270 - (thumbRadius * 2) = available moving space for the slider
+            // (thumbRadius - 1) * 2) = left correction added because the slider thumb wont go beyond the slider boundary
+            // (offsetWidth / 2) = half the contaienr width, that is subtracted to center align the tooltip with the thumb
+            tooltip.style.left = (((thumbRadius - 1) * 2) + ((270 - (thumbRadius * 2)) * delta) - (tooltip.offsetWidth / 2)) + 'px';
+            downArrow.style.left = (((thumbRadius - 1) * 2) + ((270 - (thumbRadius * 2)) * delta) - (downArrow.offsetWidth / 2)) + 'px';
+        } else if (tooltip) {
+            tooltip.style.display = 'none';
+            downArrow.style.display = 'none';
+        }
+    }
+
+    /**
+     * This function render the slider
+     */
+    this._renderZPlaneSlider = function () {
+        var zPlaneSlider = document.getElementById('z-plane-slider');
+        var slider = '' +
+                '<button class="circular-button" id="slider-previous-button" data-tippy-placement="top" data-tippy-content="Previous Z index"><i class="glyphicon glyphicon-triangle-left left"></i></button>' +
+                '<div class="min-max">'+_self.sliderRange.min+'</div>' +
+                '<div class="slider-tooltip-container">' +
+                    '<input class="slider" type="range" id="z-index-slider" value="' + _self.mainImageZIndex + '" min="' + _self.sliderRange.min + '" max="' + _self.sliderRange.max + '">'+
+                    '<div class="slider-tooltip" id="slider-tooltip">1</div>' +
+                    '<div class="down-arrow" id="slider-tooltip-arrow"></div>' +
+                '</div>' +
+                '<div class="min-max">'+_self.sliderRange.max+'</div>' +
+                '<button class="circular-button" id="slider-next-button" data-tippy-placement="top" data-tippy-content="Next Z index"><i class="glyphicon glyphicon-triangle-right right"></i></button>' ;
+        zPlaneSlider.innerHTML = slider;
+
+        var slider = zPlaneSlider.querySelector('#z-index-slider');
+        if (slider) {
+            slider.addEventListener('change', function (event) {
+                _self._fetchListByZIndex(slider.value, window.OSDViewer.constants.RELOAD_CAUSES.SLIDER);
+            });
+
+            slider.addEventListener('input', function() {
+                // show tooltip
+                var tooltip = zPlaneSlider.querySelector('#slider-tooltip');
+                _self.showHideZPlaneSliderTooltip(true, tooltip, slider.value);
+            });
+
+            slider.addEventListener('mouseup', function () {
+                // hide tooltip
+                var tooltip = zPlaneSlider.querySelector('#slider-tooltip');
+                _self.showHideZPlaneSliderTooltip(false, tooltip);
+            })
+        }
+
+        var prevButton = zPlaneSlider.querySelector('#slider-previous-button');
+        prevButton.addEventListener('click', function() {
+            _self.changeImageToPreviousNext(true);
+        });
+        // disable the prev button if the main image is the min z index available in the DB
+        if (_self.mainImageZIndex == _self.sliderRange.min) {
+            prevButton.disabled = true;
+        }
+
+        var nextButton = zPlaneSlider.querySelector('#slider-next-button');
+        nextButton.addEventListener('click', function () {
+            _self.changeImageToPreviousNext(false);
+        });
+        // disable the next button if the main image is the max z index available in the DB
+        if (_self.mainImageZIndex == _self.sliderRange.max) {
+            nextButton.disabled = true;
+        }
+
+        tippy('#z-plane-slider [data-tippy-content]', {
+            theme: "light",
+        });
+    };
+
+    /**
+     * This function is used to disable the slider when loading
+     */
+    this._disableSlider = function (disable) {
+        var zPlaneSlider = document.getElementById('z-plane-slider');
+        if (zPlaneSlider) {
+            var prevButton = zPlaneSlider.querySelector('#slider-previous-button');
+            var nextButton = zPlaneSlider.querySelector('#slider-next-button');
+            var slider = zPlaneSlider.querySelector('#z-index-slider');
+            if (disable) {
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                slider.disabled = true;
+            } else {
+                prevButton.disabled = false;
+                nextButton.disabled = false;
+                slider.disabled = false;
+            }
+        }
+    }
+
+    /**
+     * This function handles what to do when prev/next button is clicked in the slider
+     * @param {boolean} isPrevious - is previous clicked
+     */
+    this.changeImageToPreviousNext = function(isPrevious) {
+
+        var mainImageCollectionIndex = -1;
+        for (let i = 0; i < _self.collection.length; i++) {
+            if (_self.collection[i]['zIndex'] == _self.mainImageZIndex) {
+                mainImageCollectionIndex = i;
+                break;
+            }
+        }
+
+        // TODO: improve the corner case, where the prev/next does not appear in the collection and we are calling _fetchListByZIndex. This could renturn the same value.
+
+        if (mainImageCollectionIndex != -1) {
+            // the main image is in the z plane list
+            if (isPrevious) {
+                if (mainImageCollectionIndex > 0) {
+                    _self._onclickImageHandler(mainImageCollectionIndex - 1);
+                } else {
+                    _self._fetchListByZIndex(
+                        Math.max(_self.sliderRange.min, _self.mainImageZIndex - 1),
+                        window.OSDViewer.constants.RELOAD_CAUSES.SLIDER
+                    );
+                }
+            } else {
+                if (mainImageCollectionIndex < _self.collection.length - 1) {
+                    _self._onclickImageHandler(mainImageCollectionIndex + 1);
+                } else {
+                    _self._fetchListByZIndex(
+                        Math.min(_self.sliderRange.max, _self.mainImageZIndex + 1),
+                        window.OSDViewer.constants.RELOAD_CAUSES.SLIDER
+                    );
+                }
+            }
+        } else {
+            // the main image is not in the z plane list
+            if (isPrevious) {
+                _self._fetchListByZIndex(
+                    Math.max(_self.sliderRange.min, _self.mainImageZIndex - 1),
+                    window.OSDViewer.constants.RELOAD_CAUSES.SLIDER
+                );
+            } else {
+                _self._fetchListByZIndex(
+                    Math.min(_self.sliderRange.max, _self.mainImageZIndex + 1),
+                    window.OSDViewer.constants.RELOAD_CAUSES.SLIDER
+                );
+            }
+        }
+    };
 
     /**
      * render the previous and next buttons, attach the onclick event, set active or disabled view mode
@@ -595,6 +825,16 @@ function ZPlaneList(parent) {
             '<div class="z-plane-info-container" id="z-plane-info-container">' +
             '</div>';
 
+        var zPlaneSlider = '' +
+            '<div class="z-plane-slider" id="z-plane-slider">' +
+            '</div>';
+
+        var infoSliderContainer = '' +
+            '<div class="info-slider-container" id="info-slider-container">' +
+                zPlaneInfo +
+                zPlaneSlider +
+            '</div>';
+
         var zPlaneCarousel = '' +
             '<div class="z-plane-carousel">' +
                 '<div id="z-plane-loader" class="z-plane-loader">' +
@@ -613,7 +853,7 @@ function ZPlaneList(parent) {
                 '</button>' +
             '<div>';
 
-        _self._zPlaneContainer.innerHTML = zPlaneInfo + zPlaneCarousel;
+        _self._zPlaneContainer.innerHTML = infoSliderContainer + zPlaneCarousel;
 
         // _onNextPreviousHandler
         var prevButton = _self._zPlaneContainer.querySelector('#previous-button');
@@ -627,6 +867,7 @@ function ZPlaneList(parent) {
         });
 
         _self._renderZPlaneInfo();
+        _self._renderZPlaneSlider();
         _self._calculatePageSize();
         _self._renderZPlaneCarousel();
 

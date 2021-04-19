@@ -10,28 +10,24 @@ function Channel(osdItemID, name, number, options) {
     this.rgb = options["pseudoColor"] || null;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
-    this.contrast = 1;
-    this.brightness = 0;
-    this.gamma = 0.875;
-    this.hue = null;
-    this.initialProperty = {
-      contrast: 1,
-      brightness: 0,
-      gamma: 0.875,
-      hue: null,
-    };
-
-    this.isDisplay = (typeof options["isDisplay"] === "boolean") ? options["isDisplay"] : true;
 
     this.isMultiChannel = (options["isMultiChannel"] === true);
 
+    var colorConfig = (typeof options['channelConfig'] === "object" && options['channelConfig'] != null) ? options['channelConfig'] : {};
+    var configConst = window.OSDViewer.constants.CHANNEL_CONFIG;
+
+    this.blackLevel = _populateAttributeByConfig(this, colorConfig, configConst.BLACK_LEVEL, 0);
+    this.whiteLevel = _populateAttributeByConfig(this, colorConfig, configConst.WHITE_LEVEL, 255);
+    this.gamma = _populateAttributeByConfig(this, colorConfig, configConst.GAMMA, null, _populateDefaultGamma);
+    this.saturation = _populateAttributeByConfig(this, colorConfig, configConst.SATURATION, 100);
+
     // we might want to offer hue control but not apply it by default.
     // for example in case of a greyscale image with an unknown channelName
-    this.deactivateHue = false;
+    this.displayGreyscale = colorConfig[configConst.DISPLAY_GREYSCALE] === true;
 
-    // Set Default Values
-    this.setDefaultHue();
-    this.setDefaultGamma();
+    this.hue = _populateAttributeByConfig(this, colorConfig, configConst.HUE, null, _populateDefaultHue);
+
+    this.isDisplay = (typeof options["isDisplay"] === "boolean") ? options["isDisplay"] : true;
 }
 
 
@@ -59,21 +55,38 @@ Channel.prototype.colorMapping = {
     'Hoechst': '0.000000 0.000000 1.000000'
 };
 
-Channel.prototype.getFiltersList = function () {
+Channel.prototype.getFiltersList = function (isInit) {
     var list = [];
 
-    // only apply hue if it's activated
-    if (this.hue != null && !this.deactivateHue) {
-        list.push(OpenSeadragon.Filters.HUE(this.hue));
-    }
-
-    if (this.gamma != null) {
-        list.push(OpenSeadragon.Filters.GAMMA(this.gamma));
-    }
-
-    list.push(OpenSeadragon.Filters.CONTRAST_BRIGHTNESS(this.contrast, this.brightness));
+    // TODO The filter should be moved here. there's no point in having it in the channel-filter.js
+    // and most probably we should change it so it's not accepting array of filters
+    list.push(
+        OpenSeadragon.Filters.CHANGE_COLOR(
+            this.name,
+            isInit,
+            this.blackLevel, this.whiteLevel, this.gamma, // set v
+            this.saturation,  // set s
+            this.hue, this.displayGreyscale,  // set h
+        )
+    );
 
     return list;
+};
+
+function _populateAttributeByConfig(self, config, configAttr, defaultVal, defaultFn) {
+    var res;
+    if (configAttr in config) {
+        res = parseFloat(config[configAttr]);
+    }
+    if (res == null || isNaN(res)) {
+        if (defaultVal != null) {
+            res = defaultVal;
+        }
+        if (defaultFn != null) {
+            res = defaultFn(self);
+        }
+    }
+    return res;
 }
 
 function _rgb2hsl(r, g, b) {
@@ -115,12 +128,12 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
 }
 
 /**
- * Populate the default hue value that should be used (it will deactivate or hide the control if needed)
+ * Populate the default hue value that should be used (it will show greyscale or hide the control if needed)
  * - if isRGB=true -> null (no hue control)
  * - if rgb != null (pseudoColor) and color is valid (not grey/white/black) -> the hue value of rgb
  * - if channelName in the list -> the hue value based on what's defined
  * - if isRGB=null, and (single-channel or combo/Brightfield) -> null (no hue control)
- * - otherwise -> use the default color and deactivate hue control by default
+ * - otherwise -> use the default color and show greyscale by default
  */
 function _populateDefaultHue(self) {
     // if isRGB=true, then disable the hue control
@@ -154,21 +167,15 @@ function _populateDefaultHue(self) {
 
     // - isRGB is not defined and it's multi-channel
     // - or isRGB=false and channelName wasn't found:
-    self.deactivateHue = true; // deactivate hue control
+    self.displayGreyscale = true; // show the greyscale image
     return 0; //default value
 }
 
-Channel.prototype.setDefaultHue = function () {
-    this.hue = _populateDefaultHue(this);
-
-    this.initialProperty.hue = this.hue;
-};
-
-Channel.prototype.setDefaultGamma = function () {
-    if (this.name in this.colorMapping) {
-        this.gamma = 0.75;
-        this.initialProperty.gamma = this.gamma;
-    };
+function _populateDefaultGamma (self) {
+    if (self.name in self.colorMapping) {
+        return 0.55;
+    }
+    return 0.875;
 }
 
 Channel.prototype.setMultiple = function (settings) {
@@ -184,23 +191,25 @@ Channel.prototype.setMultiple = function (settings) {
 Channel.prototype.set = function (type, value) {
     if (typeof type !== "string") type = "";
 
-    switch (type.toUpperCase()) {
-        case "CONTRAST":
-            this.contrast = value;
+    switch (type) {
+        case "blackLevel":
+        case "whiteLevel":
+        case "gamma":
+            this[type] = value;
             break;
-        case "BRIGHTNESS":
-            this.brightness = value;
+        case "saturation":
+            this.saturation = value;
+
+            // make sure saturation value applied
+            this.displayGreyscale = false;
             break;
-        case "GAMMA":
-            this.gamma = value;
-            break;
-        case "HUE":
+        case "hue":
             this.hue = value;
-            // activate the hue control so the value change takes effect
-            this.deactivateHue = false;
+            // make sure hue value applied
+            this.displayGreyscale = false;
             break;
-        case "DEACTIVATEHUE":
-            this.deactivateHue = (value === true);
+        case "displayGreyscale":
+            this.displayGreyscale = (value === true);
             break;
         default:
             break;

@@ -232,10 +232,13 @@ Utils.prototype.processParams = function(inp){
         zIndex: 0,
         info: [] // {url, channelNumber}
     };
-    parameters.zPlaneList = []; // [{zIndex, info}]
     parameters.channels = []; // [{channelNumber, channelName, aliasName, isRGB, pseudoColor}]
     parameters.annotationSetURLs = []; // [""]
-    parameters.zPlaneTotalCount = 1;
+    parameters.zPlane = {
+        count: 1,
+        minZIndex: null,
+        maxZIndex: null
+    };
 
     if (!inp) {
         return parameters;
@@ -344,6 +347,7 @@ Utils.prototype.processParams = function(inp){
             case "ignoreReferencePoint":
             case "ignoreDimension":
             case "enableSVGStrokeWidth":
+            case "showHistogram":
                 parameters[paramKey] = (paramValue[0].toLocaleLowerCase() === "true") ? true : false;
                 break;
             default:
@@ -455,50 +459,56 @@ Utils.prototype.colorRGBToHex = function (val) {
     return "#" + rgb.join("");
 }
 
+/**
+ * Convert 8bit r-g-b values to hsv
+ * borrowed from: https://stackoverflow.com/a/17243070
+ * inout: 0-255, 0-255, 0-255
+ * output: [[0-360], [0-1], [0-1]]
+ */
+Utils.prototype.rgb2hsv = function (r, g, b) {
+    if (arguments.length === 1) {
+        g = r.g, b = r.b, r = r.r;
+    }
+    var max = Math.max(r, g, b), min = Math.min(r, g, b),
+        d = max - min,
+        h,
+        s = (max === 0 ? 0 : d / max),
+        v = max / 255;
+
+    switch (max) {
+        case min: h = 0; break;
+        case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+        case g: h = (b - r) + d * 2; h /= 6 * d; break;
+        case b: h = (r - g) + d * 4; h /= 6 * d; break;
+    }
+
+    return [Math.round(h*360), s , v];
+}
 
 /**
- * h: 0-360
- * s: 0-1
- * v: 0-1
- * returns array of [R, G, B] (8bit values)
+ * Convert hsv to 8bit r-g-b values
+ * borrowed from: https://stackoverflow.com/a/17243070
+ * input: [[0-360], [0-1], [0-1]]
+ * output: 0-255, 0-255, 0-255
  */
 Utils.prototype.hsv2rgb = function (h, s, v) {
-    var h1 = h / 360, s1 = s, v1 = v;
+    var r, g, b, i, f, p, q, t;
 
-    var output = function (r, g, b) {
-        return [r * 255, g * 255, b * 255];
+    h = h / 360;
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
     }
-
-    var i, f, p, q, t;
-
-    if (s1 === 0) {
-        return output(v1, v1, v1)
-    }
-    i = parseInt(h1 * 6.0);
-    f = (h1 * 6.0) - i;
-    p = v1 * (1.0 - s1);
-    q = v1 * (1.0 - (s1 * f));
-    t = v1 * (1.0 - (s1 * (1.0-f)));
-    i = i % 6;
-
-    if (i == 0) {
-        return output(v1, t, p);
-    }
-    if (i == 1) {
-        return output(q, v1, p);
-    }
-    if (i == 2) {
-        return output(p, v1, t);
-    }
-    if (i == 3) {
-        return output(p, q, v1);
-    }
-    if (i == 4) {
-        return output(t, p, v1);
-    }
-    if (i == 5) {
-        return output(v1, p, q);
-    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
 // Detect user's browser
@@ -579,4 +589,8 @@ Utils.prototype.downloadAsFile = function(fileName, dataUrl){
     }
 
 
+}
+
+Utils.prototype.round = function (value, decimals) {
+  return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }

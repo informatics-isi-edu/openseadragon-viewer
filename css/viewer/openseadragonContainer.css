@@ -3,9 +3,10 @@
     background-color: #000;
 }
 
+
 #openseadragonContainer .annotation{
     cursor: pointer;
-    pointer-events: auto; 
+    pointer-events: auto;
     /* pointer-events: bounding-box;  */
     /* opacity: 0.2; */
 }
@@ -37,7 +38,7 @@
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */
-    user-select: none;          /* Likely future */ 
+    user-select: none;          /* Likely future */
 }
 
 #openseadragonContainer #annotationTooltip .row{

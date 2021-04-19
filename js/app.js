@@ -7,6 +7,7 @@ var OSDViewer = (function (_config) {
 
     var alertService = new AlertService();
     var errorService = new ErrorService();
+    var constants = new Constants();
 
     var init = function(){
         viewer = new Viewer(this, _config.viewer);
@@ -105,6 +106,9 @@ var OSDViewer = (function (_config) {
             case "replaceChannelList":
                 toolbar && toolbar.replaceChannelList(data);
                 break;
+            case "allowChannelConfigUpdate":
+                toolbar && toolbar.allowChannelConfigUpdate();
+                break;
             case "onChangeStrokeScale":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
@@ -161,6 +165,9 @@ var OSDViewer = (function (_config) {
             case "updateDefaultZIndex":
                 window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
                 break;
+            case "updateChannelConfig":
+                window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
+                break;
         }
     }
 
@@ -178,6 +185,9 @@ var OSDViewer = (function (_config) {
                     break;
                 case 'updateDefaultZIndexDone':
                     toolbar && toolbar.updatedDefaultZIndex(data);
+                    break;
+                case "updateChannelConfigDone":
+                    toolbar && toolbar.updateChannelConfigDone(data);
                     break;
                 case 'filterChannels':
                     toolbar && toolbar.onClickedMenuHandler('channelList');
@@ -298,6 +308,8 @@ var OSDViewer = (function (_config) {
     return {
         alertService: alertService,
         errorService: errorService,
+        utils: utils,
+        constants: constants,
         init : init,
         dispatchEvent : dispatchEvent,
         receiveChaiseEvent : receiveChaiseEvent,

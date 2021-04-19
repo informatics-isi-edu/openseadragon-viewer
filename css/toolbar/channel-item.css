@@ -13,7 +13,7 @@
     /* color: #c1c1c1; */
     font-size: 14px;
     cursor: pointer;
-    padding: 2px 10px 3px 10px;
+    padding: 2px 1px 3px 10px;
 }
 
 #navMenuContent .groups .channelItem .channelRow:hover{
@@ -29,6 +29,7 @@
     vertical-align: middle;
 }
 
+
 #navMenuContent .groups .channelItem .toggleSetting i.fa-chevron-right {
     margin-left: 5px;
 }
@@ -42,6 +43,14 @@
 
 #navMenuContent .groups .channelItem .channel-control-btn {
     padding: 0 5px;
+}
+#navMenuContent .groups .channelItem .channel-control-btn.save-settings {
+    padding: 0 8px;
+}
+
+/* make sure when switching between hide/show buttons don't move */
+#navMenuContent .groups .channelItem .channel-control-btn .fa-eye {
+    margin-left: 2px;
 }
 
 #navMenuContent .groups .channelItem .channel-control-btn:hover{color: #fff;}
@@ -59,11 +68,33 @@
     transition: height 0.3s;
     padding: 5px 10px 10px 10px;
     background: #333;
+    position: relative;
 }
 
 #navMenuContent .groups .channelItem .setting.collapse{
     height: 0px;
     padding: 0;
+}
+
+#navMenuContent .groups .channelItem .channel-setting-spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(77, 77, 77, 0.8);
+    font-size: 1.5em;
+    z-index: 2;
+    display: none;
+}
+
+#navMenuContent .groups .channelItem .setting .channel-setting-spinner-container {
+    text-align: center;
+    margin: 75px auto;
+}
+
+#navMenuContent .groups .channelItem .setting.no-hue .channel-setting-spinner-container {
+    margin: 35px auto;
 }
 
 #navMenuContent .groups .channelItem .attrRow{
@@ -78,7 +109,12 @@
     margin-top: 2px;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number {
+#navMenuContent .groups .channelItem .attrRow .setting-info{
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+#navMenuContent .groups .channelItem .channel-input {
     background: transparent;
     height: 20px;
     width: 36px;
@@ -89,15 +125,15 @@
     display: none;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number.active {
+#navMenuContent .groups .channelItem .channel-input.active {
     display: inline-block;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number.active + .greyscale {
+#navMenuContent .groups .channelItem .channel-input.active + .greyscale {
     display: none;
 }
 
-#navMenuContent .groups .channelItem .attrRow input.number:focus {
+#navMenuContent .groups .channelItem .channel-input:focus {
     outline: 0;
 }
 
@@ -105,6 +141,19 @@
     margin: 2px 0 1px 0;
     display: flex;
     flex-direction: column;
+}
+
+/* not applied to hue, for hue it's 5px */
+#navMenuContent .groups .channelItem .sliderContainer > .slider-wrapper {
+    margin-top: 2px;
+}
+
+.slider-wrapper .slider-bubble .osd-tippy-arrow {
+    transform: translate(9px);
+}
+
+.slider-wrapper .slider-bubble .osd-tippy-content {
+    padding: 5px;
 }
 
 #navMenuContent .groups .channelItem .hue-container {
@@ -115,7 +164,7 @@
     margin-top: 5px;
 }
 
-#navMenuContent .groups .channelItem .deactivate-hue {
+#navMenuContent .groups .channelItem .toggle-greyscale {
     display: inline-block;
     width: 12px;
     height: 12px;
@@ -127,16 +176,16 @@
     position: relative;
 }
 
-#navMenuContent .groups .channelItem .deactivate-hue:hover {
+#navMenuContent .groups .channelItem .toggle-greyscale:hover {
     color: #fff;
 }
 
 
-/* #navMenuContent .groups .channelItem .deactivate-hue.active {
+/* #navMenuContent .groups .channelItem .toggle-greyscale.active {
     border: 2px solid #6797d4;
 } */
 
-#navMenuContent .groups .channelItem .deactivate-hue.active:after {
+#navMenuContent .groups .channelItem .toggle-greyscale.active:after {
     position: absolute;
     color: #4674A7;
     top: -1px;
@@ -173,7 +222,7 @@
 }
 
 #navMenuContent .groups .channelItem .sliderContainer[data-type="hue"] input.slider{
-    width: 210px;
+    width: 245px;
     margin: 0;
     margin-right: 7px;
     height: 8px;
@@ -261,4 +310,112 @@
 #navMenuContent .groups .channelItem [data-type="hue"] input.slider::-webkit-slider-thumb:hover {
     width: 6px;
     height: 15px;
+}
+
+.intensity-range-container {
+    position: relative;
+    height: 20px;
+    margin-bottom: 8px;
+    margin-top: 10px;
+}
+
+.intensity-range-input {
+    position: absolute;
+}
+.intensity-range-input-min {
+    left: 0;
+    top: 0;
+}
+.intensity-range-input-max {
+    right: 0;
+    top: 0;
+}
+
+.intensity-range-slider {
+    width: 175px;
+    left: 45px;
+    height: 2px;
+    top: 9px;
+    border: none;
+    background: #939191;
+    transition: all .1s linear;
+    cursor: pointer;
+    box-shadow: none;
+
+    /* height: 20px;
+    top: 0; */
+}
+
+.intensity-range-slider:hover {
+    height: 5px;
+}
+
+
+.intensity-range-slider .noUi-handle {
+    width: 10px;
+    right: -5px; /* (width / 2) */
+    height: 10px;
+    border-radius: 50%;
+    background: #b3b3b3;
+    cursor: pointer;
+    border: none;
+    transition: all .1s linear;
+    margin-top: 3px;
+    box-shadow: none;
+    border: none;
+
+    /* border-radius: 2px;
+    height: 26px;
+    border: 1px solid #777; */
+}
+
+.intensity-range-slider .noUi-handle:hover {
+    height: 13px;
+    width: 13px;
+    right: -6.5px; /* (width / 2) */
+
+    /* height: 30px; */
+}
+
+.intensity-range-slider .noUi-handle:before,
+.intensity-range-slider .noUi-handle::after {
+    display: none !important;
+}
+
+.intensity-range-slider .noUi-connect {
+    background: #4674A7;
+    /* background: linear-gradient(to bottom right, #333 0%, #333 50%, #4674A7 50%, #4674A7 100%); */
+}
+
+.intensity-range-slider:hover .noUi-connect {
+    background: #5B90CC;
+    /* background: linear-gradient(to bottom right, #333 0%, #333 50%, #5B90CC 50%, #5B90CC 100%); */
+}
+
+
+.intensity-range-slider .noUi-tooltip {
+    display: none;
+    background: white;
+    box-shadow: none;
+    border: 0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+.intensity-range-slider .noUi-active .noUi-tooltip {
+    display: block;
+}
+
+/* the arrow below the tooltip */
+.intensity-range-slider .noUi-active .noUi-touch-area::before {
+    content: "";
+    background: white;
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    left: 0px;
+    border-radius: 3px;
+    top: -12px;
+    transform: rotateY(0deg) rotate(45deg);
 }

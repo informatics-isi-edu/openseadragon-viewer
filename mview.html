@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="vendor/tippy.css">
+    <link rel="stylesheet" href="vendor/nouislider.min.css">
     <link rel="stylesheet" href="vendor/fontawesome/fontawesome.min.css">
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/global.css">
@@ -29,6 +30,18 @@
         <div id="openseadragonSpinner">
             <span class="loading-w-dots">Loading</span>
         </div>
+        <div id="debugging-tools-container">
+            <div id="color-histogram-container">
+                <div class="color-histogram" id="color-histogram"></div>
+                <div id="color-histogram-scale-checkbox">
+                    <input type="checkbox" value="logscale"></input>
+	                <label for="logscale">Use Log scale</label>
+                </div>
+                <div id="color-histogram-btn" class="btn btn-default">Toggle histogram</div>
+                <div class="color-histogram" id="color-histogram-original"></div>
+                <div id="color-histogram-original-btn" class="btn btn-default">Toggle original histogram</div>
+            </div>
+        </div>
         <div id="openseadragonContainer"></div>
     </div>
     <div id='z-plane-resize-sensor'>
@@ -43,10 +56,12 @@
     <script src="vendor/jquery-3.4.1.min.js"></script>
     <script src="vendor/popper.min.js"></script>
     <script src="vendor/tippy.umd.min.js"></script>
+    <script src="vendor/nouislider.min.js"></script>
     <script src="vendor/bootstrap/bootstrap.min.js"></script>
     <script src="vendor/css-element-queries.js"></script>
 
     <!-- Application -->
+    <script src="js/utils/constants.js"></script>
     <script src="js/utils/util.js"></script>
     <script src="js/utils/alerts.js"></script>
     <script src="js/toolbar/toolbar.view.js"></script>
