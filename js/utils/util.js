@@ -90,10 +90,16 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
 
     ctx.font = this.getFontSize(ctx, channelData, w) + "pt Sans-serif";
 
+    for (let i = 0; i < channelData.length; i++) {
+        channelData[i][0] = this.getUpdatedChannelName(channelData[i][0], ctx, w);
+    }
+
+    console.log(channelData);
+
     var start = 0, end = 0, line = 0;
     while (start < channelData.length && line < 3) {
         var lineWidth = 0
-        while (end < channelData.length && lineWidth < 0.8 * w) {
+        while (end < channelData.length && lineWidth + ctx.measureText(channelData[end][0]).width < 0.8 * w) {
             lineWidth += ctx.measureText(channelData[end][0]).width + 20;
             end += 1;
         }
@@ -106,9 +112,21 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
         start = end;
     }
 
-
     ctx.restore();
     // return ctx;
+}
+
+Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) {
+    if (ctx.measureText(channelName).width < canvasWidth * 0.8) {
+        return channelName;
+    }
+
+    for (let i = channelName.length - 1; i >= 0; i--) {
+        if (ctx.measureText(channelName.slice(0, i) + '...').width < canvasWidth * 0.8) {
+            console.log('new channel name == ', channelName.slice(0, i) + '...');
+            return channelName.slice(0, i) + '...';
+        }
+    }
 }
 
 Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
