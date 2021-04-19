@@ -121,16 +121,25 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     // return ctx;
 }
 
+/**
+ * This function returns the updated channel name, i.e. if the channel name wont fit in a single line, it add ...
+ * @param {String} channelName
+ * @param {canvas context} ctx
+ * @param {Int} canvasWidth
+ * @returns {String}
+ */
 Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) {
     var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
+    // if the channel name fits return the name as it is
     if (ctx.measureText(channelName).width < canvasWidth * constants.USABLE_AREA) {
         return channelName;
     }
 
     for (let i = channelName.length - 1; i >= 0; i--) {
+        // starrt removing chnaraters from the right one at a time, until the name would fit
         if (ctx.measureText(channelName.slice(0, i) + '...').width < canvasWidth * constants.USABLE_AREA) {
-            console.log('new channel name == ', channelName.slice(0, i) + '...');
+            // return the updated name
             return channelName.slice(0, i) + '...';
         }
     }
@@ -141,6 +150,7 @@ Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) 
  * @param {canvas context} ctx
  * @param {Array} channelData
  * @param {Int} canvasWidth
+ * @returns {Int}
  */
 Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
     var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
