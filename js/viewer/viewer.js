@@ -514,12 +514,7 @@ function Viewer(parent, config) {
                 channelArray.push([this.channels[id].name, this.channels[id].getTextColor()])
             }
         }
-        channelArray.push([
-            "asdjn asdna sldn asjdk alsdn asdlbjan lskdn asdklnasldnasd asjkdbaksdjbalsdb ajsdvaksjdb aksdbkbas dajsbkdasd",
-            "rgb(0,0,255)"
-        ])
-        // channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray.concat(channelArray))))))))));
-        console.log(channelArray);
+        // console.log(channelArray);
 
         // add watermark and download the file
         var finalize = function () {
