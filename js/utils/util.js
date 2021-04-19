@@ -89,7 +89,8 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
     // Find the font size that would fit all the content
-    ctx.font = this.getFontSize(ctx, channelData, w) + "pt Sans-serif";
+    var newFont = this.getFontSize(ctx, channelData, w)
+    ctx.font = newFont + "pt Sans-serif";
 
     // Update the channel names to the they can fit in a single line, if the name is too long by truncating the name & add ...
     for (let i = 0; i < channelData.length; i++) {
@@ -185,7 +186,7 @@ Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
         font -= 2;
     }
 
-    return Math.max(constants.MAX_FONT, font);
+    return Math.max(constants.MIN_FONT, font);
 }
 
 /**
