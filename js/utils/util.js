@@ -138,7 +138,7 @@ Utils.prototype.getUpdatedChannelName = function(channelName, ctx, canvasWidth) 
 
 /**
  * This function returns the font size which will be used in the screenshot. We start with font 20 and reduce it by 2 until the channel data can fit into the canvas. The min font size is 14.
- * @param {context} ctx
+ * @param {canvas context} ctx
  * @param {Array} channelData
  * @param {Int} canvasWidth
  */
@@ -178,6 +178,14 @@ Utils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
     return Math.max(constants.MAX_FONT, font);
 }
 
+/**
+ * This function writes the channels names in a single line
+ * @param {canvas context} ctx
+ * @param {Array} channelData
+ * @param {Int} line - the line is which the data is added
+ * @param {Int} canvasWidth
+ * @param {boolean} hasMore - has more data
+ */
 Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, hasMore) {
     var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
@@ -199,7 +207,6 @@ Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, h
     var x = leftMargin - 10, bgWidth = lineWidth + 20, y = (50 - 30 + (50 * line)), bgHeight = 45;
     ctx.fillRect(x, y, bgWidth, bgHeight);
 
-    // console.log(leftMargin, canvasWidth, lineWidth);
     // write the text
     var lineWidth = 0
     for (let i = 0; i < channelData.length; i++) {
@@ -207,6 +214,8 @@ Utils.prototype.addChannelLine = function(ctx, channelData, line, canvasWidth, h
         ctx.fillText(channelData[i][0], leftMargin + lineWidth, 50 + 50*line);
         lineWidth += ctx.measureText(channelData[i][0]).width + 20;
     }
+
+    // if more data is left, and no more line would be added, add ... to indicate that in the screenshot
     if (line == constants.MAX_LINES - 1 && hasMore) {
         ctx.fillStyle = 'white';
         ctx.fillText('...', leftMargin + lineWidth, 50 + 50 * line);
