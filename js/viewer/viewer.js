@@ -34,6 +34,9 @@ function Viewer(parent, config) {
 
     this.svgFiles = {};
 
+    this.delayedResizeSensorFunc;
+    this._resizeSensorDelay = 200;
+
     // Init
     this.init = function (utils, params) {
 
@@ -71,6 +74,15 @@ function Viewer(parent, config) {
         var overlayContainer = document.createElement("div");
         overlayContainer.setAttribute("id", "overlay-container");
         this.osd.canvas.append(overlayContainer);
+
+        var resizeSensorContainer = document.getElementById('container');
+        var x = new ResizeSensor(resizeSensorContainer, function () {
+            clearTimeout(_self.delayedResizeSensorFunc);
+            _self.delayedResizeSensorFunc = setTimeout(function () {
+                _self.renderChannelsOnOSD();
+            }, _self._resizeSensorDelay);
+        });
+        console.log(x);
 
         // whether we want to show the image color histogram or not
         this.config.osd.showHistogram = this.config.osd.showHistogram || this.parameters.showHistogram;
@@ -168,9 +180,135 @@ function Viewer(parent, config) {
                         init: true
                     });
                 }
+
+                _self.renderChannelsOnOSD();
             }
         });
     };
+
+    this.renderChannelsOnOSD = function() {
+        console.log("calling channel render");
+        var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+        var channelArray = [];
+
+        for (id in _self.channels) {
+            if (_self.channels[id].isDisplay) {
+                channelArray.push([_self.channels[id].name, _self.channels[id].getTextColor()])
+            }
+        }
+
+        // channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray)));
+
+        var divWidth = document.getElementById("overlay-container").offsetWidth
+        var fontSize = _self.getFontSize(channelArray, divWidth);
+
+        console.log("channelArray", channelArray, fontSize);
+
+        var overlayContainer = document.getElementById("overlay-container");
+        overlayContainer.style.fontSize = fontSize + 'px';
+        overlayContainer.innerHTML = "";
+
+        for (let i = 0; i < channelArray.length; i++) {
+            channelArray[i][0] = this.getUpdatedChannelName(channelArray[i][0], divWidth, fontSize);
+        }
+
+        var start = 0, end = 0, line = 0;
+        while (start < channelArray.length && line < constants.MAX_LINES) {
+
+            var lineContent = document.createElement("div");
+            lineContent.classList.add('container-line');
+
+            // find how many names can fit in a single line
+            var lineWidth = 0
+            while (end < channelArray.length && lineWidth + _self.getTextWidth(channelArray[end][0], fontSize) < constants.USABLE_AREA * divWidth) {
+                lineWidth += _self.getTextWidth(channelArray[end][0], fontSize) + 20;
+                var spanContent = document.createElement('span');
+                spanContent.classList.add('channel-name');
+                spanContent.style.color = channelArray[end][1];
+                spanContent.innerHTML = channelArray[end][0];
+                lineContent.appendChild(spanContent);
+                // lineContent.push(channelArray[end][0])
+                end += 1;
+            }
+
+            var hasMore = true;
+            if (end >= channelArray.length) {
+                hasMore = false
+            }
+
+            // draw the line & names
+            line += 1;
+            start = end;
+            if (line == constants.MAX_LINES && hasMore) {
+                var spanContent = document.createElement('span');
+                spanContent.classList.add('channel-name');
+                spanContent.innerHTML = '...';
+                lineContent.appendChild(spanContent);
+            }
+
+            overlayContainer.appendChild(lineContent);
+        }
+    }
+
+    this.getUpdatedChannelName = function (channelName, divWidth, font) {
+        var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+
+        // if the channel name fits return the name as it is
+        if (_self.getTextWidth(channelName, font) < divWidth * constants.USABLE_AREA) {
+            return channelName;
+        }
+
+        for (let i = channelName.length - 1; i >= 0; i--) {
+            
+            // starrt removing chnaraters from the right one at a time, until the name would fit
+            if (_self.getTextWidth(channelName.slice(0, i) + '...', font) < divWidth * constants.USABLE_AREA) {
+                // return the updated name
+                return channelName.slice(0, i) + '...';
+            }
+        }
+    }
+
+    this.getTextWidth = function(text, font) {
+        this.element = document.createElement('canvas');
+        this.context = this.element.getContext("2d");
+        this.context.font = font + 'pt Sans-serif';
+        return this.context.measureText(text).width;
+    }
+
+    this.getFontSize = function (channelData, divWidth) {
+        var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+
+        var font = constants.MAX_FONT;
+        var maxLines = constants.MAX_LINES
+
+        while (font > 16) {
+            // min font value would be 14
+
+            var curWidth = 0;
+            var curLine = 0
+            var i;
+
+            for (i = 0; i < channelData.length && curLine < maxLines; i++) {
+                // add each channel name
+                curWidth += _self.getTextWidth(channelData[i][0], font) + 20
+                if (i + 1 < channelData.length && curWidth + _self.getTextWidth(channelData[i + 1][0], font) + 20 >= constants.USABLE_AREA * divWidth) {
+                    // if the next name wont fit in the current line, add a new line
+                    curWidth = 0
+                    curLine += 1
+                }
+            }
+
+            if (i == channelData.length) {
+                // if all the data fit, then return the current font
+                return font;
+            }
+
+            // reduce the font size by 1, as the channel data did not fit
+            font -= 1;
+        }
+
+        return Math.max(16, font);
+    }
 
     // Add new term
     this.addNewTerm = function(data){

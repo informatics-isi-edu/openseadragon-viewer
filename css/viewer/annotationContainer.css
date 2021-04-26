@@ -18,11 +18,25 @@
     height: 100%;
     text-align: center;
     padding-top: 30px;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+#overlay-container .container-line {
+    display: flex;
+    justify-content: center;
+    color: white;
+    margin: 5px 0;
+}
+
+#overlay-container .container-line .channel-name {
+    padding: 0 10px;
+    background-color: black;
 }
 
 #overlay-container .channel-label-overlay {
     /* position: absolute; */
-    font-size: 20px;
+    /* font-size: 20px; */
     background: black;
     padding-right: 15px;
     display: none;
