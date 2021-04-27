@@ -1327,6 +1327,7 @@ function Viewer(parent, config) {
         var item = this.osd.world.getItemAt(id),
             opacity = (isDisplay) ? 1 : 0;
         this.channels[id].setIsDisplay(isDisplay);
+        _self.renderChannelsOnOSD();
         item.setOpacity(opacity);
 
         if (_self.config.osd.showHistogram) {
