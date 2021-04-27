@@ -205,7 +205,7 @@ function Viewer(parent, config) {
         console.log("channelArray", channelArray, fontSize);
 
         var overlayContainer = document.getElementById("overlay-container");
-        overlayContainer.style.fontSize = fontSize + 'px';
+        overlayContainer.style.fontSize = fontSize + 'pt';
         overlayContainer.innerHTML = "";
 
         for (let i = 0; i < channelArray.length; i++) {
@@ -281,7 +281,7 @@ function Viewer(parent, config) {
         var font = constants.MAX_FONT;
         var maxLines = constants.MAX_LINES
 
-        while (font > 16) {
+        while (font > 14) {
             // min font value would be 14
 
             var curWidth = 0;
@@ -304,10 +304,10 @@ function Viewer(parent, config) {
             }
 
             // reduce the font size by 1, as the channel data did not fit
-            font -= 1;
+            font -= 2;
         }
 
-        return Math.max(16, font);
+        return Math.max(constants.MIN_FONT, font);
     }
 
     // Add new term
