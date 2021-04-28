@@ -73,12 +73,6 @@ function Viewer(parent, config) {
             this.osd.initializeColorHistogram();
         }
 
-        // if users can change the channel settings
-        if (this.parameters.acls && this.parameters.acls.channels &&
-            this.parameters.acls.channels.canUpdate) {
-            this.dispatchEvent('allowChannelConfigUpdate', {});
-        }
-
         // after each resize, make sure svgs are properly positioned
         this.osd.addHandler('resize', this.resizeSVG);
 
@@ -106,7 +100,7 @@ function Viewer(parent, config) {
                 if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
                     var imageSize = event.item.getContentSize()
                     var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
-                                    && _self.parameters.acls.mainImage.canUpdate;
+                                    && _self.parameters.acls.mainImage.canUpdateDefaultZIndex;
 
                     _self.dispatchEvent('initializeZPlaneList', {
                         "totalCount": _self.parameters.zPlane.count,
@@ -811,8 +805,13 @@ function Viewer(parent, config) {
                 }
 
                 // config
-                if (typeof channelInfo.channelConfig === "object") {
+                if (typeof channelInfo.channelConfig === "object" && channelInfo.channelConfig != null) {
                     options.channelConfig = channelInfo.channelConfig;
+                }
+
+                // channel acls
+                if (typeof channelInfo.acls === "object" && channelInfo.acls != null) {
+                    options.acls = channelInfo.acls;
                 }
 
                 // used for internal logic of channel
@@ -835,7 +834,8 @@ function Viewer(parent, config) {
                     hue : channel["hue"],
                     displayGreyscale : channel['displayGreyscale'],
                     osdItemId: channel["id"],
-                    isDisplay: channel["isDisplay"]
+                    isDisplay: channel["isDisplay"],
+                    acls: options['acls']
                 });
             }
 

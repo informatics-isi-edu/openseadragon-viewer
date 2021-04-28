@@ -20,6 +20,8 @@ function ChannelItem(data) {
     this.parent = data.parent || null;
     this.isDisplay = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
     this.isExpand = (typeof data["isDisplay"] === "boolean") ? data["isDisplay"] : true;
+    this.acls = (typeof data["acls"] === "object" && data["acls"] != null) ? data["acls"] : {};
+
     this.elem = null;
 
     this.originalSettings = {
@@ -580,9 +582,7 @@ function ChannelItem(data) {
             channeElem.querySelector(".setting").classList.add("no-hue");
         }
 
-        if (!this.parent.canUpdateChannelConfig) {
-            channeElem.querySelector(".save-settings").style.display = "none";
-        }
+        channeElem.querySelector(".save-settings").style.display = this.acls.canUpdateConfig ? "display-inline" : "none";
 
 
         this.elem = channeElem;

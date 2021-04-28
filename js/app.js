@@ -105,9 +105,6 @@ var OSDViewer = (function (_config) {
             case "replaceChannelList":
                 toolbar && toolbar.replaceChannelList(data);
                 break;
-            case "allowChannelConfigUpdate":
-                toolbar && toolbar.allowChannelConfigUpdate();
-                break;
             case "onChangeStrokeScale":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
