@@ -36,6 +36,7 @@ function Viewer(parent, config) {
 
     this.delayedResizeSensorFunc;
     this._resizeSensorDelay = 200;
+    this._showChannelNamesOverOSD = true;
 
     // Init
     this.init = function (utils, params) {
@@ -186,8 +187,24 @@ function Viewer(parent, config) {
         });
     };
 
+    this.toggleShowChannelNamesOverOSD = function() {
+        _self._showChannelNamesOverOSD = !_self._showChannelNamesOverOSD;
+        _self.renderChannelsOnOSD()
+    }
+
     this.renderChannelsOnOSD = function() {
         console.log("calling channel render");
+        var overlayContainer = document.getElementById("overlay-container");
+
+        if (!_self._showChannelNamesOverOSD) {
+            overlayContainer.style.display = 'none';
+            return;
+        } else {
+            overlayContainer.style.display = 'block';
+        }
+
+        var divWidth = document.getElementById("overlay-container").offsetWidth
+
         var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
         var channelArray = [];
 
@@ -198,13 +215,8 @@ function Viewer(parent, config) {
         }
 
         // channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray)));
-
-        var divWidth = document.getElementById("overlay-container").offsetWidth
         var fontSize = _self.getFontSize(channelArray, divWidth);
-
-        console.log("channelArray", channelArray, fontSize);
-
-        var overlayContainer = document.getElementById("overlay-container");
+        
         overlayContainer.style.fontSize = fontSize + 'pt';
         overlayContainer.innerHTML = "";
 
@@ -221,7 +233,7 @@ function Viewer(parent, config) {
             // find how many names can fit in a single line
             var lineWidth = 0
             while (end < channelArray.length && lineWidth + _self.getTextWidth(channelArray[end][0], fontSize) < constants.USABLE_AREA * divWidth) {
-                lineWidth += _self.getTextWidth(channelArray[end][0], fontSize) + 20;
+                lineWidth += _self.getTextWidth(channelArray[end][0], fontSize) + 40;
                 var spanContent = document.createElement('span');
                 spanContent.classList.add('channel-name');
                 spanContent.style.color = channelArray[end][1];
@@ -254,14 +266,14 @@ function Viewer(parent, config) {
         var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
         // if the channel name fits return the name as it is
-        if (_self.getTextWidth(channelName, font) < divWidth * constants.USABLE_AREA) {
+        if (_self.getTextWidth(channelName, font) + 40 < divWidth * constants.USABLE_AREA) {
             return channelName;
         }
 
         for (let i = channelName.length - 1; i >= 0; i--) {
             
             // starrt removing chnaraters from the right one at a time, until the name would fit
-            if (_self.getTextWidth(channelName.slice(0, i) + '...', font) < divWidth * constants.USABLE_AREA) {
+            if (_self.getTextWidth(channelName.slice(0, i) + '...', font) + 40 < divWidth * constants.USABLE_AREA) {
                 // return the updated name
                 return channelName.slice(0, i) + '...';
             }
@@ -281,6 +293,8 @@ function Viewer(parent, config) {
         var font = constants.MAX_FONT;
         var maxLines = constants.MAX_LINES
 
+        var usableArea = constants.USABLE_AREA * divWidth;
+
         while (font > 14) {
             // min font value would be 14
 
@@ -290,8 +304,8 @@ function Viewer(parent, config) {
 
             for (i = 0; i < channelData.length && curLine < maxLines; i++) {
                 // add each channel name
-                curWidth += _self.getTextWidth(channelData[i][0], font) + 20
-                if (i + 1 < channelData.length && curWidth + _self.getTextWidth(channelData[i + 1][0], font) + 20 >= constants.USABLE_AREA * divWidth) {
+                curWidth += _self.getTextWidth(channelData[i][0], font) + 40
+                if (i + 1 < channelData.length && curWidth + _self.getTextWidth(channelData[i + 1][0], font) + 40 >= usableArea) {
                     // if the next name wont fit in the current line, add a new line
                     curWidth = 0
                     curLine += 1
