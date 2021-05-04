@@ -132,16 +132,15 @@ function ChannelList(parent) {
     }
 
     this.toggleChannelNames = function() {
-        console.log("toggle channel names", _self.parent);
         _self.showChannelNamesOnOSD = !_self.showChannelNamesOnOSD;
         _self.parent.parent.viewer.toggleShowChannelNamesOverOSD();
 
         var showChannelNamesDiv = document.getElementById('toggle-channel-names');
 
         if (_self.showChannelNamesOnOSD) {
-            showChannelNamesDiv.innerHTML = '<span class="fa fa-eye-slash"></span> Hide Channel Names'
+            showChannelNamesDiv.innerHTML = 'Hide Channel Names'
         } else {
-            showChannelNamesDiv.innerHTML = '<span class="fa fa-eye"></span> Show Channel Names'
+            showChannelNamesDiv.innerHTML = 'Show Channel Names'
         }
 
     }
@@ -162,7 +161,7 @@ function ChannelList(parent) {
                 '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">',
                     '<li>',
                         '<span class="channel-hamburger-item" id="toggle-channel-names">',
-                            '<span class="fa fa-eye-slash"></span> Hide Channel Names',
+                            'Hide Channel Names',
                         '</span>',
                     '</li>',
                 '</ul>',
@@ -207,6 +206,10 @@ function ChannelList(parent) {
             }
             listElem.querySelector(".groups").appendChild(collection[id].elem);
         }
+
+        $(document).on('click', '.all-channel-controls .dropdown-menu', function (e) {
+            e.stopPropagation();
+        });
 
         this.elem = listElem;
 
