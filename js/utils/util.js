@@ -17,14 +17,12 @@ Utils.prototype.queryForRetina = function(canvas) {
 
 // Add attribution watermark
 
-Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, channelData) {
+Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, channelData, addChannelNames) {
     if(!watermark || !canvas) return;
 
     if (!channelData) {
         channelData = [];
     }
-
-    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
     var fsize = 20,
         h = canvas.height,
@@ -88,6 +86,17 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
+    if (addChannelNames) {
+        this.addChannelNames(ctx, channelData, w);
+    }
+
+    ctx.restore();
+    // return ctx;
+}
+
+Utils.prototype.addChannelNames = function(ctx, channelData, w) {
+    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+
     // Find the font size that would fit all the content
     var newFont = this.getFontSize(ctx, channelData, w)
     ctx.font = newFont + "pt Sans-serif";
@@ -117,9 +126,6 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
         line += 1;
         start = end;
     }
-
-    ctx.restore();
-    // return ctx;
 }
 
 /**

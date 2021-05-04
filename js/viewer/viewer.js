@@ -673,7 +673,7 @@ function Viewer(parent, config) {
             if (errored) return;
 
             // add the water mark to the image
-            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray);
+            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray, _self._showChannelNamesOverOSD);
 
             // turn it into an image
             rawImg = newCanvas.toDataURL("image/jpeg", 1);
