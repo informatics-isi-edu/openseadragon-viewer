@@ -5,8 +5,8 @@ var OSDViewer = (function (_config) {
         viewer = null,
         toolbar = null;
 
-    var alertService = new AlertService(utils);
-    var errorService = new ErrorService(utils);
+    var alertService = new AlertService();
+    var errorService = new ErrorService();
     var constants = new Constants();
 
     var init = function(){
@@ -16,6 +16,7 @@ var OSDViewer = (function (_config) {
         // if there are query parameters, we should initialize viewer
         var url = document.location.href;
         if (url.indexOf("?") != -1) {
+            // TODO we don't need to pass utils anymore
             viewer.init(utils, utils.getQueryParams(url));
         }
 
@@ -308,7 +309,8 @@ var OSDViewer = (function (_config) {
         constants: constants,
         init : init,
         dispatchEvent : dispatchEvent,
-        receiveChaiseEvent : receiveChaiseEvent
+        receiveChaiseEvent : receiveChaiseEvent,
+        utils: utils
     }
 }(_config));
 

@@ -24,4 +24,14 @@ function Constants () {
         },
         writable: false
     });
+
+    Object.defineProperty(_self, 'SCREENSHOT_CONFIG', {
+        value: {
+            MAX_LINES: 3,
+            MAX_FONT: 20,
+            MIN_FONT: 14,
+            USABLE_AREA: 0.8
+        },
+        writable: false
+    });
 }

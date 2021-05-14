@@ -1,11 +1,9 @@
-function AlertService(utils) {
+function AlertService() {
     var _self = this;
-
-    this._utils = utils;
 
     this.showPseudoColorAlert = function (channel) {
         // TODO should be moved to a strings.js
-        var message = "Given Pseudo Color (" + _self._utils.colorRGBToHex(channel.rgb) + ") for channel \"" + channel.name + "\" is invalid and therefore ignored.";
+        var message = "Given Pseudo Color (" + OSDViewer.utils.colorRGBToHex(channel.rgb) + ") for channel \"" + channel.name + "\" is invalid and therefore ignored.";
 
         OSDViewer.dispatchEvent( "showAlert", { type: "warning", message: message })
     }
@@ -16,10 +14,8 @@ function AlertService(utils) {
 }
 
 
-function ErrorService(utils) {
+function ErrorService() {
     var _self = this;
-
-    this._utils = utils;
 
     this.showPopupError = function (header, message, isDismissible, clickActionMessage) {
         OSDViewer.dispatchEvent("showPopupError", {

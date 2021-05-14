@@ -189,7 +189,7 @@ Channel.prototype.setMultiple = function (settings) {
 
 
 Channel.prototype.set = function (type, value) {
-    if (!type) { return }
+    if (typeof type !== "string") type = "";
 
     switch (type) {
         case "blackLevel":
@@ -211,9 +211,59 @@ Channel.prototype.set = function (type, value) {
         case "displayGreyscale":
             this.displayGreyscale = (value === true);
             break;
+        default:
+            break;
     }
+
+    // make sure the label is updated
+    this.renderLabel();
 }
 
 Channel.prototype.setIsDisplay = function (isDisplay) {
     this.isDisplay = (isDisplay == true);
+
+    // make sure the label is updated
+    this.renderLabel();
+}
+
+
+Channel.prototype.renderLabel = function (imgWidth, imgHeight) {
+    if (!this.isMultiChannel) {
+        return;
+    }
+
+    if (!this.rendered) {
+        this.labelElement = document.createElement("div");
+        this.labelElement.innerHTML = this.name;
+        this.labelElement.setAttribute("class", "channel-label-overlay");
+    }
+
+    if (this.hue != null) {
+        this.labelElement.setAttribute("style", "color: rgb(" + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ")");
+    }
+
+    if (this.deactivateHue) {
+        this.labelElement.setAttribute("style", "color: #ccc");
+    }
+
+    if (!this.isDisplay) {
+        this.labelElement.classList.remove("visible");
+    } else {
+        this.labelElement.classList.add("visible");
+    }
+
+    if (!this.rendered) {
+        this.rendered = true;
+        document.getElementById("overlay-container").appendChild(this.labelElement);
+    }
+}
+
+Channel.prototype.getTextColor = function() {
+    if (this.deactivateHue) {
+        return "#ccc";
+    }
+    if (this.hue != null) {
+        return 'rgb(' + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ')';
+    }
+    return 'white';
 }
