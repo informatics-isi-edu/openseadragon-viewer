@@ -34,8 +34,11 @@ function Viewer(parent, config) {
 
     this.svgFiles = {};
 
+    // resize function to change how channel names are displayed on the OSD
     this.delayedResizeSensorFunc;
     this._resizeSensorDelay = 200;
+
+    // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverOSD = true;
 
     // Init
@@ -187,15 +190,18 @@ function Viewer(parent, config) {
         });
     };
 
+    // This function toggles _showChannelNamesOverOSD
     this.toggleShowChannelNamesOverOSD = function() {
         _self._showChannelNamesOverOSD = !_self._showChannelNamesOverOSD;
         _self.renderChannelsOnOSD()
     }
 
+    // This function renders the Channel names on the OSD, inside the overlay container
     this.renderChannelsOnOSD = function() {
-        console.log("calling channel render");
+        // console.log("calling channel render");
         var overlayContainer = document.getElementById("overlay-container");
 
+        // the channel names are shown based on the value of _showChannelNamesOverOSD
         if (!_self._showChannelNamesOverOSD) {
             overlayContainer.style.display = 'none';
             return;
@@ -215,13 +221,14 @@ function Viewer(parent, config) {
         }
 
         // channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray)));
-        var fontSize = _self.getFontSize(channelArray, divWidth);
+        var fontSize = _self.getFontSizeForOSD(channelArray, divWidth);
         
         overlayContainer.style.fontSize = fontSize + 'pt';
         overlayContainer.innerHTML = "";
 
+        // update the channel names so that they can fit into the given space
         for (let i = 0; i < channelArray.length; i++) {
-            channelArray[i][0] = this.getUpdatedChannelName(channelArray[i][0], divWidth, fontSize);
+            channelArray[i][0] = this.getUpdatedChannelNameForOSD(channelArray[i][0], divWidth, fontSize);
         }
 
         var start = 0, end = 0, line = 0;
@@ -248,7 +255,7 @@ function Viewer(parent, config) {
                 hasMore = false
             }
 
-            // draw the line & names
+            // Add the names to the line
             line += 1;
             start = end;
             if (line == constants.MAX_LINES && hasMore) {
@@ -262,7 +269,14 @@ function Viewer(parent, config) {
         }
     }
 
-    this.getUpdatedChannelName = function (channelName, divWidth, font) {
+    /**
+     * This function returns the updated channel name, i.e. if the channel name wont fit in a single line, it add ...
+     * @param {String} channelName
+     * @param {Int} divWidth
+     * @param {Int} font
+     * @returns {String}
+     */
+    this.getUpdatedChannelNameForOSD = function (channelName, divWidth, font) {
         var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
         // if the channel name fits return the name as it is
@@ -280,6 +294,12 @@ function Viewer(parent, config) {
         }
     }
 
+    /**
+     * This function return the width of a given string and font size
+     * @param {String} text
+     * @param {Int} font
+     * @returns {Int}
+     */
     this.getTextWidth = function(text, font) {
         this.element = document.createElement('canvas');
         this.context = this.element.getContext("2d");
@@ -287,7 +307,13 @@ function Viewer(parent, config) {
         return this.context.measureText(text).width;
     }
 
-    this.getFontSize = function (channelData, divWidth) {
+    /**
+     * This function returns the font size which will be used in the screenshot. We start with font 20 and reduce it by 2 until the channel data can fit. The min font size is 14.
+     * @param {Array} channelData
+     * @param {Int} divWidth
+     * @returns {Int}
+     */
+    this.getFontSizeForOSD = function (channelData, divWidth) {
         var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
 
         var font = constants.MAX_FONT;
