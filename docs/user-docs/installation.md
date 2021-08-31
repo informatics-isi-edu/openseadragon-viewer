@@ -39,4 +39,4 @@
 
 ## Usage
 
-openseadragon can be used as a standalone web application, or inside an iframe to communicate with its parent web application. See [openseadargon-viewer usage](docs/user-docs/usage.md) for more details.
+openseadragon can be used as a standalone web application, or inside an iframe to communicate with its parent web application. See [openseadargon-viewer usage](usage.md) for more details.

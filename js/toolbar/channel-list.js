@@ -28,6 +28,7 @@ function ChannelList(parent) {
                     displayGreyscale: items[i]["displayGreyscale"],
                     osdItemId: id,
                     isDisplay: items[i]["isDisplay"],
+                    acls: items[i]["acls"],
                     parent: _self
                 });
 
@@ -36,19 +37,9 @@ function ChannelList(parent) {
                 if (this.elem != null) {
                     item.render();
                     this.elem.querySelector(".groups").appendChild(item.elem);
-                };
+                }
             }
         }
-    }
-
-    this.allowChannelConfigUpdate = function () {
-        this.canUpdateChannelConfig = true;
-
-        // show all the save buttons
-        _self.elem.querySelector("#save-all-channels").style.display = "inline-block";
-        _self.elem.querySelectorAll(".save-settings").forEach(function(el) {
-            el.style.display = "inline-block";
-        });
     }
 
     this.replaceList = function(items) {
@@ -109,7 +100,9 @@ function ChannelList(parent) {
         btn.className = "channels-control glyphicon glyphicon-refresh glyphicon-refresh-animate";
 
         for (var id in _self.collection) {
-            data.push(_self.collection[id].saveChannelSettings(event, true));
+            if (_self.collection.hasOwnProperty(id) && _self.collection[id].acls.canUpdateConfig) {
+                data.push(_self.collection[id].saveChannelSettings(event, true));
+            }
         }
 
         _self.parent.dispatchEvent('updateChannelConfig', data);
@@ -195,9 +188,14 @@ function ChannelList(parent) {
                 "<div class='groups'></div>"
             ].join("");
 
-            if (!this.canUpdateChannelConfig) {
-                listElem.querySelector("#save-all-channels").style.display = "none";
+            var canUpdateAtLeastOne  = false;
+            for (id in collection) {
+                if (collection.hasOwnProperty(id) && collection[id].acls.canUpdateConfig) {
+                    canUpdateAtLeastOne = true;
+                    break;
+                }
             }
+            listElem.querySelector("#save-all-channels").style.display = canUpdateAtLeastOne ? "inline-block" : "none";
         }
         // console.log("Collection are herre",  collection,Object.keys(collection).length === 0 && collection.constructor === Object);
         for (id in collection) {
