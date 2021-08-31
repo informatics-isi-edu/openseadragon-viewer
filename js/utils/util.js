@@ -557,6 +557,7 @@ ChannelNamesOverlayUtils.prototype.addChannelNames2Canvas = function (ctx, chann
 
 /**
  * This function returns the updated channel name, i.e. if the channel name wont fit in a single line, it add ...
+ * TODO could potentially be merged with the other function used for overlay
  * @param {String} channelName
  * @param {canvas context} ctx
  * @param {Int} canvasWidth
@@ -609,6 +610,8 @@ ChannelNamesOverlayUtils.prototype.getUpdatedChannelNameForCanvas = function (ch
 /**
  * This function returns the font size which will be used in the screenshot. 
  * We start with font 20 and reduce it by 2 until the channel data can fit into the canvas. The min font size is 14.
+ * 
+ * TODO could potentially be merged with the other function used for overlay
  * @param {canvas context} ctx
  * @param {Array} channelData
  * @param {Int} canvasWidth

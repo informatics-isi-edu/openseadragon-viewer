@@ -39,6 +39,7 @@
     flex: 1;
     /* make sure it correctly wraps */
     white-space: initial;
+    overflow-wrap: anywhere;
 }
 
 #navMenuContent .groups .channelItem .channel-control-btn {

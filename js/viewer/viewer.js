@@ -35,7 +35,7 @@ function Viewer(parent, config) {
     this.svgFiles = {};
 
     // This boolean variable controls whether to show Channel names over the OSD or not.
-    this._showChannelNamesOverOSD = true;
+    this._showChannelNamesOverlay = false;
 
     // Init
     this.init = function (utils, params) {
@@ -182,26 +182,32 @@ function Viewer(parent, config) {
         });
     };
 
-    // This function toggles _showChannelNamesOverOSD
+    // This function toggles _showChannelNamesOverlay
     this.toggleChannelNamesOverlay = function() {
-        _self._showChannelNamesOverOSD = !_self._showChannelNamesOverOSD;
+        _self._showChannelNamesOverlay = !_self._showChannelNamesOverlay;
         _self.renderChannelNamesOverlay();
     }
 
-    // This function renders the Channel names on the OSD, inside the overlay container
+    /**
+     * This function renders the Channel names on the OSD, inside the overlay container
+     * Since we have to find the proper fontsize and truncated name, we cannot just 
+     * update one name while not affecting the rest. so each time that one channel
+     * is toggled, we have to do the logic from start.
+     */
     this.renderChannelNamesOverlay = function() {
         // console.log("calling channel render");
         var overlayContainer = document.getElementById("channel-names-overlay-container");
 
-        // the channel names are shown based on the value of _showChannelNamesOverOSD
-        if (!_self._showChannelNamesOverOSD) {
+        // the channel names are shown based on the value of _showChannelNamesOverlay
+        // we're not showing the overlay for images with just one channel
+        if (!_self._showChannelNamesOverlay) {
             overlayContainer.style.display = 'none';
             return;
         } else {
             overlayContainer.style.display = 'block';
         }
 
-        var divWidth = document.getElementById("channel-names-overlay-container").offsetWidth
+        var divWidth = overlayContainer.offsetWidth
 
         var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
         var channelArray = [];
@@ -213,7 +219,6 @@ function Viewer(parent, config) {
             }
         }
 
-        // channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray)));
         var fontSize = _self._utils.channelNamesOverlay.getFontSize(channelArray, divWidth);
         
         overlayContainer.style.fontSize = fontSize + 'pt';
@@ -244,6 +249,8 @@ function Viewer(parent, config) {
                 spanContent.innerHTML = channelArray[end][0];
                 lineContent.appendChild(spanContent);
                 
+                // attaching the element to the channel object, so we can just update its color
+                // instead of creating the overlay again
                 _self.channels[channelArray[end][2]].setOverlayElement(spanContent);
 
                 end += 1;
@@ -605,7 +612,7 @@ function Viewer(parent, config) {
 
         var channelArray = [];
 
-        if (_self._showChannelNamesOverOSD) {
+        if (_self._showChannelNamesOverlay) {
             for (id in this.channels) {
                 if (this.channels[id].isDisplay) {
                     channelArray.push([this.channels[id].name, this.channels[id].getOverlayColor()])
@@ -934,6 +941,9 @@ function Viewer(parent, config) {
                 // used for internal logic of channel
                 options['isMultiChannel'] = (params.info.length > 1);
 
+                // by default we're only channel name overlay for multi-channel images
+                _self._showChannelNamesOverlay = (params.info.length > 1);
+
                 // only show a few first
                 options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);
 
@@ -967,7 +977,10 @@ function Viewer(parent, config) {
 
         if (!usePreviousChannelInfo) {
             // Dispatch event to toolbar to update channel list
-            _self.dispatchEvent('replaceChannelList', channelList);
+            _self.dispatchEvent('replaceChannelList', {
+                channelList: channelList,
+                showChannelNamesOverlay: _self._showChannelNamesOverlay
+            });
         }
 
     }

@@ -5,7 +5,7 @@ function ChannelList(parent) {
     this.elem = null;
     this.collection = {};
     this.parent = parent || null;
-    this.showChannelNamesOnOSD = true;
+    this.showChannelNamesOverlay = false;
 
     // Add new channel items
     this.add = function(items) {
@@ -42,10 +42,12 @@ function ChannelList(parent) {
         }
     }
 
-    this.replaceList = function(items) {
+    this.replaceList = function(data) {
         this.collection = {};
         this.elem = null;
-        this.add(items);
+        this.add(data.channelList);
+        this.showChannelNamesOverlay = data.showChannelNamesOverlay;
+
         this.render();
     }
 
@@ -125,12 +127,12 @@ function ChannelList(parent) {
     }
 
     this.toggleChannelNames = function() {
-        _self.showChannelNamesOnOSD = !_self.showChannelNamesOnOSD;
+        _self.showChannelNamesOverlay = !_self.showChannelNamesOverlay;
         _self.parent.dispatchEvent('toggleChannelNamesOverlay');
 
         var showChannelNamesDiv = document.getElementById('toggle-channel-names');
 
-        if (_self.showChannelNamesOnOSD) {
+        if (_self.showChannelNamesOverlay) {
             showChannelNamesDiv.innerHTML = 'Hide Channel Names'
         } else {
             showChannelNamesDiv.innerHTML = 'Show Channel Names'
@@ -154,7 +156,7 @@ function ChannelList(parent) {
                 '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">',
                     '<li>',
                         '<span class="channel-hamburger-item" id="toggle-channel-names">',
-                            'Hide Channel Names',
+                            (this.showChannelNamesOverlay ? 'Hide' : 'Show') + ' Channel Names',
                         '</span>',
                     '</li>',
                 '</ul>',
