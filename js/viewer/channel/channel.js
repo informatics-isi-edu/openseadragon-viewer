@@ -181,9 +181,17 @@ function _populateDefaultGamma (self) {
 Channel.prototype.setMultiple = function (settings) {
     var self = this, type;
     for(type in settings) {
-        if (settings.hasOwnProperty(type)) {
+        if (settings.hasOwnProperty(type) && type != "displayGreyscale") {
             self.set(type, settings[type]);
         }
+    }
+
+    // changing hue and saturation will change this value
+    // if displayGreyscale is passed, we have to make sure we're honoring
+    // it and not changing it based on hue or saturation change
+    type = "displayGreyscale";
+    if (type in settings) {
+        self.set(type, settings[type]);
     }
 }
 
