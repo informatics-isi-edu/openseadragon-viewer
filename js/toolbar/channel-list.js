@@ -126,7 +126,7 @@ function ChannelList(parent) {
 
     this.toggleChannelNames = function() {
         _self.showChannelNamesOnOSD = !_self.showChannelNamesOnOSD;
-        _self.parent.parent.viewer.toggleShowChannelNamesOverOSD();
+        _self.parent.dispatchEvent('toggleChannelNamesOverlay');
 
         var showChannelNamesDiv = document.getElementById('toggle-channel-names');
 

@@ -216,50 +216,28 @@ Channel.prototype.set = function (type, value) {
     }
 
     // make sure the label is updated
-    this.renderLabel();
+    this.updateOverlayColor();
 }
 
 Channel.prototype.setIsDisplay = function (isDisplay) {
     this.isDisplay = (isDisplay == true);
-
-    // make sure the label is updated
-    this.renderLabel();
 }
 
 
-Channel.prototype.renderLabel = function (imgWidth, imgHeight) {
-    if (!this.isMultiChannel) {
-        return;
-    }
+Channel.prototype.setOverlayElement = function (el) {
+    this.overlayElement = el;
+}
 
-    if (!this.rendered) {
-        this.labelElement = document.createElement("div");
-        this.labelElement.innerHTML = this.name;
-        this.labelElement.setAttribute("class", "channel-label-overlay");
-    }
-
-    if (this.hue != null) {
-        this.labelElement.setAttribute("style", "color: rgb(" + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ")");
-    }
-
-    if (this.deactivateHue) {
-        this.labelElement.setAttribute("style", "color: #ccc");
-    }
-
-    if (!this.isDisplay) {
-        this.labelElement.classList.remove("visible");
-    } else {
-        this.labelElement.classList.add("visible");
-    }
-
-    if (!this.rendered) {
-        this.rendered = true;
-        document.getElementById("overlay-container").appendChild(this.labelElement);
+Channel.prototype.updateOverlayColor = function () {
+    try {
+        this.overlayElement.setAttribute("style", "color: " + this.getOverlayColor());
+    } catch (exp) {
+        // the overlay might not be visible
     }
 }
 
-Channel.prototype.getTextColor = function() {
-    if (this.deactivateHue) {
+Channel.prototype.getOverlayColor = function() {
+    if (this.displayGreyscale) {
         return "#ccc";
     }
     if (this.hue != null) {

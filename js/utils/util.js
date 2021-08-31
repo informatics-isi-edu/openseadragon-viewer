@@ -1,5 +1,5 @@
 function Utils(){
-    this.channelNameOverlay = new ChannelNameOverlayUtils();
+    this.channelNamesOverlay = new ChannelNamesOverlayUtils();
 };
 
 Utils.prototype.queryForRetina = function(canvas) {
@@ -18,12 +18,8 @@ Utils.prototype.queryForRetina = function(canvas) {
 
 // Add attribution watermark
 
-Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, channelData, addChannelNames) {
+Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, channelData) {
     if(!watermark || !canvas) return;
-
-    if (!channelData) {
-        channelData = [];
-    }
 
     var fsize = 20,
         h = canvas.height,
@@ -87,9 +83,8 @@ Utils.prototype.addWaterMark2Canvas = function (canvas, watermark, scalebar, cha
     ctx.fillStyle = "rgb(51, 51, 51)";
     ctx.fillText(watermark,x,y+scalebar.yOffset);
 
-    if (addChannelNames) {
-        this.channelNameOverlay.addChannelNames(ctx, channelData, w);
-    }
+    // add channel names overlay
+    this.channelNamesOverlay.addChannelNames2Canvas(ctx, channelData, w);
 
     ctx.restore();
     // return ctx;
@@ -501,7 +496,20 @@ Utils.prototype.round = function (value, decimals) {
   return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }
 
-function ChannelNameOverlayUtils() { }
+/**
+ * This function return the width of a given string and font size
+ * @param {String} text
+ * @param {Int} font
+ * @returns {Int}
+ */
+Utils.prototype.getTextWidth = function (text, font) {
+    this.element = document.createElement('canvas');
+    this.context = this.element.getContext("2d");
+    this.context.font = font + 'pt Sans-serif';
+    return this.context.measureText(text).width;
+}
+
+function ChannelNamesOverlayUtils() { }
 
 /**
  * This function adds channel names to the screenshot
@@ -509,16 +517,20 @@ function ChannelNameOverlayUtils() { }
  * @param {Array} channelData
  * @param {Int} w
  */
-ChannelNameOverlayUtils.prototype.addChannelNames = function (ctx, channelData, w) {
-    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+ChannelNamesOverlayUtils.prototype.addChannelNames2Canvas = function (ctx, channelData, w) {
+    if (!Array.isArray(channelData) || channelData.length === 0) {
+        return;
+    }
+
+    var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
 
     // Find the font size that would fit all the content
-    var newFont = this.getFontSize(ctx, channelData, w)
+    var newFont = this.getFontSizeForCanvas(ctx, channelData, w)
     ctx.font = newFont + "pt Sans-serif";
 
     // Update the channel names to the they can fit in a single line, if the name is too long by truncating the name & add ...
     for (let i = 0; i < channelData.length; i++) {
-        channelData[i][0] = this.getUpdatedChannelName(channelData[i][0], ctx, w);
+        channelData[i][0] = this.getUpdatedChannelNameForCanvas(channelData[i][0], ctx, w);
     }
 
     // start adding the words to the canvas
@@ -537,7 +549,7 @@ ChannelNameOverlayUtils.prototype.addChannelNames = function (ctx, channelData, 
         }
 
         // draw the line & names
-        this.addChannelLine(ctx, channelData.slice(start, end), line, w, hasMore);
+        this.addChannelLineToCanvas(ctx, channelData.slice(start, end), line, w, hasMore);
         line += 1;
         start = end;
     }
@@ -550,8 +562,8 @@ ChannelNameOverlayUtils.prototype.addChannelNames = function (ctx, channelData, 
  * @param {Int} canvasWidth
  * @returns {String}
  */
-ChannelNameOverlayUtils.prototype.getUpdatedChannelName = function (channelName, ctx, canvasWidth) {
-    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+ChannelNamesOverlayUtils.prototype.getUpdatedChannelNameForCanvas = function (channelName, ctx, canvasWidth) {
+    var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
 
     // if the channel name fits return the name as it is
     if (ctx.measureText(channelName).width < canvasWidth * constants.USABLE_AREA) {
@@ -568,14 +580,42 @@ ChannelNameOverlayUtils.prototype.getUpdatedChannelName = function (channelName,
 }
 
 /**
- * This function returns the font size which will be used in the screenshot. We start with font 20 and reduce it by 2 until the channel data can fit into the canvas. The min font size is 14.
+ * This function returns the updated channel name, 
+ * i.e. if the channel name wont fit in a single line, it add ...
+ * @param {String} channelName
+ * @param {Int} containerWidth
+ * @param {Int} font
+ * @returns {String}
+ */
+ ChannelNamesOverlayUtils.prototype.getUpdatedChannelName = function (channelName, containerWidth, font) {
+    var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG,
+        utils = window.OSDViewer.utils;
+
+    // if the channel name fits return the name as it is
+    if (utils.getTextWidth(channelName, font) + 40 < containerWidth * constants.USABLE_AREA) {
+        return channelName;
+    }
+
+    for (let i = channelName.length - 1; i >= 0; i--) {
+        
+        // starrt removing chnaraters from the right one at a time, until the name would fit
+        if (utils.getTextWidth(channelName.slice(0, i) + '...', font) + 40 < containerWidth * constants.USABLE_AREA) {
+            // return the updated name
+            return channelName.slice(0, i) + '...';
+        }
+    }
+}
+
+/**
+ * This function returns the font size which will be used in the screenshot. 
+ * We start with font 20 and reduce it by 2 until the channel data can fit into the canvas. The min font size is 14.
  * @param {canvas context} ctx
  * @param {Array} channelData
  * @param {Int} canvasWidth
  * @returns {Int}
  */
-ChannelNameOverlayUtils.prototype.getFontSize = function (ctx, channelData, canvasWidth) {
-    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+ChannelNamesOverlayUtils.prototype.getFontSizeForCanvas = function (ctx, channelData, canvasWidth) {
+    var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
 
     var font = constants.MAX_FONT;
     var maxLines = constants.MAX_LINES
@@ -611,6 +651,51 @@ ChannelNameOverlayUtils.prototype.getFontSize = function (ctx, channelData, canv
 }
 
 /**
+ * This function returns the font size which will be used in the overlay.
+ * We start with font 20 and reduce it by 2 until the channel data can fit. The min font size is 14.
+ * @param {Array} channelData
+ * @param {Int} divWidth
+ * @returns {Int}
+ */
+ChannelNamesOverlayUtils.prototype.getFontSize = function (channelData, divWidth) {
+    var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG,
+        utils = window.OSDViewer.utils;
+
+    var font = constants.MAX_FONT;
+    var maxLines = constants.MAX_LINES;
+
+    var usableArea = constants.USABLE_AREA * divWidth;
+
+    while (font > 14) {
+        // min font value would be 14
+
+        var curWidth = 0;
+        var curLine = 0
+        var i;
+
+        for (i = 0; i < channelData.length && curLine < maxLines; i++) {
+            // add each channel name
+            curWidth += utils.getTextWidth(channelData[i][0], font) + 40
+            if (i + 1 < channelData.length && curWidth + utils.getTextWidth(channelData[i + 1][0], font) + 40 >= usableArea) {
+                // if the next name wont fit in the current line, add a new line
+                curWidth = 0
+                curLine += 1
+            }
+        }
+
+        if (i == channelData.length) {
+            // if all the data fit, then return the current font
+            return font;
+        }
+
+        // reduce the font size by 1, as the channel data did not fit
+        font -= 2;
+    }
+
+    return Math.max(constants.MIN_FONT, font);
+}
+
+/**
  * This function writes the channels names in a single line
  * @param {canvas context} ctx
  * @param {Array} channelData
@@ -618,8 +703,8 @@ ChannelNameOverlayUtils.prototype.getFontSize = function (ctx, channelData, canv
  * @param {Int} canvasWidth
  * @param {boolean} hasMore - has more data
  */
-ChannelNameOverlayUtils.prototype.addChannelLine = function (ctx, channelData, line, canvasWidth, hasMore) {
-    var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+ChannelNamesOverlayUtils.prototype.addChannelLineToCanvas = function (ctx, channelData, line, canvasWidth, hasMore) {
+    var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
 
     hasMore = hasMore ? hasMore : false;
     // Find width of all the text

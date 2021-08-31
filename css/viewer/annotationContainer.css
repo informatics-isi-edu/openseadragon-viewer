@@ -11,7 +11,7 @@
     position: absolute;
 }
 
-#overlay-container{
+#channel-names-overlay-container{
     position: absolute;
     top: 0px;
     left: 0px;
@@ -24,19 +24,19 @@
     pointer-events: none;
 }
 
-#overlay-container .container-line {
+#channel-names-overlay-container .container-line {
     display: flex;
     justify-content: center;
     color: white;
     margin: 5px 0;
 }
 
-#overlay-container .container-line .channel-name {
+#channel-names-overlay-container .container-line .channel-name {
     padding: 0 10px;
     background-color: black;
 }
 
-#overlay-container .channel-label-overlay {
+#channel-names-overlay-container .channel-label-overlay {
     /* position: absolute; */
     /* font-size: 20px; */
     background: black;
@@ -44,6 +44,6 @@
     display: none;
 }
 
-#overlay-container .channel-label-overlay.visible {
+#channel-names-overlay-container .channel-label-overlay.visible {
     display: inline-block;
 }

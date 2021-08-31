@@ -34,10 +34,6 @@ function Viewer(parent, config) {
 
     this.svgFiles = {};
 
-    // resize function to change how channel names are displayed on the OSD
-    this.delayedResizeSensorFunc;
-    this._resizeSensorDelay = 200;
-
     // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverOSD = true;
 
@@ -74,19 +70,10 @@ function Viewer(parent, config) {
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
 
-        // overlay
+        // channel names overlay
         var overlayContainer = document.createElement("div");
-        overlayContainer.setAttribute("id", "overlay-container");
+        overlayContainer.setAttribute("id", "channel-names-overlay-container");
         this.osd.canvas.append(overlayContainer);
-
-        var resizeSensorContainer = document.getElementById('container');
-        var x = new ResizeSensor(resizeSensorContainer, function () {
-            clearTimeout(_self.delayedResizeSensorFunc);
-            _self.delayedResizeSensorFunc = setTimeout(function () {
-                _self.renderChannelsOnOSD();
-            }, _self._resizeSensorDelay);
-        });
-        console.log(x);
 
         // whether we want to show the image color histogram or not
         this.config.osd.showHistogram = this.config.osd.showHistogram || this.parameters.showHistogram;
@@ -178,22 +165,33 @@ function Viewer(parent, config) {
                         init: true
                     });
                 }
+                
+                // render the channel names
+                _self.renderChannelNamesOverlay();
 
-                _self.renderChannelsOnOSD();
+                // resize sensor for the container
+                _self._containerResizeSensor = null;
+                new ResizeSensor(document.getElementById('container'), function () {
+                    clearTimeout(_self._containerResizeSensor);
+                    _self._containerResizeSensor = setTimeout(function () {
+                        // make sure the names can fit the new container
+                        _self.renderChannelNamesOverlay();
+                    }, 200);
+                });
             }
         });
     };
 
     // This function toggles _showChannelNamesOverOSD
-    this.toggleShowChannelNamesOverOSD = function() {
+    this.toggleChannelNamesOverlay = function() {
         _self._showChannelNamesOverOSD = !_self._showChannelNamesOverOSD;
-        _self.renderChannelsOnOSD()
+        _self.renderChannelNamesOverlay();
     }
 
     // This function renders the Channel names on the OSD, inside the overlay container
-    this.renderChannelsOnOSD = function() {
+    this.renderChannelNamesOverlay = function() {
         // console.log("calling channel render");
-        var overlayContainer = document.getElementById("overlay-container");
+        var overlayContainer = document.getElementById("channel-names-overlay-container");
 
         // the channel names are shown based on the value of _showChannelNamesOverOSD
         if (!_self._showChannelNamesOverOSD) {
@@ -203,26 +201,31 @@ function Viewer(parent, config) {
             overlayContainer.style.display = 'block';
         }
 
-        var divWidth = document.getElementById("overlay-container").offsetWidth
+        var divWidth = document.getElementById("channel-names-overlay-container").offsetWidth
 
-        var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
+        var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
         var channelArray = [];
 
         for (id in _self.channels) {
             if (_self.channels[id].isDisplay) {
-                channelArray.push([_self.channels[id].name, _self.channels[id].getTextColor()])
+                // TODO channel data should just be an object, it's a lot easier to read that way
+                channelArray.push([_self.channels[id].name, _self.channels[id].getOverlayColor(), id])
             }
         }
 
         // channelArray = channelArray.concat(channelArray.concat(channelArray.concat(channelArray)));
-        var fontSize = _self.getFontSizeForOSD(channelArray, divWidth);
+        var fontSize = _self._utils.channelNamesOverlay.getFontSize(channelArray, divWidth);
         
         overlayContainer.style.fontSize = fontSize + 'pt';
         overlayContainer.innerHTML = "";
 
         // update the channel names so that they can fit into the given space
         for (let i = 0; i < channelArray.length; i++) {
-            channelArray[i][0] = this.getUpdatedChannelNameForOSD(channelArray[i][0], divWidth, fontSize);
+            channelArray[i][0] = _self._utils.channelNamesOverlay.getUpdatedChannelName(
+                channelArray[i][0], 
+                divWidth, 
+                fontSize
+            );
         }
 
         var start = 0, end = 0, line = 0;
@@ -233,14 +236,16 @@ function Viewer(parent, config) {
 
             // find how many names can fit in a single line
             var lineWidth = 0
-            while (end < channelArray.length && lineWidth + _self.getTextWidth(channelArray[end][0], fontSize) < constants.USABLE_AREA * divWidth) {
-                lineWidth += _self.getTextWidth(channelArray[end][0], fontSize) + 40;
+            while (end < channelArray.length && lineWidth + _self._utils.getTextWidth(channelArray[end][0], fontSize) < constants.USABLE_AREA * divWidth) {
+                lineWidth += _self._utils.getTextWidth(channelArray[end][0], fontSize) + 40;
                 var spanContent = document.createElement('span');
                 spanContent.classList.add('channel-name');
                 spanContent.style.color = channelArray[end][1];
                 spanContent.innerHTML = channelArray[end][0];
                 lineContent.appendChild(spanContent);
-                // lineContent.push(channelArray[end][0])
+                
+                _self.channels[channelArray[end][2]].setOverlayElement(spanContent);
+
                 end += 1;
             }
 
@@ -261,87 +266,6 @@ function Viewer(parent, config) {
 
             overlayContainer.appendChild(lineContent);
         }
-    }
-
-    /**
-     * This function returns the updated channel name, i.e. if the channel name wont fit in a single line, it add ...
-     * @param {String} channelName
-     * @param {Int} divWidth
-     * @param {Int} font
-     * @returns {String}
-     */
-    this.getUpdatedChannelNameForOSD = function (channelName, divWidth, font) {
-        var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
-
-        // if the channel name fits return the name as it is
-        if (_self.getTextWidth(channelName, font) + 40 < divWidth * constants.USABLE_AREA) {
-            return channelName;
-        }
-
-        for (let i = channelName.length - 1; i >= 0; i--) {
-            
-            // starrt removing chnaraters from the right one at a time, until the name would fit
-            if (_self.getTextWidth(channelName.slice(0, i) + '...', font) + 40 < divWidth * constants.USABLE_AREA) {
-                // return the updated name
-                return channelName.slice(0, i) + '...';
-            }
-        }
-    }
-
-    /**
-     * This function return the width of a given string and font size
-     * @param {String} text
-     * @param {Int} font
-     * @returns {Int}
-     */
-    this.getTextWidth = function(text, font) {
-        this.element = document.createElement('canvas');
-        this.context = this.element.getContext("2d");
-        this.context.font = font + 'pt Sans-serif';
-        return this.context.measureText(text).width;
-    }
-
-    /**
-     * This function returns the font size which will be used in the screenshot. We start with font 20 and reduce it by 2 until the channel data can fit. The min font size is 14.
-     * @param {Array} channelData
-     * @param {Int} divWidth
-     * @returns {Int}
-     */
-    this.getFontSizeForOSD = function (channelData, divWidth) {
-        var constants = window.OSDViewer.constants.SCREENSHOT_CONFIG
-
-        var font = constants.MAX_FONT;
-        var maxLines = constants.MAX_LINES
-
-        var usableArea = constants.USABLE_AREA * divWidth;
-
-        while (font > 14) {
-            // min font value would be 14
-
-            var curWidth = 0;
-            var curLine = 0
-            var i;
-
-            for (i = 0; i < channelData.length && curLine < maxLines; i++) {
-                // add each channel name
-                curWidth += _self.getTextWidth(channelData[i][0], font) + 40
-                if (i + 1 < channelData.length && curWidth + _self.getTextWidth(channelData[i + 1][0], font) + 40 >= usableArea) {
-                    // if the next name wont fit in the current line, add a new line
-                    curWidth = 0
-                    curLine += 1
-                }
-            }
-
-            if (i == channelData.length) {
-                // if all the data fit, then return the current font
-                return font;
-            }
-
-            // reduce the font size by 1, as the channel data did not fit
-            font -= 2;
-        }
-
-        return Math.max(constants.MIN_FONT, font);
     }
 
     // Add new term
@@ -681,19 +605,20 @@ function Viewer(parent, config) {
 
         var channelArray = [];
 
-        for (id in this.channels) {
-            if (this.channels[id].isDisplay) {
-                channelArray.push([this.channels[id].name, this.channels[id].getTextColor()])
+        if (_self._showChannelNamesOverOSD) {
+            for (id in this.channels) {
+                if (this.channels[id].isDisplay) {
+                    channelArray.push([this.channels[id].name, this.channels[id].getOverlayColor()])
+                }
             }
         }
-        // console.log(channelArray);
 
         // add watermark and download the file
         var finalize = function () {
             if (errored) return;
 
             // add the water mark to the image
-            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray, _self._showChannelNamesOverOSD);
+            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray);
 
             // turn it into an image
             rawImg = newCanvas.toDataURL("image/jpeg", 1);
@@ -1367,7 +1292,7 @@ function Viewer(parent, config) {
         var item = this.osd.world.getItemAt(id),
             opacity = (isDisplay) ? 1 : 0;
         this.channels[id].setIsDisplay(isDisplay);
-        _self.renderChannelsOnOSD();
+        _self.renderChannelNamesOverlay();
         item.setOpacity(opacity);
 
         if (_self.config.osd.showHistogram) {

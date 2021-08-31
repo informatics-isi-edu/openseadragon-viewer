@@ -45,6 +45,8 @@
 #menuContainer #navMenuContent .channelList .dropdown-menu {
     left: -170px;
     width: 190px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 #menuContainer #navMenuContent .channelList .channel-hamburger-item {

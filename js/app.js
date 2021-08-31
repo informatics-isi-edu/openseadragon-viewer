@@ -54,6 +54,9 @@ var OSDViewer = (function (_config) {
             case "saveAnatomySVG":
                 viewer.saveAnatomySVG(data);
                 break;
+            case 'toggleChannelNamesOverlay':
+                viewer.toggleChannelNamesOverlay();
+                break;
             // Change openseadragon item overlay visibility
             case "changeOsdItemVisibility":
                 viewer.setItemVisibility(data.osdItemId, data.isDisplay);
