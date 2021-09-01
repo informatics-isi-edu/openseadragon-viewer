@@ -24,4 +24,14 @@ function Constants () {
         },
         writable: false
     });
+
+    Object.defineProperty(_self, 'CHANNEL_NAMES_OVERLAY_CONFIG', {
+        value: {
+            MAX_LINES: 3, // maximum number of lines allocated for channel names
+            MAX_FONT: 20, // starting font
+            MIN_FONT: 14, // won't go lower than this
+            USABLE_AREA: 0.8 // persentage of usable width
+        },
+        writable: false
+    });
 }

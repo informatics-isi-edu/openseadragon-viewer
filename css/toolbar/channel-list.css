@@ -31,6 +31,30 @@
     cursor: pointer;
     font-size: 15px;
 }
+
+#menuContainer #navMenuContent .channelList .channel-hamburger-button{
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+#menuContainer #navMenuContent .channelList .dropdown-menu {
+    left: -170px;
+    width: 190px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+#menuContainer #navMenuContent .channelList .channel-hamburger-item {
+    color: black;
+    padding: 10px;
+    cursor: pointer;
+}
+
 #menuContainer #navMenuContent .channelList .channels-control:active {
     color: #4674A7 !important;
 }

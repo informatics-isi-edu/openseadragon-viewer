@@ -378,7 +378,10 @@ function ChannelItem(data) {
         var attrs = ["blackLevel", "whiteLevel", "gamma"];
         // if hue control is missing, we shouldn't update the settings either
         if (og.hue != null) {
-            attrs.push("displayGreyscale", "hue", "saturation");
+            // "displayGreyscale" must be the last one because hue and saturation
+            // will change it, so we have to make sure the final state is based on
+            // the actual value and not state of hue/saturation
+            attrs.push("hue", "saturation", "displayGreyscale");
         }
         var newSettings = {};
         attrs.forEach(function (attrName) {

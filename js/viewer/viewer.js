@@ -34,6 +34,9 @@ function Viewer(parent, config) {
 
     this.svgFiles = {};
 
+    // This boolean variable controls whether to show Channel names over the OSD or not.
+    this._showChannelNamesOverlay = false;
+
     // Init
     this.init = function (utils, params) {
 
@@ -66,6 +69,11 @@ function Viewer(parent, config) {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute("id", this.config.annotation.id);
         this.osd.canvas.append(this.svg);
+
+        // channel names overlay
+        var overlayContainer = document.createElement("div");
+        overlayContainer.setAttribute("id", "channel-names-overlay-container");
+        this.osd.canvas.append(overlayContainer);
 
         // whether we want to show the image color histogram or not
         this.config.osd.showHistogram = this.config.osd.showHistogram || this.parameters.showHistogram;
@@ -157,9 +165,115 @@ function Viewer(parent, config) {
                         init: true
                     });
                 }
+                
+                // render the channel names
+                _self.renderChannelNamesOverlay();
+
+                // resize sensor for the container
+                _self._containerResizeSensor = null;
+                new ResizeSensor(document.getElementById('container'), function () {
+                    clearTimeout(_self._containerResizeSensor);
+                    _self._containerResizeSensor = setTimeout(function () {
+                        // make sure the names can fit the new container
+                        _self.renderChannelNamesOverlay();
+                    }, 200);
+                });
             }
         });
     };
+
+    // This function toggles _showChannelNamesOverlay
+    this.toggleChannelNamesOverlay = function() {
+        _self._showChannelNamesOverlay = !_self._showChannelNamesOverlay;
+        _self.renderChannelNamesOverlay();
+    }
+
+    /**
+     * This function renders the Channel names on the OSD, inside the overlay container
+     * Since we have to find the proper fontsize and truncated name, we cannot just 
+     * update one name while not affecting the rest. so each time that one channel
+     * is toggled, we have to do the logic from start.
+     */
+    this.renderChannelNamesOverlay = function() {
+        // console.log("calling channel render");
+        var overlayContainer = document.getElementById("channel-names-overlay-container");
+
+        // the channel names are shown based on the value of _showChannelNamesOverlay
+        // we're not showing the overlay for images with just one channel
+        if (!_self._showChannelNamesOverlay) {
+            overlayContainer.style.display = 'none';
+            return;
+        } else {
+            overlayContainer.style.display = 'block';
+        }
+
+        var divWidth = overlayContainer.offsetWidth
+
+        var constants = window.OSDViewer.constants.CHANNEL_NAMES_OVERLAY_CONFIG
+        var channelArray = [];
+
+        for (id in _self.channels) {
+            if (_self.channels[id].isDisplay) {
+                // TODO channel data should just be an object, it's a lot easier to read that way
+                channelArray.push([_self.channels[id].name, _self.channels[id].getOverlayColor(), id])
+            }
+        }
+
+        var fontSize = _self._utils.channelNamesOverlay.getFontSize(channelArray, divWidth);
+        
+        overlayContainer.style.fontSize = fontSize + 'pt';
+        overlayContainer.innerHTML = "";
+
+        // update the channel names so that they can fit into the given space
+        for (let i = 0; i < channelArray.length; i++) {
+            channelArray[i][0] = _self._utils.channelNamesOverlay.getUpdatedChannelName(
+                channelArray[i][0], 
+                divWidth, 
+                fontSize
+            );
+        }
+
+        var start = 0, end = 0, line = 0;
+        while (start < channelArray.length && line < constants.MAX_LINES) {
+
+            var lineContent = document.createElement("div");
+            lineContent.classList.add('container-line');
+
+            // find how many names can fit in a single line
+            var lineWidth = 0
+            while (end < channelArray.length && lineWidth + _self._utils.getTextWidth(channelArray[end][0], fontSize) < constants.USABLE_AREA * divWidth) {
+                lineWidth += _self._utils.getTextWidth(channelArray[end][0], fontSize) + 40;
+                var spanContent = document.createElement('span');
+                spanContent.classList.add('channel-name');
+                spanContent.style.color = channelArray[end][1];
+                spanContent.innerHTML = channelArray[end][0];
+                lineContent.appendChild(spanContent);
+                
+                // attaching the element to the channel object, so we can just update its color
+                // instead of creating the overlay again
+                _self.channels[channelArray[end][2]].setOverlayElement(spanContent);
+
+                end += 1;
+            }
+
+            var hasMore = true;
+            if (end >= channelArray.length) {
+                hasMore = false
+            }
+
+            // Add the names to the line
+            line += 1;
+            start = end;
+            if (line == constants.MAX_LINES && hasMore) {
+                var spanContent = document.createElement('span');
+                spanContent.classList.add('channel-name');
+                spanContent.innerHTML = '...';
+                lineContent.appendChild(spanContent);
+            }
+
+            overlayContainer.appendChild(lineContent);
+        }
+    }
 
     // Add new term
     this.addNewTerm = function(data){
@@ -496,12 +610,22 @@ function Viewer(parent, config) {
             svgProcessedCount = 0, svgTotalCount = 0,
             svgAttrs = ["x", "y", "width", "height"], svgDimension = [], svgAttr;
 
+        var channelArray = [];
+
+        if (_self._showChannelNamesOverlay) {
+            for (id in this.channels) {
+                if (this.channels[id].isDisplay) {
+                    channelArray.push([this.channels[id].name, this.channels[id].getOverlayColor()])
+                }
+            }
+        }
+
         // add watermark and download the file
         var finalize = function () {
             if (errored) return;
 
             // add the water mark to the image
-            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance);
+            self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray);
 
             // turn it into an image
             rawImg = newCanvas.toDataURL("image/jpeg", 1);
@@ -817,6 +941,9 @@ function Viewer(parent, config) {
                 // used for internal logic of channel
                 options['isMultiChannel'] = (params.info.length > 1);
 
+                // by default we're only channel name overlay for multi-channel images
+                _self._showChannelNamesOverlay = (params.info.length > 1);
+
                 // only show a few first
                 options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);
 
@@ -850,7 +977,10 @@ function Viewer(parent, config) {
 
         if (!usePreviousChannelInfo) {
             // Dispatch event to toolbar to update channel list
-            _self.dispatchEvent('replaceChannelList', channelList);
+            _self.dispatchEvent('replaceChannelList', {
+                channelList: channelList,
+                showChannelNamesOverlay: _self._showChannelNamesOverlay
+            });
         }
 
     }
@@ -1175,6 +1305,7 @@ function Viewer(parent, config) {
         var item = this.osd.world.getItemAt(id),
             opacity = (isDisplay) ? 1 : 0;
         this.channels[id].setIsDisplay(isDisplay);
+        _self.renderChannelNamesOverlay();
         item.setOpacity(opacity);
 
         if (_self.config.osd.showHistogram) {

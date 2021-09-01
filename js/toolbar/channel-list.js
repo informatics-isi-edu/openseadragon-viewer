@@ -5,6 +5,7 @@ function ChannelList(parent) {
     this.elem = null;
     this.collection = {};
     this.parent = parent || null;
+    this.showChannelNamesOverlay = false;
 
     // Add new channel items
     this.add = function(items) {
@@ -41,10 +42,12 @@ function ChannelList(parent) {
         }
     }
 
-    this.replaceList = function(items) {
+    this.replaceList = function(data) {
         this.collection = {};
         this.elem = null;
-        this.add(items);
+        this.add(data.channelList);
+        this.showChannelNamesOverlay = data.showChannelNamesOverlay;
+
         this.render();
     }
 
@@ -123,6 +126,20 @@ function ChannelList(parent) {
         });
     }
 
+    this.toggleChannelNames = function() {
+        _self.showChannelNamesOverlay = !_self.showChannelNamesOverlay;
+        _self.parent.dispatchEvent('toggleChannelNamesOverlay');
+
+        var showChannelNamesDiv = document.getElementById('toggle-channel-names');
+
+        if (_self.showChannelNamesOverlay) {
+            showChannelNamesDiv.innerHTML = 'Hide Channel Names'
+        } else {
+            showChannelNamesDiv.innerHTML = 'Show Channel Names'
+        }
+
+    }
+
 
     // Render the view
     this.render = function() {
@@ -130,6 +147,21 @@ function ChannelList(parent) {
         var id,
             collection = this.collection,
             listElem = document.createElement("div");
+
+        var channelHamburger = [
+            '<span class="dropdown">',
+                '<button class="channel-hamburger-button" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">',
+                    '<i class="channels-control fas fa-bars"></i>',
+                '</button>',
+                '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">',
+                    '<li>',
+                        '<span class="channel-hamburger-item" id="toggle-channel-names">',
+                            (this.showChannelNamesOverlay ? 'Hide' : 'Show') + ' Channel Names',
+                        '</span>',
+                    '</li>',
+                '</ul>',
+            '</span>'
+        ]
 
         listElem.setAttribute("class", "channelList");
         if (collection, Object.keys(collection).length === 0 && collection.constructor === Object) {
@@ -152,6 +184,7 @@ function ChannelList(parent) {
                         "<span data-tippy-content='Expand all the channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
                         "<span data-tippy-content='Hide all the channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
                         "<span data-tippy-content='Display all the channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
+                        channelHamburger.join(''),
                     "</div>",
                 "</div>",
                 "<div class='groups'></div>"
@@ -174,6 +207,10 @@ function ChannelList(parent) {
             listElem.querySelector(".groups").appendChild(collection[id].elem);
         }
 
+        $(document).on('click', '.all-channel-controls .dropdown-menu', function (e) {
+            e.stopPropagation();
+        });
+
         this.elem = listElem;
 
         this.elem.querySelector('#expand-all-channels').addEventListener('click', this.expandAllChannels);
@@ -181,6 +218,8 @@ function ChannelList(parent) {
         this.elem.querySelector('#collapse-all-channels').addEventListener('click', this.collapseAllChannels);
 
         this.elem.querySelector('#show-all-channels').addEventListener('click', this.showAllChannels);
+
+        this.elem.querySelector('#toggle-channel-names').addEventListener('click', this.toggleChannelNames);
 
         this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
 

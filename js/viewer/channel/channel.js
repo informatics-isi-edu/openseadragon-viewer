@@ -181,15 +181,23 @@ function _populateDefaultGamma (self) {
 Channel.prototype.setMultiple = function (settings) {
     var self = this, type;
     for(type in settings) {
-        if (settings.hasOwnProperty(type)) {
+        if (settings.hasOwnProperty(type) && type != "displayGreyscale") {
             self.set(type, settings[type]);
         }
+    }
+
+    // changing hue and saturation will change this value
+    // if displayGreyscale is passed, we have to make sure we're honoring
+    // it and not changing it based on hue or saturation change
+    type = "displayGreyscale";
+    if (type in settings) {
+        self.set(type, settings[type]);
     }
 }
 
 
 Channel.prototype.set = function (type, value) {
-    if (!type) { return }
+    if (typeof type !== "string") type = "";
 
     switch (type) {
         case "blackLevel":
@@ -211,9 +219,37 @@ Channel.prototype.set = function (type, value) {
         case "displayGreyscale":
             this.displayGreyscale = (value === true);
             break;
+        default:
+            break;
     }
+
+    // make sure the label is updated
+    this.updateOverlayColor();
 }
 
 Channel.prototype.setIsDisplay = function (isDisplay) {
     this.isDisplay = (isDisplay == true);
+}
+
+
+Channel.prototype.setOverlayElement = function (el) {
+    this.overlayElement = el;
+}
+
+Channel.prototype.updateOverlayColor = function () {
+    try {
+        this.overlayElement.setAttribute("style", "color: " + this.getOverlayColor());
+    } catch (exp) {
+        // the overlay might not be visible
+    }
+}
+
+Channel.prototype.getOverlayColor = function() {
+    if (this.displayGreyscale) {
+        return "#ccc";
+    }
+    if (this.hue != null) {
+        return 'rgb(' + OSDViewer.utils.hsv2rgb(this.hue, 1, 1) + ')';
+    }
+    return 'white';
 }
