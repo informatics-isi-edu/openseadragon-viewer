@@ -103,6 +103,9 @@ var OSDViewer = (function (_config) {
             case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
+            case "showChannelList":
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
             case "updateChannelList":
                 toolbar && toolbar.updateChannelList(data);
                 break;
@@ -189,7 +192,7 @@ var OSDViewer = (function (_config) {
                 case "updateChannelConfigDone":
                     toolbar && toolbar.updateChannelConfigDone(data);
                     break;
-                case 'filterChannels':
+                case 'toggleChannelList':
                     toolbar && toolbar.onClickedMenuHandler('channelList');
                     break;
                 case 'hideAllAnnotations':

@@ -78,15 +78,15 @@ function ToolbarController(parent, config){
     }
 
     // Binding events when toolbar menu get clicked by the user
-    this.onClickedMenuHandler = function(clickMenuType, data){
+    this.onClickedMenuHandler = function(clickMenuType, forcedStateIsExpanded){
 
         // Trigger event handler for different menu type
         switch (clickMenuType) {
             case "channelList":
-                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.channelList);
+                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.channelList, forcedStateIsExpanded);
                 break;
             case "annotationList":
-                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.annotationList);
+                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.annotationList, forcedStateIsExpanded);
                 break;
             case "zoomIn":
                 this.dispatchEvent("zoomIn");
@@ -110,7 +110,14 @@ function ToolbarController(parent, config){
     // replace channel list from viewer
     this.replaceChannelList = function(data){
         this.channelList.replaceList(data);
-        this._toolbarView.renderChannelContent(this.channelList);
+        this._toolbarView.renderChannelContent(this.channelList, true);
+        // show the channel list by default if there are more than 1
+        if (Array.isArray(data.channelList) && data.channelList.length > 1) {
+            // make sure the menu is open
+            this.onClickedMenuHandler('channelList', true);
+            // make sure chaise is showing proper button state
+            this.dispatchEvent("showChannelList");
+        }
     }
 
     this.updateChannelConfigDone = function (data) {

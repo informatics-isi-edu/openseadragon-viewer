@@ -100,15 +100,21 @@ function ToolbarView(controller, config){
     }
 
     // Toggle menu content
-    this.toggleDisplayMenuContent = function(type, object){
+    this.toggleDisplayMenuContent = function(type, object, forcedStateIsExpanded){
 
-        this._navMenuContentElem.className = (this._navMenuContentElem.className.indexOf("expand") >= 0) ? "" : "expand";
+        var expand = typeof forcedStateIsExpanded === "boolean" ? forcedStateIsExpanded : null;
+        if (expand === null) {
+            // we should toggle (so if it doesn't have expand then we have to add. or vise versa)
+            expand = this._navMenuContentElem.className.indexOf("expand") === -1;
+        }
+
+        this._navMenuContentElem.className = expand ? "expand" : "";
 
         // added to make sure the scroll is properly displayed
-        this._containerElem.className = (this._containerElem.className.indexOf("expand") >= 0) ? "" : "expand";
+        this._containerElem.className = expand ? "expand" : "";
 
         // if it's expand, insert the content
-        if(this._navMenuContentElem.className.indexOf("expand") >= 0){
+        if(expand){
             switch(type){
                 case "channelList":
                     this.renderChannelContent(object);
