@@ -1,6 +1,6 @@
 # Release Notes
 
-This document is a summary of code changes in Chaise. This is the vocabulary used to introduce the changes:
+This document is a summary of code changes in openseadragon-viewer. This is the vocabulary used to introduce the changes:
   - `[Added]`: newly added features.
   - `[Improved]`: additions made to an existence feature.
   - `[Changed]`: modifications to existing features.
