@@ -9,6 +9,8 @@ This document is a summary of code changes in openseadragon-viewer. This is the 
   - `[Fixed]`: bug fixes.
   - `[No changes]` means that Chaise hasn't been changed in the described duration.
 
+# 3/31/22
+- Cleaned up the repository by removing all the unused folders and files (`old_viewer` folder and all of its dependencies).
 
 # 1/31/22
 - [No changes]
