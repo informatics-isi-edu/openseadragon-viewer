@@ -74,15 +74,12 @@ var OSDViewer = (function (_config) {
             // [Events from Viewer]
             // Send the updated annotation list to toolbar
             case "updateAnnotationList":
-                // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "disableChannelList":
-                // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type}, window.location.origin);
                 break;
             case "disableAnnotationSidebar":
-                // toolbar && toolbar.updateAnnotationList(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "saveGroupSVGContent":
@@ -116,11 +113,9 @@ var OSDViewer = (function (_config) {
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "onClickChangeSelectingAnnotation":
-                // toolbar && toolbar.changeSelectingAnnotation(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "errorAnnotation":
-                // toolbar && toolbar.changeSelectingAnnotation(data);
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
             case "annotationsLoaded":
@@ -195,15 +190,6 @@ var OSDViewer = (function (_config) {
                 case 'toggleChannelList':
                     toolbar && toolbar.onClickedMenuHandler('channelList');
                     break;
-                case 'hideAllAnnotations':
-                    toolbar && toolbar.hideAnnotationList();
-                    break;
-                case 'showAllAnnotations':
-                    toolbar && toolbar.showAnnotationList();
-                    break;
-                case "openAnnotations":
-                    toolbar && toolbar.onClickedMenuHandler('annotationList');
-                    break;
                 case 'zoomInView':
                     viewer.zoomIn();
                     break;
@@ -250,56 +236,6 @@ var OSDViewer = (function (_config) {
                 case "startAnnotationChange":
                     viewer.saveAnnotationGroupState(data);
                     break;
-                // case 'loadFilteringPropertyList':
-                //     event_loadFilteringPropertyList(messageType, data);
-                //     break;
-                // case 'fullPageView':
-                //     fullPageClick();
-                //     break;
-                // case 'loadAnnotations':
-                //     event_loadAnnotations(messageType, data);
-                //     break;
-                // case 'centerAnnotation':
-                //     var annotation = convertToAnnotation(data);
-                //     centerAnnoByHash(getHash(annotation),true);
-                //     break;
-                // case 'highlightAnnotation':
-                //     var annotation = convertToAnnotation(data);
-                //     highlightAnnoByHash(getHash(annotation));
-                //     break;
-                // case 'unHighlightAnnotation':
-                //     annoUnHighlightAnnotation(null);
-                //     break;
-                // case 'syncVisibility':
-                //     for (var i = 0, len = data.length; i < len; i++) {
-                //         var annotation = convertToAnnotation(data[i]);
-                //         var existingAnnotation =
-                //             annoRetrieveByHash(getHash(annotation));
-                //         existingAnnotation.shapes = annotation.shapes;
-                //         updateAnnotationDOMWithStyle(annotation);
-                //     }
-                //     break;
-                // case 'drawAnnotation':
-                //     myAnno.activateSelector();
-                //     break;
-                // case 'createAnnotation':
-                //     event_createAnnotation(messageType, data);
-                //     break;
-                // case 'cancelAnnotationCreation':
-                //     cancelEditor();
-                //     break;
-                // case 'updateAnnotation':
-                //     var newAnnotationData = convertToAnnotation(data);
-                //     var existingAnnotation = annoRetrieveByHash(getHash(newAnnotationData));
-                //     existingAnnotation.text = newAnnotationData.text;
-                //     existingAnnotation.shapes = newAnnotationData.shapes;
-                //     updateAnnotationDOMWithStyle(newAnnotationData);
-                //     break;
-                // case 'deleteAnnotation':
-                //     var annotation = convertToAnnotation(data);
-                //     annotation = annoRetrieveByHash(getHash(annotation));
-                //     myAnno.removeAnnotation(annotation);
-                //     break;
                 default:
                     console.log('No matched action performed. Received message event: ', messageType, ' data:', data);
             }

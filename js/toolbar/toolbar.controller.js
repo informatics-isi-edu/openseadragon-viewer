@@ -5,15 +5,9 @@ function ToolbarController(parent, config){
     var _self = this;
     this.parent = parent;
     this._toolbarView = new ToolbarView(this, config);
-    this.annotationList = new AnnotationList(this);
     this.annotationTool = new AnnotationTool(this);
     this.channelList = new ChannelList(this);
     this.zPlaneList = new ZPlaneList(this);
-
-    // Set current selecting annotation
-    this.changeSelectingAnnotation = function(data){
-        this.annotationList.changeSelectingAnnotation(data);
-    }
 
     // Close annotation tool
     this.closeAnnotationTool = function(){
@@ -67,16 +61,6 @@ function ToolbarController(parent, config){
         return this.annotationTool.getDrawInfo();
     }
 
-    // Hide annotation list
-    this.hideAnnotationList = function(){
-        this.annotationList.hideAll();
-    }
-
-    // Show annotation list
-    this.showAnnotationList = function(){
-        this.annotationList.showAll();
-    }
-
     // Binding events when toolbar menu get clicked by the user
     this.onClickedMenuHandler = function(clickMenuType, forcedStateIsExpanded){
 
@@ -85,9 +69,6 @@ function ToolbarController(parent, config){
             case "channelList":
                 this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.channelList, forcedStateIsExpanded);
                 break;
-            case "annotationList":
-                this._toolbarView.toggleDisplayMenuContent(clickMenuType, this.annotationList, forcedStateIsExpanded);
-                break;
             case "zoomIn":
                 this.dispatchEvent("zoomIn");
                 break;
@@ -95,11 +76,6 @@ function ToolbarController(parent, config){
                 this.dispatchEvent("zoomOut");
                 break;
         }
-    }
-
-    // Update the annotation from viewer
-    this.updateAnnotationList = function(data){
-        this.annotationList.updateList(data);
     }
 
     // update channel from viewer
