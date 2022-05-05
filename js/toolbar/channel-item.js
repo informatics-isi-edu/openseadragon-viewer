@@ -413,7 +413,7 @@ function ChannelItem(data) {
 
         // create the data that will be saved
         var configConst = window.OSDViewer.constants.CHANNEL_CONFIG,
-            data = { channelNumber: _self.number, channelConfig: {}};
+            data = { channelNumber: _self.number, channelConfig: {} };
         data.channelConfig[configConst.BLACK_LEVEL] = _self.blackLevel;
         data.channelConfig[configConst.WHITE_LEVEL] = _self.whiteLevel;
         data.channelConfig[configConst.GAMMA] = _self.gamma;
@@ -422,8 +422,9 @@ function ChannelItem(data) {
             data.channelConfig[configConst.SATURATION] = _self.saturation;
             data.channelConfig[configConst.HUE] = _self.hue;
             data.channelConfig[configConst.DISPLAY_GREYSCALE] = _self.displayGreyscale;
-        }
 
+            data.pseudoColor =  OSDViewer.utils.getColorHexForHue(_self.hue);
+        }
 
         if (dontDispatch) {
             return data;

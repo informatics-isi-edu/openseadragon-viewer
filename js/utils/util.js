@@ -412,6 +412,20 @@ Utils.prototype.hsv2rgb = function (h, s, v) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
+/**
+ * Given a hue value, return the hex value represting its full color
+ * @param {number} hue
+ * @returns a string representing the hex color
+ */
+Utils.prototype.getColorHexForHue = function (hue) {
+    var res = this.hsv2rgb(hue,1,1);
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+    return "#" + componentToHex(res[0]) + componentToHex(res[1]) + componentToHex(res[2]);
+};
+
 // Detect user's browser
 Utils.prototype.getUserBrowserType = function(){
 
@@ -581,7 +595,7 @@ ChannelNamesOverlayUtils.prototype.getUpdatedChannelNameForCanvas = function (ch
 }
 
 /**
- * This function returns the updated channel name, 
+ * This function returns the updated channel name,
  * i.e. if the channel name wont fit in a single line, it add ...
  * @param {String} channelName
  * @param {Int} containerWidth
@@ -598,7 +612,7 @@ ChannelNamesOverlayUtils.prototype.getUpdatedChannelNameForCanvas = function (ch
     }
 
     for (let i = channelName.length - 1; i >= 0; i--) {
-        
+
         // starrt removing chnaraters from the right one at a time, until the name would fit
         if (utils.getTextWidth(channelName.slice(0, i) + '...', font) + 40 < containerWidth * constants.USABLE_AREA) {
             // return the updated name
@@ -608,9 +622,9 @@ ChannelNamesOverlayUtils.prototype.getUpdatedChannelNameForCanvas = function (ch
 }
 
 /**
- * This function returns the font size which will be used in the screenshot. 
+ * This function returns the font size which will be used in the screenshot.
  * We start with font 20 and reduce it by 2 until the channel data can fit into the canvas. The min font size is 14.
- * 
+ *
  * TODO could potentially be merged with the other function used for overlay
  * @param {canvas context} ctx
  * @param {Array} channelData

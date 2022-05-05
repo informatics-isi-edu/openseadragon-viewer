@@ -3,7 +3,7 @@ function AlertService() {
 
     this.showPseudoColorAlert = function (channel) {
         // TODO should be moved to a strings.js
-        var message = "Given Pseudo Color (" + OSDViewer.utils.colorRGBToHex(channel.rgb) + ") for channel \"" + channel.name + "\" is invalid and therefore ignored.";
+        var message = "Given Pseudo Color (" + OSDViewer.utils.colorRGBToHex(channel.pseudoColor) + ") for channel \"" + channel.name + "\" is invalid and therefore ignored.";
 
         OSDViewer.dispatchEvent( "showAlert", { type: "warning", message: message })
     }
