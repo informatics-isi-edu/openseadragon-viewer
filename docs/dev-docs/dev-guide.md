@@ -15,7 +15,7 @@ This document is designed for developers that work on openseadragon-viewer. It w
       - [Image request](#image-request)
       - [Image information request](#image-information-request)
       - [How OSD viewer supports IIIF](#how-osd-viewer-supports-iiif)
-   + [Channel filter and color](#channel-filter-and-color)
+   + [HSV color model](#hsv-color-model)
    + [vector-effect](#vector-effect)
 * [Code details](#code-details)
    + [Overview](#overview)
@@ -132,7 +132,7 @@ Which would translate to
 https://image-server.com/iiif/2/image-identifiter/0,0,512,512/512,/0/default.jpg
 ```
 
-### Channel filter and color
+### HSV color model
 
 You most probably are familar with the RGB color model, where the red, green, and blue
 primary colors of light are added together to produce the color. Another popular
@@ -146,7 +146,8 @@ In this model,
   - 0% brightness is black regardless of saturation or hue.
   - 100% brightness is white only if saturation is also 0%. Otherwise, 100% brightness is just a very bright color. For more technical explanation please refer to [this wikipedia page](https://en.wikipedia.org/wiki/HSL_and_HSV).
 
-As you can see, the Hue is what can be generally conceived as the "color", where the other attributes will just change the density or colorfulness of the color. So in the channel code, we convert the given "RGB" color into "HSV". And then the colors will manipulate the values of H, S, or V.
+As you can see, the Hue is what can be generally conceived as the "color", where the other attributes will just change the density or colorfulness of the color. And with this separation of concerns, we can provide more determinsitic and useful color manipulation mechanism. That's why in the channel controls, we use the HSV model to manipulate the displayed colors.
+
 
 ### vector-effect
 It is a SVG style property which defines how object are drawn. `vector-effect:non-scaling-stroke` is used when we want the objects to be drawn according to the host coordinate system, i.e. stroke-width of the object is not affected by transformations like zoom in and zoom out.
@@ -268,7 +269,7 @@ Notes:
 
 #### How channel filters are applied
 
-In [Channel filter and color](#channel-filter-and-color) we explained how the HSV format can
+In [HSV color model section](##hsv-color-model) we explained how the HSV format can
 be used for manipulating the displayed color on the image. In the following we will go
 into more detailed on how this manipulation is done in channel filters.
 
@@ -296,8 +297,6 @@ Before asking OpenSeadragon to display the image, as part of `channel-filter.js`
 
   output = Math.pow( (contrast * input) + brightness , gamma)
   ```
-
-
 
 If the displayed image is RGB, then the value of Hue and Saturation are already encoded in the image data, and therefore it doesn't make sense to allow users to modify them. That's why we're not offering them in this case.
 
