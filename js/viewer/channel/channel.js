@@ -7,7 +7,7 @@ function Channel(osdItemID, name, number, options) {
     this.name = this.name.replace(/\_/g, " ");
     this.number=  number;
     this.isRGB = (typeof options['isRGB'] === 'boolean') ? options['isRGB'] : null;
-    this.rgb = options["pseudoColor"] || null;
+    this.pseudoColor = options["pseudoColor"] || null;
     this.width = +options["width"] || 0;
     this.height = +options["height"] || 0;
 
@@ -25,7 +25,10 @@ function Channel(osdItemID, name, number, options) {
     // for example in case of a greyscale image with an unknown channelName
     this.displayGreyscale = colorConfig[configConst.DISPLAY_GREYSCALE] === true;
 
-    this.hue = _populateAttributeByConfig(this, colorConfig, configConst.HUE, null, _populateDefaultHue);
+    /**
+     * the first displayed hue value to the users.
+     */
+    this.hue = _populateDefaultHue(this, colorConfig[configConst.HUE]);
 
     this.isDisplay = (typeof options["isDisplay"] === "boolean") ? options["isDisplay"] : true;
 }
@@ -110,7 +113,9 @@ function _rgb2hsl(r, g, b) {
 }
 
 
-
+/**
+ * Given a rgb color value, return the hue
+ */
 function hueIs(rgb) { // Copied from old code  - need to how this works and when
     if (typeof rgb != "string" || rgb.length == 0) {
         return null;
@@ -130,25 +135,34 @@ function hueIs(rgb) { // Copied from old code  - need to how this works and when
 /**
  * Populate the default hue value that should be used (it will show greyscale or hide the control if needed)
  * - if isRGB=true -> null (no hue control)
- * - if rgb != null (pseudoColor) and color is valid (not grey/white/black) -> the hue value of rgb
+ * - if pseudoColor != null and color is valid (not grey/white/black) -> the hue value of pseudoColor
+ * - if channelConfig.hue is defined and valid -> use it.
  * - if channelName in the list -> the hue value based on what's defined
  * - if isRGB=null, and (single-channel or combo/Brightfield) -> null (no hue control)
  * - otherwise -> use the default color and show greyscale by default
  */
-function _populateDefaultHue(self) {
+function _populateDefaultHue(self, channelConfigHue) {
     // if isRGB=true, then disable the hue control
     if (self.isRGB === true) {
         return null;
     }
 
     // if color is defined, offer hue control with the given color
-    if (self.rgb != null) {
-        var hue = hueIs(self.rgb);
+    if (self.pseudoColor != null) {
+        var hue = hueIs(self.pseudoColor);
         // if the given color is not a valid one (not a color, or any greyscale) don't use the color
         if (hue != null) {
             return hue;
         } else {
             window.OSDViewer.alertService.showPseudoColorAlert(self);
+        }
+    }
+
+    // if channelConfig.hue is defined and valid, use it
+    if (channelConfigHue != null) {
+        var temp = parseFloat(channelConfigHue);
+        if (temp != null && !isNaN(temp)) {
+            return temp;
         }
     }
 
