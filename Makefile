@@ -14,9 +14,13 @@ OSD_VIEWER_DIR:=$(WEB_INSTALL_ROOT)$(OSD_VIEWER_REL_PATH)
 # the url location of viewer
 OSD_VIEWER_BASE_PATH:=$(WEB_URL_ROOT)$(OSD_VIEWER_REL_PATH)
 
+# TODO while we're not doing anything to "build" we should eventually do
+#      so we created this placeholder that in the future will be implemented
+.PHONY: dist
+dist: ;
 
 .PHONY: deploy
-deploy: print_variables dont_install_in_root
+deploy: print_variables dont_deploy_in_root
 	$(info - deploying the package)
 	@rsync -avz --exclude='.*' --exclude='Makefile' . $(OSD_VIEWER_DIR)
 
