@@ -48,6 +48,9 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "LINE":
                 annotation = new Line(attrs);
                 break;
+            case "ARROWLINE":
+                annotation = new ArrowLine(attrs);
+                break;
         };
 
         if(annotation != null){

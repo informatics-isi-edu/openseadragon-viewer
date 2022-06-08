@@ -84,6 +84,9 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='LINE' title='Draw line'>",
                     "<i class='fa fa-minus'></i>",
                 "</span>",
+                "<span class='toolBtn' data-type='ARROWLINE' title='Draw arrow line'>",
+                    "<i class='fas fa-long-arrow-alt-right'></i>",
+                "</span>",
                 "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
                     "<i class='fas fa-draw-polygon'></i>",
                 "</span>",
@@ -171,6 +174,7 @@ function AnnotationTool(parent){
             case "CIRCLE":
             case "RECT":
             case "LINE":
+            case "ARROWLINE":
             case "POLYGON":
                 _self.dispatchEvent("drawingStart", {
                     svgID : _self.curSVGID,

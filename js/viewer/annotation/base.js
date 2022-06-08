@@ -20,7 +20,8 @@ function Base(attrs){
         "fill": "none", // TODO should this be part of added attributes as well?
         "stroke": this.constants.DEFAULT_SVG_STROKE,
         "stroke-width": this.constants.DEFAULT_SVG_STROKE_WIDTH,
-        "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT
+        "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT,
+        "marker-end": "url(#arrow)", //Added for the arrowline, this needs to be an attribute added to the HTML line tag
     }
 
     // the check that needs to be performed to prevent empty object
@@ -188,7 +189,7 @@ Base.prototype.highlight = function(highlightAttrs){
     }
 }
 
-Base.prototype.renderSVG = function(){
+Base.prototype.renderSVG = function(annotationType){
 
     var attr,
         value,
@@ -215,6 +216,10 @@ Base.prototype.renderSVG = function(){
 
     // add all the attributes
     for(attr in this._attrs){
+        // We skip the marker-end attribute if the annotation is not arrow line
+        if (attr == "marker-end" && annotationType !== "arrowline") {
+            continue;
+        }
         value = this._attrs[attr];
         if (attr === "stroke-width") {
             // TODO what if the value is not in pixel? (it can be pixel)
