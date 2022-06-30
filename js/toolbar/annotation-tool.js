@@ -98,12 +98,12 @@ function AnnotationTool(parent){
                     "<span class='toolBtn arrowSubmenu activeBtn' data-type='ARROWLINE' data-arrow-type='solid'>",
                         "<i class='fas fa-long-arrow-alt-right'></i>",
                     "</span>",
-                    "<span class='toolBtn arrowSubmenu' data-type='ARROWLINE' data-arrow-type='stroke'>",
-                        "<i class='fas fa-arrow-right'></i>",
-                    "</span>",,
-                    "<span class='toolBtn arrowSubmenu' data-type='ARROWLINE' data-arrow-type='circle'>",
-                        "<i class='fas fa-arrow-alt-circle-right'></i>",
-                    "</span>",
+                    // "<span class='toolBtn arrowSubmenu' data-type='ARROWLINE' data-arrow-type='stroke'>",
+                    //     "<i class='fas fa-arrow-right'></i>",
+                    // "</span>",,
+                    // "<span class='toolBtn arrowSubmenu' data-type='ARROWLINE' data-arrow-type='circle'>",
+                    //     "<i class='fas fa-arrow-alt-circle-right'></i>",
+                    // "</span>",
                 "</div>",
 
 
