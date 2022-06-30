@@ -1,13 +1,16 @@
-function ArrowLine(attrs) {
+function ArrowLine(attrs, subtype) {
   attrs = attrs ? attrs : {};
   Base.call(this, attrs);
 
   // This tag needs to be line as the HTML tag used for arrow line is line itself
   this._tag = "line";
+  this._subtype = subtype;
   this._attrs["x1"] = attrs["x1"] || null;
   this._attrs["y1"] = attrs["y1"] || null;
   this._attrs["x2"] = attrs["x2"] || null;
   this._attrs["y2"] = attrs["y2"] || null;
+  this._attrs["marker-end"] = "url(#arrow-" + subtype + "-" + attrs.stroke.slice(1, attrs.stroke.length) + ")";
+  this._attrs["data-subtype"] = subtype;
   this.svg = null;
 }
 
@@ -30,8 +33,9 @@ ArrowLine.prototype.insertPoint = function (point) {
     updateAttrs = {
       x2: point.x,
       y2: point.y,
+      "marker-end": _self._attrs["marker-end"],
       // This marker-end line adds the arrow-head to the line
-      "marker-end": "url(#arrow)",
+      // "marker-end": "url(#arrow)",
     };
   }
   _self.setAttributesByJSON(updateAttrs);

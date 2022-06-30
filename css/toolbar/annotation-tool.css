@@ -2,7 +2,7 @@
     position: absolute;
     height: inherit;
     display: flex;
-    z-index: 3;
+    z-index: 10;
 }
 
 #drawToolContainer .annotationTool{
@@ -20,15 +20,16 @@
     cursor: pointer;
 }
 
-#drawToolContainer .toolBtn i {
+#drawToolContainer .toolBtn i, .arrowSubmenu .toolBtn i {
     color: #fff;
 }
 
-#drawToolContainer .toolBtn.selected{
+#drawToolContainer .toolBtn.selected {
     background: #18548d;
 }
 
-#drawToolContainer .toolBtn:hover{
+
+#drawToolContainer .toolBtn:hover {
     background: #18548d;
 }
 
@@ -40,9 +41,72 @@
     padding: 0;
     border: 1px solid #99afcb;
 }
+
 #drawToolContainer .toolBtn input[type="color"]::-webkit-color-swatch-wrapper {
 	padding: 0;
 }
+
 #drawToolContainer .toolBtn input[type="color"]::-webkit-color-swatch {
 	border: none;
+}
+
+
+/* Arrow menu */
+#drawToolContainer .arrowMenu {
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#drawToolContainer .arrowMenu > .arrowSubmenu {
+    
+    
+    background: #407ccb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 16px;
+    flex: 0 0 100%;
+    padding: 8px;
+    cursor: pointer;
+
+    opacity: 0;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in;
+    transition-property: opacity, visibility;
+    visibility: hidden;
+
+}
+
+
+#drawToolContainer .arrowMenu:hover > .arrowSubmenu {
+
+    opacity: 1;
+    visibility: visible;
+    flex: 0 0 100%;
+}
+
+#drawToolContainer .arrowMenu > .arrowSubmenu:hover {
+
+    opacity: 1;
+    visibility: visible;
+    background: #18548d;
+    flex: 0 0 100%;
+}
+
+#drawToolContainer .arrowMenu:hover > .arrowSubmenu.selected{
+
+    opacity: 1;
+    visibility: visible;
+    background: #18548d;
+    flex: 0 0 100%;
+}
+
+#drawToolContainer .toolBtn.activeBtn {
+    order: -1;
+    opacity: 1;
+    visibility: visible;
+    flex: 0 0 100%;
 }

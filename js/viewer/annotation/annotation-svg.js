@@ -18,31 +18,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
     this.annotationUtils = new AnnotationUtils();
 
-    // Add the marker definition to the SVG for arrow line annotation
-    this.addMarkerDef = function (attrs, markerId) {
-        // Check if the definition is already added
-        if (this.svg.querySelector("#" + markerId)) {
-        return;
-        }
-        var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-        var marker = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "marker"
-        );
-        marker.setAttributeNS(null, "id", markerId);
-        marker.setAttributeNS(null, "refX", 9.3);
-        marker.setAttributeNS(null, "refY", 5);
-        marker.setAttributeNS(null, "markerUnits", "strokeWidth");
-        marker.setAttributeNS(null, "markerWidth", 10);
-        marker.setAttributeNS(null, "markerHeight", 10);
-        marker.setAttributeNS(null, "orient", "auto");
-        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttributeNS(null, "fill", attrs.stroke);
-        path.setAttributeNS(null, "d", "M 0 0 L 10 5 L 0 10 z");
-        marker.appendChild(path);
-        defs.appendChild(marker);
-        this.svg.appendChild(defs);
-    };
 
     // Create drawing area for grouping annotations with same id
     this.createAnnotationGroup = function (id, anatomy, description) {
@@ -61,22 +36,17 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     // Create a new path/rect/circle object for users to draw
-    this.createAnnotationObject = function(groupID, type, attrs){
+    this.createAnnotationObject = function(groupID, type, subtype, attrs){
 
         var group,
             annotation;
 
         if(this.groups.hasOwnProperty(groupID)){
-            // Add the marker definition to the SVG for arrowhead if the annotation type is arrow line
-            if (type == "ARROWLINE") {
-                this.addMarkerDef(attrs, "arrow");
-            }
-
+            
             // Find corresponding group
             group = this.groups[groupID];
 
-            // Start to draw annotation
-            annotation = group.addAnnotation(type);
+            annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
             annotation.setupDrawingAttrs(attrs);
 
@@ -89,6 +59,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 imgScaleY : this.imgScaleY,
                 annotation : annotation,
                 type : type,
+                subtype: subtype,
                 attrs : attrs
             })
         }
@@ -100,16 +71,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     */
     this.changeDrawingStroke = function (data) {
 
-        // Change the fill color of the path in marker definition to change the colour of the arrow head on stroke colour change
-        var markerPath = this.svg
-        .querySelector("#arrow")
-        .getElementsByTagName("path");
-        markerPath[0].setAttribute("fill", data.attrs.stroke);
-
         for (var groupID in this.groups) {
             // change the color for only the group that is being worked on
             if (groupID == data.groupID) {
-                this.groups[groupID].updateStroke(data.attrs.stroke);
+                this.groups[groupID].updateStroke(data.groupID, data.attrs.stroke);
             }
         }
     }
@@ -381,7 +346,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
             // var anatomy = node.getAttribute("id");
             // var group = this.createAnnotationGroup(groupID, anatomy);
-
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -394,9 +358,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "line":
                 case "arrowline":
                     this.parseSVGNodes([node], styleSheet, node);
-                    // annotation = group.addAnnotation(node.nodeName);
-                    // annotation.setAttributesBySVG(node);
-                    // annotation.renderSVG(this);
+                    break;
+                case "defs":
                     break;
                 case "scale":
                     this.imgScaleX = +node.getAttribute("x") || this.imgScaleX;
@@ -493,13 +456,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         var obj = {}
         for (i = 0; i < attributes.length; i++) {
             obj[attributes[i]['name']] = attributes[i]['nodeValue'];
-        }
+        }   
         return obj;
     }
 
 
     this.parseSVGNodes = function (nodes, styleSheet, parentNode){
-        // if (group == null) { return }
 
         var parentStyle = '';
         if (parentNode) {
@@ -554,19 +516,20 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         group = this.groups.hasOwnProperty(id)
                         ? this.groups[id]
                         : this.createAnnotationGroup(id, anatomy);
-                        annotation = group.addAnnotation(node.nodeName);
-                        annotation.setAttributesByJSON(this.getNodeAttributes(node));
-
+                        
                         // Check if the line contains marker-end attribute, which makes it an arrow line
-                        if (annotation._attrs["marker-end"] === "url(#arrow)") {
+                        if (node.getAttribute("data-subtype") != null) {
+ 
                             // Create a different marker-id for each SVG with arrow line as the stroke colour would be different
-                            var markerDefId = "arrow-" + annotation._attrs.stroke.slice(1);
-                            this.addMarkerDef(annotation._attrs, markerDefId);
-
-                            // Update the marker-end url to reflect the new marker-head with the corresponding stroke color
-                            annotation._attrs["marker-end"] = "url(#" + markerDefId + ")";
+                            arrowSubtype = node.getAttribute("data-subtype");
+                            arrowlineAttributes = this.getNodeAttributes(node);
+                            annotation = group.addAnnotation("arrowline", arrowSubtype, arrowlineAttributes);
+                            annotation.setAttributesByJSON(arrowlineAttributes);
                             annotation.renderSVG("arrowline");
+
                         } else {
+                            annotation = group.addAnnotation(node.nodeName);
+                            annotation.setAttributesByJSON(this.getNodeAttributes(node));
                             annotation.renderSVG(this);
                         }
                     }

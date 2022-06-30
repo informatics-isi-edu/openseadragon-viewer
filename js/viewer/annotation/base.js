@@ -22,6 +22,7 @@ function Base(attrs){
         "stroke-width": this.constants.DEFAULT_SVG_STROKE_WIDTH,
         "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT,
         "marker-end": "url(#arrow)", //Added for the arrowline, this needs to be an attribute added to the HTML line tag
+        "data-subtype": "none"
     }
 
     // the check that needs to be performed to prevent empty object
@@ -69,6 +70,7 @@ function Base(attrs){
         }
         var tag = this._tag;
         var rst = "<" + tag + " ";
+        var markerDef = "";
         var attr;
         var attributeList = {}
 
@@ -84,6 +86,12 @@ function Base(attrs){
             }
 
             attributeList[attr] = this._attrs[attr];
+
+            if(tag === "line" && attr === "marker-end"){
+                arrowSubtype = this._subtype;
+                defs = this.parent.addMarkerDef(this._attrs["stroke"], arrowSubtype, false);
+                markerDef = defs.outerHTML;
+            }
         }
 
         // read the ignored attributes after this._attrs, to ensure that the values in the input and output match
@@ -96,7 +104,7 @@ function Base(attrs){
             rst += (key + '="' + attributeList[key] + '" ');
         });
 
-        rst += "></" + tag + ">";
+        rst += "></" + tag + ">" + markerDef;
         return rst;
     }
 
@@ -217,7 +225,7 @@ Base.prototype.renderSVG = function(annotationType){
     // add all the attributes
     for(attr in this._attrs){
         // We skip the marker-end attribute if the annotation is not arrow line
-        if (attr == "marker-end" && annotationType !== "arrowline") {
+        if ((attr == "marker-end" || attr == "data-subtype") && annotationType !== "arrowline") {
             continue;
         }
         value = this._attrs[attr];

@@ -21,7 +21,7 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.stroke = [];
 
     // Add new annotation object (path/cirlce/rect)
-    this.addAnnotation = function(type){
+    this.addAnnotation = function(type, subtype, annotAttrs){
         var annotation = null;
         var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
         var attrs = {
@@ -49,7 +49,15 @@ function AnnotationGroup(id, anatomy, description, parent){
                 annotation = new Line(attrs);
                 break;
             case "ARROWLINE":
-                annotation = new ArrowLine(attrs);
+                group = document.getElementById(this.id);
+                if(group != null) {
+                   markerDef = this.addMarkerDef(annotAttrs.stroke, subtype);
+                   if(markerDef != null){
+                     group.appendChild(markerDef);
+                   }
+                }
+                attrs["stroke"] = annotAttrs.stroke;
+                annotation = new ArrowLine(attrs, subtype);
                 break;
         };
 
@@ -59,6 +67,58 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         return annotation;
     }
+
+    this.addMarkerDef = function (stroke, subtype, checkExists = true) {
+
+        markerID = "arrow-" + subtype + "-" + stroke.slice(1, stroke.length);
+        // Check if the definition is already added]
+        if (checkExists && document.querySelector("#" + markerID)) {
+            return;
+        }
+
+        var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        var marker = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "marker"
+        );
+        marker.setAttributeNS(null, "id", markerID);
+        marker.setAttributeNS(null, "markerUnits", "strokeWidth");
+        marker.setAttributeNS(null, "markerWidth", 10);
+        marker.setAttributeNS(null, "markerHeight", 10);
+        marker.setAttributeNS(null, "orient", "auto");
+        var arrowhead = null;
+        
+        switch(subtype){
+            case "solid": 
+                marker.setAttributeNS(null, "refX", 9.3);
+                marker.setAttributeNS(null, "refY", 5);
+                arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                arrowhead.setAttributeNS(null, "fill", stroke);
+                arrowhead.setAttributeNS(null, "d", "M 0 0 L 10 5 L 0 10 z");
+                break;
+            case "circle":
+                marker.setAttributeNS(null, "refX", 6);
+                marker.setAttributeNS(null, "refY", 3);
+                arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                arrowhead.setAttributeNS(null, "cx", "3");
+                arrowhead.setAttributeNS(null, "cy", "3");
+                arrowhead.setAttributeNS(null, "r", "3");
+                arrowhead.setAttributeNS(null, "fill", stroke);
+                break;
+                case "stroke":
+                marker.setAttributeNS(null, "fill", "None");
+                marker.setAttributeNS(null, "refX", 9.3);
+                marker.setAttributeNS(null, "refY", 5);
+                arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                arrowhead.setAttributeNS(null, "stroke", stroke);
+                arrowhead.setAttributeNS(null, "points", "1 1, 9 5, 1 7");
+                break;
+        }
+        
+        marker.appendChild(arrowhead);
+        defs.appendChild(marker);
+        return defs;
+    };
 
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
@@ -253,12 +313,42 @@ function AnnotationGroup(id, anatomy, description, parent){
     * This function changes the color(stroke) of the each annotation to the new value passed as param
     * @param {string} stroke the RGB value of the new color
     */
-    this.updateStroke = function(stroke) {
+
+    this.changeArrowStroke = function(groupID, stroke) {
+
+        defCollection = document.getElementById(groupID).getElementsByTagName("defs");
+        for(def of defCollection) {
+
+            for(markerDef of def.childNodes){
+
+                markerElements = ["path", "polyline", "circle"];
+                for (markerElement of markerElements){
+
+                    arrowChild = markerDef.getElementsByTagName(markerElement)[0];
+                    if(arrowChild == null){
+                        continue;
+                    }
+                    if(markerElement == "polyline"){
+                        arrowChild.setAttribute("stroke", stroke);
+                    }
+                    else{
+                        arrowChild.setAttribute("fill", stroke);
+                    }
+                }
+            }
+        }
+    }
+
+    this.updateStroke = function(groupID, stroke) {
         var stroke = _self.parent.parent._utils.standardizeColor(stroke);
 
         _self.stroke = [stroke];
         _self.annotations.forEach(function (annotation) {
             annotation._attrs.stroke = stroke;
+            if(annotation._tag == "line" && annotation._attrs["data-subtype"] != null){
+                _self.changeArrowStroke(groupID, stroke)
+                annotation._attrs["marker-end"] = "url(#arrow-" + annotation._subtype + "-" + stroke.slice(1, stroke.length) + ")";
+            }
             // render the SVG after changing the color so that the new color is reflected in the viewer
             annotation.renderSVG();
         });
