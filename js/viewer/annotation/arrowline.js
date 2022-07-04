@@ -9,8 +9,9 @@ function ArrowLine(attrs, subtype) {
   this._attrs["y1"] = attrs["y1"] || null;
   this._attrs["x2"] = attrs["x2"] || null;
   this._attrs["y2"] = attrs["y2"] || null;
-  this._attrs["marker-end"] = "url(#arrow-" + subtype + "-" + attrs.stroke.slice(1, attrs.stroke.length) + ")";
+  this._attrs["marker-end"] = attrs["marker-end"];
   this._attrs["data-subtype"] = subtype;
+  this._attrs["data-markerid"] = attrs["markerID"]
   this.svg = null;
 }
 

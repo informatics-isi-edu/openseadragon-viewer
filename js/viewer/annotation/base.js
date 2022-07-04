@@ -21,8 +21,6 @@ function Base(attrs){
         "stroke": this.constants.DEFAULT_SVG_STROKE,
         "stroke-width": this.constants.DEFAULT_SVG_STROKE_WIDTH,
         "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT,
-        "marker-end": "url(#arrow)", //Added for the arrowline, this needs to be an attribute added to the HTML line tag
-        "data-subtype": "none"
     }
 
     // the check that needs to be performed to prevent empty object
@@ -73,7 +71,6 @@ function Base(attrs){
         var markerDef = "";
         var attr;
         var attributeList = {}
-
         for(attr in this._attrs){
             // only add non-empty attributes
             if (!this._attrs[attr] || this._attrs[attr] === null){
@@ -89,7 +86,7 @@ function Base(attrs){
 
             if(tag === "line" && attr === "marker-end"){
                 arrowSubtype = this._subtype;
-                defs = this.parent.addMarkerDef(this._attrs["stroke"], arrowSubtype, false);
+                defs = this.parent.addMarkerDef(this._attrs["data-markerid"], this._attrs["stroke"], arrowSubtype, false);
                 markerDef = defs.outerHTML;
             }
         }

@@ -50,13 +50,16 @@ function AnnotationGroup(id, anatomy, description, parent){
                 break;
             case "ARROWLINE":
                 group = document.getElementById(this.id);
+                markerID = annotAttrs["data-markerid"] || "arrowmarker-" + annotAttrs.stroke.slice(1) + parseInt(Math.random() * 100000000);
                 if(group != null) {
-                   markerDef = this.addMarkerDef(annotAttrs.stroke, subtype);
+                   markerDef = this.addMarkerDef(markerID, annotAttrs.stroke, subtype, true);
                    if(markerDef != null){
                      group.appendChild(markerDef);
                    }
                 }
                 attrs["stroke"] = annotAttrs.stroke;
+                attrs["marker-end"] = "url(#" + markerID +")";
+                attrs["markerID"] = markerID;
                 annotation = new ArrowLine(attrs, subtype);
                 break;
         };
@@ -68,14 +71,13 @@ function AnnotationGroup(id, anatomy, description, parent){
         return annotation;
     }
 
-    this.addMarkerDef = function (stroke, subtype, checkExists = true) {
+    // this.addMarkerDef = function (stroke, subtype, checkExists = true) {
+    this.addMarkerDef = function (markerID, stroke, subtype, checkExists = true) {
 
-        markerID = "arrow-" + subtype + "-" + stroke.slice(1, stroke.length);
-        // Check if the definition is already added]
+        // Check if the definition is already added
         if (checkExists && document.querySelector("#" + markerID)) {
             return;
         }
-
         var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
         var marker = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -347,7 +349,7 @@ function AnnotationGroup(id, anatomy, description, parent){
             annotation._attrs.stroke = stroke;
             if(annotation._tag == "line" && annotation._attrs["data-subtype"] != null){
                 _self.changeArrowStroke(groupID, stroke)
-                annotation._attrs["marker-end"] = "url(#arrow-" + annotation._subtype + "-" + stroke.slice(1, stroke.length) + ")";
+                // annotation._attrs["marker-end"] = "url(#arrow-" + annotation._subtype + "-" + stroke.slice(1, stroke.length) + ")";
             }
             // render the SVG after changing the color so that the new color is reflected in the viewer
             annotation.renderSVG();
