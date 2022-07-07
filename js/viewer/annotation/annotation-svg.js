@@ -241,7 +241,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     svg += "<scale x='" + imgScaleX + "' y='" + imgScaleY + "'/>";
                     svg += innerSVG;
                     svg += "</svg>";
-
+                    console.log(svg);
                     rst.push({
                         svgID: this.id,
                         groupID: groupID,

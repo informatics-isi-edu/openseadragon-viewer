@@ -52,9 +52,12 @@ function AnnotationGroup(id, anatomy, description, parent){
                 group = document.getElementById(this.id);
                 markerID = annotAttrs["data-markerid"] || "arrowmarker-" + annotAttrs.stroke.slice(1) + parseInt(Math.random() * 100000000);
                 if(group != null) {
-                   markerDef = this.addMarkerDef(markerID, annotAttrs.stroke, subtype, true);
-                   if(markerDef != null){
-                     group.appendChild(markerDef);
+                   marker = this.addMarkerDef(markerID, annotAttrs.stroke, subtype, true);
+                   if(marker["defs"] != null){
+                     group.appendChild(marker["defs"]);
+                   }
+                   else{
+                    markerID = marker["markerID"]
                    }
                 }
                 attrs["stroke"] = annotAttrs.stroke;
@@ -71,13 +74,28 @@ function AnnotationGroup(id, anatomy, description, parent){
         return annotation;
     }
 
-    // this.addMarkerDef = function (stroke, subtype, checkExists = true) {
     this.addMarkerDef = function (markerID, stroke, subtype, checkExists = true) {
 
         // Check if the definition is already added
-        if (checkExists && document.querySelector("#" + markerID)) {
-            return;
+        // if (checkExists && document.querySelector("#" + markerID)) {
+        //     return;
+        // }
+        if(checkExists){
+            defCollection = document.getElementById(this.id).getElementsByTagName("defs");
+            for(def of defCollection) {
+    
+                for(markerDef of def.childNodes){
+                    if(markerDef.getAttribute("data-subtype") == subtype){
+                        return {
+                            defs: null,
+                            markerID: markerDef.getAttribute("id")
+                        };
+                    }
+                }
+            }
         }
+        
+
         var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
         var marker = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -94,6 +112,7 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "solid": 
                 marker.setAttributeNS(null, "refX", 9.3);
                 marker.setAttributeNS(null, "refY", 5);
+                marker.setAttributeNS(null, "data-subtype", "solid");
                 arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 arrowhead.setAttributeNS(null, "fill", stroke);
                 arrowhead.setAttributeNS(null, "d", "M 0 0 L 10 5 L 0 10 z");
@@ -101,16 +120,18 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "circle":
                 marker.setAttributeNS(null, "refX", 6);
                 marker.setAttributeNS(null, "refY", 3);
+                marker.setAttributeNS(null, "data-subtype", "circle");
                 arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                 arrowhead.setAttributeNS(null, "cx", "3");
                 arrowhead.setAttributeNS(null, "cy", "3");
                 arrowhead.setAttributeNS(null, "r", "3");
                 arrowhead.setAttributeNS(null, "fill", stroke);
                 break;
-                case "stroke":
+            case "stroke":
                 marker.setAttributeNS(null, "fill", "None");
                 marker.setAttributeNS(null, "refX", 9.3);
                 marker.setAttributeNS(null, "refY", 5);
+                marker.setAttributeNS(null, "data-subtype", "stroke");
                 arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
                 arrowhead.setAttributeNS(null, "stroke", stroke);
                 arrowhead.setAttributeNS(null, "points", "1 1, 9 5, 1 7");
@@ -119,7 +140,10 @@ function AnnotationGroup(id, anatomy, description, parent){
         
         marker.appendChild(arrowhead);
         defs.appendChild(marker);
-        return defs;
+        return {
+            defs,
+            markerID
+        };
     };
 
     // Dispatch the event to the parent
@@ -161,9 +185,18 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
 
         var rst = [], content;
+        var markerDefs = new Set();
 
         this.annotations.forEach(function (annot) {
             content = annot.exportToSVG();
+            if(annot._tag == "line" && annot._attrs["marker-end"] != null && annot._subtype != null && (!markerDefs.has(annot._subtype))){
+                defs = _self.addMarkerDef(annot._attrs["data-markerid"], annot._attrs["stroke"], annot._subtype, false);
+                markerDef = defs["defs"].outerHTML;
+                console.log(markerDef);
+                rst.push(markerDef);
+                markerDefs.add(annot._subtype);
+            }
+
             if (content != "") {
                 rst.push(content);
             }
@@ -172,7 +205,6 @@ function AnnotationGroup(id, anatomy, description, parent){
         if (rst.length === 0) {
             return "";
         }
-
         return "<g id='" + this.id + "'>" + rst.join("") + "</g>";
     }
 
