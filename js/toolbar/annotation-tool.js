@@ -25,7 +25,7 @@ function AnnotationTool(parent){
         var btnType = this.getAttribute("data-type") || "";
         var btnSubtype = null;
         if(btnType === "ARROWLINE"){
-            btnSubtype = this.getAttribute("data-arrow-type")
+            btnSubtype = "solid";
         }
 
         if (btnType == "HELP") {
@@ -89,24 +89,9 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='LINE' title='Draw line'>",
                     "<i class='fa fa-minus'></i>",
                 "</span>",
-                // "<span class='toolBtn' data-type='ARROWLINE' title='Draw arrow line'>",
-                //     "<i class='fas fa-long-arrow-alt-right'></i>",
-                // "</span>",
-                
-                // Arrowline menu
-                "<div class='arrowMenu' title='Draw arrow line'>",
-                    "<span class='toolBtn arrowSubmenu activeBtn' data-type='ARROWLINE' data-arrow-type='solid'>",
-                        "<i class='fas fa-long-arrow-alt-right'></i>",
-                    "</span>",
-                    // "<span class='toolBtn arrowSubmenu' data-type='ARROWLINE' data-arrow-type='stroke'>",
-                    //     "<i class='fas fa-arrow-right'></i>",
-                    // "</span>",,
-                    // "<span class='toolBtn arrowSubmenu' data-type='ARROWLINE' data-arrow-type='circle'>",
-                    //     "<i class='fas fa-arrow-alt-circle-right'></i>",
-                    // "</span>",
-                "</div>",
-
-
+                "<span class='toolBtn' data-type='ARROWLINE' title='Draw arrow line'>",
+                    "<i class='fas fa-long-arrow-alt-right'></i>",
+                "</span>",
                 "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
                     "<i class='fas fa-draw-polygon'></i>",
                 "</span>",
@@ -180,27 +165,14 @@ function AnnotationTool(parent){
         if(!_self.elem){
             return;
         }
-
-
-        if(_self.curType == "ARROWLINE"){
-            if(_self.curSubtype != "solid"){
-                _self.elem.querySelector(".toolBtn[data-arrow-type='"+_self.curSubtype+"']").className = "toolBtn arrowSubmenu";
-            }
-            _self.elem.querySelector(".toolBtn[data-arrow-type='solid']").className = "toolBtn activeBtn";
-        } else {
-            _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
-        }
+        
+        _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
+        
         _self.curType = mode || 'CURSOR';
         _self.curSubtype = modeSubtype || '';
 
-        if(_self.curType == "ARROWLINE"){
-            _self.elem.querySelector(".toolBtn[data-arrow-type='"+_self.curSubtype+"']").className = "toolBtn selected activeBtn";
-            if(_self.curSubtype != "solid"){
-                _self.elem.querySelector(".toolBtn[data-arrow-type='solid']").className = "toolBtn arrowSubmenu";
-            }
-        } else {
-            _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
-        }
+        _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
+        
         switch(_self.curType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {

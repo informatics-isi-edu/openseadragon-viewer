@@ -82,12 +82,6 @@ function Base(attrs){
             }
 
             attributeList[attr] = this._attrs[attr];
-
-            // if(tag === "line" && attr === "marker-end"){
-            //     arrowSubtype = this._subtype;
-            //     defs = this.parent.addMarkerDef(this._attrs["data-markerid"], this._attrs["stroke"], arrowSubtype, false);
-            //     markerDef = defs.outerHTML;
-            // }
         }
 
         // read the ignored attributes after this._attrs, to ensure that the values in the input and output match

@@ -241,7 +241,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     svg += "<scale x='" + imgScaleX + "' y='" + imgScaleY + "'/>";
                     svg += innerSVG;
                     svg += "</svg>";
-                    console.log(svg);
                     rst.push({
                         svgID: this.id,
                         groupID: groupID,
@@ -359,6 +358,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "arrowline":
                     this.parseSVGNodes([node], styleSheet, node);
                     break;
+                // Added the defs case to handle the definition of markers. We just skip the definition as
+                // they get added while creating the annotation in the annotation-group.js
                 case "defs":
                     break;
                 case "scale":
@@ -549,12 +550,15 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
+        yArr = [10000, 12000, 14000, 16000, 18000, 20000, 22000];
+        
+        
         svg.setAttribute("class", "annotationSVG");
         svg.setAttribute("viewBox", this.getViewBox().join(" "));
         svg.setAttribute("scale", this.scale);
         svg.setAttribute("ignoreReferencePoint", this.ignoreReferencePoint);
         svg.setAttribute("ignoreDimension", this.ignoreDimension);
-
+        
         if(this.parent.svg){
             this.parent.svg.append(svg);
         }
