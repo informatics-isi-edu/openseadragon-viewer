@@ -119,23 +119,23 @@ function AnnotationGroup(id, anatomy, description, parent){
         );
         marker.setAttributeNS(null, "id", markerID);
         marker.setAttributeNS(null, "markerUnits", "strokeWidth");
-        marker.setAttributeNS(null, "markerWidth", 10);
-        marker.setAttributeNS(null, "markerHeight", 10);
+        marker.setAttributeNS(null, "markerWidth", 7);
+        marker.setAttributeNS(null, "markerHeight", 7);
         marker.setAttributeNS(null, "orient", "auto");
         var arrowhead = null;
         
         switch(subtype){
             case "solid": 
                 // RefX is the relative x position of the marker with respect to the line
-                marker.setAttributeNS(null, "refX", 9.3);
+                marker.setAttributeNS(null, "refX", 2.5);
                 // RefY is the relative y position of the marker with respect to the line
-                marker.setAttributeNS(null, "refY", 5);
+                marker.setAttributeNS(null, "refY", 2.5);
                 marker.setAttributeNS(null, "data-subtype", "solid");
                 // Arrowhead is the SVG element that becomes the actual arrowhead of the line, solid arrowhead
                 // requires a path to draw the triangle
                 arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 arrowhead.setAttributeNS(null, "fill", stroke);
-                arrowhead.setAttributeNS(null, "d", "M 0 0 L 10 5 L 0 10 z");
+                arrowhead.setAttributeNS(null, "d", "M 0 0 L 5 2.5 L 0 5 z");
                 break;
             case "circle":
                 marker.setAttributeNS(null, "refX", 6);

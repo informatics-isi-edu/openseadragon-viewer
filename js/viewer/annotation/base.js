@@ -214,10 +214,7 @@ Base.prototype.renderSVG = function(annotationType){
 
     // add all the attributes
     for(attr in this._attrs){
-        // We skip the marker-end attribute if the annotation is not arrow line
-        if ((attr == "marker-end" || attr == "data-subtype") && annotationType !== "arrowline") {
-            continue;
-        }
+
         value = this._attrs[attr];
         if (attr === "stroke-width") {
             // TODO what if the value is not in pixel? (it can be pixel)

@@ -35,7 +35,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }
     }
 
-    // Create a new path/rect/circle object for users to draw
+    /**
+     * This function creates an annotation SVG object containing an annotation group.
+     * The annotation group contains the annotation to be drawn.
+     * @param {string} groupID - Unique id for the annotation group.
+     * @param {string} type - Type of the annotation to be drawn.
+     * @param {string} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
+     * @param {object} attrs - Attributes to be added to the annotation.
+     */
     this.createAnnotationObject = function(groupID, type, subtype, attrs){
 
         var group,
@@ -548,10 +555,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             return;
         }
 
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-        yArr = [10000, 12000, 14000, 16000, 18000, 20000, 22000];
-        
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");        
         
         svg.setAttribute("class", "annotationSVG");
         svg.setAttribute("viewBox", this.getViewBox().join(" "));
