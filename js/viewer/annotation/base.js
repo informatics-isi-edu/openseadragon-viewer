@@ -267,3 +267,26 @@ Base.prototype.unbind = function(){
             .on('click', null);
     }
 }
+
+
+
+Base.prototype.editText = function (localpoint) {
+
+    var myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+    var textdiv = document.createElement("div");
+    var input = document.createElement("textarea");
+    input.name = "post";
+    input.maxLength = "5000";
+    input.cols = "80";
+    input.rows = "40";
+    textdiv.appendChild(input); 
+    textdiv.setAttribute("contentEditable", "true");
+    textdiv.setAttribute("width", "auto");
+    myforeign.setAttribute("width", "100%");
+    myforeign.setAttribute("height", "100%");
+    myforeign.classList.add("foreign"); //to make div fit text
+    textdiv.classList.add("insideforeign"); //to make div fit text
+    myforeign.setAttributeNS(null, "transform", "translate(" + localpoint.x + " " + localpoint.y + ")");
+    myforeign.appendChild(textdiv);
+    this.svg.appendChild(myforeign);
+}

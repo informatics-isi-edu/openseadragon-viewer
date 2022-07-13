@@ -95,6 +95,9 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
                     "<i class='fas fa-draw-polygon'></i>",
                 "</span>",
+                "<span class='toolBtn' data-type='TEXT' title='Write text'>",
+                    "<i class='fas fa-font'></i></a>",
+                "</span>",
                 "<span class='toolBtn' data-type='ERASER' title='Erase drawing'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",
@@ -203,6 +206,17 @@ function AnnotationTool(parent){
                     attrs : {
                         "stroke" : _self.curStroke,
                         "fill" : "None",
+                    }
+                });
+                break;
+            case "TEXT":
+                _self.dispatchEvent("drawingStart", {
+                    svgID : _self.curSVGID,
+                    groupID : _self.curGroupID,
+                    type : _self.curType,
+                    attrs : {
+                        "stroke" : _self.curStroke,
+                        "fill" : _self.curStroke,
                     }
                 });
                 break;

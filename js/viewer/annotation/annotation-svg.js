@@ -55,6 +55,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
             annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
+            texts = document.getElementsByTagName("text");
+            texts[0].textContent = "This is a new text";
             annotation.setupDrawingAttrs(attrs);
 
             this.dispatchEvent("onDrawingBegin", {

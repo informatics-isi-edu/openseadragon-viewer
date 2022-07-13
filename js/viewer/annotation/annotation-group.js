@@ -53,6 +53,30 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "LINE":
                 annotation = new Line(attrs);
                 break;
+            case "TEXT":
+                annotation = new Text(attrs);
+
+                var myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+                var textdiv = document.createElement("div");
+                var textnode = document.createTextNode("This is the text");
+                // var input = document.createElement("textarea");
+                // input.name = "post";
+                // input.maxLength = "5000";
+                // input.cols = "80";
+                // input.rows = "40";
+                // textdiv.appendChild(input); 
+                textdiv.appendChild(textnode);
+                textdiv.setAttribute("contentEditable", "true");
+                textdiv.setAttribute("width", "auto");
+                myforeign.setAttribute("width", "100%");
+                myforeign.setAttribute("height", "100%");
+                myforeign.classList.add("foreign"); //to make div fit text
+                textdiv.classList.add("insideforeign"); //to make div fit text
+                myforeign.setAttributeNS(null, "transform", "translate(18000 18000)");
+                myforeign.appendChild(textdiv);
+                group = document.getElementById(this.id);
+                group.appendChild(myforeign);
+                break;
             case "ARROWLINE":
                 // Create the marker definition and append it to the annotation group
                 group = document.getElementById(this.id);

@@ -47,3 +47,13 @@
 #channel-names-overlay-container .channel-label-overlay.visible {
     display: inline-block;
 }
+
+
+/* CSS for text annotation tool */
+.foreign {
+    text-align: left;
+    alignment-baseline: baseline;
+}
+.insideforeign {
+    display: inline-block;
+}
