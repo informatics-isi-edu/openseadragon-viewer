@@ -102,6 +102,10 @@ function AnnotationGroup(id, anatomy, description, parent){
     
                 for(markerDef of def.childNodes){
                     if(markerDef.getAttribute("data-subtype") == subtype){
+
+                        // Change the arrowhead stroke to make it consistent with the line, required when user does
+                        // not save changes to the current group
+                        this.changeArrowStroke(this.id, stroke);
                         return {
                             defs: null,
                             markerID: markerDef.getAttribute("id")
