@@ -62,7 +62,6 @@ function Viewer(parent, config) {
         this.osd.scalebar(this.config.scalebar);
 
         // load the images
-        console.log('channels:', _self.parameters.channels);
         this.loadImages(this.parameters.mainImage);
 
         // Add a SVG container to contain annotations
@@ -510,7 +509,7 @@ function Viewer(parent, config) {
                 break;
             // Drawing annotation on the SVG
             case "drawingStart":
-                svg.createAnnotationObject(data.groupID, data.type, data.attrs);
+                svg.createAnnotationObject(data.groupID, data.type, data.subtype, data.attrs);
                 break;
             // Change the color of the annotation
             case "drawingStrokeChanged":
@@ -841,7 +840,6 @@ function Viewer(parent, config) {
             return;
         }
 
-        console.log('params: ', params);
         var channelList = [], i, usePreviousChannelInfo = false;
 
         // show spinner is displayed
@@ -1071,10 +1069,11 @@ function Viewer(parent, config) {
         var svgID = event.userData.svgID;
         var groupID = event.userData.groupID;
         var type = event.userData.type;
+        var subtype = event.userData.subtype;
         var attrs = event.userData.attrs || {};
 
         if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
-            event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type);
+            event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type, subtype, attrs);
             event.userData.annotation.setupDrawingAttrs(attrs);
             event.userData.graphID = event.userData.annotation.id;
 
@@ -1296,7 +1295,6 @@ function Viewer(parent, config) {
         if(this.svgCollection.hasOwnProperty(svgID)){
             rst = this.svgCollection[svgID].exportToSVG(groupID);
         };
-
         _self.dispatchEvent("saveGroupSVGContent", rst);
     }
 

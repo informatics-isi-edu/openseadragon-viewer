@@ -20,7 +20,7 @@ function Base(attrs){
         "fill": "none", // TODO should this be part of added attributes as well?
         "stroke": this.constants.DEFAULT_SVG_STROKE,
         "stroke-width": this.constants.DEFAULT_SVG_STROKE_WIDTH,
-        "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT
+        "vector-effect": this.constants.DEFAULT_SVG_VECTOR_EFFECT,
     }
 
     // the check that needs to be performed to prevent empty object
@@ -70,7 +70,6 @@ function Base(attrs){
         var rst = "<" + tag + " ";
         var attr;
         var attributeList = {}
-
         for(attr in this._attrs){
             // only add non-empty attributes
             if (!this._attrs[attr] || this._attrs[attr] === null){
@@ -188,7 +187,7 @@ Base.prototype.highlight = function(highlightAttrs){
     }
 }
 
-Base.prototype.renderSVG = function(){
+Base.prototype.renderSVG = function(annotationType){
 
     var attr,
         value,
@@ -215,6 +214,7 @@ Base.prototype.renderSVG = function(){
 
     // add all the attributes
     for(attr in this._attrs){
+
         value = this._attrs[attr];
         if (attr === "stroke-width") {
             // TODO what if the value is not in pixel? (it can be pixel)

@@ -18,6 +18,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
     this.annotationUtils = new AnnotationUtils();
 
+
     // Create drawing area for grouping annotations with same id
     this.createAnnotationGroup = function (id, anatomy, description) {
         // Check if the area has created
@@ -34,18 +35,25 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }
     }
 
-    // Create a new path/rect/circle object for users to draw
-    this.createAnnotationObject = function(groupID, type, attrs){
+    /**
+     * This function creates an annotation SVG object containing an annotation group.
+     * The annotation group contains the annotation to be drawn.
+     * @param {string} groupID - Unique id for the annotation group.
+     * @param {string} type - Type of the annotation to be drawn.
+     * @param {string} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
+     * @param {object} attrs - Attributes to be added to the annotation.
+     */
+    this.createAnnotationObject = function(groupID, type, subtype, attrs){
 
         var group,
             annotation;
 
         if(this.groups.hasOwnProperty(groupID)){
+            
             // Find corresponding group
             group = this.groups[groupID];
 
-            // Start to draw annotation
-            annotation = group.addAnnotation(type);
+            annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
             annotation.setupDrawingAttrs(attrs);
 
@@ -58,6 +66,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 imgScaleY : this.imgScaleY,
                 annotation : annotation,
                 type : type,
+                subtype: subtype,
                 attrs : attrs
             })
         }
@@ -68,10 +77,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     * @param {object} data Contain information about the object that is being drawn/editted
     */
     this.changeDrawingStroke = function (data) {
+
         for (var groupID in this.groups) {
             // change the color for only the group that is being worked on
             if (groupID == data.groupID) {
-                this.groups[groupID].updateStroke(data.attrs.stroke);
+                this.groups[groupID].updateStroke(data.groupID, data.attrs.stroke);
             }
         }
     }
@@ -238,7 +248,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     svg += "<scale x='" + imgScaleX + "' y='" + imgScaleY + "'/>";
                     svg += innerSVG;
                     svg += "</svg>";
-
                     rst.push({
                         svgID: this.id,
                         groupID: groupID,
@@ -343,7 +352,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
             // var anatomy = node.getAttribute("id");
             // var group = this.createAnnotationGroup(groupID, anatomy);
-
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -354,10 +362,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polygon":
                 case "rect":
                 case "line":
+                case "arrowline":
                     this.parseSVGNodes([node], styleSheet, node);
-                    // annotation = group.addAnnotation(node.nodeName);
-                    // annotation.setAttributesBySVG(node);
-                    // annotation.renderSVG(this);
+                    break;
+                // Added the defs case to handle the definition of markers. We just skip the definition as
+                // they get added while creating the annotation in the annotation-group.js
+                case "defs":
                     break;
                 case "scale":
                     this.imgScaleX = +node.getAttribute("x") || this.imgScaleX;
@@ -454,13 +464,12 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         var obj = {}
         for (i = 0; i < attributes.length; i++) {
             obj[attributes[i]['name']] = attributes[i]['nodeValue'];
-        }
+        }   
         return obj;
     }
 
 
     this.parseSVGNodes = function (nodes, styleSheet, parentNode){
-        // if (group == null) { return }
 
         var parentStyle = '';
         if (parentNode) {
@@ -502,12 +511,35 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polyline":
                 case "polygon":
                 case "rect":
-                case "line":
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName);
                         annotation.setAttributesByJSON(this.getNodeAttributes(node));
                         annotation.renderSVG(this);
+                    }
+                    break;
+                // Separate case for line type as we need to check if the annotation is line or arrow line
+                case "line":
+                    if (id !== "undefined") {
+                        group = this.groups.hasOwnProperty(id)
+                        ? this.groups[id]
+                        : this.createAnnotationGroup(id, anatomy);
+                        
+                        // Check if the line contains marker-end attribute, which makes it an arrow line
+                        if (node.getAttribute("data-subtype") != null) {
+ 
+                            // Create a different marker-id for each SVG with arrow line as the stroke colour would be different
+                            arrowSubtype = node.getAttribute("data-subtype");
+                            arrowlineAttributes = this.getNodeAttributes(node);
+                            annotation = group.addAnnotation("arrowline", arrowSubtype, arrowlineAttributes);
+                            annotation.setAttributesByJSON(arrowlineAttributes);
+                            annotation.renderSVG("arrowline");
+
+                        } else {
+                            annotation = group.addAnnotation(node.nodeName);
+                            annotation.setAttributesByJSON(this.getNodeAttributes(node));
+                            annotation.renderSVG(this);
+                        }
                     }
                     break;
                 case "scale":
@@ -523,14 +555,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             return;
         }
 
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");        
+        
         svg.setAttribute("class", "annotationSVG");
         svg.setAttribute("viewBox", this.getViewBox().join(" "));
         svg.setAttribute("scale", this.scale);
         svg.setAttribute("ignoreReferencePoint", this.ignoreReferencePoint);
         svg.setAttribute("ignoreDimension", this.ignoreDimension);
-
+        
         if(this.parent.svg){
             this.parent.svg.append(svg);
         }

@@ -20,13 +20,18 @@ function AnnotationGroup(id, anatomy, description, parent){
     // the stroke that is used by annotations in this group
     this.stroke = [];
 
-    // Add new annotation object (path/cirlce/rect)
-    this.addAnnotation = function(type){
+    /**
+     * This function adds the given type of annotation to the annotation group.
+     * @param {string} type - Type of the annotation.
+     * @param {string} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
+     * @param {object} annotAttrs - Attributes to be added to the annotation.
+     * @returns 
+     */
+    this.addAnnotation = function(type, subtype, annotAttrs){
         var annotation = null;
         var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
         var attrs = {
             "graph-id" : graphID,
-            // "annotation-id" : this.id,
             "parent" : this
         }
         switch (type.toUpperCase()) {
@@ -48,6 +53,27 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "LINE":
                 annotation = new Line(attrs);
                 break;
+            case "ARROWLINE":
+                // Create the marker definition and append it to the annotation group
+                group = document.getElementById(this.id);
+                // Check if marker ID already exists which would be the case while importing saved annotation or create a new one
+                markerID = annotAttrs["data-markerid"] || "arrowmarker-" + annotAttrs.stroke.slice(1) + parseInt(Math.random() * 100000000);
+                if(group != null) {
+                   marker = this.addMarkerDef(markerID, annotAttrs.stroke, subtype, true);
+                   if(marker["defs"] != null){
+                     group.appendChild(marker["defs"]);
+                   }
+                   else{
+                    markerID = marker["markerID"]
+                   }
+                }
+                // Update the arrowline attributes to have the marker ID and the marker-end
+                attrs["stroke"] = annotAttrs.stroke;
+                attrs["marker-end"] = "url(#" + markerID +")";
+                attrs["markerID"] = markerID;
+
+                annotation = new ArrowLine(attrs, subtype);
+                break;
         };
 
         if(annotation != null){
@@ -56,6 +82,97 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         return annotation;
     }
+
+    /**
+     * This function creates the marker definition needed for the arrowline annotation tool.
+     * The returned definition gets added to the annotation SVG.
+     * @param {string} markerID - Unique ID that helps the line SVG element to reference the definition in the URL.
+     * @param {string} stroke - RGB stroke of the arrowhead
+     * @param {string} subtype - Type of the arrowhead.
+     * @param {boolean} checkExists - A flag to skip checking if the definition already exists, useful while exporting the SVG.
+     * @returns {object} The object consists of the marker definition and the marker ID.
+     */
+    this.addMarkerDef = function (markerID, stroke, subtype, checkExists = true) {
+
+        // Check if a definition for the subtype arrowhead already exists in the group
+        // Returns the marker ID if a definition already exists
+        if(checkExists){
+            defCollection = document.getElementById(this.id).getElementsByTagName("defs");
+            for(def of defCollection) {
+    
+                for(markerDef of def.childNodes){
+                    if(markerDef.getAttribute("data-subtype") == subtype){
+
+                        // Change the arrowhead stroke to make it consistent with the line, required when user does
+                        // not save changes to the current group
+                        this.changeArrowStroke(this.id, stroke);
+                        return {
+                            defs: null,
+                            markerID: markerDef.getAttribute("id")
+                        };
+                    }
+                }
+            }
+        }
+        
+        // Create the arrowhead defintion for the corresponding subtype
+        var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        var marker = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "marker"
+        );
+        marker.setAttributeNS(null, "id", markerID);
+        marker.setAttributeNS(null, "markerUnits", "strokeWidth");
+        marker.setAttributeNS(null, "markerWidth", 7);
+        marker.setAttributeNS(null, "markerHeight", 7);
+        marker.setAttributeNS(null, "orient", "auto");
+        var arrowhead = null;
+        
+        switch(subtype){
+            case "solid": 
+                // RefX is the relative x position of the marker with respect to the line
+                marker.setAttributeNS(null, "refX", 2.5);
+                // RefY is the relative y position of the marker with respect to the line
+                marker.setAttributeNS(null, "refY", 2.5);
+                marker.setAttributeNS(null, "data-subtype", "solid");
+                // Arrowhead is the SVG element that becomes the actual arrowhead of the line, solid arrowhead
+                // requires a path to draw the triangle
+                arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                arrowhead.setAttributeNS(null, "fill", stroke);
+                arrowhead.setAttributeNS(null, "d", "M 0 0 L 5 2.5 L 0 5 z");
+                break;
+            case "circle":
+                marker.setAttributeNS(null, "refX", 6);
+                marker.setAttributeNS(null, "refY", 3);
+                marker.setAttributeNS(null, "data-subtype", "circle");
+                // Arrowhead is the SVG element that becomes the actual arrowhead of the line, circle arrowhead
+                // requires a circle SVG element to draw the circle
+                arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                arrowhead.setAttributeNS(null, "cx", "3");
+                arrowhead.setAttributeNS(null, "cy", "3");
+                arrowhead.setAttributeNS(null, "r", "3");
+                arrowhead.setAttributeNS(null, "fill", stroke);
+                break;
+            case "stroke":
+                marker.setAttributeNS(null, "fill", "None");
+                marker.setAttributeNS(null, "refX", 9.3);
+                marker.setAttributeNS(null, "refY", 5);
+                marker.setAttributeNS(null, "data-subtype", "stroke");
+                // Arrowhead is the SVG element that becomes the actual arrowhead of the line, stroke arrowhead
+                // requires a polyline to draw the V-shaped arrowhead
+                arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                arrowhead.setAttributeNS(null, "stroke", stroke);
+                arrowhead.setAttributeNS(null, "points", "1 1, 9 5, 1 7");
+                break;
+        }
+        
+        marker.appendChild(arrowhead);
+        defs.appendChild(marker);
+        return {
+            defs,
+            markerID
+        };
+    };
 
     // Dispatch the event to the parent
     this.dispatchEvent = function(type, data){
@@ -96,9 +213,22 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
 
         var rst = [], content;
+        // A set to check if a marker definition for the type of arrowhead is already created and added to the export string for a annotation group
+        // This ensures that the definition gets exported only once
+        var markerDefs = new Set();
 
         this.annotations.forEach(function (annot) {
             content = annot.exportToSVG();
+
+            // If annotation is an arrowline, then create a marker definition and add it to the export string
+            if(annot._tag == "line" && annot._attrs["marker-end"] != null && annot._subtype != null && (!markerDefs.has(annot._subtype))){
+                defs = _self.addMarkerDef(annot._attrs["data-markerid"], annot._attrs["stroke"], annot._subtype, false);
+                markerDef = defs["defs"].outerHTML;
+                rst.push(markerDef);
+                // Add the arrowhead type to the set to keep track of exported definitions
+                markerDefs.add(annot._subtype);
+            }
+
             if (content != "") {
                 rst.push(content);
             }
@@ -107,7 +237,6 @@ function AnnotationGroup(id, anatomy, description, parent){
         if (rst.length === 0) {
             return "";
         }
-
         return "<g id='" + this.id + "'>" + rst.join("") + "</g>";
     }
 
@@ -247,15 +376,50 @@ function AnnotationGroup(id, anatomy, description, parent){
     };
 
     /**
+     * This funtion changes the color of the arrowheads present in the annotation group.
+     * @param {string} groupID - ID of the annotation group
+     * @param {string} stroke - RGB color to update the arrowhead color
+     */    
+    this.changeArrowStroke = function(groupID, stroke) {
+        
+        defCollection = document.getElementById(groupID).getElementsByTagName("defs");
+        for(def of defCollection) {
+            
+            for(markerDef of def.childNodes){
+                
+                markerElements = ["path", "polyline", "circle"];
+                for (markerElement of markerElements){
+                    
+                    arrowChild = markerDef.getElementsByTagName(markerElement)[0];
+                    if(arrowChild == null){
+                        continue;
+                    }
+                    if(markerElement == "polyline"){
+                        arrowChild.setAttribute("stroke", stroke);
+                    }
+                    else{
+                        arrowChild.setAttribute("fill", stroke);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
     * This function changes the color(stroke) of the each annotation to the new value passed as param
+    * @param {string} groupID
     * @param {string} stroke the RGB value of the new color
     */
-    this.updateStroke = function(stroke) {
+    this.updateStroke = function(groupID, stroke) {
         var stroke = _self.parent.parent._utils.standardizeColor(stroke);
 
         _self.stroke = [stroke];
         _self.annotations.forEach(function (annotation) {
             annotation._attrs.stroke = stroke;
+            // If the annotation is an arrowline, change the color of the arrowhead marker definition
+            if(annotation._tag == "line" && annotation._attrs["data-subtype"] != null){
+                _self.changeArrowStroke(groupID, stroke)
+            }
             // render the SVG after changing the color so that the new color is reflected in the viewer
             annotation.renderSVG();
         });

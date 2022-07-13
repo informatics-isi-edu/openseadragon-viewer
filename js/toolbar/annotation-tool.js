@@ -6,6 +6,7 @@ function AnnotationTool(parent){
     this.parent = parent || null;
     this.isDisplay = false;
     this.curType = 'CURSOR';
+    this.curSubtype = '';
     this.curSVGID = '';
     this.curGroupID = '';
     this.curStroke = '#f00000';
@@ -22,6 +23,10 @@ function AnnotationTool(parent){
     // Click to change annotation button
     this.onClickChangeBtn = function(){
         var btnType = this.getAttribute("data-type") || "";
+        var btnSubtype = null;
+        if(btnType === "ARROWLINE"){
+            btnSubtype = "solid";
+        }
 
         if (btnType == "HELP") {
             _self.dispatchEvent('openDrawingHelpPage');
@@ -37,7 +42,7 @@ function AnnotationTool(parent){
         }
 
         _self.dispatchEvent("drawingStop");
-        _self.updateMode(btnType);
+        _self.updateMode(btnType, btnSubtype);
 
     }
 
@@ -83,6 +88,9 @@ function AnnotationTool(parent){
                 "</span>",
                 "<span class='toolBtn' data-type='LINE' title='Draw line'>",
                     "<i class='fa fa-minus'></i>",
+                "</span>",
+                "<span class='toolBtn' data-type='ARROWLINE' title='Draw arrow line'>",
+                    "<i class='fas fa-long-arrow-alt-right'></i>",
                 "</span>",
                 "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
                     "<i class='fas fa-draw-polygon'></i>",
@@ -152,15 +160,19 @@ function AnnotationTool(parent){
     }
 
     // Update the current mode
-    this.updateMode = function(mode){
+    this.updateMode = function(mode, modeSubtype){
 
         if(!_self.elem){
             return;
         }
-
+        
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
+        
         _self.curType = mode || 'CURSOR';
+        _self.curSubtype = modeSubtype || '';
+
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
+        
         switch(_self.curType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {
@@ -179,6 +191,18 @@ function AnnotationTool(parent){
                     attrs : {
                         "stroke" : _self.curStroke,
                         "fill" : "None"
+                    }
+                });
+                break;
+            case "ARROWLINE":
+                _self.dispatchEvent("drawingStart", {
+                    svgID : _self.curSVGID,
+                    groupID : _self.curGroupID,
+                    type : _self.curType,
+                    subtype: modeSubtype,
+                    attrs : {
+                        "stroke" : _self.curStroke,
+                        "fill" : "None",
                     }
                 });
                 break;
