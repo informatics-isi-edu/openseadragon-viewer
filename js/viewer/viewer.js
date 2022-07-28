@@ -54,7 +54,8 @@ function Viewer(parent, config) {
 
         // configure osd
         this.osd = OpenSeadragon(this.config.osd);
-
+        this.osd.innerTracker.keyHandler = null;
+        
         // show spinner while initializing the page
         this.resetSpinner(true);
 

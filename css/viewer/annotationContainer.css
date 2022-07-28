@@ -56,4 +56,9 @@
 }
 .insideforeign {
     display: inline-block;
+    border: 100px solid red;
+}
+#textInput {
+    width: 100%;
+    height: 100%;
 }

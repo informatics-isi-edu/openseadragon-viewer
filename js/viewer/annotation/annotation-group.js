@@ -55,27 +55,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 break;
             case "TEXT":
                 annotation = new Text(attrs);
-
-                var myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
-                var textdiv = document.createElement("div");
-                var textnode = document.createTextNode("This is the text");
-                // var input = document.createElement("textarea");
-                // input.name = "post";
-                // input.maxLength = "5000";
-                // input.cols = "80";
-                // input.rows = "40";
-                // textdiv.appendChild(input); 
-                textdiv.appendChild(textnode);
-                textdiv.setAttribute("contentEditable", "true");
-                textdiv.setAttribute("width", "auto");
-                myforeign.setAttribute("width", "100%");
-                myforeign.setAttribute("height", "100%");
-                myforeign.classList.add("foreign"); //to make div fit text
-                textdiv.classList.add("insideforeign"); //to make div fit text
-                myforeign.setAttributeNS(null, "transform", "translate(18000 18000)");
-                myforeign.appendChild(textdiv);
-                group = document.getElementById(this.id);
-                group.appendChild(myforeign);
+                this.addTextBox();
                 break;
             case "ARROWLINE":
                 // Create the marker definition and append it to the annotation group
@@ -105,6 +85,65 @@ function AnnotationGroup(id, anatomy, description, parent){
         }
 
         return annotation;
+    }
+
+
+    this.addTextBox = function () {
+
+        var svgForeignObj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+        var textOuterDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+        var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
+
+        // textInput.setAttribute("cols", 50);
+        // textInput.setAttribute("rows", 5);
+        // textInput.setAttribute("font-size", "1000px");
+        textInput.setAttribute("id", "textInput");
+        textInput.setAttribute("tabindex", "-1");
+        textInput.style.fontSize = "1000px";
+
+        // textInput.oninput = function(e) {
+        //     e.stopImmediatePropagation();
+        //     // console.log(textInput.value);
+        // };
+        // textInput.onpointerdown = function(evt) {
+        //     // console.log(evt);
+        //     evt.stopImmediatePropagation();
+        // };
+        // textInput.keydown = function(evt) {
+        //     console.log(evt);
+        //     evt.stopImmediatePropagation();
+        // };
+        // textInput.keyup = function(evt) {
+        //     console.log(evt);
+        //     evt.stopImmediatePropagation();
+        // };
+
+        textOuterDiv.setAttribute("contentEditable", "true");
+        textInput.setAttribute("contentEditable", "true");
+        svgForeignObj.setAttribute("contentEditable", "true");
+        textOuterDiv.setAttribute("width", "auto");
+        svgForeignObj.setAttribute("width", "100%");
+        svgForeignObj.setAttribute("height", "100%");
+        textOuterDiv.appendChild(textInput); 
+        svgForeignObj.classList.add("foreign"); //to make div fit text
+        textOuterDiv.classList.add("insideforeign"); //to make div fit text
+        svgForeignObj.setAttributeNS(null, "transform", "translate(18000 18000)");
+        svgForeignObj.appendChild(textOuterDiv);
+        group = document.getElementById(this.id);
+        group.appendChild(svgForeignObj);
+        // group.setAttribute("contentEditable", "true");
+        textInput.addEventListener("click", this.clickedInput);
+        document.getElementById("textInput").addEventListener("keydown", function (e) {
+            e.stopImmediatePropagation();
+            console.log(e);
+            console.log(e.key);
+        });
+    }
+
+    this.clickedInput = function (e) {
+        e.stopImmediatePropagation();
+        // console.log(e);
+        // console.log("clicked textInput");
     }
 
     /**
