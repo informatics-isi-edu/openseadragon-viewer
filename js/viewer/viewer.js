@@ -54,6 +54,8 @@ function Viewer(parent, config) {
 
         // configure osd
         this.osd = OpenSeadragon(this.config.osd);
+
+        // Added to disable the key tracking temporarily
         this.osd.innerTracker.keyHandler = null;
         
         // show spinner while initializing the page
@@ -471,6 +473,9 @@ function Viewer(parent, config) {
                         groupID : data.groupID
                     });
                 }
+                break;
+            case "removeHandlers":
+                this.removeHandler();
                 break;
             default:
                 this.parent.dispatchEvent(type, data);
@@ -1088,6 +1093,20 @@ function Viewer(parent, config) {
             _self.mouseTrackers.push(mousetracker);
         }
         // _self.destoryMouseTracker();
+    }
+
+    this.removeHandler = function (event) {
+
+        if (_self.mouseTrackers.length > 0) {
+            
+            _self.mouseTrackers[0].destroy();
+            _self.mouseTrackers.shift();
+        }
+        this.osd.innerTracker.clickHanlder = null;
+        this.osd.innerTracker.pressHandler = null;
+        this.osd.innerTracker.releaseHandler = null;
+        this.osd.panVertical = false;
+        this.osd.panHorizontal = false;
     }
 
     // Pan to specific location

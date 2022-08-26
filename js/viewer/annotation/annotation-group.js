@@ -17,6 +17,9 @@ function AnnotationGroup(id, anatomy, description, parent){
     this.isDisplay = true;
     this.isSelected = false;
 
+    // Text height
+    this.textHeight = 1000;
+
     // the stroke that is used by annotations in this group
     this.stroke = [];
 
@@ -87,63 +90,266 @@ function AnnotationGroup(id, anatomy, description, parent){
         return annotation;
     }
 
-
+    /**
+     * This function will add a textbox div to the SVG. This will be used to edit the text and would be later moved to the text.js 
+     * once the feature to switch to and fro from text is implemented.
+     */
     this.addTextBox = function () {
 
         var svgForeignObj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
         var textOuterDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
         var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
 
-        // textInput.setAttribute("cols", 50);
-        // textInput.setAttribute("rows", 5);
-        // textInput.setAttribute("font-size", "1000px");
+        // This would later need a unique ID for each text
         textInput.setAttribute("id", "textInput");
-        textInput.setAttribute("tabindex", "-1");
-        textInput.style.fontSize = "1000px";
-
-        // textInput.oninput = function(e) {
-        //     e.stopImmediatePropagation();
-        //     // console.log(textInput.value);
-        // };
-        // textInput.onpointerdown = function(evt) {
-        //     // console.log(evt);
-        //     evt.stopImmediatePropagation();
-        // };
-        // textInput.keydown = function(evt) {
-        //     console.log(evt);
-        //     evt.stopImmediatePropagation();
-        // };
-        // textInput.keyup = function(evt) {
-        //     console.log(evt);
-        //     evt.stopImmediatePropagation();
-        // };
-
+        
+        textInput.oninput = function(e) {
+            e.stopImmediatePropagation();
+        };
+        textInput.onpointerdown = function(evt) {
+            evt.stopImmediatePropagation();
+        };
+        textInput.keydown = function(evt) {
+            evt.stopImmediatePropagation();
+        };
+        textInput.keyup = function(evt) {
+            evt.stopImmediatePropagation();
+        };
+        
         textOuterDiv.setAttribute("contentEditable", "true");
         textInput.setAttribute("contentEditable", "true");
         svgForeignObj.setAttribute("contentEditable", "true");
         textOuterDiv.setAttribute("width", "auto");
+        textOuterDiv.setAttribute("tabindex", "-1");
         svgForeignObj.setAttribute("width", "100%");
         svgForeignObj.setAttribute("height", "100%");
         textOuterDiv.appendChild(textInput); 
         svgForeignObj.classList.add("foreign"); //to make div fit text
         textOuterDiv.classList.add("insideforeign"); //to make div fit text
+
+        // This would need to take the value from the click trackers of OSD to decide the position of the text.
         svgForeignObj.setAttributeNS(null, "transform", "translate(18000 18000)");
         svgForeignObj.appendChild(textOuterDiv);
+
         group = document.getElementById(this.id);
         group.appendChild(svgForeignObj);
-        // group.setAttribute("contentEditable", "true");
-        textInput.addEventListener("click", this.clickedInput);
+        group.setAttribute("contentEditable", "true");
+        textOuterDiv.addEventListener("mousedown", this.clickedInput);
+
         document.getElementById("textInput").addEventListener("keydown", function (e) {
             e.stopImmediatePropagation();
-            console.log(e);
-            console.log(e.key);
+            this.style.height = (this.scrollHeight) + "px";
+            this.textHeight = this.scrollHeight;
         });
+
+        this.initResizeElement();
+        this.initDragElement();
+
+        textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;");
+        textInput.style.fontSize = "1000px";
+        textInput.addEventListener("input", OnInput, false);
     }
 
     this.clickedInput = function (e) {
         e.stopImmediatePropagation();
-        // console.log(e);
-        // console.log("clicked textInput");
+        console.log(e);
+        console.log("clicked textInput");
+    }
+
+    function OnInput() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight) + "px";
+    }
+
+    this.initDragElement = function () {
+  
+        pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  
+        var divCont = document.getElementsByClassName("insideforeign")[0];
+        var elmnt = null;
+        var currentZIndex = 100;
+        divCont.onmousedown = function() {
+            this.style.zIndex = "" + ++currentZIndex;
+        };
+
+            divCont.onmousedown = dragMouseDown;
+            divCont.onpointerdown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e.stopImmediatePropagation();
+            console.log(e);
+            elmnt = e.target;
+            elmnt.style.zIndex = "" + ++currentZIndex;
+
+            e = e || window.event;
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            divCont.onmouseup = closeDragElement;
+            divCont.onpointerup = closeDragElement;
+            divCont.onmouseleave = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            if (!elmnt) {
+            return;
+            }
+
+            e = e || window.event;
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = elmnt.offsetTop - 40 * pos2 + "px";
+            elmnt.style.left = elmnt.offsetLeft - 40 * pos1 + "px";
+        }
+
+        function closeDragElement(e) {
+            console.log(e);
+            /* stop moving when mouse button is released:*/
+            document.onmouseup = null;
+            document.onmousemove = null;
+            document.onpointerup = null;
+        }
+
+        function getHeader(element) {
+            var headerItems = element.getElementsByClassName("move-header");
+
+            if (headerItems.length === 1) {
+                return headerItems[0];
+            }
+
+            return null;
+        }
+    }
+
+    // This function would be used to add the resizing functionality to the text box. This would need to be executed for every text
+    this.initResizeElement = function () {
+
+        var divCont = document.getElementsByClassName("insideforeign")[0];
+        var element = null;
+        var startX, startY, startWidth, startHeight;
+
+        // Creating the four corners for resizing
+
+        topleft = document.createElement("div");
+        topleft.className = "resizer-topleft";
+        divCont.appendChild(topleft);
+        topleft.addEventListener("pointerdown", initDrag, false);
+        topleft.parentPopup = divCont;
+    
+        bottomleft = document.createElement("div");
+        bottomleft.className = "resizer-bottomleft";
+        divCont.appendChild(bottomleft);
+        bottomleft.addEventListener("pointerdown", initDrag, false);
+        bottomleft.parentPopup = divCont;
+  
+        topright = document.createElement("div");
+        topright.className = "resizer-topright";
+        divCont.appendChild(topright);
+        topright.addEventListener("pointerdown", initDrag, false);
+        topright.parentPopup = divCont;
+        
+        bottomright = document.createElement("div");
+        bottomright.className = "resizer-bottomright";
+        divCont.appendChild(bottomright);
+        bottomright.addEventListener("pointerdown", initDrag, false);
+        bottomright.parentPopup = divCont;
+
+        // var right = document.createElement("div");
+        // right.className = "resizer-right";
+        // divCont.appendChild(right);
+        // right.addEventListener("mousedown", function (e) {
+        //     console.log("Clicked on div");
+        // });
+        // right.parentPopup = divCont;
+
+        // var bottom = document.createElement("div", true);
+        // bottom.className = "resizer-bottom";            
+        // divCont.appendChild(bottom);
+        // bottom.addEventListener("pointerdown", function (e) {
+        //     e.stopImmediatePropagation();
+        // });
+            
+        // bottom.parentPopup = divCont;
+        // bottom.setAttribute("tabindex", "-1");
+        // both = document.createElement("div");
+        // both.className = "resizer-both";
+        // divCont.appendChild(both);
+        // bottom.addEventListener("mousedown", initDrag);
+        // both.addEventListener("click", function (e) {
+        //     console.log(e);
+        //     console.log("Clicked on div");
+        // });
+        // both.parentPopup = divCont;
+
+        function initDrag(e) {
+            e.stopImmediatePropagation();
+            console.log("Inside");
+            element = this.parentPopup;
+            resizer = e.target.className;
+
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = parseInt(
+            document.defaultView.getComputedStyle(element).width,
+            10
+            );
+            startHeight = parseInt(
+            document.defaultView.getComputedStyle(element).height,
+            10
+            );
+
+            document.documentElement.addEventListener("mousemove", doDrag, false);
+            document.documentElement.addEventListener("pointerup", stopDrag, false);
+            document.documentElement.addEventListener("mouseup", stopDrag, false);
+        }
+
+        function doDrag(e) {
+            console.log("doing drag");
+            element.style.position = "absolute";
+            switch(resizer) {
+                case "resizer-bottomleft":
+                    element.style.width = startWidth + 12 * (startX - e.clientX)+ "px";
+                    element.style.left = startX + 12 * (e.clientX - startX) + "px";
+                    // element.style.top = startY + (e.clientY - startY) + "px";
+                    element.style.height = startHeight + 12 * (e.clientY - startY) + "px";
+                    break;
+                case "resizer-topleft":
+                    element.style.width = startWidth + 12 * (startX - e.clientX)+ "px";
+                    element.style.left = startX + 12 * (e.clientX - startX) + "px";
+                    element.style.top = startY + 12 * (e.clientY - startY) + "px";
+                    element.style.height = startHeight + 12 * (startY - e.clientY) + "px";
+                    break;
+                case "resizer-topright":
+                    element.style.width = startWidth + 12 * (e.clientX - startX) + "px";
+                    // element.style.left = startX + (e.clientX - startX) + "px";
+                    element.style.top = startY + 12 * (e.clientY - startY) + "px";
+                    element.style.height = startHeight + 12 * (startY - e.clientY) + "px";
+                    break;
+                case "resizer-bottomright":
+                    element.style.width = startWidth + 12 * (e.clientX - startX) + "px";
+                    // element.style.left = startX + (e.clientX - startX) + "px";
+                    // element.style.top = startY + (e.clientY - startY) + "px";
+                    element.style.height = startHeight + 12 * (e.clientY - startY) + "px";
+                    break;
+                default:
+                    break;
+            }
+            // element.style.width = startWidth + 12 * (e.clientX - startX) + "px";
+            // element.style.height = startHeight + 12 * (e.clientY - startY) + "px";
+        }
+
+        function stopDrag() {
+            console.log("Stopping drag");
+            document.documentElement.removeEventListener("mousemove", doDrag, false);
+            document.documentElement.removeEventListener("pointerup", stopDrag, false);
+            document.documentElement.removeEventListener("mouseup", stopDrag, false);
+        }
     }
 
     /**

@@ -56,7 +56,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
             annotation.setupDrawingAttrs(attrs);
-
             this.dispatchEvent("onDrawingBegin", {
                 svgID : this.id,
                 groupID : groupID,
@@ -69,6 +68,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 subtype: subtype,
                 attrs : attrs
             })
+            this.dispatchEvent("removeHandlers", null);
+
         }
     }
 

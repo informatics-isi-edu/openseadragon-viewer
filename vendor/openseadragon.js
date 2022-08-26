@@ -5058,7 +5058,7 @@ $.EventSource.prototype = {
      */
     function onMouseDown( tracker, event ) {
         var gPoint;
-
+        console.log("laskdjfasdlk");
         event = $.getEvent( event );
 
         gPoint = {
