@@ -428,10 +428,12 @@ function Viewer(parent, config) {
                 // alert("view start drawing")
                 var tracker = new OpenSeadragon.MouseTracker({
                     element: _self.svg,
+                    // clickHandler: this.onMouseDragToDraw,
                     dragHandler: this.onMouseDragToDraw,
                     dragEndHandler: this.onMouseDragToDrawEnd,
                     userData: data
                 });
+                this.osd.addHandler('canvas-click', this.onMouseDragToDraw);
                 _self.mouseTrackers.push(tracker);
                 break;
             case "updateSVGId":
@@ -474,9 +476,9 @@ function Viewer(parent, config) {
                     });
                 }
                 break;
-            case "removeHandlers":
-                this.removeHandler();
-                break;
+            // case "removeHandlers":
+            //     this.removeHandler();
+            //     break;
             default:
                 this.parent.dispatchEvent(type, data);
                 break;
@@ -531,7 +533,7 @@ function Viewer(parent, config) {
                 break;
             // Remove annotation object from a group
             case "removeAnnotationByGraphID":
-                svg.removeAnnotationByGraphID(data.groupID, data.graphID);
+                svg.removeAnnotationByGraphID(data.groupID, data.graphID, data.userData);
                 this.dispatchEvent("onMouseoutHideTooltip");
                 break;
             // Set annotation groups attributes
@@ -1040,6 +1042,7 @@ function Viewer(parent, config) {
 
     // Drag to draw event handler start
     this.onMouseDragToDraw = function(event){
+        console.log(event.position);
         var annotation = event.userData.annotation;
         var viewBox = event.userData.viewBox;
         var scaleX = event.userData.imgScaleX || 1;
@@ -1182,7 +1185,8 @@ function Viewer(parent, config) {
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
-                        graphID : userData.graphID
+                        graphID : userData.graphID,
+                        userData: userData
                     })
                 }
 

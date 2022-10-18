@@ -68,7 +68,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 subtype: subtype,
                 attrs : attrs
             })
-            this.dispatchEvent("removeHandlers", null);
+            // this.dispatchEvent("removeHandlers", null);
 
         }
     }
@@ -589,10 +589,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     // Remove annotation from a group
-    this.removeAnnotationByGraphID = function(groupID, graphID){
+    this.removeAnnotationByGraphID = function(groupID, graphID, userData){
+
+        if(userData.type == "TEXT"){
+            userData.annotation.transform();
+            return;
+        }
         if(this.groups.hasOwnProperty(groupID)){
             var group = this.groups[groupID];
-
             group.removeAnnotationByID(graphID);
         }
     }
