@@ -62,10 +62,15 @@ function Base(attrs){
 
     this.exportToSVG = function(){
 
+        if(this._tag == "text"){
+            return (this.getForeignObj().outerHTML);
+        }
+
         // Check to see if there are necessary dimensions needed to construct the component. This makes sure that no empty components are added to the final SVG output file.
         if (!this.hasDimensions(this._attrs, this._tag)) {
             return "";
         }
+
         var tag = this._tag;
         var rst = "<" + tag + " ";
         var attr;

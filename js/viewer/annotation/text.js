@@ -45,10 +45,7 @@ Text.prototype.transform = function () {
 
     this._attrs["id"] = "asdkfjaslkdfj";
     this._attrs["text"] = textInput.value;
-    console.log(textInput.value);
     obj = this.getForeignObj();
-    var rect = obj.getBoundingClientRect();
-    console.log(rect);
     // this._attrs["x"] = window.scrollX + rect.left;
     // this._attrs["y"] = window.scrollY + rect.top;
     obj.parentNode.removeChild(obj);
@@ -63,7 +60,7 @@ Text.prototype.transform = function () {
      * This function will add a textbox div to the SVG. This will be used to edit the text and would be later moved to the text.js 
      * once the feature to switch to and fro from text is implemented.
      */
-    Text.prototype.addTextBox = function (groupId) {
+    Text.prototype.addTextBox = function (groupId, textValue) {
 
         var svgForeignObj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
         var textOuterDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
@@ -75,18 +72,18 @@ Text.prototype.transform = function () {
         // This would later need a unique ID for each text
         textInput.setAttribute("id", "textInput");
         
-        textInput.oninput = function(e) {
-            e.stopImmediatePropagation();
-        };
-        textInput.onpointerdown = function(evt) {
-            evt.stopImmediatePropagation();
-        };
-        textInput.keydown = function(evt) {
-            evt.stopImmediatePropagation();
-        };
-        textInput.keyup = function(evt) {
-            evt.stopImmediatePropagation();
-        };
+        // textInput.oninput = function(e) {
+        //     e.stopImmediatePropagation();
+        // };
+        // textInput.onpointerdown = function(evt) {
+        //     evt.stopImmediatePropagation();
+        // };
+        // textInput.keydown = function(evt) {
+        //     evt.stopImmediatePropagation();
+        // };
+        // textInput.keyup = function(evt) {
+        //     evt.stopImmediatePropagation();
+        // };
         
         textOuterDiv.setAttribute("contentEditable", "true");
         textInput.setAttribute("contentEditable", "true");
@@ -107,11 +104,17 @@ Text.prototype.transform = function () {
         group.appendChild(svgForeignObj);
         group.setAttribute("contentEditable", "true");
 
+        if(textValue != null){
+            textInput.value = textValue;
+            textInput.innerHTML = textValue;
+        }
+
         textInput.addEventListener("keydown", function (e) {
-            e.stopImmediatePropagation();
+            // e.stopImmediatePropagation();
             prev = this.textHeight;
             this.style.height = (this.scrollHeight) + "px";
             this.textHeight = this.scrollHeight;
+            textInput.innerHTML = textInput.value;
         });
 
         this.initResizeElement();

@@ -348,6 +348,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             // if (svgElems[i].getAttribute("id") == null) { continue; }
 
             var node = svgElems[i];
+            console.log(node);
             // var groupID = svgElems[i].getAttribute("id") || Date.parse(new Date()) + parseInt(Math.random() * 1000);
             var className = node.getAttribute("class") || "";
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
@@ -364,6 +365,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "rect":
                 case "line":
                 case "arrowline":
+                case "foreignObject":
                     this.parseSVGNodes([node], styleSheet, node);
                     break;
                 // Added the defs case to handle the definition of markers. We just skip the definition as
@@ -512,6 +514,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polyline":
                 case "polygon":
                 case "rect":
+                case "foreignObject":
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName);
@@ -591,10 +594,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     // Remove annotation from a group
     this.removeAnnotationByGraphID = function(groupID, graphID, userData){
 
-        if(userData.type == "TEXT"){
-            userData.annotation.transform();
-            return;
-        }
+        // if(userData.type == "TEXT"){
+        //     userData.annotation.transform();
+        //     return;
+        // }
         if(this.groups.hasOwnProperty(groupID)){
             var group = this.groups[groupID];
             group.removeAnnotationByID(graphID);
