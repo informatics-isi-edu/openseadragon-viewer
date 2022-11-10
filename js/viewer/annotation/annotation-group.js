@@ -55,8 +55,14 @@ function AnnotationGroup(id, anatomy, description, parent){
                 annotation = new Line(attrs);
                 break;
             case "TEXT":
+                attrs["x"] = this.parent.imgWidth;
+                attrs["y"] = this.parent.imgHeight;
                 annotation = new Text(attrs);
                 annotation.addTextBox(this.id);
+                break;
+            case "FOREIGNOBJECT":
+                annotation = new Text(attrs);
+                annotation.addTextBox(this.id, subtype);
                 break;
             case "ARROWLINE":
                 // Create the marker definition and append it to the annotation group

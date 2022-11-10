@@ -50,12 +50,13 @@
 
 
 /* CSS for text annotation tool */
-.foreign {
+.foreign-object {
     text-align: left;
-    alignment-baseline: baseline;
+    /* alignment-baseline: baseline; */
     overflow: visible;
 }
-.insideforeign {
+
+.foreign-object-div {
     display: inline-block;
     border: 100px solid red;
     position: absolute;
@@ -70,7 +71,6 @@
     width: 100%;
     height: 100%;
     background: transparent;
-    /* color: white; */
 }
 
 .insideforeign .resizer-topleft {
