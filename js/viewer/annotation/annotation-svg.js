@@ -260,6 +260,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             }
         }
 
+        console.log(rst, svg);
         return rst;
     }
 
@@ -341,7 +342,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-
+        console.log(svgElems);
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
@@ -353,6 +354,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
             // var anatomy = node.getAttribute("id");
             // var group = this.createAnnotationGroup(groupID, anatomy);
+            console.log(node);
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -480,9 +482,10 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             parentNode = {};
         }
 
-
+        console.log(nodes);
         for (var i = 0; i < nodes.length; i++) {
 
+            console.log(nodes[i]);
             if (!nodes[i].getAttribute) { continue; }
 
             var node = nodes[i];
@@ -503,7 +506,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 node.setAttribute(attr, attrs[attr]);
             }
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
-
+            console.log(node);
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -517,7 +520,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         annotation = group.addAnnotation(node.nodeName, node);
-                        console.log(annotation);
                         annotation.setAttributesByJSON(this.getNodeAttributes(node));
                         annotation.renderSVG(this);
                     }
@@ -594,13 +596,13 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     // Remove annotation from a group
     this.removeAnnotationByGraphID = function(groupID, graphID, userData){
 
-        if(userData.type == "TEXT"){
-            userData.annotation.transform();
-            return;
-        }
+        // if(userData.type == "TEXT"){
+        //     userData.annotation.transform();
+        //     return;
+        // }
         if(this.groups.hasOwnProperty(groupID)){
             var group = this.groups[groupID];
-            group.removeAnnotationByID(graphID);
+            group.removeAnnotationByID(graphID, userData);
         }
     }
 

@@ -34,7 +34,6 @@ function AnnotationGroup(id, anatomy, description, parent){
             "graph-id" : graphID,
             "parent" : this
         }
-        console.log(type);
         switch (type.toUpperCase()) {
             case "PATH":
                 annotation = new Path(attrs);
@@ -58,7 +57,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 attrs["x"] = this.parent.imgWidth;
                 attrs["y"] = this.parent.imgHeight;
                 annotation = new Text(attrs);
-                annotation.addTextBox(this.id);
+                // annotation.addTextBox(this.id);
                 break;
             case "FOREIGNOBJECT":
                 annotation = new Text(attrs);

@@ -24,21 +24,33 @@ function Text(attrs) {
 Text.prototype = Object.create(Base.prototype);
 Text.prototype.constructor = Text;
 
-Text.prototype.insertPoint = function (point) {
+Text.prototype.positionAnnotation = function (point) {
     var _self = this;
     var updateAttrs = {};
-
-    // Only update the x and y attributes once when they are empty at the start
-    if (_self._attrs.x == null || _self._attrs.y == null) {
+    // if (_self._attrs.x == null || _self._attrs.y == null) {
         updateAttrs = {
         x: point.x,
         y: point.y,
         };
-    } 
-    // _self.editText(point);
+    // } 
+
     _self.setAttributesByJSON(updateAttrs);
-    _self.renderSVG();
+    // var svgForeignObj = this.getForeignObj();
+    // svgForeignObj.setAttribute("x", point.x || this._attrs["x"]);
+    // svgForeignObj.setAttribute("y", point.y || this._attrs["y"]);
+
+    // // Only update the x and y attributes once when they are empty at the start
+    // // _self.editText(point);
+    // _self.renderSVG();
 };
+
+Text.prototype.checkTransform = function (e) {
+    if(!this.getForeignObj().contains(e.target)){
+        _self.transform()
+        document.removeEventListener("click", Text.prototype.checkTransform);
+    }
+}
+
 
 /* 
 Function to transform the <textarea> input to <p> tag when annotation tool is switched.
@@ -158,7 +170,10 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;color:blue;");
     textInput.style.fontSize = "1000px";
     textInput.setAttribute("wrap", "hard");
-    }
+
+    document.addEventListener("click", Text.prototype.checkTransform);
+
+}
 
 
 /**

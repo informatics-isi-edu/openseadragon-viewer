@@ -425,15 +425,29 @@ function Viewer(parent, config) {
                 break;
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
-                // alert("view start drawing")
-                var tracker = new OpenSeadragon.MouseTracker({
-                    element: _self.svg,
-                    // clickHandler: this.onMouseDragToDraw,
-                    dragHandler: this.onMouseDragToDraw,
-                    dragEndHandler: this.onMouseDragToDrawEnd,
-                    userData: data
-                });
-                this.osd.addHandler('canvas-click', this.onMouseDragToDraw);
+                var tracker;
+                if(data.type.toUpperCase() == "TEXT"){
+                    tracker = new OpenSeadragon.MouseTracker({
+                        element: _self.svg,
+                        clickHandler: this.onMouseClickToDraw,
+                        // dragHandler: this.onMouseDragToDraw,
+                        // dragEndHandler: this.onMouseDragToDrawEnd,
+                        userData: data
+                    });
+                    this.osd.addHandler('canvas-click', this.onMouseClickToDraw);
+                }
+                else{
+
+                    // alert("view start drawing")
+                    tracker = new OpenSeadragon.MouseTracker({
+                        element: _self.svg,
+                        // clickHandler: this.onMouseDragToDraw,
+                        dragHandler: this.onMouseDragToDraw,
+                        dragEndHandler: this.onMouseDragToDrawEnd,
+                        userData: data
+                    });
+                    this.osd.addHandler('canvas-click', this.onMouseDragToDraw);
+                }
                 _self.mouseTrackers.push(tracker);
                 break;
             case "updateSVGId":
@@ -1040,9 +1054,57 @@ function Viewer(parent, config) {
             .remove();
     }
 
+    // Click to position event handler start
+    this.onMouseClickToDraw = function(event){
+        var annotation = event.userData.annotation;
+        var viewBox = event.userData.viewBox;
+        var scaleX = event.userData.imgScaleX || 1;
+        var scaleY = event.userData.imgScaleY || 1;
+        var view_coords = _self.osd.viewport.viewerElementToViewportCoordinates(new OpenSeadragon.Point(event.position.x, event.position.y));
+        var img_coords = _self.osd.viewport.viewportToImageCoordinates(view_coords);
+
+        img_coords.x = viewBox[0] + (img_coords.x * scaleX);
+        img_coords.y = viewBox[1] + (img_coords.y * scaleY);
+
+        // console.log(event.position, img_coords);
+        annotation.positionAnnotation(img_coords);
+        annotation.addTextBox(event.userData.groupID);
+        console.log("Finished positioning");
+
+        if (_self.mouseTrackers.length > 0) {
+            setTimeout(function () {
+                _self.mouseTrackers[0].destroy();
+                _self.mouseTrackers.shift();
+            }, 300)
+        }
+
+        event.userData.annotation.setDrawing(false);
+
+        var svgID = event.userData.svgID;
+        var groupID = event.userData.groupID;
+        var type = event.userData.type;
+        var subtype = event.userData.subtype;
+        var attrs = event.userData.attrs || {};
+
+        if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
+            event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type, subtype, attrs);
+            event.userData.annotation.setupDrawingAttrs(attrs);
+            event.userData.graphID = event.userData.annotation.id;
+
+            var mousetracker = new OpenSeadragon.MouseTracker({
+                        element: _self.svg,
+                        clickHandler: _self.onMouseClickToDraw,
+                        // dragHandler: this.onMouseDragToDraw,
+                        // dragEndHandler: this.onMouseDragToDrawEnd,
+                        userData: event.userData
+                    });
+
+            _self.mouseTrackers.push(mousetracker);
+        }
+    }
+
     // Drag to draw event handler start
     this.onMouseDragToDraw = function(event){
-        console.log(event.position);
         var annotation = event.userData.annotation;
         var viewBox = event.userData.viewBox;
         var scaleX = event.userData.imgScaleX || 1;
@@ -1173,7 +1235,7 @@ function Viewer(parent, config) {
     }
 
     // Remove mouse trackers for drawing
-    this.removeMouseTrackers = function(data){
+    this.removeMouseTrackers = function(data) {
 
         if(this.mouseTrackers.length > 0){
 
@@ -1181,7 +1243,7 @@ function Viewer(parent, config) {
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
 
-                if(userData && userData.type != 'POLYGON'){
+                if(userData && (userData.type != 'POLYGON')){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
