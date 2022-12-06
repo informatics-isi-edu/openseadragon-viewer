@@ -41,12 +41,15 @@ Text.prototype.positionAnnotation = function (point) {
 
     // // Only update the x and y attributes once when they are empty at the start
     // // _self.editText(point);
-    // _self.renderSVG();
+    _self.renderSVG();
 };
 
-Text.prototype.checkTransform = function (e) {
-    if(!this.getForeignObj().contains(e.target)){
+Text.prototype.checkTransform = function (e, foreignObj, _self) {
+    console.log(foreignObj.contains(e.target));
+    console.log(e.target);
+    if(!foreignObj.contains(e.target)){
         _self.transform()
+        console.log(foreignObj);
         document.removeEventListener("click", Text.prototype.checkTransform);
     }
 }
@@ -166,12 +169,12 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     this.initResizeElement();
     this.initDragElement();
-
+    var _self = this;
     textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;color:blue;");
     textInput.style.fontSize = "1000px";
     textInput.setAttribute("wrap", "hard");
 
-    document.addEventListener("click", Text.prototype.checkTransform);
+    // document.addEventListener("click", function (e) { Text.prototype.checkTransform(e, svgForeignObj, _self) });
 
 }
 

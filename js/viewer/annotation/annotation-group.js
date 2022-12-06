@@ -28,6 +28,7 @@ function AnnotationGroup(id, anatomy, description, parent){
      * @returns 
      */
     this.addAnnotation = function(type, subtype, annotAttrs){
+
         var annotation = null;
         var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
         var attrs = {

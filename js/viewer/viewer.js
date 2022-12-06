@@ -36,6 +36,7 @@ function Viewer(parent, config) {
 
     // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverlay = false;
+    this.prevAnnotation = null;
 
     // Init
     this.init = function (utils, params) {
@@ -1056,6 +1057,13 @@ function Viewer(parent, config) {
 
     // Click to position event handler start
     this.onMouseClickToDraw = function(event){
+
+
+        if(_self.prevAnnotation != null){
+            _self.prevAnnotation.transform();
+        }
+        _self.prevAnnotation = event.userData.annotation;
+
         var annotation = event.userData.annotation;
         var viewBox = event.userData.viewBox;
         var scaleX = event.userData.imgScaleX || 1;
@@ -1067,6 +1075,7 @@ function Viewer(parent, config) {
         img_coords.y = viewBox[1] + (img_coords.y * scaleY);
 
         // console.log(event.position, img_coords);
+        // event.originalEvent.stopImmediatePropogation();
         annotation.positionAnnotation(img_coords);
         annotation.addTextBox(event.userData.groupID);
         console.log("Finished positioning");
@@ -1236,13 +1245,17 @@ function Viewer(parent, config) {
 
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data) {
-
+        if(_self.prevAnnotation != null){
+            _self.prevAnnotation.transform();
+            _self.prevAnnotation = null;
+        }
         if(this.mouseTrackers.length > 0){
 
             while(this.mouseTrackers.length > 0){
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
 
+                console.log(userData);
                 if(userData && (userData.type != 'POLYGON')){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,

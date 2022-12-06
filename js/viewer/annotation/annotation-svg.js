@@ -17,6 +17,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.currentGroupID = "";
 
     this.annotationUtils = new AnnotationUtils();
+    // this.prevAnnotation = null;
 
 
     // Create drawing area for grouping annotations with same id
@@ -52,10 +53,14 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             
             // Find corresponding group
             group = this.groups[groupID];
-
+            // console.log(annotation);
+            // if(this.prevAnnotation != null && this.prevAnnotation._type == "TEXT"){
+            //     this.prevAnnotation.transform();
+            // }
             annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
             annotation.setupDrawingAttrs(attrs);
+            this.prevAnnotation = annotation;
             this.dispatchEvent("onDrawingBegin", {
                 svgID : this.id,
                 groupID : groupID,
@@ -597,7 +602,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.removeAnnotationByGraphID = function(groupID, graphID, userData){
 
         // if(userData.type == "TEXT"){
-        //     userData.annotation.transform();
         //     return;
         // }
         if(this.groups.hasOwnProperty(groupID)){
