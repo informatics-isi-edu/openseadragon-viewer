@@ -12,6 +12,7 @@ function Text(attrs) {
     this.svg = null;
     this.foreignObj = null;
 
+    // Foreign object that contains the annotation input and transformed text p tag
     this.setForeignObj = function(obj) {
         this.foreignObj = obj;
     }
@@ -24,40 +25,25 @@ function Text(attrs) {
 Text.prototype = Object.create(Base.prototype);
 Text.prototype.constructor = Text;
 
+/**
+ * This function is used to place the annotation at the desired position when user clicks on the OSD canvas
+ * @param {point} The x and y coordinates of the point are used to position the annotation
+ */
 Text.prototype.positionAnnotation = function (point) {
     var _self = this;
-    var updateAttrs = {};
-    // if (_self._attrs.x == null || _self._attrs.y == null) {
-        updateAttrs = {
+    var updateAttrs = {
         x: point.x,
         y: point.y,
-        };
-    // } 
+    };
 
     _self.setAttributesByJSON(updateAttrs);
-    // var svgForeignObj = this.getForeignObj();
-    // svgForeignObj.setAttribute("x", point.x || this._attrs["x"]);
-    // svgForeignObj.setAttribute("y", point.y || this._attrs["y"]);
-
-    // // Only update the x and y attributes once when they are empty at the start
-    // // _self.editText(point);
     _self.renderSVG();
 };
 
-Text.prototype.checkTransform = function (e, foreignObj, _self) {
-    console.log(foreignObj.contains(e.target));
-    console.log(e.target);
-    if(!foreignObj.contains(e.target)){
-        _self.transform()
-        console.log(foreignObj);
-        document.removeEventListener("click", Text.prototype.checkTransform);
-    }
-}
 
-
-/* 
-Function to transform the <textarea> input to <p> tag when annotation tool is switched.
-*/
+/**
+ * Function to transform the <textarea> input to <p> tag when annotation tool is switched.
+ */
 Text.prototype.transform = function () {
 
     if(textInput.value && textInput.value.trim() != "")
@@ -169,13 +155,9 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     this.initResizeElement();
     this.initDragElement();
-    var _self = this;
     textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;color:blue;");
     textInput.style.fontSize = "1000px";
     textInput.setAttribute("wrap", "hard");
-
-    // document.addEventListener("click", function (e) { Text.prototype.checkTransform(e, svgForeignObj, _self) });
-
 }
 
 
@@ -199,7 +181,6 @@ Text.prototype.initDragElement = function () {
 
     function dragMouseDown(e) {
         e.stopImmediatePropagation();
-        console.log(e);
         elmnt = e.target;
         elmnt.style.zIndex = "" + ++currentZIndex;
 

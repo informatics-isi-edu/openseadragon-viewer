@@ -17,7 +17,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     this.currentGroupID = "";
 
     this.annotationUtils = new AnnotationUtils();
-    // this.prevAnnotation = null;
 
 
     // Create drawing area for grouping annotations with same id
@@ -53,10 +52,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             
             // Find corresponding group
             group = this.groups[groupID];
-            // console.log(annotation);
-            // if(this.prevAnnotation != null && this.prevAnnotation._type == "TEXT"){
-            //     this.prevAnnotation.transform();
-            // }
+ 
             annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
             annotation.setupDrawingAttrs(attrs);
@@ -208,6 +204,18 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
         }
     }
 
+    /**
+     * Change the size of the text annotation input.
+     * @param {data} Object that contains the changed font-size
+     */
+    this.changeTextSize = function (data) {
+        var textInput = document.getElementById("textInput");
+        if(textInput != null){
+            textInput.style.fontSize = data.fontSize;
+            textInput.style.height = (textInput.scrollHeight) + "px";
+        }
+    }
+
     this.dispatchEvent = function(type, data){
         switch(type){
             // Change the selecting annotation
@@ -347,7 +355,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-        console.log(svgElems);
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
@@ -359,7 +366,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
             // var anatomy = node.getAttribute("id");
             // var group = this.createAnnotationGroup(groupID, anatomy);
-            console.log(node);
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -601,9 +607,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     // Remove annotation from a group
     this.removeAnnotationByGraphID = function(groupID, graphID, userData){
 
-        // if(userData.type == "TEXT"){
-        //     return;
-        // }
         if(this.groups.hasOwnProperty(groupID)){
             var group = this.groups[groupID];
             group.removeAnnotationByID(graphID, userData);

@@ -28,6 +28,24 @@ function AnnotationTool(parent){
             btnSubtype = "solid";
         }
 
+        if(_self.curType == "TEXT" || btnType === "TEXT"){
+            textSizeInput = document.getElementsByClassName("fontInput")[0];
+            textSizeInput.classList.toggle("hideFontInput"); 
+            if(textSizeInput != null){
+                textSizeInput.addEventListener('input', function (e) {
+                    if((this.value != null) && (this.value.trim() != "")){
+                        fontSize = this.value.trim() + "px";
+                        _self.dispatchEvent("changeTextSize", {
+                            svgID: _self.curSVGID,
+                            groupID: _self.curGroupID,
+                            type: _self.curType,
+                            fontSize: fontSize
+                        });
+                    }
+                });
+            }
+        }
+
         if (btnType == "HELP") {
             _self.dispatchEvent('openDrawingHelpPage');
             return;
@@ -95,9 +113,15 @@ function AnnotationTool(parent){
                 "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
                     "<i class='fas fa-draw-polygon'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='TEXT' title='Write text'>",
-                    "<i class='fas fa-font'></i></a>",
-                "</span>",
+                "<div class='textOptions'>",
+                    "<span class='toolBtn' data-type='TEXT' title='Write text'>",
+                        "<i class='fas fa-font'></i></a>",
+                    "</span>",
+                    "<input class='fontInput hideFontInput' type='number' placeholder='Font Size'>",
+                "</div>",
+                // "<span class='toolBtn' data-type='TEXT' title='Write text'>",
+                //     "<i class='fas fa-font'></i></a>",
+                // "</span>",
                 "<span class='toolBtn' data-type='ERASER' title='Erase drawing'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",

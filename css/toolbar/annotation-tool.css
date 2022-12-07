@@ -110,3 +110,25 @@
     visibility: visible;
     flex: 0 0 100%;
 }
+
+.textOptions {
+    display: flex;
+}
+
+.fontInput {
+    width: 6em;
+    background: #407ccb;
+    opacity: 1;
+    border: none;
+    color: white;
+    display: block;
+}
+
+.hideFontInput {
+    display: none;
+}
+
+.fontInput::placeholder {
+    color: white;
+}
+

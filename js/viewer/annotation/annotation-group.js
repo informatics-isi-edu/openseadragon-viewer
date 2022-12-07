@@ -58,8 +58,8 @@ function AnnotationGroup(id, anatomy, description, parent){
                 attrs["x"] = this.parent.imgWidth;
                 attrs["y"] = this.parent.imgHeight;
                 annotation = new Text(attrs);
-                // annotation.addTextBox(this.id);
                 break;
+            // Added to handle the import of text annotations
             case "FOREIGNOBJECT":
                 annotation = new Text(attrs);
                 annotation.addTextBox(this.id, subtype);

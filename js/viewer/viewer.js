@@ -555,6 +555,10 @@ function Viewer(parent, config) {
             case "setGroupAttributes":
                 svg.setGroupAttributes(data);
                 break;
+            // Handle the text annotation input size change
+            case "changeTextSize":
+                svg.changeTextSize(data);
+                break;
             default:
                 break;
         }
@@ -1055,7 +1059,10 @@ function Viewer(parent, config) {
             .remove();
     }
 
-    // Click to position event handler start
+    /**
+     * Handle the user click to position the text annotation at a position
+     * @param {event} contains the event information and other custom data
+     */
     this.onMouseClickToDraw = function(event){
 
 
@@ -1074,11 +1081,8 @@ function Viewer(parent, config) {
         img_coords.x = viewBox[0] + (img_coords.x * scaleX);
         img_coords.y = viewBox[1] + (img_coords.y * scaleY);
 
-        // console.log(event.position, img_coords);
-        // event.originalEvent.stopImmediatePropogation();
         annotation.positionAnnotation(img_coords);
         annotation.addTextBox(event.userData.groupID);
-        console.log("Finished positioning");
 
         if (_self.mouseTrackers.length > 0) {
             setTimeout(function () {
@@ -1103,8 +1107,6 @@ function Viewer(parent, config) {
             var mousetracker = new OpenSeadragon.MouseTracker({
                         element: _self.svg,
                         clickHandler: _self.onMouseClickToDraw,
-                        // dragHandler: this.onMouseDragToDraw,
-                        // dragEndHandler: this.onMouseDragToDrawEnd,
                         userData: event.userData
                     });
 
@@ -1166,7 +1168,6 @@ function Viewer(parent, config) {
 
             _self.mouseTrackers.push(mousetracker);
         }
-        // _self.destoryMouseTracker();
     }
 
     this.removeHandler = function (event) {
@@ -1255,7 +1256,6 @@ function Viewer(parent, config) {
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
 
-                console.log(userData);
                 if(userData && (userData.type != 'POLYGON')){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
