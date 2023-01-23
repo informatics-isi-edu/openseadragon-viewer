@@ -30,12 +30,12 @@
     - If you're installing remotely, since we're using the `WEB_INSTALL_ROOT` in `rsync` command, you can use a remote location `username@host:public_html/` for this variable.
 3. After making sure the variables are properly set, run the following command:
 
-    ```
-    $ make install
+    ```sh
+    make deploy
     ```
 
     Notes:
-      - If the given directory does not exist, it will first create it. So you may need to run `make install` with _super user_ privileges depending on the installation directory you choose.
+      - If the given directory does not exist, it will first create it. So you may need to run `make deploy` with _super user_ privileges depending on the installation directory you choose.
 
 ## Usage
 
