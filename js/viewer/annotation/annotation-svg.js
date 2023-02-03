@@ -493,12 +493,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             parentNode = {};
         }
 
-        console.log(nodes);
         for (var i = 0; i < nodes.length; i++) {
 
-            console.log(nodes[i]);
             if (!nodes[i].getAttribute) { continue; }
-
             var node = nodes[i];
             var id = this.getNodeID(node, parentNode);
             node.setAttribute("id", id);
@@ -517,7 +514,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 node.setAttribute(attr, attrs[attr]);
             }
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
-            console.log(node);
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -530,8 +526,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "foreignObject":
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
-                        annotation = group.addAnnotation(node.nodeName, node);
-                        annotation.setAttributesByJSON(this.getNodeAttributes(node));
+                        newNode = node.cloneNode(true);
+                        annotation = group.addAnnotation(node.nodeName, newNode);
+                        annotation.setAttributesByJSON(this.getNodeAttributes(newNode));
                         annotation.renderSVG(this);
                     }
                     break;
