@@ -6,7 +6,7 @@ function Text(attrs) {
     this._tag = "text";
     this._attrs["x"] = (attrs["x"] / 2) || 18600;
     this._attrs["y"] = (attrs["y"] / 2) || 19650;
-    this._attrs["fill"] = attrs["fill"] || "red";
+    this._attrs["stroke"] = attrs["stroke"] || "red";
     this._attrs["font-size"] = attrs["font-size"] || 1000;
     this._attrs["font-weight"] = attrs["font-weight"] || 400;
     this.svg = null;
@@ -130,6 +130,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textInput.setAttribute("id", "textInput");
     textOuterDiv.setAttribute("contentEditable", "true");
     textInput.setAttribute("contentEditable", "true");
+    textInput.style.color = this._attrs["stroke"];
     svgForeignObj.setAttribute("contentEditable", "true");
     textOuterDiv.setAttribute("width", "auto");
     textOuterDiv.setAttribute("tabindex", "-1");
@@ -155,7 +156,9 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     this.initResizeElement();
     this.initDragElement();
-    textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;color:blue;");
+    // textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;");
+    textInput.style.height = this.textHeight + "px";
+    textInput.style.overflowY = "hidden";
     textInput.style.fontSize = "1000px";
     textInput.setAttribute("wrap", "hard");
 }
@@ -311,4 +314,11 @@ Text.prototype.initResizeElement = function () {
         document.documentElement.removeEventListener("pointerup", stopDrag, false);
         document.documentElement.removeEventListener("mouseup", stopDrag, false);
     }
+}
+
+
+Text.prototype.updateTextColor = function (newColor) {
+
+    var text = this.getForeignObj().getElementsByTagName("p")[0];
+    text.style.color = newColor;
 }

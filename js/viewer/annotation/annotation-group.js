@@ -57,6 +57,7 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "TEXT":
                 attrs["x"] = this.parent.imgWidth;
                 attrs["y"] = this.parent.imgHeight;
+                attrs["stroke"] = annotAttrs.stroke;
                 annotation = new Text(attrs);
                 break;
             // Added to handle the import of text annotations
@@ -433,6 +434,12 @@ function AnnotationGroup(id, anatomy, description, parent){
             // If the annotation is an arrowline, change the color of the arrowhead marker definition
             if(annotation._tag == "line" && annotation._attrs["data-subtype"] != null){
                 _self.changeArrowStroke(groupID, stroke)
+            }
+
+            // If the annotation is a textbox
+            if(annotation._tag == "text"){
+                console.log(annotation);
+                annotation.updateTextColor(stroke);
             }
             // render the SVG after changing the color so that the new color is reflected in the viewer
             annotation.renderSVG();
