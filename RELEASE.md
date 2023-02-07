@@ -9,6 +9,24 @@ This document is a summary of code changes in openseadragon-viewer. This is the 
   - `[Fixed]`: bug fixes.
   - `[No changes]` means that Chaise hasn't been changed in the described duration.
 
+# 1/31/23
+- [No changes]
+
+# 11/31/22
+- [No changes]
+
+# 9/30/22
+- [Changed] included fontawesome to version 6 ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/commit/08aa6d7ef9efdcdc29b7712d7c50c80a3ad32399)).
+
+# 7/31/22
+- [Added] arrowline annotation darwing tool ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/pull/100))
+- [Added] `make dist` target to be consistent with the rest of frontend repositories ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/commit/71a0a2c6e949a071893fd4a91598006190c98ed1)).
+
+# 5/31/22
+- Removed the unused files and code related to toolbar and annotation feature.
+- [Changed] makefile targets related to installation ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/pull/97)).
+- [Changed] how pseudoColor is used and stored ((link)[https://github.com/informatics-isi-edu/openseadragon-viewer/pull/96]).
+
 # 3/31/22
 - Cleaned up the repository by removing all the unused folders and files (`old_viewer` folder and all of its dependencies).
 
