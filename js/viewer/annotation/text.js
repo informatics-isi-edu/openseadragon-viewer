@@ -246,7 +246,7 @@ Text.prototype.initResizeElement = function () {
     bottomright = document.createElement("div");
     bottomright.className = "resizer-bottomright";
     divCont.appendChild(bottomright);
-    bottomright.addEventListener("pointerdown", initDrag, false);
+    bottomright.addEventListener("mousedown", initDrag, false);
     bottomright.parentPopup = divCont;
 
     function initDrag(e) {
@@ -271,7 +271,9 @@ Text.prototype.initResizeElement = function () {
     }
 
     function doDrag(e) {
+        e.stopImmediatePropagation();
         element.style.position = "absolute";
+        console.log(element);
         switch(resizer) {
             case "resizer-bottomleft":
                 element.style.width = startWidth + 60 * (e.clientX - startX)+ "px";
@@ -291,18 +293,10 @@ Text.prototype.initResizeElement = function () {
                 element.style.height = startHeight + 60 * (startY - e.clientY) + "px";
                 break;
             case "resizer-bottomright":
-                element.style.width = startWidth + 60 * (e.clientX - startX) + "px";
-                // element.style.height = (element.scrollHeight) + "px";
-                // element.textHeight = element.scrollHeight;
-                var textheight = divCont.getElementsByTagName("textarea")[0].offsetHeight;
-                console.log(textheight);
-                h = startHeight + 60 * (e.clientY - startY) + "px";
-                if(h > textheight){
-                    element.style.height = h;
-                }
-                else{
-                    element.style.height = textheight;
-                }
+                element.style.width = startWidth + 30 * (e.clientX - startX) + "px";
+                var textArea = divCont.getElementsByTagName("textarea")[0];
+                textArea.style.height = "1px";
+                textArea.style.height = textArea.scrollHeight + "px";
                 break;
             default:
                 break;

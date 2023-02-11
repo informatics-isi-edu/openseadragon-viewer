@@ -75,77 +75,74 @@
 
 .insideforeign .resizer-topleft {
     border: 100px solid red;
-  width: 600px;
-  height: 600px;
-  background: red;
-  z-index: 10;
-  position: absolute;
-  top: -300px;
-  left: -300px  ;
-  cursor: nw-resize;
+    width: 600px;
+    height: 600px;
+    background: red;
+    z-index: 10;
+    position: absolute;
+    top: -300px;
+    left: -300px  ;
+    cursor: nw-resize;
 }
 
 .insideforeign .resizer-topright {
-        border: 100px solid red;
-
-  width: 600px;
-  height: 600px;
-  background: red;
-  z-index: 10;
-  position: absolute;
-  top: -300px;
-  right: -300px;
-  cursor: ne-resize;
+    border: 100px solid red;
+    width: 600px;
+    height: 600px;
+    background: red;
+    z-index: 10;
+    position: absolute;
+    top: -300px;
+    right: -300px;
+    cursor: ne-resize;
 }
 
-.insideforeign .resizer-bottomright {
-        border: 100px solid red;
-
-  width: 600px;
-  height: 600px;
-  background: red;
-  z-index: 10;
-  position: absolute;
-  bottom: -300px;
-  right: -300px;
-  cursor: se-resize;
+.resizer-bottomright { 
+    width: 600px;
+    height: 600px;
+    background: red;
+    z-index: 10;
+    position: absolute !important;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    right: -650px;
+    cursor: ew-resize;
 }
 
 .insideforeign .resizer-bottomleft {
-        border: 100px solid red;
-
-  width: 600px;
-  height: 600px;
-  background: red;
-  z-index: 10;
-  position: absolute;
-  bottom: -300px;
-  left: -300px;
-  cursor: sw-resize;
+    border: 100px solid red;
+    width: 600px;
+    height: 600px;
+    background: red;
+    z-index: 10;
+    position: absolute;
+    bottom: -300px;
+    left: -300px;
+    cursor: sw-resize;
 }
 
 
 
 .insideforeign .move-header {
-  cursor: move;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 500px;
-  width: 100%;
-  z-index: 10;
-  background-color: #2196f3;
-  color: #fff;
+    cursor: move;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 500px;
+    width: 100%;
+    z-index: 10;
+    background-color: #2196f3;
+    color: #fff;
 }
 
 /*NOSELECT*/
 
 #divid * {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
 }
