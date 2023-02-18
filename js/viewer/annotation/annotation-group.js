@@ -317,6 +317,11 @@ function AnnotationGroup(id, anatomy, description, parent){
         // remove annotation object from the collection
         this.annotations.splice(index, 1);
 
+
+        if(annotation._tag == "text"){
+            annotation.removeText();
+        }
+
         // remove event handlers for the annotation
         annotation.unbind();
 

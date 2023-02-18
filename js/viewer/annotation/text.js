@@ -91,13 +91,48 @@ Text.prototype.transform = function () {
  */
 Text.prototype.createPTag = function (originalObj) {
 
+    var _self = this;
     var pText = document.createElement("p");
     pText.innerHTML = originalObj.value || originalObj.innerHTML;
     pText.style.fontSize = originalObj.style.fontSize;
     pText.style.height = originalObj.style.height;
     pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
     pText.style.color = originalObj.style.color;
+    // pText.classList.add("text-hover");
+    var foreignObj = this.getForeignObj();
+    // pText.addEventListener("click", this.textboxClickHandler);
+    pText.addEventListener("click", function (e) {
+        e.stopImmediatePropagation();
+        // foreignObj.parentNode.removeChild(foreignObj);  
+        _self.parent.dispatchEvent("onClickChangeSelectingAnnotation",  {
+            graphID : _self.id || ""
+        });
+
+    });
+
+    pText.addEventListener("mouseover", function (e) {
+        e.stopImmediatePropagation();
+        _self.parent.dispatchEvent("onMouseoverShowTooltip", {});
+    });
+
+    pText.addEventListener("mouseout", function (e) {
+        e.stopImmediatePropagation();
+        _self.parent.dispatchEvent("onMouseoutHideTooltip");
+    });
+
     return pText;
+}
+
+Text.prototype.removeText = function () {
+    var foreignObj = this.getForeignObj();
+    foreignObj.parentNode.removeChild(foreignObj);  
+}
+
+Text.prototype.textboxClickHandler = function (e) {
+    e.stopImmediatePropagation();
+    console.log("Text annotation is clicked");
+    var foreignObj = this.getForeignObj();
+    foreignObj.parentNode.removeChild(foreignObj);
 }
 
 /**
@@ -273,13 +308,11 @@ Text.prototype.initResizeElement = function () {
     function doDrag(e) {
         e.stopImmediatePropagation();
         element.style.position = "absolute";
-        console.log(element);
         switch(resizer) {
             case "resizer-bottomleft":
                 element.style.width = startWidth + 60 * (e.clientX - startX)+ "px";
                 element.style.left = startX + 60 * (startX - e.clientX) + "px";
                 element.style.height = startHeight + 60 * (e.clientY - startY) + "px";
-                console.log(element.style.left);
                 break;
             case "resizer-topleft":
                 element.style.width = startWidth + 60 * (startX - e.clientX)+ "px";
@@ -315,4 +348,18 @@ Text.prototype.updateTextColor = function (newColor) {
 
     var text = this.getForeignObj().getElementsByTagName("p")[0];
     text.style.color = newColor;
+}
+
+Text.prototype.highlight = function () {
+
+    var foreignObj = this.getForeignObj();
+    var text = foreignObj.getElementsByTagName("p")[0];
+    text.style.fontWeight = "900";
+}
+
+Text.prototype.unHighlight = function () {
+
+    var foreignObj = this.getForeignObj();
+    var text = foreignObj.getElementsByTagName("p")[0];
+    text.style.fontWeight = "400";
 }
