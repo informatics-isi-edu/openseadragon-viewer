@@ -76,6 +76,8 @@ Text.prototype.transform = function () {
         foreignObj.setAttribute("tabindex", -1);
         foreignObj.innerHTML = "";
         foreignObj.appendChild(pText);
+        pText.style.height = "fit-content";
+        pText.style.width = "fit-content";
     } else {
         var foreignObj = this.getForeignObj();
         foreignObj.parentNode.removeChild(foreignObj);
@@ -101,30 +103,42 @@ Text.prototype.createPTag = function (originalObj) {
     // pText.classList.add("text-hover");
     var foreignObj = this.getForeignObj();
     // pText.addEventListener("click", this.textboxClickHandler);
-    pText.addEventListener("click", function (e) {
+    pText.classList.add("text-hover");
+
+    _self.onClickToSelectAnnotation = function (e) {
         e.stopImmediatePropagation();
         // foreignObj.parentNode.removeChild(foreignObj);  
         _self.parent.dispatchEvent("onClickChangeSelectingAnnotation",  {
             graphID : _self.id || ""
         });
+    }
 
-    });
-
-    pText.addEventListener("mouseover", function (e) {
-        e.stopImmediatePropagation();
-        _self.parent.dispatchEvent("onMouseoverShowTooltip", {});
-    });
-
-    pText.addEventListener("mouseout", function (e) {
+    _self.onMouseoutHideTooltip = function (e) {
         e.stopImmediatePropagation();
         _self.parent.dispatchEvent("onMouseoutHideTooltip");
-    });
+    }
+
+    _self.onMouseoverShowTooltip = function (e) {
+        e.stopImmediatePropagation();
+        _self.parent.dispatchEvent("onMouseoverShowTooltip", {});
+    }
+
+    pText.addEventListener("click", _self.onClickToSelectAnnotation);
+    pText.addEventListener("mouseover", _self.onMouseoverShowTooltip);
+    pText.addEventListener("mouseout", _self.onMouseoutHideTooltip);
 
     return pText;
 }
 
 Text.prototype.removeText = function () {
+
     var foreignObj = this.getForeignObj();
+    if(foreignObj == null) return;
+    var pText = foreignObj.getElementsByTagName("p")[0];
+
+    pText.removeEventListener("click", this.onClickToSelectAnnotation);
+    pText.removeEventListener("mouseover", this.onMouseoverShowTooltip);
+    pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
     foreignObj.parentNode.removeChild(foreignObj);  
 }
 

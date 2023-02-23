@@ -431,23 +431,18 @@ function Viewer(parent, config) {
                     tracker = new OpenSeadragon.MouseTracker({
                         element: _self.svg,
                         clickHandler: this.onMouseClickToDraw,
-                        // dragHandler: this.onMouseDragToDraw,
-                        // dragEndHandler: this.onMouseDragToDrawEnd,
                         userData: data
                     });
-                    this.osd.addHandler('canvas-click', this.onMouseClickToDraw);
+                    // this.osd.addHandler('canvas-click', this.onMouseClickToDraw);
                 }
                 else{
-
-                    // alert("view start drawing")
                     tracker = new OpenSeadragon.MouseTracker({
                         element: _self.svg,
-                        // clickHandler: this.onMouseDragToDraw,
                         dragHandler: this.onMouseDragToDraw,
                         dragEndHandler: this.onMouseDragToDrawEnd,
                         userData: data
                     });
-                    this.osd.addHandler('canvas-click', this.onMouseDragToDraw);
+                    // this.osd.addHandler('canvas-click', this.onMouseDragToDraw);
                 }
                 _self.mouseTrackers.push(tracker);
                 break;
@@ -1069,6 +1064,7 @@ function Viewer(parent, config) {
         if(_self.prevAnnotation != null){
             _self.prevAnnotation.transform();
         }
+
         _self.prevAnnotation = event.userData.annotation;
 
         var annotation = event.userData.annotation;
@@ -1246,6 +1242,7 @@ function Viewer(parent, config) {
 
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data) {
+
         if(_self.prevAnnotation != null){
             _self.prevAnnotation.transform();
             _self.prevAnnotation = null;
@@ -1255,7 +1252,8 @@ function Viewer(parent, config) {
             while(this.mouseTrackers.length > 0){
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
-
+                console.log(userData);
+                console.log(tracker);
                 if(userData && (userData.type != 'POLYGON')){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
@@ -1268,6 +1266,7 @@ function Viewer(parent, config) {
                 setTimeout(function(){
                     tracker.destroy();
                 }, 300)
+                console.log(this.mouseTrackers);
             }
         }
     }

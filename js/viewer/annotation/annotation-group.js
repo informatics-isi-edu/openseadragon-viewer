@@ -309,7 +309,6 @@ function AnnotationGroup(id, anatomy, description, parent){
                 return true;
             }
         })
-
         if(!annotation){
             return
         }
