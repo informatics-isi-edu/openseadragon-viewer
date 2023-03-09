@@ -4,10 +4,18 @@ function Text(attrs) {
     Base.call(this, attrs);
 
     this._tag = "text";
-    this._attrs["x"] = (attrs["x"] / 2) || 18600;
-    this._attrs["y"] = (attrs["y"] / 2) || 19650;
+    this._attrs["x"] = (attrs["x"] / 2);
+    this._attrs["y"] = (attrs["y"] / 2);
     this._attrs["stroke"] = attrs["stroke"] || "red";
-    this._attrs["font-size"] = attrs["font-size"] || 1000;
+
+    // Relative font size
+    var viewerParent = this.parent.parent.parent;
+    var osdViewer = viewerParent.osd;
+    var viewport = osdViewer.viewport;
+    var containerSize = viewport.containerSize;
+    this._ratio = Math.max(attrs["x"]/containerSize.x, attrs["y"]/containerSize.y);
+
+    this._attrs["font-size"] = attrs["font-size"] || this._ratio * 14;
     this._attrs["font-weight"] = attrs["font-weight"] || 400;
     this.svg = null;
     this.foreignObj = null;
@@ -39,6 +47,7 @@ Text.prototype.positionAnnotation = function (point) {
     _self.setAttributesByJSON(updateAttrs);
     _self.renderSVG();
 };
+      
 
 
 /**
@@ -106,8 +115,8 @@ Text.prototype.createPTag = function (originalObj) {
     pText.classList.add("text-hover");
 
     _self.onClickToSelectAnnotation = function (e) {
+        e.preventDefault();
         e.stopImmediatePropagation();
-        // foreignObj.parentNode.removeChild(foreignObj);  
         _self.parent.dispatchEvent("onClickChangeSelectingAnnotation",  {
             graphID : _self.id || ""
         });
@@ -115,18 +124,45 @@ Text.prototype.createPTag = function (originalObj) {
 
     _self.onMouseoutHideTooltip = function (e) {
         e.stopImmediatePropagation();
+        if(_self.isDrawing){
+            return;
+        }
         _self.parent.dispatchEvent("onMouseoutHideTooltip");
     }
 
     _self.onMouseoverShowTooltip = function (e) {
         e.stopImmediatePropagation();
-        _self.parent.dispatchEvent("onMouseoverShowTooltip", {});
+        if(_self.isDrawing){
+            return;
+        }
+        _self.parent.dispatchEvent("onMouseoverShowTooltip", {
+            x : e.pageX,
+            y : e.pageY
+        });
     }
 
+    _self.onMousemoveShowTooltip = function (e) {
+        e.stopImmediatePropagation();
+        if(_self.isDrawing){
+            return;
+        }
+        _self.parent.dispatchEvent("onMousemoveShowTooltip", {
+            x : e.pageX,
+            y : e.pageY
+        });
+    }
+    
     pText.addEventListener("click", _self.onClickToSelectAnnotation);
     pText.addEventListener("mouseover", _self.onMouseoverShowTooltip);
+    pText.addEventListener("mousemove", _self.onMousemoveShowTooltip);
     pText.addEventListener("mouseout", _self.onMouseoutHideTooltip);
 
+    new OpenSeadragon.MouseTracker({
+        element: pText,
+        clickHandler: function (e) {
+            // intentially left empy. we just want to prevent the default behavior (zoom)
+        }
+    });
     return pText;
 }
 
@@ -184,7 +220,8 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textOuterDiv.setAttribute("width", "auto");
     textOuterDiv.setAttribute("tabindex", "-1");
     svgForeignObj.setAttribute("width", "100%");
-    svgForeignObj.setAttribute("height", "1000px");
+    // svgForeignObj.setAttribute("height", "1000px");
+    svgForeignObj.setAttribute("height", this._attrs["font-size"]*100 + "px");
     textOuterDiv.appendChild(textInput); 
     svgForeignObj.classList.add("foreign-object"); //to make div fit text
     textOuterDiv.classList.add("foreign-object-div"); //to make div fit text
@@ -208,10 +245,21 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     // textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;");
     textInput.style.height = this.textHeight + "px";
     textInput.style.overflowY = "hidden";
-    textInput.style.fontSize = "1000px";
+    textInput.style.fontSize = this._attrs["font-size"] + "px";
+    textOuterDiv.style.padding = this._attrs["font-size"] * 0.8 + "px";
+    textOuterDiv.style.border = this._attrs["font-size"] * 0.25 + "px solid red";
     textInput.setAttribute("wrap", "hard");
 }
 
+// Function to chagne font size of the text
+Text.prototype.changeFontSize = function (fontSize) {
+
+    var foreignObj = this.getForeignObj();
+    var divCont = foreignObj.childNodes[0];
+    var textInput = divCont.childNodes[0];
+    this._attrs["font-size"] = this._ratio * fontSize;
+    textInput.style.fontSize = this._attrs["font-size"] + "px";
+}
 
 /**
  * This function is used to enable drag functionality on the text input
@@ -297,6 +345,9 @@ Text.prototype.initResizeElement = function () {
     divCont.appendChild(bottomright);
     bottomright.addEventListener("mousedown", initDrag, false);
     bottomright.parentPopup = divCont;
+    bottomright.style.height = this._attrs["font-size"] + "px";
+    bottomright.style.width = this._attrs["font-size"] + "px";
+    bottomright.style["margin-left"] = this._attrs["font-size"] * 0.125 + "px";
 
     function initDrag(e) {
         e.stopImmediatePropagation();

@@ -34,7 +34,7 @@ function AnnotationTool(parent){
             if(textSizeInput != null){
                 textSizeInput.addEventListener('input', function (e) {
                     if((this.value != null) && (this.value.trim() != "")){
-                        fontSize = this.value.trim() + "px";
+                        fontSize = this.value.trim();
                         _self.dispatchEvent("changeTextSize", {
                             svgID: _self.curSVGID,
                             groupID: _self.curGroupID,
@@ -117,7 +117,7 @@ function AnnotationTool(parent){
                     "<span class='toolBtn' data-type='TEXT' title='Write text'>",
                         "<i class='fas fa-font'></i></a>",
                     "</span>",
-                    "<input class='fontInput hideFontInput' type='number' placeholder='Font Size'>",
+                    "<input class='fontInput hideFontInput' type='number' placeholder='Font Size' value='14'>",
                 "</div>",
                 // "<span class='toolBtn' data-type='TEXT' title='Write text'>",
                 //     "<i class='fas fa-font'></i></a>",

@@ -486,9 +486,6 @@ function Viewer(parent, config) {
                     });
                 }
                 break;
-            // case "removeHandlers":
-            //     this.removeHandler();
-            //     break;
             default:
                 this.parent.dispatchEvent(type, data);
                 break;
@@ -1060,7 +1057,6 @@ function Viewer(parent, config) {
      */
     this.onMouseClickToDraw = function(event){
 
-
         if(_self.prevAnnotation != null){
             _self.prevAnnotation.transform();
         }
@@ -1472,6 +1468,7 @@ function Viewer(parent, config) {
 
         // Adjust Openseadragon viewer bounds to fit the group svg
         this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
+        console.log(this);
     }
 
     // Zoom in
