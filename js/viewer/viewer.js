@@ -37,6 +37,7 @@ function Viewer(parent, config) {
     // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverlay = false;
     this.prevAnnotation = null;
+    this.defaultZoom = null;
 
     // Init
     this.init = function (utils, params) {
@@ -183,6 +184,10 @@ function Viewer(parent, config) {
                 });
             }
         });
+
+        // Saving the default zoom level
+        this.defaultZoom = this.osd.viewport.getZoom(true);
+        console.log("Default zoom level: " + this.defaultZoom);
     };
 
     // This function toggles _showChannelNamesOverlay
@@ -549,7 +554,7 @@ function Viewer(parent, config) {
                 break;
             // Handle the text annotation input size change
             case "changeTextSize":
-                svg.changeTextSize(data);
+                svg.changeTextSize(data, this.prevAnnotation);
                 break;
             default:
                 break;

@@ -10,10 +10,10 @@ function Text(attrs) {
 
     // Relative font size
     var viewerParent = this.parent.parent.parent;
-    var osdViewer = viewerParent.osd;
-    var viewport = osdViewer.viewport;
-    var containerSize = viewport.containerSize;
+    var containerSize = viewerParent.osd.viewport.containerSize;
+
     this._ratio = Math.max(attrs["x"]/containerSize.x, attrs["y"]/containerSize.y);
+
 
     this._attrs["font-size"] = attrs["font-size"] || this._ratio * 14;
     this._attrs["font-weight"] = attrs["font-weight"] || 400;
@@ -185,6 +185,16 @@ Text.prototype.textboxClickHandler = function (e) {
     foreignObj.parentNode.removeChild(foreignObj);
 }
 
+Text.prototype.calculateZoomRatio = function (fontSize = 14) { 
+
+    var viewerParent = this.parent.parent.parent;
+    var viewport = viewerParent.osd.viewport;
+    var zoom = viewport.getZoom();
+    var defaultZoom = viewerParent.defaultZoom;
+    var zoomRatio = defaultZoom / zoom;
+    this._attrs["font-size"] = fontSize * this._ratio * zoomRatio;
+}
+
 /**
  * This function adds a textbox to the SVG group. It adds a foreignObject > div > textarea.
  * If an importedObj exists, the function replaces the foreign object with the foreign object
@@ -210,6 +220,9 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     var textOuterDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
     var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
     this.setForeignObj(svgForeignObj);
+    
+    fontSize = document.getElementsByClassName("fontInput")[0].value;
+    this.calculateZoomRatio(fontSize);
 
     // // This would later need a unique ID for each text
     textInput.setAttribute("id", "textInput");
@@ -257,7 +270,7 @@ Text.prototype.changeFontSize = function (fontSize) {
     var foreignObj = this.getForeignObj();
     var divCont = foreignObj.childNodes[0];
     var textInput = divCont.childNodes[0];
-    this._attrs["font-size"] = this._ratio * fontSize;
+    this.calculateZoomRatio(fontSize);
     textInput.style.fontSize = this._attrs["font-size"] + "px";
 }
 

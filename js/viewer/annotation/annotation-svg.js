@@ -208,13 +208,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      * Change the size of the text annotation input.
      * @param {data} Object that contains the changed font-size
      */
-    this.changeTextSize = function (data) {
-        // var textInput = document.getElementById("textInput");
-        // if(textInput != null){
-        //     textInput.style.fontSize = data.fontSize;
-        //     textInput.style.height = (textInput.scrollHeight) + "px";
-        // }
-        this.prevAnnotation.changeFontSize(data.fontSize);
+    this.changeTextSize = function (data, textAnnotation) {
+        textAnnotation.changeFontSize(data.fontSize);
     }
 
     this.dispatchEvent = function(type, data){
