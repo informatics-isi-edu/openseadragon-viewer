@@ -14,7 +14,6 @@ function Text(attrs) {
 
     this._ratio = Math.max(attrs["x"]/containerSize.x, attrs["y"]/containerSize.y);
 
-
     this._attrs["font-size"] = attrs["font-size"] || this._ratio * 14;
     this._attrs["font-weight"] = attrs["font-weight"] || 400;
     this.svg = null;
@@ -104,7 +103,10 @@ Text.prototype.createPTag = function (originalObj) {
 
     var _self = this;
     var pText = document.createElement("p");
-    pText.innerHTML = originalObj.value || originalObj.innerHTML;
+    var inputValue = originalObj.value || originalObj.innerHTML;
+    inputValue = inputValue.replace(/\n/g, "<br />");
+    pText.innerHTML = inputValue;
+    pText.style.whiteSpace = "pre-wrap";
     pText.style.fontSize = originalObj.style.fontSize;
     pText.style.height = originalObj.style.height;
     pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
@@ -192,7 +194,8 @@ Text.prototype.calculateZoomRatio = function (fontSize = 14) {
     var zoom = viewport.getZoom();
     var defaultZoom = viewerParent.defaultZoom;
     var zoomRatio = defaultZoom / zoom;
-    this._attrs["font-size"] = fontSize * this._ratio * zoomRatio;
+    // this._attrs["font-size"] = fontSize * this._ratio * zoomRatio;
+    this._attrs["font-size"] = fontSize * this._ratio;
 }
 
 /**
