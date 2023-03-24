@@ -28,23 +28,8 @@ function AnnotationTool(parent){
             btnSubtype = "solid";
         }
 
-        if(_self.curType == "TEXT" || btnType === "TEXT"){
-            textSizeInput = document.getElementsByClassName("fontInput")[0];
-            textSizeInput.classList.toggle("hideFontInput"); 
-            if(textSizeInput != null){
-                textSizeInput.addEventListener('input', function (e) {
-                    if((this.value != null) && (this.value.trim() != "")){
-                        fontSize = this.value.trim();
-                        _self.dispatchEvent("changeTextSize", {
-                            svgID: _self.curSVGID,
-                            groupID: _self.curGroupID,
-                            type: _self.curType,
-                            fontSize: fontSize
-                        });
-                    }
-                });
-            }
-        }
+        // Function call to handle special functions for different annotation types
+        _self.handleAnnotationFunctions(btnType, btnSubtype);
 
         if (btnType == "HELP") {
             _self.dispatchEvent('openDrawingHelpPage');
@@ -117,7 +102,29 @@ function AnnotationTool(parent){
                     "<span class='toolBtn' data-type='TEXT' title='Write text'>",
                         "<i class='fas fa-font'></i></a>",
                     "</span>",
-                    "<input class='fontInput hideFontInput' type='number' placeholder='Font Size' value='14'>",
+                    "<div class='fontSizeInput hideElement'>",
+                        "<button class='decreaseFontSize'>-</button>",
+                        "<div class='fontSelection'>",
+                            "<input type='number' class='fontInput' min='1' step='1' value='14'>",
+                            "<div class='fontSizeValue hideElement'>",
+                                "<div>1</div>",
+                                "<div>2</div>",
+                                "<div>4</div>",
+                                "<div>8</div>",
+                                "<div>11</div>",
+                                "<div>14</div>",
+                                "<div>18</div>",
+                                "<div>24</div>",
+                                "<div>30</div>",
+                                "<div>36</div>",
+                                "<div>48</div>",
+                                "<div>60</div>",
+                                "<div>72</div>",
+                            "</div>",
+                        "</div>",
+                        "<button class='increaseFontSize'>+</button>",
+                    "</div>",
+                    // "<input class='fontInput hideFontInput' type='number' placeholder='Font Size' value='14'>",
                 "</div>",
                 // "<span class='toolBtn' data-type='TEXT' title='Write text'>",
                 //     "<i class='fas fa-font'></i></a>",
@@ -199,6 +206,10 @@ function AnnotationTool(parent){
         _self.curSubtype = modeSubtype || '';
 
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn selected";
+
+        if(_self.curType != "TEXT"){
+            _self.elem.querySelector(".fontSizeInput").classList.add("hideElement");
+        }
         
         switch(_self.curType){
             case "CURSOR":
@@ -267,5 +278,88 @@ function AnnotationTool(parent){
             groupID : this.curGroupID,
             stroke : this.curStroke
         }
+    }
+
+    // Method to handle specific functions for different annotation types
+    this.handleAnnotationFunctions = function(type, subtype){
+
+        if(type === "TEXT"){    
+
+            var textSizeDiv = document.getElementsByClassName("fontSizeInput")[0];
+            textSizeDiv.classList.remove("hideElement"); 
+            var textOptionsDiv = document.getElementsByClassName("fontSizeValue")[0];
+            textOptionsDiv.classList.add("hideElement");
+            
+            var textSizeInput = document.getElementsByClassName("fontInput")[0];
+            
+            if(textSizeInput != null){
+
+                textSizeInput.addEventListener('focus', function (e) {
+                    textOptionsDiv = document.getElementsByClassName("fontSizeValue")[0];
+                    textOptionsDiv.classList.remove("hideElement");
+
+                    var fontSizes = document.querySelectorAll(".fontSizeValue div");
+                    for(var i = 0; i < fontSizes.length; i++){
+                        fontSizes[i].addEventListener('click', function(e){
+                            textSizeInput.value = this.innerHTML;
+                            textOptionsDiv.classList.add("hideElement");
+                            // Trigger an input event on the input element
+                            var event = new Event('input', {
+                                bubbles: true,
+                                cancelable: true,
+                            });
+                            textSizeInput.dispatchEvent(event);
+                        });
+                    }
+                });
+
+                textSizeInput.addEventListener('input', function (e) {
+                    if((this.value != null) && (this.value.trim() != "")){
+                        fontSize = this.value.trim();
+                        _self.dispatchEvent("changeTextSize", {
+                            svgID: _self.curSVGID,
+                            groupID: _self.curGroupID,
+                            type: _self.curType,
+                            fontSize: fontSize
+                        });
+                    }
+                });
+
+                var decreaseFontSize = document.getElementsByClassName("decreaseFontSize")[0];
+                decreaseFontSize.addEventListener('click', function (e) {
+                    if((textSizeInput.value != null) && (textSizeInput.value.trim() != "")){
+                        fontSize = textSizeInput.value.trim();
+                        fontSize = parseInt(fontSize) - 1;
+                        if(fontSize > 0){
+                            textSizeInput.value = fontSize;
+                            _self.dispatchEvent("changeTextSize", {
+                                svgID: _self.curSVGID,
+                                groupID: _self.curGroupID,
+                                type: _self.curType,
+                                fontSize: fontSize
+                            });
+                        }
+                    }
+                });
+
+                var increaseFontSize = document.getElementsByClassName("increaseFontSize")[0];
+                increaseFontSize.addEventListener('click', function (e) {
+                    if((textSizeInput.value != null) && (textSizeInput.value.trim() != "")){
+                        fontSize = textSizeInput.value.trim();
+                        fontSize = parseInt(fontSize) + 1;
+                        if(fontSize > 0){
+                            textSizeInput.value = fontSize;
+                            _self.dispatchEvent("changeTextSize", {
+                                svgID: _self.curSVGID,
+                                groupID: _self.curGroupID,
+                                type: _self.curType,
+                                fontSize: fontSize
+                            });
+                        }
+                    }
+                });
+            }
+        }
+        
     }
 }

@@ -1253,8 +1253,6 @@ function Viewer(parent, config) {
             while(this.mouseTrackers.length > 0){
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
-                console.log(userData);
-                console.log(tracker);
                 if(userData && (userData.type != 'POLYGON')){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
@@ -1267,7 +1265,6 @@ function Viewer(parent, config) {
                 setTimeout(function(){
                     tracker.destroy();
                 }, 300)
-                console.log(this.mouseTrackers);
             }
         }
     }

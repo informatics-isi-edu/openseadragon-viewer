@@ -209,7 +209,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
      * @param {data} Object that contains the changed font-size
      */
     this.changeTextSize = function (data, textAnnotation) {
-        textAnnotation.changeFontSize(data.fontSize);
+        if(textAnnotation){
+            textAnnotation.changeFontSize(data.fontSize);
+        }
     }
 
     this.dispatchEvent = function(type, data){
