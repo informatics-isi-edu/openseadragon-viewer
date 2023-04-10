@@ -62,7 +62,12 @@ function Base(attrs){
 
     this.exportToSVG = function(){
 
+        // For text annotation we just need to export the foreign object as it is
         if(this._tag == "text"){
+            var foreignObj = this.getForeignObj();
+            if(foreignObj == null){
+                return "";
+            }
             return (this.getForeignObj().outerHTML);
         }
 
@@ -220,10 +225,6 @@ Base.prototype.renderSVG = function(annotationType){
     // add all the attributes
     for(attr in this._attrs){
 
-        if(attr === "text"){
-            this.svg.text(this._attrs[attr]);
-            continue
-        }
         value = this._attrs[attr];
         if (attr === "stroke-width") {
             // TODO what if the value is not in pixel? (it can be pixel)

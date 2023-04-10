@@ -8,22 +8,20 @@ function Text(attrs) {
     this._attrs["y"] = (attrs["y"] / 2);
     this._attrs["stroke"] = attrs["stroke"] || "red";
 
-    // Relative font size
+    // Calculate the ratio for the mapping from image to screen size
     var viewerParent = this.parent.parent.parent;
     var containerSize = viewerParent.osd.viewport.containerSize;
-
     this._ratio = Math.max(attrs["x"]/containerSize.x, attrs["y"]/containerSize.y);
 
     this._attrs["font-size"] = attrs["font-size"] || this._ratio * 14;
     this._attrs["font-weight"] = attrs["font-weight"] || 400;
     this.svg = null;
-    this.foreignObj = null;
 
     // Foreign object that contains the annotation input and transformed text p tag
+    this.foreignObj = null;
     this.setForeignObj = function(obj) {
         this.foreignObj = obj;
     }
-
     this.getForeignObj = function() {
         return this.foreignObj;
     }
@@ -34,7 +32,7 @@ Text.prototype.constructor = Text;
 
 /**
  * This function is used to place the annotation at the desired position when user clicks on the OSD canvas
- * @param {point} The x and y coordinates of the point are used to position the annotation
+ * @param {Array} point - The x and y coordinates of the point are used to position the annotation
  */
 Text.prototype.positionAnnotation = function (point) {
     var _self = this;
@@ -54,6 +52,7 @@ Text.prototype.positionAnnotation = function (point) {
  */
 Text.prototype.transform = function () {
 
+    // Transform only if the input is not empty
     if(textInput.value && textInput.value.trim() != "")
     {
         var pText = this.createPTag(textInput);
@@ -104,18 +103,18 @@ Text.prototype.createPTag = function (originalObj) {
     var _self = this;
     var pText = document.createElement("p");
     var inputValue = originalObj.value || originalObj.innerHTML;
+    // Replace all the new line characters with <br> tag to preserve the formatting
     inputValue = inputValue.replace(/\n/g, "<br />");
     pText.innerHTML = inputValue;
     pText.style.whiteSpace = "pre-wrap";
+
     pText.style.fontSize = originalObj.style.fontSize;
     pText.style.height = originalObj.style.height;
     pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
     pText.style.color = originalObj.style.color;
-    // pText.classList.add("text-hover");
-    var foreignObj = this.getForeignObj();
-    // pText.addEventListener("click", this.textboxClickHandler);
     pText.classList.add("text-hover");
 
+    // Override the default base.js event handlers for the text annotation
     _self.onClickToSelectAnnotation = function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -165,37 +164,25 @@ Text.prototype.createPTag = function (originalObj) {
             // intentially left empy. we just want to prevent the default behavior (zoom)
         }
     });
+
     return pText;
 }
 
+/**
+ * This function is used to remove the text annotation from the OSD canvas
+ * and also remove the event listeners attached to the <p> tag.
+ */
 Text.prototype.removeText = function () {
 
     var foreignObj = this.getForeignObj();
     if(foreignObj == null) return;
     var pText = foreignObj.getElementsByTagName("p")[0];
+    if(pText == null) return;
 
     pText.removeEventListener("click", this.onClickToSelectAnnotation);
     pText.removeEventListener("mouseover", this.onMouseoverShowTooltip);
     pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
     foreignObj.parentNode.removeChild(foreignObj);  
-}
-
-Text.prototype.textboxClickHandler = function (e) {
-    e.stopImmediatePropagation();
-    console.log("Text annotation is clicked");
-    var foreignObj = this.getForeignObj();
-    foreignObj.parentNode.removeChild(foreignObj);
-}
-
-Text.prototype.calculateZoomRatio = function (fontSize = 14) { 
-
-    var viewerParent = this.parent.parent.parent;
-    var viewport = viewerParent.osd.viewport;
-    var zoom = viewport.getZoom();
-    var defaultZoom = viewerParent.defaultZoom;
-    var zoomRatio = defaultZoom / zoom;
-    // this._attrs["font-size"] = fontSize * this._ratio * zoomRatio;
-    this._attrs["font-size"] = fontSize * this._ratio;
 }
 
 /**
@@ -225,9 +212,9 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     this.setForeignObj(svgForeignObj);
     
     fontSize = document.getElementsByClassName("fontInput")[0].value;
-    this.calculateZoomRatio(fontSize);
+    this.changeFontSize(fontSize);
 
-    // // This would later need a unique ID for each text
+    // Set the attributes of the foreign object, div and textarea
     textInput.setAttribute("id", "textInput");
     textOuterDiv.setAttribute("contentEditable", "true");
     textInput.setAttribute("contentEditable", "true");
@@ -236,11 +223,10 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textOuterDiv.setAttribute("width", "auto");
     textOuterDiv.setAttribute("tabindex", "-1");
     svgForeignObj.setAttribute("width", "100%");
-    // svgForeignObj.setAttribute("height", "1000px");
-    svgForeignObj.setAttribute("height", this._attrs["font-size"]*100 + "px");
+    svgForeignObj.setAttribute("height", this._attrs["font-size"] * 100 + "px");
     textOuterDiv.appendChild(textInput); 
-    svgForeignObj.classList.add("foreign-object"); //to make div fit text
-    textOuterDiv.classList.add("foreign-object-div"); //to make div fit text
+    svgForeignObj.classList.add("foreign-object");
+    textOuterDiv.classList.add("foreign-object-div");
     svgForeignObj.setAttribute("x", this._attrs["x"]);
     svgForeignObj.setAttribute("y", this._attrs["y"]);
     svgForeignObj.appendChild(textOuterDiv);
@@ -249,6 +235,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     group.appendChild(svgForeignObj);
     group.setAttribute("contentEditable", "true");
 
+    // Add event listeners to the textarea for input
     textInput.addEventListener("keydown", function (e) {
         prev = this.textHeight;
         this.style.height = (this.scrollHeight) + "px";
@@ -258,23 +245,31 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     this.initResizeElement();
     this.initDragElement();
-    // textInput.setAttribute("style", "height:" + this.textHeight + "px;overflow-y:hidden;");
+
     textInput.style.height = this.textHeight + "px";
     textInput.style.overflowY = "hidden";
     textInput.style.fontSize = this._attrs["font-size"] + "px";
-    textOuterDiv.style.padding = this._attrs["font-size"] * 0.8 + "px";
-    textOuterDiv.style.border = this._attrs["font-size"] * 0.25 + "px solid red";
+    textOuterDiv.style.padding = (this.parent.getStrokeScale() * this._ratio * 4) + "px";
+    textOuterDiv.style.border = (this.parent.getStrokeScale() * this._ratio) + "px solid red";
     textInput.setAttribute("wrap", "hard");
 }
 
-// Function to chagne font size of the text
+/**
+ * This function is used to change the font size of the text input
+ * @param {*} fontSize - This is the new font size
+ * @returns
+ */
 Text.prototype.changeFontSize = function (fontSize) {
+
+    this._attrs["font-size"] = this._ratio * fontSize;
 
     var foreignObj = this.getForeignObj();
     var divCont = foreignObj.childNodes[0];
+    if(divCont == null) return;
     var textInput = divCont.childNodes[0];
-    this.calculateZoomRatio(fontSize);
-    textInput.style.fontSize = this._attrs["font-size"] + "px";
+    textInput.style.fontSize = this._ratio * fontSize + "px";
+    textInput.style.height = "1px";
+    textInput.style.height = textInput.scrollHeight + "px";
 }
 
 /**
@@ -288,6 +283,7 @@ Text.prototype.initDragElement = function () {
     var divCont = foreignObj.childNodes[0];    
     var elmnt = null;
     var currentZIndex = 100;
+    var _self = this;
     divCont.onmousedown = function() {
         this.style.zIndex = "" + ++currentZIndex;
     };
@@ -295,6 +291,7 @@ Text.prototype.initDragElement = function () {
     divCont.onmousedown = dragMouseDown;
     divCont.onpointerdown = dragMouseDown;
 
+    // This function is called when the user clicks to start dragging the element
     function dragMouseDown(e) {
         e.stopImmediatePropagation();
         elmnt = e.target;
@@ -311,37 +308,28 @@ Text.prototype.initDragElement = function () {
         document.onmousemove = elementDrag;
     }
 
+    // This function is called when the user drags the element
     function elementDrag(e) {
         if (!elmnt) {
         return;
         }
 
         e = e || window.event;
-        // calculate the new cursor position:
+        // Calculate the new cursor position:
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-        // set the element's new position:
-        elmnt.style.top = elmnt.offsetTop - 60 * pos2 + "px";
-        elmnt.style.left = elmnt.offsetLeft - 60 * pos1 + "px";
+        // Set the element's new position:
+        elmnt.style.top = elmnt.offsetTop - _self._ratio * pos2 + "px";
+        elmnt.style.left = elmnt.offsetLeft - _self._ratio * pos1 + "px";
     }
 
+    // This function is called when the user stops dragging the element
     function closeDragElement(e) {
-        /* stop moving when mouse button is released:*/
         document.onmouseup = null;
         document.onmousemove = null;
         document.onpointerup = null;
-    }
-
-    function getHeader(element) {
-        var headerItems = element.getElementsByClassName("move-header");
-
-        if (headerItems.length === 1) {
-            return headerItems[0];
-        }
-
-        return null;
     }
 }
 
@@ -350,7 +338,6 @@ Text.prototype.initDragElement = function () {
  */
 Text.prototype.initResizeElement = function () {
 
-    // var divCont = document.getElementsByClassName("insideforeign")[0];
     var foreignObj = this.getForeignObj();
     var divCont = foreignObj.childNodes[0];
     var element = null;
@@ -365,6 +352,7 @@ Text.prototype.initResizeElement = function () {
     bottomright.style.width = this._attrs["font-size"] + "px";
     bottomright.style["margin-left"] = this._attrs["font-size"] * 0.125 + "px";
 
+    // Function to intialize the resize movement of the text input
     function initDrag(e) {
         e.stopImmediatePropagation();
         element = this.parentPopup;
@@ -386,35 +374,14 @@ Text.prototype.initResizeElement = function () {
         document.documentElement.addEventListener("mouseup", stopDrag, false);
     }
 
+    // Function to change the size of the text input
     function doDrag(e) {
         e.stopImmediatePropagation();
         element.style.position = "absolute";
-        switch(resizer) {
-            case "resizer-bottomleft":
-                element.style.width = startWidth + 60 * (e.clientX - startX)+ "px";
-                element.style.left = startX + 60 * (startX - e.clientX) + "px";
-                element.style.height = startHeight + 60 * (e.clientY - startY) + "px";
-                break;
-            case "resizer-topleft":
-                element.style.width = startWidth + 60 * (startX - e.clientX)+ "px";
-                element.style.left = startX + 60 * (e.clientX - startX) + "px";
-                element.style.top = startY + 60 * (e.clientY - startY) + "px";
-                element.style.height = startHeight + 60 * (startY - e.clientY) + "px";
-                break;
-            case "resizer-topright":
-                element.style.width = startWidth + 60 * (e.clientX - startX) + "px";
-                element.style.top = startY + 60 * (e.clientY - startY) + "px";
-                element.style.height = startHeight + 60 * (startY - e.clientY) + "px";
-                break;
-            case "resizer-bottomright":
-                element.style.width = startWidth + 30 * (e.clientX - startX) + "px";
-                var textArea = divCont.getElementsByTagName("textarea")[0];
-                textArea.style.height = "1px";
-                textArea.style.height = textArea.scrollHeight + "px";
-                break;
-            default:
-                break;
-        }
+        element.style.width = startWidth + 30 * (e.clientX - startX) + "px";
+        var textArea = divCont.getElementsByTagName("textarea")[0];
+        textArea.style.height = "1px";
+        textArea.style.height = textArea.scrollHeight + "px";
     }
 
     function stopDrag() {
@@ -424,23 +391,35 @@ Text.prototype.initResizeElement = function () {
     }
 }
 
-
+/**
+ * Update the color of the text
+ * @param {*} newColor - new color for the text
+ */
 Text.prototype.updateTextColor = function (newColor) {
 
     var text = this.getForeignObj().getElementsByTagName("p")[0];
-    text.style.color = newColor;
+    if(text != null){
+        text.style.color = newColor;
+    }
 }
 
+/**
+ * Highlight the text content
+*/
 Text.prototype.highlight = function () {
 
     var foreignObj = this.getForeignObj();
     var text = foreignObj.getElementsByTagName("p")[0];
+    if(text == null) return;
     text.style.fontWeight = "900";
 }
-
+/**
+ * Unhighlight the text content
+*/
 Text.prototype.unHighlight = function () {
 
     var foreignObj = this.getForeignObj();
     var text = foreignObj.getElementsByTagName("p")[0];
+    if(text == null) return;
     text.style.fontWeight = "400";
 }

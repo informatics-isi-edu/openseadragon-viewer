@@ -55,6 +55,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 annotation = new Line(attrs);
                 break;
             case "TEXT":
+                // Add the image width, height and stroke color to the text annotation attributes
                 attrs["x"] = this.parent.imgWidth;
                 attrs["y"] = this.parent.imgHeight;
                 attrs["stroke"] = annotAttrs.stroke;
@@ -250,7 +251,6 @@ function AnnotationGroup(id, anatomy, description, parent){
         if (rst.length === 0) {
             return "";
         }
-        // console.log("<g id='" + this.id + "'>" + rst.join("") + "</g>");
 
         return "<g id='" + this.id + "'>" + rst.join("") + "</g>";
     }
@@ -316,7 +316,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         // remove annotation object from the collection
         this.annotations.splice(index, 1);
 
-
+        // Text annotation requires different methods to remove annotation
         if(annotation._tag == "text"){
             annotation.removeText();
         }
@@ -442,7 +442,6 @@ function AnnotationGroup(id, anatomy, description, parent){
 
             // If the annotation is a textbox
             if(annotation._tag == "text"){
-                console.log(annotation);
                 annotation.updateTextColor(stroke);
             }
             // render the SVG after changing the color so that the new color is reflected in the viewer

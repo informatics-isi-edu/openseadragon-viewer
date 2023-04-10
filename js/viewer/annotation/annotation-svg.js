@@ -69,7 +69,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 subtype: subtype,
                 attrs : attrs
             })
-            // this.dispatchEvent("removeHandlers", null);
 
         }
     }
@@ -207,6 +206,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     /**
      * Change the size of the text annotation input.
      * @param {data} Object that contains the changed font-size
+     * @param {textAnnotation} The text annotation that is being edited
      */
     this.changeTextSize = function (data, textAnnotation) {
         if(textAnnotation){
@@ -271,7 +271,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             }
         }
 
-        console.log(rst, svg);
         return rst;
     }
 
@@ -375,6 +374,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "rect":
                 case "line":
                 case "arrowline":
+                // To handle the parsing of the text annotation when imported from the svg file
                 case "foreignObject":
                     this.parseSVGNodes([node], styleSheet, node);
                     break;
@@ -524,6 +524,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "foreignObject":
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
+                        // Create a new clone of the node and add it to the group as an annotation
+                        // Cloning the node helps in keeping the original node intact and adding the text annotation
+                        // as a foreignObject
                         newNode = node.cloneNode(true);
                         annotation = group.addAnnotation(node.nodeName, newNode);
                         annotation.setAttributesByJSON(this.getNodeAttributes(newNode));

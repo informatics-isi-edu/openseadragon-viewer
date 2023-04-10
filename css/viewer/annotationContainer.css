@@ -49,10 +49,12 @@
 }
 
 
-/* CSS for text annotation tool */
+/* 
+CSS for text annotation tool 
+*/
+
 .foreign-object {
     text-align: left;
-    /* alignment-baseline: baseline; */
     overflow: visible;
 }
 
@@ -75,31 +77,14 @@
 }
 
 .resizer-bottomright { 
-    /* width: 600px;
-    height: 600px; */
     background: red;
     z-index: 10;
     position: absolute !important;
     transform: translate(-50%, -50%);
     top: 50%;
-    /* right: -650px; */
     left: 100%;
     cursor: ew-resize;
 }
-
-.insideforeign .move-header {
-    cursor: move;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 500px;
-    width: 100%;
-    z-index: 10;
-    background-color: #2196f3;
-    color: #fff;
-}
-
-/*NOSELECT*/
 
 #divid * {
     -webkit-touch-callout: none; /* iOS Safari */

@@ -37,7 +37,6 @@ function Viewer(parent, config) {
     // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverlay = false;
     this.prevAnnotation = null;
-    this.defaultZoom = null;
 
     // Init
     this.init = function (utils, params) {
@@ -184,10 +183,6 @@ function Viewer(parent, config) {
                 });
             }
         });
-
-        // Saving the default zoom level
-        this.defaultZoom = this.osd.viewport.getZoom(true);
-        console.log("Default zoom level: " + this.defaultZoom);
     };
 
     // This function toggles _showChannelNamesOverlay
@@ -438,7 +433,6 @@ function Viewer(parent, config) {
                         clickHandler: this.onMouseClickToDraw,
                         userData: data
                     });
-                    // this.osd.addHandler('canvas-click', this.onMouseClickToDraw);
                 }
                 else{
                     tracker = new OpenSeadragon.MouseTracker({
@@ -447,7 +441,6 @@ function Viewer(parent, config) {
                         dragEndHandler: this.onMouseDragToDrawEnd,
                         userData: data
                     });
-                    // this.osd.addHandler('canvas-click', this.onMouseDragToDraw);
                 }
                 _self.mouseTrackers.push(tracker);
                 break;
@@ -1062,6 +1055,8 @@ function Viewer(parent, config) {
      */
     this.onMouseClickToDraw = function(event){
 
+        // If the user is drawing a new text annotation, then we need to
+        // transform the previous text annotation and remove text input
         if(_self.prevAnnotation != null){
             _self.prevAnnotation.transform();
         }
@@ -1081,6 +1076,8 @@ function Viewer(parent, config) {
         annotation.positionAnnotation(img_coords);
         annotation.addTextBox(event.userData.groupID);
 
+        // Remove the mouse tracker after the user has clicked
+        // as we don't need it anymore. A new one will be created
         if (_self.mouseTrackers.length > 0) {
             setTimeout(function () {
                 _self.mouseTrackers[0].destroy();
@@ -1165,20 +1162,6 @@ function Viewer(parent, config) {
 
             _self.mouseTrackers.push(mousetracker);
         }
-    }
-
-    this.removeHandler = function (event) {
-
-        if (_self.mouseTrackers.length > 0) {
-            
-            _self.mouseTrackers[0].destroy();
-            _self.mouseTrackers.shift();
-        }
-        this.osd.innerTracker.clickHanlder = null;
-        this.osd.innerTracker.pressHandler = null;
-        this.osd.innerTracker.releaseHandler = null;
-        this.osd.panVertical = false;
-        this.osd.panHorizontal = false;
     }
 
     // Pan to specific location
@@ -1470,7 +1453,6 @@ function Viewer(parent, config) {
 
         // Adjust Openseadragon viewer bounds to fit the group svg
         this.osd.viewport.fitBounds(new OpenSeadragon.Rect(x1, y1, x2 - x1, y2 - y1));
-        console.log(this);
     }
 
     // Zoom in

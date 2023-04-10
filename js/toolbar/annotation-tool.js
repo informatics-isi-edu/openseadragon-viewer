@@ -124,11 +124,7 @@ function AnnotationTool(parent){
                         "</div>",
                         "<button class='increaseFontSize'>+</button>",
                     "</div>",
-                    // "<input class='fontInput hideFontInput' type='number' placeholder='Font Size' value='14'>",
                 "</div>",
-                // "<span class='toolBtn' data-type='TEXT' title='Write text'>",
-                //     "<i class='fas fa-font'></i></a>",
-                // "</span>",
                 "<span class='toolBtn' data-type='ERASER' title='Erase drawing'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",
@@ -280,7 +276,11 @@ function AnnotationTool(parent){
         }
     }
 
-    // Method to handle specific functions for different annotation types
+    /**
+     * Function to handle the specific annotation behaviour/functions
+     * @param {*} type type of annotation
+     * @param {*} subtype subtype of annotation
+     */
     this.handleAnnotationFunctions = function(type, subtype){
 
         if(type === "TEXT"){    
@@ -292,12 +292,13 @@ function AnnotationTool(parent){
             
             var textSizeInput = document.getElementsByClassName("fontInput")[0];
             
+            // Functions to handle the font size input functionality in the toolbar
             if(textSizeInput != null){
 
                 textSizeInput.addEventListener('focus', function (e) {
                     textOptionsDiv = document.getElementsByClassName("fontSizeValue")[0];
                     textOptionsDiv.classList.remove("hideElement");
-
+                    
                     var fontSizes = document.querySelectorAll(".fontSizeValue div");
                     for(var i = 0; i < fontSizes.length; i++){
                         fontSizes[i].addEventListener('click', function(e){
