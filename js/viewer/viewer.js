@@ -36,7 +36,7 @@ function Viewer(parent, config) {
 
     // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverlay = false;
-    this.prevAnnotation = null;
+    this._lastDrawnAnnotation = null;
 
     // Init
     this.init = function (utils, params) {
@@ -56,7 +56,8 @@ function Viewer(parent, config) {
         // configure osd
         this.osd = OpenSeadragon(this.config.osd);
 
-        // Added to disable the key tracking temporarily
+        // Disable the key shortcuts to move the image up, down, left and right.
+        // This is to avoid the conflict with the text input by the user
         this.osd.innerTracker.keyHandler = null;
         
         // show spinner while initializing the page
@@ -430,7 +431,7 @@ function Viewer(parent, config) {
                 if(data.type.toUpperCase() == "TEXT"){
                     tracker = new OpenSeadragon.MouseTracker({
                         element: _self.svg,
-                        clickHandler: this.onMouseClickToDraw,
+                        clickHandler: this.onMouseClickToDrawText,
                         userData: data
                     });
                 }
@@ -547,7 +548,7 @@ function Viewer(parent, config) {
                 break;
             // Handle the text annotation input size change
             case "changeTextSize":
-                svg.changeTextSize(data, this.prevAnnotation);
+                svg.changeTextSize(data, this._lastDrawnAnnotation);
                 break;
             default:
                 break;
@@ -1053,15 +1054,15 @@ function Viewer(parent, config) {
      * Handle the user click to position the text annotation at a position
      * @param {event} contains the event information and other custom data
      */
-    this.onMouseClickToDraw = function(event){
+    this.onMouseClickToDrawText = function(event){
 
         // If the user is drawing a new text annotation, then we need to
         // transform the previous text annotation and remove text input
-        if(_self.prevAnnotation != null){
-            _self.prevAnnotation.transform();
+        if(_self._lastDrawnAnnotation != null){
+            _self._lastDrawnAnnotation.transform();
         }
 
-        _self.prevAnnotation = event.userData.annotation;
+        _self._lastDrawnAnnotation = event.userData.annotation;
 
         var annotation = event.userData.annotation;
         var viewBox = event.userData.viewBox;
@@ -1100,7 +1101,7 @@ function Viewer(parent, config) {
 
             var mousetracker = new OpenSeadragon.MouseTracker({
                         element: _self.svg,
-                        clickHandler: _self.onMouseClickToDraw,
+                        clickHandler: _self.onMouseClickToDrawText,
                         userData: event.userData
                     });
 
@@ -1227,9 +1228,9 @@ function Viewer(parent, config) {
     // Remove mouse trackers for drawing
     this.removeMouseTrackers = function(data) {
 
-        if(_self.prevAnnotation != null){
-            _self.prevAnnotation.transform();
-            _self.prevAnnotation = null;
+        if(_self._lastDrawnAnnotation != null){
+            _self._lastDrawnAnnotation.transform();
+            _self._lastDrawnAnnotation = null;
         }
         if(this.mouseTrackers.length > 0){
 

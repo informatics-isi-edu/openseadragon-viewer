@@ -285,18 +285,18 @@ function AnnotationTool(parent){
 
         if(type === "TEXT"){    
 
-            var textSizeDiv = document.getElementsByClassName("fontSizeInput")[0];
+            var textSizeDiv = document.querySelector(".fontSizeInput");
             textSizeDiv.classList.remove("hideElement"); 
-            var textOptionsDiv = document.getElementsByClassName("fontSizeValue")[0];
+            var textOptionsDiv = document.querySelector(".fontSizeValue");
             textOptionsDiv.classList.add("hideElement");
             
-            var textSizeInput = document.getElementsByClassName("fontInput")[0];
+            var textSizeInput = document.querySelector(".fontInput");
             
             // Functions to handle the font size input functionality in the toolbar
             if(textSizeInput != null){
 
                 textSizeInput.addEventListener('focus', function (e) {
-                    textOptionsDiv = document.getElementsByClassName("fontSizeValue")[0];
+                    textOptionsDiv = document.querySelector(".fontSizeValue");
                     textOptionsDiv.classList.remove("hideElement");
                     
                     var fontSizes = document.querySelectorAll(".fontSizeValue div");
@@ -326,7 +326,7 @@ function AnnotationTool(parent){
                     }
                 });
 
-                var decreaseFontSize = document.getElementsByClassName("decreaseFontSize")[0];
+                var decreaseFontSize = document.querySelector(".decreaseFontSize");
                 decreaseFontSize.addEventListener('click', function (e) {
                     if((textSizeInput.value != null) && (textSizeInput.value.trim() != "")){
                         fontSize = textSizeInput.value.trim();
@@ -343,7 +343,7 @@ function AnnotationTool(parent){
                     }
                 });
 
-                var increaseFontSize = document.getElementsByClassName("increaseFontSize")[0];
+                var increaseFontSize = document.querySelector(".increaseFontSize");
                 increaseFontSize.addEventListener('click', function (e) {
                     if((textSizeInput.value != null) && (textSizeInput.value.trim() != "")){
                         fontSize = textSizeInput.value.trim();
@@ -359,6 +359,17 @@ function AnnotationTool(parent){
                         }
                     }
                 });
+            }
+        }
+        else {
+            // Remove any event listeners on the fontsize input if present
+            var textSizeInput = document.querySelector(".fontInput");
+            if(textSizeInput != null){
+                
+                // Get all event listeners for textSizeInput and remove them
+                var elClone = textSizeInput.cloneNode(true);
+                textSizeInput.parentNode.replaceChild(elClone, textSizeInput);
+                textSizeInput = elClone;
             }
         }
         

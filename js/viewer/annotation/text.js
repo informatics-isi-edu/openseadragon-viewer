@@ -8,7 +8,11 @@ function Text(attrs) {
     this._attrs["y"] = (attrs["y"] / 2);
     this._attrs["stroke"] = attrs["stroke"] || "red";
 
-    // Calculate the ratio for the mapping from image to screen size
+    /* Calculate the ratio for the mapping from image to screen size
+    * We use the OSD viewer container size and the actual image size to calculate the ratio
+    * This ratio will be used to obtain the font size of the text annotation that appears similar
+    * to the font size on user's screen.
+    */
     var viewerParent = this.parent.parent.parent;
     var containerSize = viewerParent.osd.viewport.containerSize;
     this._ratio = Math.max(attrs["x"]/containerSize.x, attrs["y"]/containerSize.y);
@@ -53,16 +57,19 @@ Text.prototype.positionAnnotation = function (point) {
 Text.prototype.transform = function () {
 
     // Transform only if the input is not empty
-    if(textInput.value && textInput.value.trim() != "")
-    {
+    if(textInput.value && textInput.value.trim() != "") {
         var pText = this.createPTag(textInput);
         var foreignObj = this.getForeignObj();
         var div = foreignObj.childNodes[0];
-        var h = div.style.top;
-        var w = div.style.left;
+        var h = div.style.marginTop;
+        var w = div.style.marginLeft;
+        // var h = div.style.top;
+        // var w = div.style.left;
         foreignObj.style.width = pText.style.width;
         foreignObj.style.height = pText.style.height;
         var divPadding = window.getComputedStyle(div, null).getPropertyValue('padding');
+        // We obtain the padding and border of the div element to position the p tag correctly
+        // Both properties have been defined in pixels while creating the textarea
         divPadding = parseInt(divPadding.slice(0, divPadding.length - 2)) || 0;
         var divBorder = window.getComputedStyle(div, null).getPropertyValue('border').split(" ")[0];
         divBorder = parseInt(divBorder.slice(0, divBorder.length - 2)) || 0;
@@ -78,6 +85,8 @@ Text.prototype.transform = function () {
         else{
             w = 0;
         }
+        // We calculate the new position x and y of the transformed text p tag by taking into
+        // consideration the padding and border of the div element and the width and height of the textarea.
         foreignObj.setAttribute("x", this._attrs["x"] + w + divPadding + divBorder);
         foreignObj.setAttribute("y", this._attrs["y"] + h + divPadding + divBorder);
         foreignObj.setAttribute("tabindex", -1);
@@ -104,17 +113,21 @@ Text.prototype.createPTag = function (originalObj) {
     var pText = document.createElement("p");
     var inputValue = originalObj.value || originalObj.innerHTML;
     // Replace all the new line characters with <br> tag to preserve the formatting
+    pText.style.whiteSpace = "pre-wrap";
     inputValue = inputValue.replace(/\n/g, "<br />");
     pText.innerHTML = inputValue;
-    pText.style.whiteSpace = "pre-wrap";
 
     pText.style.fontSize = originalObj.style.fontSize;
     pText.style.height = originalObj.style.height;
     pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
+    // Copy the font color of the textarea to the p tag
     pText.style.color = originalObj.style.color;
+    // Adding the text-hover class to the p tag for the hover effect
     pText.classList.add("text-hover");
 
     // Override the default base.js event handlers for the text annotation
+    // Text annotation does not have a d3 element, so we need to add the event handlers
+    // that work without the d3 element
     _self.onClickToSelectAnnotation = function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -176,7 +189,7 @@ Text.prototype.removeText = function () {
 
     var foreignObj = this.getForeignObj();
     if(foreignObj == null) return;
-    var pText = foreignObj.getElementsByTagName("p")[0];
+    var pText = foreignObj.querySelector("p");
     if(pText == null) return;
 
     pText.removeEventListener("click", this.onClickToSelectAnnotation);
@@ -196,7 +209,7 @@ Text.prototype.removeText = function () {
 Text.prototype.addTextBox = function (groupId, importedObj) {
 
     // If a foreign object is to be imported from the loaded annotation
-    if(importedObj != null){
+    if(importedObj != null) {
         this.setForeignObj(importedObj);
         var pTag = this.createPTag(importedObj.childNodes[0]);
         importedObj.appendChild(pTag);
@@ -211,22 +224,29 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
     this.setForeignObj(svgForeignObj);
     
-    fontSize = document.getElementsByClassName("fontInput")[0].value;
+    fontSize = document.querySelector(".fontInput").value;
     this.changeFontSize(fontSize);
 
     // Set the attributes of the foreign object, div and textarea
     textInput.setAttribute("id", "textInput");
+    // Make the text area editable inside the foreign object in SVG by setting the contentEditable attribute
     textOuterDiv.setAttribute("contentEditable", "true");
     textInput.setAttribute("contentEditable", "true");
-    textInput.style.color = this._attrs["stroke"];
     svgForeignObj.setAttribute("contentEditable", "true");
+    // Set the font color same as the stroke color
+    textInput.style.color = this._attrs["stroke"];
     textOuterDiv.setAttribute("width", "auto");
     textOuterDiv.setAttribute("tabindex", "-1");
     svgForeignObj.setAttribute("width", "100%");
+    // Set the height of the foreign object to be 100 times the font size
+    // This would later adjust according the font size of the text
     svgForeignObj.setAttribute("height", this._attrs["font-size"] * 100 + "px");
     textOuterDiv.appendChild(textInput); 
+    // Add the classes to the foreign object and the div for styling
+    // that handles the text wrapping and resizing and other styling
     svgForeignObj.classList.add("foreign-object");
     textOuterDiv.classList.add("foreign-object-div");
+    // Set the position of the foreign object
     svgForeignObj.setAttribute("x", this._attrs["x"]);
     svgForeignObj.setAttribute("y", this._attrs["y"]);
     svgForeignObj.appendChild(textOuterDiv);
@@ -249,6 +269,10 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textInput.style.height = this.textHeight + "px";
     textInput.style.overflowY = "hidden";
     textInput.style.fontSize = this._attrs["font-size"] + "px";
+    /* Set the border and padding of the div oustide the textarea
+    * to create area for dragging the text annotation.
+    * The padding is set to 4 times the stroke width to create a draggable area for the div
+    */
     textOuterDiv.style.padding = (this.parent.getStrokeScale() * this._ratio * 4) + "px";
     textOuterDiv.style.border = (this.parent.getStrokeScale() * this._ratio) + "px solid red";
     textInput.setAttribute("wrap", "hard");
@@ -272,7 +296,7 @@ Text.prototype.changeFontSize = function (fontSize) {
     textInput.style.height = textInput.scrollHeight + "px";
 }
 
-/**
+/*
  * This function is used to enable drag functionality on the text input
  */
 Text.prototype.initDragElement = function () {
@@ -321,8 +345,11 @@ Text.prototype.initDragElement = function () {
         pos3 = e.clientX;
         pos4 = e.clientY;
         // Set the element's new position:
-        elmnt.style.top = elmnt.offsetTop - _self._ratio * pos2 + "px";
-        elmnt.style.left = elmnt.offsetLeft - _self._ratio * pos1 + "px";
+        // elmnt.style.position = "absolute";
+        // elmnt.style.top = elmnt.offsetTop - _self._ratio * pos2 + "px";        
+        // elmnt.style.left = elmnt.offsetLeft - _self._ratio * pos1 + "px";
+        elmnt.style.marginLeft = elmnt.offsetLeft - _self._ratio * pos1 + "px";
+        elmnt.style.marginTop = elmnt.offsetTop - _self._ratio * pos2 + "px";
     }
 
     // This function is called when the user stops dragging the element
@@ -343,13 +370,18 @@ Text.prototype.initResizeElement = function () {
     var element = null;
     var startX, startY, startWidth, startHeight;
     
+    // Create the resize element for the text input
     bottomright = document.createElement("div");
     bottomright.className = "resizer-bottomright";
     divCont.appendChild(bottomright);
+
+    // Add event listeners to the resize element
     bottomright.addEventListener("mousedown", initDrag, false);
     bottomright.parentPopup = divCont;
     bottomright.style.height = this._attrs["font-size"] + "px";
     bottomright.style.width = this._attrs["font-size"] + "px";
+    // To position the resize element exactly on the right border, we need to add a margin of 1/8th of the font size
+    // to the left of the element, since the padding of the div is 4 times the stroke width
     bottomright.style["margin-left"] = this._attrs["font-size"] * 0.125 + "px";
 
     // Function to intialize the resize movement of the text input
@@ -360,6 +392,7 @@ Text.prototype.initResizeElement = function () {
 
         startX = e.clientX;
         startY = e.clientY;
+        // Get the current width and height of the text input
         startWidth = parseInt(
         document.defaultView.getComputedStyle(element).width,
         10
@@ -378,12 +411,15 @@ Text.prototype.initResizeElement = function () {
     function doDrag(e) {
         e.stopImmediatePropagation();
         element.style.position = "absolute";
+        // Change the width of the text input based on the mouse movement
         element.style.width = startWidth + 30 * (e.clientX - startX) + "px";
-        var textArea = divCont.getElementsByTagName("textarea")[0];
+        var textArea = divCont.querySelector("textarea");
         textArea.style.height = "1px";
         textArea.style.height = textArea.scrollHeight + "px";
+
     }
 
+    // Function to stop the resize movement of the text input
     function stopDrag() {
         document.documentElement.removeEventListener("mousemove", doDrag, false);
         document.documentElement.removeEventListener("pointerup", stopDrag, false);
@@ -397,7 +433,7 @@ Text.prototype.initResizeElement = function () {
  */
 Text.prototype.updateTextColor = function (newColor) {
 
-    var text = this.getForeignObj().getElementsByTagName("p")[0];
+    var text = this.getForeignObj().querySelector("p");
     if(text != null){
         text.style.color = newColor;
     }
@@ -409,7 +445,8 @@ Text.prototype.updateTextColor = function (newColor) {
 Text.prototype.highlight = function () {
 
     var foreignObj = this.getForeignObj();
-    var text = foreignObj.getElementsByTagName("p")[0];
+    if(foreignObj == null) return;
+    var text = foreignObj.querySelector("p");
     if(text == null) return;
     text.style.fontWeight = "900";
 }
@@ -419,7 +456,8 @@ Text.prototype.highlight = function () {
 Text.prototype.unHighlight = function () {
 
     var foreignObj = this.getForeignObj();
-    var text = foreignObj.getElementsByTagName("p")[0];
+    if(foreignObj == null) return;
+    var text = foreignObj.querySelector("p");
     if(text == null) return;
     text.style.fontWeight = "400";
 }
