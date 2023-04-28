@@ -7,6 +7,8 @@ function Text(attrs) {
     this._attrs["x"] = (attrs["x"] / 2);
     this._attrs["y"] = (attrs["y"] / 2);
     this._attrs["stroke"] = attrs["stroke"] || "red";
+    this.annotationUtils = new AnnotationUtils();
+
 
     /* Calculate the ratio for the mapping from image to screen size
     * We use the OSD viewer container size and the actual image size to calculate the ratio
@@ -117,11 +119,12 @@ Text.prototype.createPTag = function (originalObj) {
     inputValue = inputValue.replace(/\n/g, "<br />");
     pText.innerHTML = inputValue;
 
-    pText.style.fontSize = originalObj.style.fontSize;
-    pText.style.height = originalObj.style.height;
+    var styleObj = this.annotationUtils.styleStringToObject(originalObj.getAttribute("style"));
+    pText.style.fontSize = styleObj["font-size"];
+    pText.style.height = styleObj["height"];
     pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
     // Copy the font color of the textarea to the p tag
-    pText.style.color = originalObj.style.color;
+    pText.style.color = styleObj["color"];
     // Adding the text-hover class to the p tag for the hover effect
     pText.classList.add("text-hover");
 
@@ -210,10 +213,31 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     // If a foreign object is to be imported from the loaded annotation
     if(importedObj != null) {
+
+        var styleObj = this.annotationUtils.styleStringToObject(importedObj.getAttribute("style"));
+        console.log(styleObj);
+        
+        // Initialize the style of imported object
+        importedObj.style = {};
+
+        for(var key in styleObj) {
+            importedObj.style[key] = styleObj[key];
+        }
+
+        // Assign all the attributes to the imported object
+        for(var i = 0; i < importedObj.attributes.length; i++) {
+            var attr = importedObj.attributes[i];
+            console.log(attr);
+            importedObj.setAttribute(attr.name, attr.value);
+        }
+
         this.setForeignObj(importedObj);
         var pTag = this.createPTag(importedObj.childNodes[0]);
+        // Remove the p tag in the import foreign object and add the new p tag
+        // with the added functionality
+        importedObj.innerHTML = "";
         importedObj.appendChild(pTag);
-        group = document.getElementById(groupId);
+        var group = document.getElementById(groupId);
         group.appendChild(importedObj);
         group.setAttribute("contentEditable", "true");
         return;
@@ -251,7 +275,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     svgForeignObj.setAttribute("y", this._attrs["y"]);
     svgForeignObj.appendChild(textOuterDiv);
 
-    group = document.getElementById(groupId);
+    var group = document.getElementById(groupId);
     group.appendChild(svgForeignObj);
     group.setAttribute("contentEditable", "true");
 

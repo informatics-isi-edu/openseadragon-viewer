@@ -68,7 +68,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 break;
             case "ARROWLINE":
                 // Create the marker definition and append it to the annotation group
-                group = document.getElementById(this.id);
+                var group = document.getElementById(this.id);
                 // Check if marker ID already exists which would be the case while importing saved annotation or create a new one
                 markerID = annotAttrs["data-markerid"] || "arrowmarker-" + annotAttrs.stroke.slice(1) + parseInt(Math.random() * 100000000);
                 if(group != null) {
@@ -331,6 +331,12 @@ function AnnotationGroup(id, anatomy, description, parent){
     // Remove all annotations
     this.removeAllAnnotations = function(){
         this.annotations.forEach(function (annotation) {
+
+            // Text annotation requires different methods to remove annotation
+            if(annotation._tag == "text"){
+                annotation.removeText();
+            }
+
             // remove event handlers for the annotation
             annotation.unbind();
 

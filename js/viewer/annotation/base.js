@@ -68,7 +68,7 @@ function Base(attrs){
             if(foreignObj == null){
                 return "";
             }
-            return (this.getForeignObj().outerHTML);
+            return (foreignObj.outerHTML);
         }
 
         // Check to see if there are necessary dimensions needed to construct the component. This makes sure that no empty components are added to the final SVG output file.
