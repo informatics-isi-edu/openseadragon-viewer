@@ -201,7 +201,7 @@ Text.prototype.removeText = function () {
     var foreignObj = this.getForeignObj();
     if(foreignObj == null) return;
     var pText = foreignObj.querySelector("p");
-    if(pText == null){
+    if(pText != null){
         pText.removeEventListener("click", this.onClickToSelectAnnotation);
         pText.removeEventListener("mouseover", this.onMouseoverShowTooltip);
         pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
@@ -264,6 +264,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textOuterDiv.setAttribute("contentEditable", "true");
     textInput.setAttribute("contentEditable", "true");
     svgForeignObj.setAttribute("contentEditable", "true");
+    svgForeignObj.setAttribute("stroke", this._attrs["stroke"]);
     // Set the font color same as the stroke color
     textInput.style.color = this._attrs["stroke"];
     textOuterDiv.setAttribute("width", "auto");

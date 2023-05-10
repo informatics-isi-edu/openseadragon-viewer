@@ -65,9 +65,24 @@ function Base(attrs){
         // For text annotation we just need to export the foreign object as it is
         if(this._tag == "text"){
             var foreignObj = this.getForeignObj();
+
+            // Check if foreign object exists
             if(foreignObj == null){
                 return "";
             }
+            // Check if the foreign object has a child node
+            if(foreignObj.childNodes.length == 0){
+                return "";
+            }
+            // Check if the child node is a p tag
+            if(foreignObj.childNodes[0].tagName != "P"){
+                return "";
+            }
+            // Check if the p tag has any text content
+            if(foreignObj.childNodes[0].innerHTML.trim() == ""){
+                return "";
+            }
+
             return (foreignObj.outerHTML);
         }
 
