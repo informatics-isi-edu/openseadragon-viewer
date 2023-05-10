@@ -319,6 +319,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         // Text annotation requires different methods to remove annotation
         if(annotation._tag == "text"){
             annotation.removeText();
+            return;
         }
 
         // remove event handlers for the annotation
@@ -335,6 +336,7 @@ function AnnotationGroup(id, anatomy, description, parent){
             // Text annotation requires different methods to remove annotation
             if(annotation._tag == "text"){
                 annotation.removeText();
+                return;
             }
 
             // remove event handlers for the annotation
