@@ -1518,12 +1518,14 @@ function Viewer(parent, config) {
             // remove all the annotations under the group
             svgAnnotation.groups[groupID].removeAllAnnotations();
 
+            
             // delete the group
             delete svgAnnotation.groups[groupID];
         }
 
         // add the saved state
         var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
+        console.log(svgFile);
         svgAnnotation.parseSVGNodes(svgFile.childNodes);
 
         // make sure svg is rendered properly

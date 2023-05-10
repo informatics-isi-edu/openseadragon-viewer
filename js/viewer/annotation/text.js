@@ -36,6 +36,14 @@ function Text(attrs) {
 Text.prototype = Object.create(Base.prototype);
 Text.prototype.constructor = Text;
 
+Text.prototype.renderSVG = function () {
+    // We do not need to render the text tag for the text annotation
+    // since we are using the foreign object to render the text input
+    // and the transformed text p tag
+    return;
+}
+
+
 /**
  * This function is used to place the annotation at the desired position when user clicks on the OSD canvas
  * @param {Array} point - The x and y coordinates of the point are used to position the annotation
@@ -193,11 +201,12 @@ Text.prototype.removeText = function () {
     var foreignObj = this.getForeignObj();
     if(foreignObj == null) return;
     var pText = foreignObj.querySelector("p");
-    if(pText == null) return;
+    if(pText == null){
+        pText.removeEventListener("click", this.onClickToSelectAnnotation);
+        pText.removeEventListener("mouseover", this.onMouseoverShowTooltip);
+        pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
+    }
 
-    pText.removeEventListener("click", this.onClickToSelectAnnotation);
-    pText.removeEventListener("mouseover", this.onMouseoverShowTooltip);
-    pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
     foreignObj.parentNode.removeChild(foreignObj);  
 }
 
@@ -215,7 +224,6 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     if(importedObj != null) {
 
         var styleObj = this.annotationUtils.styleStringToObject(importedObj.getAttribute("style"));
-        console.log(styleObj);
         
         // Initialize the style of imported object
         importedObj.style = {};
@@ -227,7 +235,6 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
         // Assign all the attributes to the imported object
         for(var i = 0; i < importedObj.attributes.length; i++) {
             var attr = importedObj.attributes[i];
-            console.log(attr);
             importedObj.setAttribute(attr.name, attr.value);
         }
 

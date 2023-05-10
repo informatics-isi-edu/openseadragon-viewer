@@ -523,8 +523,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "rect":
                 case "foreignObject":
                     if(id !== "undefined"){
-                        console.log(document.getElementById(id));
-                        console.log(this.groups.hasOwnProperty(id));
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
                         // Create a new clone of the node and add it to the group as an annotation
                         // Cloning the node helps in keeping the original node intact and adding the text annotation
