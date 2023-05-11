@@ -14,6 +14,7 @@ function Text(attrs) {
     * We use the OSD viewer container size and the actual image size to calculate the ratio
     * This ratio will be used to obtain the font size of the text annotation that appears similar
     * to the font size on user's screen.
+    * Formula: mappingRatio = max(imageWidth/containerWidth, imageHeight/containerHeight)
     */
     var viewerParent = this.parent.parent.parent;
     var containerSize = viewerParent.osd.viewport.containerSize;
@@ -83,20 +84,22 @@ Text.prototype.transform = function () {
         divPadding = parseInt(divPadding.slice(0, divPadding.length - 2)) || 0;
         var divBorder = window.getComputedStyle(div, null).getPropertyValue('border').split(" ")[0];
         divBorder = parseInt(divBorder.slice(0, divBorder.length - 2)) || 0;
-        if(h){
+        if(h) {
             h = parseInt(h.slice(0, h.length - 2))
-        }
-        else{
+        } else {
             h = 0;
         }
-        if(w){
+        if(w) {
             w = parseInt(w.slice(0, w.length - 2))
-        }
-        else{
+        } else {
             w = 0;
         }
-        // We calculate the new position x and y of the transformed text p tag by taking into
-        // consideration the padding and border of the div element and the width and height of the textarea.
+        /* We calculate the new position x and y of the transformed text p tag by taking into
+        * consideration the padding and border of the div element and the width and height of the textarea.
+        * The code calculates the new position of text in a draggable div after transformation by considering previous width, 
+        * padding, and border attributes. This is necessary because the position before transformation differs from the actual 
+        * placement after transformation.
+        */
         foreignObj.setAttribute("x", this._attrs["x"] + w + divPadding + divBorder);
         foreignObj.setAttribute("y", this._attrs["y"] + h + divPadding + divBorder);
         foreignObj.setAttribute("tabindex", -1);
@@ -133,7 +136,7 @@ Text.prototype.createPTag = function (originalObj) {
     pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
     // Copy the font color of the textarea to the p tag
     pText.style.color = styleObj["color"];
-    // Adding the text-hover class to the p tag for the hover effect
+    // Adding the text-hover class to the p tag for the hover effect to highlight the text
     pText.classList.add("text-hover");
 
     // Override the default base.js event handlers for the text annotation
@@ -206,8 +209,9 @@ Text.prototype.removeText = function () {
         pText.removeEventListener("mouseover", this.onMouseoverShowTooltip);
         pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
     }
-
-    foreignObj.parentNode.removeChild(foreignObj);  
+    if(foreignObj.parentNode != null) {
+        foreignObj.parentNode.removeChild(foreignObj);  
+    }
 }
 
 /**
@@ -306,7 +310,9 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     * The padding is set to 4 times the stroke width to create a draggable area for the div
     */
     textOuterDiv.style.padding = (this.parent.getStrokeScale() * this._ratio * 4) + "px";
-    textOuterDiv.style.border = (this.parent.getStrokeScale() * this._ratio) + "px solid red";
+    textOuterDiv.style.borderWidth = (this.parent.getStrokeScale() * this._ratio) + "px";
+    textOuterDiv.style.borderStyle = "solid";
+    textOuterDiv.style.borderColor = this._attrs["stroke"];
     textInput.setAttribute("wrap", "hard");
 }
 

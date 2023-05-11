@@ -28,8 +28,6 @@ function AnnotationTool(parent){
             btnSubtype = "solid";
         }
 
-        // Function call to handle special functions for different annotation types
-        _self.handleAnnotationFunctions(btnType, btnSubtype);
 
         if (btnType == "HELP") {
             _self.dispatchEvent('openDrawingHelpPage');
@@ -206,6 +204,10 @@ function AnnotationTool(parent){
         if(_self.curType != "TEXT"){
             _self.elem.querySelector(".fontSizeInput").classList.add("hideElement");
         }
+        else {
+            // Function call to handle special functions for different annotation types
+            _self.handleTextAnnotationFunctions(mode, modeSubtype);
+        }
         
         switch(_self.curType){
             case "CURSOR":
@@ -281,7 +283,7 @@ function AnnotationTool(parent){
      * @param {*} type type of annotation
      * @param {*} subtype subtype of annotation
      */
-    this.handleAnnotationFunctions = function(type, subtype){
+    this.handleTextAnnotationFunctions = function(type, subtype){
 
         if(type === "TEXT"){    
 

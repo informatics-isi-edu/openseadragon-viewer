@@ -61,7 +61,6 @@ CSS for text annotation tool
 .foreign-object-div {
     display: inline-block;
     border: 100px solid red;
-    /* position: absolute; */
     padding: 500px;
     cursor: move;
     outline: none;
