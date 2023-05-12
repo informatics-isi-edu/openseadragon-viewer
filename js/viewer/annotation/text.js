@@ -224,6 +224,7 @@ Text.prototype.removeText = function () {
  */
 Text.prototype.addTextBox = function (groupId, importedObj) {
 
+
     // If a foreign object is to be imported from the loaded annotation
     if(importedObj != null) {
 
@@ -299,7 +300,18 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
         textInput.innerHTML = textInput.value;
     });
 
-    this.initResizeElement();
+    /*
+    * Safari does not support the absolute positioning property on the div inside the foregin object.
+    * If we set it to absolute, the foreign object will not be visible.
+    * Setting the absolute positioning is crucial for the positioning of the resize control on border.
+    * So, we are only setting the position absolute and adding the resize control for browsers other than Safari for now. 
+    * This is a temporary fix and we need to find a better solution for this.
+    */
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if(!isSafari) {
+        textOuterDiv.style.position = "absolute";
+        this.initResizeElement();
+    }
     this.initDragElement();
 
     textInput.style.height = this.textHeight + "px";
@@ -418,6 +430,7 @@ Text.prototype.initResizeElement = function () {
     bottomright.parentPopup = divCont;
     bottomright.style.height = this._attrs["font-size"] + "px";
     bottomright.style.width = this._attrs["font-size"] + "px";
+    bottomright.style.backgroundColor = this._attrs["stroke"];
     // To position the resize element exactly on the right border, we need to add a margin of 1/8th of the font size
     // to the left of the element, since the padding of the div is 4 times the stroke width
     bottomright.style["margin-left"] = this._attrs["font-size"] * 0.125 + "px";
