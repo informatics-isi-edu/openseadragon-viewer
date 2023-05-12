@@ -484,6 +484,9 @@ Text.prototype.initResizeElement = function () {
  */
 Text.prototype.updateTextColor = function (newColor) {
 
+    var foreignObj = this.getForeignObj();
+    if(foreignObj == null) return;
+    foreignObj.setAttribute("stroke", newColor);
     var text = this.getForeignObj().querySelector("p");
     if(text != null){
         text.style.color = newColor;
