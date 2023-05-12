@@ -59,7 +59,7 @@ function Viewer(parent, config) {
         // Disable the key shortcuts to move the image up, down, left and right.
         // This is to avoid the conflict with the text input by the user
         this.osd.innerTracker.keyHandler = null;
-        
+
         // show spinner while initializing the page
         this.resetSpinner(true);
 
@@ -169,7 +169,7 @@ function Viewer(parent, config) {
                         init: true
                     });
                 }
-                
+
                 // render the channel names
                 _self.renderChannelNamesOverlay();
 
@@ -194,7 +194,7 @@ function Viewer(parent, config) {
 
     /**
      * This function renders the Channel names on the OSD, inside the overlay container
-     * Since we have to find the proper fontsize and truncated name, we cannot just 
+     * Since we have to find the proper fontsize and truncated name, we cannot just
      * update one name while not affecting the rest. so each time that one channel
      * is toggled, we have to do the logic from start.
      */
@@ -224,15 +224,15 @@ function Viewer(parent, config) {
         }
 
         var fontSize = _self._utils.channelNamesOverlay.getFontSize(channelArray, divWidth);
-        
+
         overlayContainer.style.fontSize = fontSize + 'pt';
         overlayContainer.innerHTML = "";
 
         // update the channel names so that they can fit into the given space
         for (let i = 0; i < channelArray.length; i++) {
             channelArray[i][0] = _self._utils.channelNamesOverlay.getUpdatedChannelName(
-                channelArray[i][0], 
-                divWidth, 
+                channelArray[i][0],
+                divWidth,
                 fontSize
             );
         }
@@ -252,7 +252,7 @@ function Viewer(parent, config) {
                 spanContent.style.color = channelArray[end][1];
                 spanContent.innerHTML = channelArray[end][0];
                 lineContent.appendChild(spanContent);
-                
+
                 // attaching the element to the channel object, so we can just update its color
                 // instead of creating the overlay again
                 _self.channels[channelArray[end][2]].setOverlayElement(spanContent);
@@ -1514,18 +1514,30 @@ function Viewer(parent, config) {
         var svgAnnotation = this.svgCollection[svgID],
             savedState = this.savedAnnotationGroupStates[svgID][groupID];
 
+        // if this a already saved group, just remove it since it will be added by the following code
         if (svgAnnotation.groups[groupID]) {
             // remove all the annotations under the group
             svgAnnotation.groups[groupID].removeAllAnnotations();
 
-            
+            // remove the drawn svg element
+            svgAnnotation.groups[groupID].svg.remove();
+
             // delete the group
             delete svgAnnotation.groups[groupID];
         }
 
-        // add the saved state
-        var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
-        console.log(svgFile);
+        /**
+         * add the saved state to the displayed svg
+         *
+         * NOTE:
+         *   previously this used to use look like the following:
+         *     var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
+         *   but the produced svgFile would be a DOM element not SVG. some parts of the code
+         *   (foreignObject of text) needs a SVG element to work.
+         */
+        var svgFile = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgFile.innerHTML = savedState;
+
         svgAnnotation.parseSVGNodes(svgFile.childNodes);
 
         // make sure svg is rendered properly
