@@ -100,8 +100,10 @@ Text.prototype.transform = function () {
         * padding, and border attributes. This is necessary because the position before transformation differs from the actual 
         * placement after transformation.
         */
-        foreignObj.setAttribute("x", this._attrs["x"] + w + divPadding + divBorder);
-        foreignObj.setAttribute("y", this._attrs["y"] + h + divPadding + divBorder);
+        // foreignObj.setAttribute("x", this._attrs["x"] + w + divPadding + divBorder);
+        // foreignObj.setAttribute("y", this._attrs["y"] + h + divPadding + divBorder);
+        foreignObj.setAttribute("x",  w + divPadding + divBorder);
+        foreignObj.setAttribute("y", h + divPadding + divBorder);
         foreignObj.setAttribute("tabindex", -1);
         foreignObj.innerHTML = "";
         foreignObj.appendChild(pText);
@@ -283,9 +285,15 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     // that handles the text wrapping and resizing and other styling
     svgForeignObj.classList.add("foreign-object");
     textOuterDiv.classList.add("foreign-object-div");
+
     // Set the position of the foreign object
-    svgForeignObj.setAttribute("x", this._attrs["x"]);
-    svgForeignObj.setAttribute("y", this._attrs["y"]);
+    // svgForeignObj.setAttribute("x", this._attrs["x"]);
+    // svgForeignObj.setAttribute("y", this._attrs["y"]);
+    svgForeignObj.setAttribute("x", 0);
+    svgForeignObj.setAttribute("y", 0);
+    textOuterDiv.style.marginLeft = this._attrs["x"] + "px";
+    textOuterDiv.style.marginTop = this._attrs["y"] + "px";
+
     svgForeignObj.appendChild(textOuterDiv);
 
     var group = document.getElementById(groupId);
