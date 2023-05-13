@@ -355,9 +355,10 @@ Text.prototype.initDragElement = function () {
 
     var foreignObj = this.getForeignObj();
     var divCont = foreignObj.childNodes[0];    
-    var elmnt = null;
     var currentZIndex = 100;
     var _self = this;
+
+    // TODO review this logic
     divCont.onmousedown = function() {
         this.style.zIndex = "" + ++currentZIndex;
     };
@@ -368,8 +369,7 @@ Text.prototype.initDragElement = function () {
     // This function is called when the user clicks to start dragging the element
     function dragMouseDown(e) {
         e.stopImmediatePropagation();
-        elmnt = e.target;
-        elmnt.style.zIndex = "" + ++currentZIndex;
+        divCont.style.zIndex = "" + ++currentZIndex;
 
         e = e || window.event;
         // get the mouse cursor position at startup:
@@ -384,10 +384,6 @@ Text.prototype.initDragElement = function () {
 
     // This function is called when the user drags the element
     function elementDrag(e) {
-        if (!elmnt) {
-        return;
-        }
-
         e = e || window.event;
         // Calculate the new cursor position:
         pos1 = pos3 - e.clientX;
@@ -395,11 +391,8 @@ Text.prototype.initDragElement = function () {
         pos3 = e.clientX;
         pos4 = e.clientY;
         // Set the element's new position:
-        // elmnt.style.position = "absolute";
-        // elmnt.style.top = elmnt.offsetTop - _self._ratio * pos2 + "px";        
-        // elmnt.style.left = elmnt.offsetLeft - _self._ratio * pos1 + "px";
-        elmnt.style.marginLeft = elmnt.offsetLeft - _self._ratio * pos1 + "px";
-        elmnt.style.marginTop = elmnt.offsetTop - _self._ratio * pos2 + "px";
+        divCont.style.marginLeft = divCont.offsetLeft - _self._ratio * pos1 + "px";
+        divCont.style.marginTop = divCont.offsetTop - _self._ratio * pos2 + "px";
     }
 
     // This function is called when the user stops dragging the element
