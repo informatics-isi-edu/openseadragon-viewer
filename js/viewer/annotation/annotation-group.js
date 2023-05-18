@@ -23,11 +23,12 @@ function AnnotationGroup(id, anatomy, description, parent){
     /**
      * This function adds the given type of annotation to the annotation group.
      * @param {string} type - Type of the annotation.
-     * @param {string} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
-     * @param {object} annotAttrs - Attributes to be added to the annotation.
+     * @param {string?} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
+     * @param {object?} annotAttrs - Attributes to be added to the annotation.
+     * @param {object?} origSVGNode - a copy of svg node that is drawn (useful for foreignObject)
      * @returns 
      */
-    this.addAnnotation = function(type, subtype, annotAttrs){
+    this.addAnnotation = function(type, subtype, annotAttrs, origSVGNode){
 
         var annotation = null;
         var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
@@ -64,7 +65,7 @@ function AnnotationGroup(id, anatomy, description, parent){
             // Added to handle the import of text annotations
             case "FOREIGNOBJECT":
                 annotation = new Text(attrs);
-                annotation.addTextBox(this.id, subtype);
+                annotation.addTextBox(this.id, origSVGNode);
                 break;
             case "ARROWLINE":
                 // Create the marker definition and append it to the annotation group

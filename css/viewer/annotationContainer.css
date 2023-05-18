@@ -53,12 +53,12 @@
 CSS for text annotation tool 
 */
 
-.foreign-object {
+.text-foreign-object {
     text-align: left;
     overflow: visible;
 }
 
-.foreign-object-div {
+.text-foreign-object-div {
     display: inline-block;
     border: 100px solid red;
     padding: 500px;
@@ -70,14 +70,14 @@ CSS for text annotation tool
     cursor: move;
 }
 
-#textInput {
+.text-foreign-object-input {
     width: 100%;
     height: 100%;
     background: transparent;
     outline: none;
 }
 
-.resizer-bottomright { 
+.text-foreign-object-resizer-right { 
     background: red;
     z-index: 10;
     position: absolute !important;
@@ -87,7 +87,7 @@ CSS for text annotation tool
     cursor: ew-resize;
 }
 
-.foreign-object-div * {
+.text-foreign-object-div * {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -khtml-user-select: none; /* Konqueror HTML */

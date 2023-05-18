@@ -26,16 +26,18 @@ function Text(attrs) {
 
     // Foreign object that contains the annotation input and transformed text p tag
     this.foreignObj = null;
-    this.setForeignObj = function(obj) {
-        this.foreignObj = obj;
-    }
-    this.getForeignObj = function() {
-        return this.foreignObj;
-    }
 }
 
 Text.prototype = Object.create(Base.prototype);
 Text.prototype.constructor = Text;
+
+Text.prototype.setForeignObj = function(obj) {
+    this.foreignObj = obj;
+}
+
+Text.prototype.getForeignObj = function() {
+    return this.foreignObj;
+}
 
 Text.prototype.renderSVG = function () {
     // We do not need to render the text tag for the text annotation
@@ -64,20 +66,29 @@ Text.prototype.positionAnnotation = function (point) {
 
 /**
  * Function to transform the <textarea> input to <p> tag when annotation tool is switched.
+ * or will just remove the foreignObject is the textarea is empty.
  */
 Text.prototype.transform = function () {
 
+    var foreignObj = this.getForeignObj();
+    var div = foreignObj.childNodes[0];
+    const hasValue = div && div.childNodes[0] && div.childNodes[0].value && div.childNodes[0].value.trim() != "";
+
+    // if the textarea is empty, just remove the foreignObject
+    if (!hasValue) {
+        foreignObj.parentNode.removeChild(foreignObj);
+    } 
     // Transform only if the input is not empty
-    if(textInput.value && textInput.value.trim() != "") {
+    else {
+        var textInput = div.childNodes[0];
         var pText = this.createPTag(textInput);
-        var foreignObj = this.getForeignObj();
-        var div = foreignObj.childNodes[0];
+        
         var h = div.style.marginTop;
         var w = div.style.marginLeft;
-        // var h = div.style.top;
-        // var w = div.style.left;
-        foreignObj.style.width = pText.style.width;
-        foreignObj.style.height = pText.style.height;
+
+        foreignObj.setAttribute('width', pText.style.width);
+        foreignObj.setAttribute('height', pText.style.height);
+
         var divPadding = window.getComputedStyle(div, null).getPropertyValue('padding');
         // We obtain the padding and border of the div element to position the p tag correctly
         // Both properties have been defined in pixels while creating the textarea
@@ -100,8 +111,6 @@ Text.prototype.transform = function () {
         * padding, and border attributes. This is necessary because the position before transformation differs from the actual 
         * placement after transformation.
         */
-        // foreignObj.setAttribute("x", this._attrs["x"] + w + divPadding + divBorder);
-        // foreignObj.setAttribute("y", this._attrs["y"] + h + divPadding + divBorder);
         foreignObj.setAttribute("x",  w + divPadding + divBorder);
         foreignObj.setAttribute("y", h + divPadding + divBorder);
         foreignObj.setAttribute("tabindex", -1);
@@ -109,9 +118,6 @@ Text.prototype.transform = function () {
         foreignObj.appendChild(pText);
         pText.style.height = "fit-content";
         pText.style.width = "fit-content";
-    } else {
-        var foreignObj = this.getForeignObj();
-        foreignObj.parentNode.removeChild(foreignObj);
     }
 }
 
@@ -127,7 +133,16 @@ Text.prototype.createPTag = function (originalObj) {
     var _self = this;
     var pText = document.createElement("p");
     var inputValue = originalObj.value || originalObj.innerHTML;
-    // Replace all the new line characters with <br> tag to preserve the formatting
+
+    /**
+     * make sure the content of p tag stays withing the width, the same as textarea
+     */
+    pText.style.overflowWrap = "anywhere";
+
+    /**
+     * Replace all the new line characters with <br> tag to preserve the formatting
+     * this will make sure we're supporting multiple consecutive newlines
+     */
     pText.style.whiteSpace = "pre-wrap";
     inputValue = inputValue.replace(/\n/g, "<br />");
     pText.innerHTML = inputValue;
@@ -232,11 +247,13 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
         var styleObj = this.annotationUtils.styleStringToObject(importedObj.getAttribute("style"));
         
-        // Initialize the style of imported object
-        importedObj.style = {};
-
-        for(var key in styleObj) {
-            importedObj.style[key] = styleObj[key];
+        if (styleObj) {
+            // Initialize the style of imported object
+            importedObj.style = {};
+        
+            for(var key in styleObj) {
+                importedObj.style[key] = styleObj[key];
+            }   
         }
 
         // Assign all the attributes to the imported object
@@ -244,6 +261,10 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
             var attr = importedObj.attributes[i];
             importedObj.setAttribute(attr.name, attr.value);
         }
+
+        // this is hacky but I couldn't come up with a better way
+        // the parseSVGNodes is adding an id that we shouldn't attach to foreignObject
+        importedObj.removeAttribute('id');
 
         this.setForeignObj(importedObj);
         var pTag = this.createPTag(importedObj.childNodes[0]);
@@ -266,7 +287,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     this.changeFontSize(fontSize);
 
     // Set the attributes of the foreign object, div and textarea
-    textInput.setAttribute("id", "textInput");
+    textInput.setAttribute("class", "text-foreign-object-input");
     // Make the text area editable inside the foreign object in SVG by setting the contentEditable attribute
     textOuterDiv.setAttribute("contentEditable", "true");
     textInput.setAttribute("contentEditable", "true");
@@ -283,12 +304,10 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textOuterDiv.appendChild(textInput); 
     // Add the classes to the foreign object and the div for styling
     // that handles the text wrapping and resizing and other styling
-    svgForeignObj.classList.add("foreign-object");
-    textOuterDiv.classList.add("foreign-object-div");
+    svgForeignObj.classList.add("text-foreign-object");
+    textOuterDiv.classList.add("text-foreign-object-div");
 
     // Set the position of the foreign object
-    // svgForeignObj.setAttribute("x", this._attrs["x"]);
-    // svgForeignObj.setAttribute("y", this._attrs["y"]);
     svgForeignObj.setAttribute("x", 0);
     svgForeignObj.setAttribute("y", 0);
     textOuterDiv.style.marginLeft = this._attrs["x"] + "px";
@@ -300,7 +319,10 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     group.appendChild(svgForeignObj);
     group.setAttribute("contentEditable", "true");
 
-    // Add event listeners to the textarea for input
+    /**
+     * Add event listeners to the textarea for input
+     * - update the the height
+     */
     textInput.addEventListener("keydown", function (e) {
         prev = this.textHeight;
         this.style.height = (this.scrollHeight) + "px";
@@ -352,6 +374,13 @@ Text.prototype.changeFontSize = function (fontSize) {
     textInput.style.fontSize = this._ratio * fontSize + "px";
     textInput.style.height = "1px";
     textInput.style.height = textInput.scrollHeight + "px";
+
+    // update the size of resize button
+    const bottomright = document.querySelector('.text-foreign-object-resizer-right');
+    if (bottomright) {
+        bottomright.style.height = this._attrs["font-size"] + "px";
+        bottomright.style.width = this._attrs["font-size"] + "px";
+    }
 }
 
 /*
@@ -418,17 +447,16 @@ Text.prototype.initResizeElement = function () {
 
     var foreignObj = this.getForeignObj();
     var divCont = foreignObj.childNodes[0];
-    var element = null;
     var startX, startY, startWidth, startHeight;
     
     // Create the resize element for the text input
     bottomright = document.createElement("div");
-    bottomright.className = "resizer-bottomright";
+    bottomright.className = "text-foreign-object-resizer-right";
     divCont.appendChild(bottomright);
 
     // Add event listeners to the resize element
     bottomright.addEventListener("mousedown", initDrag, false);
-    bottomright.parentPopup = divCont;
+    // bottomright.parentPopup = divCont;
     bottomright.style.height = this._attrs["font-size"] + "px";
     bottomright.style.width = this._attrs["font-size"] + "px";
     bottomright.style.backgroundColor = this._attrs["stroke"];
@@ -439,20 +467,13 @@ Text.prototype.initResizeElement = function () {
     // Function to intialize the resize movement of the text input
     function initDrag(e) {
         e.stopImmediatePropagation();
-        element = this.parentPopup;
         resizer = e.target.className;
 
         startX = e.clientX;
         startY = e.clientY;
         // Get the current width and height of the text input
-        startWidth = parseInt(
-        document.defaultView.getComputedStyle(element).width,
-        10
-        );
-        startHeight = parseInt(
-        document.defaultView.getComputedStyle(element).height,
-        10
-        );
+        startWidth = parseInt(document.defaultView.getComputedStyle(divCont).width, 10);
+        startHeight = parseInt(document.defaultView.getComputedStyle(divCont).height, 10);
 
         document.documentElement.addEventListener("mousemove", doDrag, false);
         document.documentElement.addEventListener("pointerup", stopDrag, false);
@@ -462,9 +483,9 @@ Text.prototype.initResizeElement = function () {
     // Function to change the size of the text input
     function doDrag(e) {
         e.stopImmediatePropagation();
-        element.style.position = "absolute";
+        divCont.style.position = "absolute";
         // Change the width of the text input based on the mouse movement
-        element.style.width = startWidth + 30 * (e.clientX - startX) + "px";
+        divCont.style.width = startWidth + 30 * (e.clientX - startX) + "px";
         var textArea = divCont.querySelector("textarea");
         textArea.style.height = "1px";
         textArea.style.height = textArea.scrollHeight + "px";

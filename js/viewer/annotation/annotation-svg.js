@@ -528,8 +528,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                         // Cloning the node helps in keeping the original node intact and adding the text annotation
                         // as a foreignObject
                         var newNode = node.cloneNode(true);
-                        // newNode.childNodes[0].setAttribute("style", newNode.childNodes[0].getAttribute("style"));
-                        annotation = group.addAnnotation(node.nodeName, newNode);
+                        annotation = group.addAnnotation(node.nodeName, null, null, newNode);
                         annotation.setAttributesByJSON(this.getNodeAttributes(newNode));
                         annotation.renderSVG(this);
                     }
