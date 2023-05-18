@@ -445,8 +445,9 @@ Text.prototype.initDragElement = function () {
  */
 Text.prototype.initResizeElement = function () {
 
-    var foreignObj = this.getForeignObj();
-    var divCont = foreignObj.childNodes[0];
+    const _self = this;
+    const foreignObj = this.getForeignObj();
+    const divCont = foreignObj.childNodes[0];
     var startX, startY, startWidth, startHeight;
     
     // Create the resize element for the text input
@@ -485,7 +486,7 @@ Text.prototype.initResizeElement = function () {
         e.stopImmediatePropagation();
         divCont.style.position = "absolute";
         // Change the width of the text input based on the mouse movement
-        divCont.style.width = startWidth + 30 * (e.clientX - startX) + "px";
+        divCont.style.width = startWidth + _self._ratio * (e.clientX - startX) + "px";
         var textArea = divCont.querySelector("textarea");
         textArea.style.height = "1px";
         textArea.style.height = textArea.scrollHeight + "px";

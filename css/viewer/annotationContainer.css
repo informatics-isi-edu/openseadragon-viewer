@@ -75,6 +75,8 @@ CSS for text annotation tool
     height: 100%;
     background: transparent;
     outline: none;
+    border: none;
+    resize: none;
 }
 
 .text-foreign-object-resizer-right { 
