@@ -52,11 +52,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             
             // Find corresponding group
             group = this.groups[groupID];
-
+ 
             annotation = group.addAnnotation(type, subtype, attrs);
             annotation.renderSVG(group);
             annotation.setupDrawingAttrs(attrs);
-
+            this.prevAnnotation = annotation;
             this.dispatchEvent("onDrawingBegin", {
                 svgID : this.id,
                 groupID : groupID,
@@ -69,6 +69,7 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 subtype: subtype,
                 attrs : attrs
             })
+
         }
     }
 
@@ -199,6 +200,17 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             if(this.currentGroupID == groupID){
                 this.groups[groupID].highlightAll();
             }
+        }
+    }
+
+    /**
+     * Change the size of the text annotation input.
+     * @param {data} Object that contains the changed font-size
+     * @param {textAnnotation} The text annotation that is being edited
+     */
+    this.changeTextSize = function (data, textAnnotation) {
+        if(textAnnotation){
+            textAnnotation.changeFontSize(data.fontSize);
         }
     }
 
@@ -340,7 +352,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
 
         // Parsing child nodes in SVG
         var svgElems = svgFile.childNodes || [];
-
         for (var i = 0; i < svgElems.length; i++) {
 
             if (!svgElems[i].getAttribute) { continue; }
@@ -363,6 +374,8 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "rect":
                 case "line":
                 case "arrowline":
+                // To handle the parsing of the text annotation when imported from the svg file
+                case "foreignObject":
                     this.parseSVGNodes([node], styleSheet, node);
                     break;
                 // Added the defs case to handle the definition of markers. We just skip the definition as
@@ -478,11 +491,9 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
             parentNode = {};
         }
 
-
         for (var i = 0; i < nodes.length; i++) {
 
             if (!nodes[i].getAttribute) { continue; }
-
             var node = nodes[i];
             var id = this.getNodeID(node, parentNode);
             node.setAttribute("id", id);
@@ -501,7 +512,6 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 node.setAttribute(attr, attrs[attr]);
             }
             // var attrs = styleSheet[className] ? JSON.parse(JSON.stringify(styleSheet[className])) : {};
-
             switch (node.nodeName) {
                 case "g":
                     this.parseSVGNodes(node.childNodes, styleSheet, node);
@@ -511,10 +521,15 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
                 case "polyline":
                 case "polygon":
                 case "rect":
+                case "foreignObject":
                     if(id !== "undefined"){
                         group = this.groups.hasOwnProperty(id) ? this.groups[id] : this.createAnnotationGroup(id, anatomy);
-                        annotation = group.addAnnotation(node.nodeName);
-                        annotation.setAttributesByJSON(this.getNodeAttributes(node));
+                        // Create a new clone of the node and add it to the group as an annotation
+                        // Cloning the node helps in keeping the original node intact and adding the text annotation
+                        // as a foreignObject
+                        var newNode = node.cloneNode(true);
+                        annotation = group.addAnnotation(node.nodeName, null, null, newNode);
+                        annotation.setAttributesByJSON(this.getNodeAttributes(newNode));
                         annotation.renderSVG(this);
                     }
                     break;
@@ -588,11 +603,11 @@ function AnnotationSVG(parent, id, imgWidth, imgHeight, scale, ignoreReferencePo
     }
 
     // Remove annotation from a group
-    this.removeAnnotationByGraphID = function(groupID, graphID){
+    this.removeAnnotationByGraphID = function(groupID, graphID, userData){
+
         if(this.groups.hasOwnProperty(groupID)){
             var group = this.groups[groupID];
-
-            group.removeAnnotationByID(graphID);
+            group.removeAnnotationByID(graphID, userData);
         }
     }
 

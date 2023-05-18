@@ -71,6 +71,10 @@ var OSDViewer = (function (_config) {
             case "zoomOut":
                 viewer.zoomOut();
                 break;
+            // Text annotation input font size change
+            case "changeTextSize":
+                viewer.dispatchSVGEvent(type, data);
+                break;
             // [Events from Viewer]
             // Send the updated annotation list to toolbar
             case "updateAnnotationList":

@@ -23,11 +23,13 @@ function AnnotationGroup(id, anatomy, description, parent){
     /**
      * This function adds the given type of annotation to the annotation group.
      * @param {string} type - Type of the annotation.
-     * @param {string} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
-     * @param {object} annotAttrs - Attributes to be added to the annotation.
+     * @param {string?} subtype - Subtype of the annotation, for example the type of arrowhead for arrowline annotation.
+     * @param {object?} annotAttrs - Attributes to be added to the annotation.
+     * @param {object?} origSVGNode - a copy of svg node that is drawn (useful for foreignObject)
      * @returns 
      */
-    this.addAnnotation = function(type, subtype, annotAttrs){
+    this.addAnnotation = function(type, subtype, annotAttrs, origSVGNode){
+
         var annotation = null;
         var graphID = Date.parse(new Date()) + parseInt(Math.random() * 10000);
         var attrs = {
@@ -53,9 +55,21 @@ function AnnotationGroup(id, anatomy, description, parent){
             case "LINE":
                 annotation = new Line(attrs);
                 break;
+            case "TEXT":
+                // Add the image width, height and stroke color to the text annotation attributes
+                attrs["x"] = this.parent.imgWidth;
+                attrs["y"] = this.parent.imgHeight;
+                attrs["stroke"] = annotAttrs.stroke;
+                annotation = new Text(attrs);
+                break;
+            // Added to handle the import of text annotations
+            case "FOREIGNOBJECT":
+                annotation = new Text(attrs);
+                annotation.addTextBox(this.id, origSVGNode);
+                break;
             case "ARROWLINE":
                 // Create the marker definition and append it to the annotation group
-                group = document.getElementById(this.id);
+                var group = document.getElementById(this.id);
                 // Check if marker ID already exists which would be the case while importing saved annotation or create a new one
                 markerID = annotAttrs["data-markerid"] || "arrowmarker-" + annotAttrs.stroke.slice(1) + parseInt(Math.random() * 100000000);
                 if(group != null) {
@@ -82,6 +96,7 @@ function AnnotationGroup(id, anatomy, description, parent){
 
         return annotation;
     }
+
 
     /**
      * This function creates the marker definition needed for the arrowline annotation tool.
@@ -237,6 +252,7 @@ function AnnotationGroup(id, anatomy, description, parent){
         if (rst.length === 0) {
             return "";
         }
+
         return "<g id='" + this.id + "'>" + rst.join("") + "</g>";
     }
 
@@ -294,13 +310,18 @@ function AnnotationGroup(id, anatomy, description, parent){
                 return true;
             }
         })
-
         if(!annotation){
             return
         }
 
         // remove annotation object from the collection
         this.annotations.splice(index, 1);
+
+        // Text annotation requires different methods to remove annotation
+        if(annotation._tag == "text"){
+            annotation.removeText();
+            return;
+        }
 
         // remove event handlers for the annotation
         annotation.unbind();
@@ -312,6 +333,13 @@ function AnnotationGroup(id, anatomy, description, parent){
     // Remove all annotations
     this.removeAllAnnotations = function(){
         this.annotations.forEach(function (annotation) {
+
+            // Text annotation requires different methods to remove annotation
+            if(annotation._tag == "text"){
+                annotation.removeText();
+                return;
+            }
+
             // remove event handlers for the annotation
             annotation.unbind();
 
@@ -419,6 +447,11 @@ function AnnotationGroup(id, anatomy, description, parent){
             // If the annotation is an arrowline, change the color of the arrowhead marker definition
             if(annotation._tag == "line" && annotation._attrs["data-subtype"] != null){
                 _self.changeArrowStroke(groupID, stroke)
+            }
+
+            // If the annotation is a textbox
+            if(annotation._tag == "text"){
+                annotation.updateTextColor(stroke);
             }
             // render the SVG after changing the color so that the new color is reflected in the viewer
             annotation.renderSVG();

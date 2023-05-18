@@ -36,6 +36,7 @@ function Viewer(parent, config) {
 
     // This boolean variable controls whether to show Channel names over the OSD or not.
     this._showChannelNamesOverlay = false;
+    this._lastDrawnAnnotation = null;
 
     // Init
     this.init = function (utils, params) {
@@ -54,6 +55,10 @@ function Viewer(parent, config) {
 
         // configure osd
         this.osd = OpenSeadragon(this.config.osd);
+
+        // Disable the key shortcuts to move the image up, down, left and right.
+        // This is to avoid the conflict with the text input by the user
+        this.osd.innerTracker.keyHandler = null;
 
         // show spinner while initializing the page
         this.resetSpinner(true);
@@ -164,7 +169,7 @@ function Viewer(parent, config) {
                         init: true
                     });
                 }
-                
+
                 // render the channel names
                 _self.renderChannelNamesOverlay();
 
@@ -189,7 +194,7 @@ function Viewer(parent, config) {
 
     /**
      * This function renders the Channel names on the OSD, inside the overlay container
-     * Since we have to find the proper fontsize and truncated name, we cannot just 
+     * Since we have to find the proper fontsize and truncated name, we cannot just
      * update one name while not affecting the rest. so each time that one channel
      * is toggled, we have to do the logic from start.
      */
@@ -219,15 +224,15 @@ function Viewer(parent, config) {
         }
 
         var fontSize = _self._utils.channelNamesOverlay.getFontSize(channelArray, divWidth);
-        
+
         overlayContainer.style.fontSize = fontSize + 'pt';
         overlayContainer.innerHTML = "";
 
         // update the channel names so that they can fit into the given space
         for (let i = 0; i < channelArray.length; i++) {
             channelArray[i][0] = _self._utils.channelNamesOverlay.getUpdatedChannelName(
-                channelArray[i][0], 
-                divWidth, 
+                channelArray[i][0],
+                divWidth,
                 fontSize
             );
         }
@@ -247,7 +252,7 @@ function Viewer(parent, config) {
                 spanContent.style.color = channelArray[end][1];
                 spanContent.innerHTML = channelArray[end][0];
                 lineContent.appendChild(spanContent);
-                
+
                 // attaching the element to the channel object, so we can just update its color
                 // instead of creating the overlay again
                 _self.channels[channelArray[end][2]].setOverlayElement(spanContent);
@@ -422,13 +427,22 @@ function Viewer(parent, config) {
                 break;
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
-                // alert("view start drawing")
-                var tracker = new OpenSeadragon.MouseTracker({
-                    element: _self.svg,
-                    dragHandler: this.onMouseDragToDraw,
-                    dragEndHandler: this.onMouseDragToDrawEnd,
-                    userData: data
-                });
+                var tracker;
+                if(data.type.toUpperCase() == "TEXT"){
+                    tracker = new OpenSeadragon.MouseTracker({
+                        element: _self.svg,
+                        clickHandler: this.onMouseClickToDrawText,
+                        userData: data
+                    });
+                }
+                else{
+                    tracker = new OpenSeadragon.MouseTracker({
+                        element: _self.svg,
+                        dragHandler: this.onMouseDragToDraw,
+                        dragEndHandler: this.onMouseDragToDrawEnd,
+                        userData: data
+                    });
+                }
                 _self.mouseTrackers.push(tracker);
                 break;
             case "updateSVGId":
@@ -525,12 +539,16 @@ function Viewer(parent, config) {
                 break;
             // Remove annotation object from a group
             case "removeAnnotationByGraphID":
-                svg.removeAnnotationByGraphID(data.groupID, data.graphID);
+                svg.removeAnnotationByGraphID(data.groupID, data.graphID, data.userData);
                 this.dispatchEvent("onMouseoutHideTooltip");
                 break;
             // Set annotation groups attributes
             case "setGroupAttributes":
                 svg.setGroupAttributes(data);
+                break;
+            // Handle the text annotation input size change
+            case "changeTextSize":
+                svg.changeTextSize(data, this._lastDrawnAnnotation);
                 break;
             default:
                 break;
@@ -1032,6 +1050,65 @@ function Viewer(parent, config) {
             .remove();
     }
 
+    /**
+     * Handle the user click to position the text annotation at a position
+     * @param {event} contains the event information and other custom data
+     */
+    this.onMouseClickToDrawText = function(event){
+
+        // If the user is drawing a new text annotation, then we need to
+        // transform the previous text annotation and remove text input
+        if(_self._lastDrawnAnnotation != null){
+            _self._lastDrawnAnnotation.transform();
+        }
+
+        _self._lastDrawnAnnotation = event.userData.annotation;
+
+        var annotation = event.userData.annotation;
+        var viewBox = event.userData.viewBox;
+        var scaleX = event.userData.imgScaleX || 1;
+        var scaleY = event.userData.imgScaleY || 1;
+        var view_coords = _self.osd.viewport.viewerElementToViewportCoordinates(new OpenSeadragon.Point(event.position.x, event.position.y));
+        var img_coords = _self.osd.viewport.viewportToImageCoordinates(view_coords);
+
+        img_coords.x = viewBox[0] + (img_coords.x * scaleX);
+        img_coords.y = viewBox[1] + (img_coords.y * scaleY);
+
+        annotation.positionAnnotation(img_coords);
+        annotation.addTextBox(event.userData.groupID);
+
+        // Remove the mouse tracker after the user has clicked
+        // as we don't need it anymore. A new one will be created
+        if (_self.mouseTrackers.length > 0) {
+            setTimeout(function () {
+                _self.mouseTrackers[0].destroy();
+                _self.mouseTrackers.shift();
+            }, 300)
+        }
+
+        event.userData.annotation.setDrawing(false);
+
+        var svgID = event.userData.svgID;
+        var groupID = event.userData.groupID;
+        var type = event.userData.type;
+        var subtype = event.userData.subtype;
+        var attrs = event.userData.attrs || {};
+
+        if (_self.svgCollection[svgID] && _self.svgCollection[svgID].groups[groupID]) {
+            event.userData.annotation = _self.svgCollection[svgID].groups[groupID].addAnnotation(type, subtype, attrs);
+            event.userData.annotation.setupDrawingAttrs(attrs);
+            event.userData.graphID = event.userData.annotation.id;
+
+            var mousetracker = new OpenSeadragon.MouseTracker({
+                        element: _self.svg,
+                        clickHandler: _self.onMouseClickToDrawText,
+                        userData: event.userData
+                    });
+
+            _self.mouseTrackers.push(mousetracker);
+        }
+    }
+
     // Drag to draw event handler start
     this.onMouseDragToDraw = function(event){
         var annotation = event.userData.annotation;
@@ -1086,7 +1163,6 @@ function Viewer(parent, config) {
 
             _self.mouseTrackers.push(mousetracker);
         }
-        // _self.destoryMouseTracker();
     }
 
     // Pan to specific location
@@ -1150,19 +1226,23 @@ function Viewer(parent, config) {
     }
 
     // Remove mouse trackers for drawing
-    this.removeMouseTrackers = function(data){
+    this.removeMouseTrackers = function(data) {
 
+        if(_self._lastDrawnAnnotation != null){
+            _self._lastDrawnAnnotation.transform();
+            _self._lastDrawnAnnotation = null;
+        }
         if(this.mouseTrackers.length > 0){
 
             while(this.mouseTrackers.length > 0){
                 var tracker = this.mouseTrackers.shift();
                 var userData = tracker.userData;
-
-                if(userData && userData.type != 'POLYGON'){
+                if(userData && (userData.type != 'POLYGON')){
                     this.dispatchSVGEvent("removeAnnotationByGraphID", {
                         svgID : userData.svgID,
                         groupID : userData.groupID,
-                        graphID : userData.graphID
+                        graphID : userData.graphID,
+                        userData: userData
                     })
                 }
 
@@ -1434,16 +1514,30 @@ function Viewer(parent, config) {
         var svgAnnotation = this.svgCollection[svgID],
             savedState = this.savedAnnotationGroupStates[svgID][groupID];
 
+        // if this a already saved group, just remove it since it will be added by the following code
         if (svgAnnotation.groups[groupID]) {
             // remove all the annotations under the group
             svgAnnotation.groups[groupID].removeAllAnnotations();
+
+            // remove the drawn svg element
+            svgAnnotation.groups[groupID].svg.remove();
 
             // delete the group
             delete svgAnnotation.groups[groupID];
         }
 
-        // add the saved state
-        var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
+        /**
+         * add the saved state to the displayed svg
+         *
+         * NOTE:
+         *   previously this used to use look like the following:
+         *     var svgFile = new DOMParser().parseFromString(savedState, "image/svg+xml");
+         *   but the produced svgFile would be a DOM element not SVG. some parts of the code
+         *   (foreignObject of text) needs a SVG element to work.
+         */
+        var svgFile = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgFile.innerHTML = savedState;
+
         svgAnnotation.parseSVGNodes(svgFile.childNodes);
 
         // make sure svg is rendered properly

@@ -47,3 +47,58 @@
 #channel-names-overlay-container .channel-label-overlay.visible {
     display: inline-block;
 }
+
+
+/* 
+CSS for text annotation tool 
+*/
+
+.text-foreign-object {
+    text-align: left;
+    overflow: visible;
+}
+
+.text-foreign-object-div {
+    display: inline-block;
+    border: 100px solid red;
+    padding: 500px;
+    cursor: move;
+    outline: none;
+}
+
+.insideforeign:hover {
+    cursor: move;
+}
+
+.text-foreign-object-input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    outline: none;
+}
+
+.text-foreign-object-resizer-right { 
+    background: red;
+    z-index: 10;
+    position: absolute !important;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 100%;
+    cursor: ew-resize;
+}
+
+.text-foreign-object-div * {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+}
+
+/* Text highlight */
+.text-hover:hover {
+    font-weight: 900;
+    cursor: pointer;
+}

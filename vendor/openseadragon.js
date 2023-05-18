@@ -5058,7 +5058,6 @@ $.EventSource.prototype = {
      */
     function onMouseDown( tracker, event ) {
         var gPoint;
-
         event = $.getEvent( event );
 
         gPoint = {

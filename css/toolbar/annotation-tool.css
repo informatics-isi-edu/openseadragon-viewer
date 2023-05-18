@@ -110,3 +110,107 @@
     visibility: visible;
     flex: 0 0 100%;
 }
+
+.textOptions {
+    display: flex;
+}
+
+.fontInput {
+    width: 6em;
+    background: #407ccb;
+    opacity: 1;
+    border: none;
+    color: white;
+    display: block;
+}
+
+.hideElement {
+    display: none !important; 
+}
+
+.fontInput::placeholder {
+    color: white;
+}
+
+/* Font input */
+.fontSizeInput {
+    display: flex;
+    align-items: center;
+    width: 200px;
+}
+
+.fontInput {
+    padding: 8px;
+    width: 42px;
+    text-align: center;
+}
+
+.decreaseFontSize,
+.increaseFontSize {
+    padding: 8px;
+    background: #407ccb;
+    opacity: 1;
+    border: none;
+    color: white;
+    display: block;
+    cursor: pointer;
+}
+
+.decreaseFontSize:hover,
+.increaseFontSize:hover {
+    background-color: #18548d;  
+}
+
+.decreaseFontSize:active,
+.increaseFontSize:active {
+    background-color: #18548d;
+    color: #fff;
+}
+
+.textOptions span {
+    padding: 9px;
+}
+
+.fontSelection {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.fontSizeValue {
+    position: absolute;
+    top: 100%;
+}
+
+.fontSizeValue div {
+    background: #407ccb;
+    width: 42px;
+    text-align: center;
+    padding: 2px 0;
+    opacity: 1;
+    border: none;
+    color: white;
+    display: block;
+    cursor: pointer;
+}
+
+.fontSizeValue div:hover {
+    background-color: #18548d;
+
+}
+
+/* Chrome, Safari, Edge, Opera */
+.fontInput::-webkit-outer-spin-button,
+.fontInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+.fontInput[type=number] {
+    -moz-appearance: textfield;
+}
+
+.textOptions span {
+    padding: 9px !important;
+}
