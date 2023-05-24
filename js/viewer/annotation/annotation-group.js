@@ -73,7 +73,7 @@ function AnnotationGroup(id, anatomy, description, parent){
                 // Check if marker ID already exists which would be the case while importing saved annotation or create a new one
                 markerID = annotAttrs["data-markerid"] || "arrowmarker-" + annotAttrs.stroke.slice(1) + parseInt(Math.random() * 100000000);
                 if(group != null) {
-                   marker = this.addMarkerDef(markerID, annotAttrs.stroke, subtype, true);
+                   marker = this.addMarkerDef(markerID, annotAttrs.stroke, subtype, false);
                    if(marker["defs"] != null){
                      group.appendChild(marker["defs"]);
                    }
@@ -104,14 +104,14 @@ function AnnotationGroup(id, anatomy, description, parent){
      * @param {string} markerID - Unique ID that helps the line SVG element to reference the definition in the URL.
      * @param {string} stroke - RGB stroke of the arrowhead
      * @param {string} subtype - Type of the arrowhead.
-     * @param {boolean} checkExists - A flag to skip checking if the definition already exists, useful while exporting the SVG.
+     * @param {boolean} isExport - whether this is for export or not
      * @returns {object} The object consists of the marker definition and the marker ID.
      */
-    this.addMarkerDef = function (markerID, stroke, subtype, checkExists = true) {
+    this.addMarkerDef = function (markerID, stroke, subtype, isExport) {
 
         // Check if a definition for the subtype arrowhead already exists in the group
         // Returns the marker ID if a definition already exists
-        if(checkExists){
+        if(!isExport){
             defCollection = document.getElementById(this.id).getElementsByTagName("defs");
             for(def of defCollection) {
     
@@ -181,6 +181,14 @@ function AnnotationGroup(id, anatomy, description, parent){
                 break;
         }
         
+        /**
+         * This property is needed. otherwise, in firefox, the overflown
+         * arrowhead will not be fully visible and they will be clipped.
+         */
+        if (arrowhead && !isExport) {
+            arrowhead.setAttributeNS(null, "vector-effect", this.parent.parent.config.constants.DEFAULT_SVG_VECTOR_EFFECT);
+        }
+
         marker.appendChild(arrowhead);
         defs.appendChild(marker);
         return {
@@ -237,7 +245,7 @@ function AnnotationGroup(id, anatomy, description, parent){
 
             // If annotation is an arrowline, then create a marker definition and add it to the export string
             if(annot._tag == "line" && annot._attrs["marker-end"] != null && annot._subtype != null && (!markerDefs.has(annot._subtype))){
-                defs = _self.addMarkerDef(annot._attrs["data-markerid"], annot._attrs["stroke"], annot._subtype, false);
+                defs = _self.addMarkerDef(annot._attrs["data-markerid"], annot._attrs["stroke"], annot._subtype, true);
                 markerDef = defs["defs"].outerHTML;
                 rst.push(markerDef);
                 // Add the arrowhead type to the set to keep track of exported definitions
