@@ -412,11 +412,16 @@ Text.prototype.initDragElement = function () {
         // get the mouse cursor position at startup:
         pos3 = e.clientX;
         pos4 = e.clientY;
-        divCont.onmouseup = closeDragElement;
-        divCont.onpointerup = closeDragElement;
-        divCont.onmouseleave = closeDragElement;
-        // call a function whenever the cursor moves:
-        document.onmousemove = elementDrag;
+
+        /**
+         * we have to add this event to the whole page and not the div.
+         * this way even if the cursor goes outside the div it's still considered a valid drag. we should only stop the 
+         * drag when users actaully stops dragging (regardles of where the cursor is)
+         */
+        document.addEventListener('pointerup', closeDragElement);
+          
+        // handle dragging 
+        document.addEventListener('pointermove', elementDrag);
     }
 
     // This function is called when the user drags the element
@@ -434,9 +439,8 @@ Text.prototype.initDragElement = function () {
 
     // This function is called when the user stops dragging the element
     function closeDragElement(e) {
-        document.onmouseup = null;
-        document.onmousemove = null;
-        document.onpointerup = null;
+        document.removeEventListener('pointerup', closeDragElement);
+        document.removeEventListener('pointermove', elementDrag);
     }
 }
 
