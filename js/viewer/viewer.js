@@ -427,6 +427,8 @@ function Viewer(parent, config) {
                 break;
             // Create mousetracker to begin drawing
             case "onDrawingBegin":
+                // show the + icon to indicate that we are now in drawing mode.
+                this.svg.style.cursor = 'crosshair';
                 var tracker;
                 if(data.type.toUpperCase() == "TEXT"){
                     tracker = new OpenSeadragon.MouseTracker({
@@ -1435,9 +1437,13 @@ function Viewer(parent, config) {
         switch(data.mode){
             case modes.ERASE_ANNOTATIONS:
                 _self.mode = modes.ERASE_ANNOTATIONS;
+                // during drawing we're changing the cursor, and this will ensure to undo that change.
+                this.svg.style.cursor = 'auto';
                 break;
             case modes.VIEW:
                 _self.mode = modes.VIEW;
+                // during drawing we're changing the cursor, and this will ensure to undo that change.
+                this.svg.style.cursor = 'auto';
                 break;
         }
     }

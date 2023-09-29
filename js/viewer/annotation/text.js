@@ -26,6 +26,12 @@ function Text(attrs) {
 
     // Foreign object that contains the annotation input and transformed text p tag
     this.foreignObj = null;
+
+    /**
+     * whether user is actively resizing the textbox or not.
+     * if they are, we should avoid moving it at the same time.
+     */
+    this.isResizing = false;
 }
 
 Text.prototype = Object.create(Base.prototype);
@@ -61,7 +67,7 @@ Text.prototype.positionAnnotation = function (point) {
     _self.setAttributesByJSON(updateAttrs);
     _self.renderSVG();
 };
-      
+
 
 
 /**
@@ -77,12 +83,12 @@ Text.prototype.transform = function () {
     // if the textarea is empty, just remove the foreignObject
     if (!hasValue) {
         foreignObj.parentNode.removeChild(foreignObj);
-    } 
+    }
     // Transform only if the input is not empty
     else {
         var textInput = div.childNodes[0];
         var pText = this.createPTag(textInput);
-        
+
         var h = div.style.marginTop;
         var w = div.style.marginLeft;
 
@@ -107,8 +113,8 @@ Text.prototype.transform = function () {
         }
         /* We calculate the new position x and y of the transformed text p tag by taking into
         * consideration the padding and border of the div element and the width and height of the textarea.
-        * The code calculates the new position of text in a draggable div after transformation by considering previous width, 
-        * padding, and border attributes. This is necessary because the position before transformation differs from the actual 
+        * The code calculates the new position of text in a draggable div after transformation by considering previous width,
+        * padding, and border attributes. This is necessary because the position before transformation differs from the actual
         * placement after transformation.
         */
         foreignObj.setAttribute("x",  w + divPadding + divBorder);
@@ -196,7 +202,7 @@ Text.prototype.createPTag = function (originalObj) {
             y : e.pageY
         });
     }
-    
+
     pText.addEventListener("click", _self.onClickToSelectAnnotation);
     pText.addEventListener("mouseover", _self.onMouseoverShowTooltip);
     pText.addEventListener("mousemove", _self.onMousemoveShowTooltip);
@@ -227,7 +233,7 @@ Text.prototype.removeText = function () {
         pText.removeEventListener("mouseout", this.onMouseoutHideTooltip);
     }
     if(foreignObj.parentNode != null) {
-        foreignObj.parentNode.removeChild(foreignObj);  
+        foreignObj.parentNode.removeChild(foreignObj);
     }
 }
 
@@ -235,9 +241,9 @@ Text.prototype.removeText = function () {
  * This function adds a textbox to the SVG group. It adds a foreignObject > div > textarea.
  * If an importedObj exists, the function replaces the foreign object with the foreign object
  * of imported annotation.
- * @param {*} groupId 
+ * @param {*} groupId
  * @param {*} importedObj - The foreign object from the imported annotation.
- * @returns 
+ * @returns
  */
 Text.prototype.addTextBox = function (groupId, importedObj) {
 
@@ -246,14 +252,14 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     if(importedObj != null) {
 
         var styleObj = this.annotationUtils.styleStringToObject(importedObj.getAttribute("style"));
-        
+
         if (styleObj) {
             // Initialize the style of imported object
             importedObj.style = {};
-        
+
             for(var key in styleObj) {
                 importedObj.style[key] = styleObj[key];
-            }   
+            }
         }
 
         // Assign all the attributes to the imported object
@@ -282,7 +288,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     var textOuterDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
     var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
     this.setForeignObj(svgForeignObj);
-    
+
     fontSize = document.querySelector(".fontInput").value;
     this.changeFontSize(fontSize);
 
@@ -301,7 +307,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     // Set the height of the foreign object to be 100 times the font size
     // This would later adjust according the font size of the text
     svgForeignObj.setAttribute("height", this._attrs["font-size"] * 100 + "px");
-    textOuterDiv.appendChild(textInput); 
+    textOuterDiv.appendChild(textInput);
     // Add the classes to the foreign object and the div for styling
     // that handles the text wrapping and resizing and other styling
     svgForeignObj.classList.add("text-foreign-object");
@@ -334,7 +340,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     * Safari does not support the absolute positioning property on the div inside the foregin object.
     * If we set it to absolute, the foreign object will not be visible.
     * Setting the absolute positioning is crucial for the positioning of the resize control on border.
-    * So, we are only setting the position absolute and adding the resize control for browsers other than Safari for now. 
+    * So, we are only setting the position absolute and adding the resize control for browsers other than Safari for now.
     * This is a temporary fix and we need to find a better solution for this.
     */
     var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -391,7 +397,7 @@ Text.prototype.initDragElement = function () {
     pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     var foreignObj = this.getForeignObj();
-    var divCont = foreignObj.childNodes[0];    
+    var divCont = foreignObj.childNodes[0];
     var currentZIndex = 100;
     var _self = this;
 
@@ -412,15 +418,23 @@ Text.prototype.initDragElement = function () {
         // get the mouse cursor position at startup:
         pos3 = e.clientX;
         pos4 = e.clientY;
-        divCont.onmouseup = closeDragElement;
-        divCont.onpointerup = closeDragElement;
-        divCont.onmouseleave = closeDragElement;
-        // call a function whenever the cursor moves:
-        document.onmousemove = elementDrag;
+
+        /**
+         * we have to add this event to the whole page and not the div.
+         * this way even if the cursor goes outside the div it's still considered a valid drag. we should only stop the
+         * drag when users actaully stops dragging (regardles of where the cursor is)
+         */
+        document.addEventListener('pointerup', closeDragElement);
+
+        // handle dragging
+        document.addEventListener('pointermove', elementDrag);
     }
 
     // This function is called when the user drags the element
     function elementDrag(e) {
+        // if we're already resizing, don't move the element
+        if (_self.isResizing) return;
+
         e = e || window.event;
         // Calculate the new cursor position:
         pos1 = pos3 - e.clientX;
@@ -434,9 +448,8 @@ Text.prototype.initDragElement = function () {
 
     // This function is called when the user stops dragging the element
     function closeDragElement(e) {
-        document.onmouseup = null;
-        document.onmousemove = null;
-        document.onpointerup = null;
+        document.removeEventListener('pointerup', closeDragElement);
+        document.removeEventListener('pointermove', elementDrag);
     }
 }
 
@@ -444,12 +457,11 @@ Text.prototype.initDragElement = function () {
  * This function enables the resizing functionality for the text input
  */
 Text.prototype.initResizeElement = function () {
-
     const _self = this;
     const foreignObj = this.getForeignObj();
     const divCont = foreignObj.childNodes[0];
     var startX, startY, startWidth, startHeight;
-    
+
     // Create the resize element for the text input
     bottomright = document.createElement("div");
     bottomright.className = "text-foreign-object-resizer-right";
@@ -476,14 +488,17 @@ Text.prototype.initResizeElement = function () {
         startWidth = parseInt(document.defaultView.getComputedStyle(divCont).width, 10);
         startHeight = parseInt(document.defaultView.getComputedStyle(divCont).height, 10);
 
-        document.documentElement.addEventListener("mousemove", doDrag, false);
+        document.documentElement.addEventListener("pointermove", doDrag, false);
         document.documentElement.addEventListener("pointerup", stopDrag, false);
-        document.documentElement.addEventListener("mouseup", stopDrag, false);
     }
 
     // Function to change the size of the text input
     function doDrag(e) {
         e.stopImmediatePropagation();
+
+        // signal that we're resizing
+        _self.isResizing = true;
+
         divCont.style.position = "absolute";
         // Change the width of the text input based on the mouse movement
         divCont.style.width = startWidth + _self._ratio * (e.clientX - startX) + "px";
@@ -495,9 +510,11 @@ Text.prototype.initResizeElement = function () {
 
     // Function to stop the resize movement of the text input
     function stopDrag() {
-        document.documentElement.removeEventListener("mousemove", doDrag, false);
+        // signal that resizing has finished
+        _self.isResizing = false;
+
+        document.documentElement.removeEventListener("pointermove", doDrag, false);
         document.documentElement.removeEventListener("pointerup", stopDrag, false);
-        document.documentElement.removeEventListener("mouseup", stopDrag, false);
     }
 }
 
