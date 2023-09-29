@@ -72,7 +72,7 @@ function AnnotationTool(parent){
             toolElem = document.createElement("div");
             toolElem.setAttribute("class", "annotationTool flex-col");
             toolElem.innerHTML = [
-                "<span class='toolBtn' data-type='CURSOR' data-toggle='tooltip' data-placement='right' title='Tooltip on right'>",
+                "<span class='toolBtn' data-type='CURSOR' data-toggle='tooltip' data-placement='right' title=''>",
                     "<i class='fa fa-mouse-pointer'></i>",
                 "</span>",
                 "<span class='toolBtn' data-type='CHANGE_COLOR' title='Change Color'>",
@@ -193,9 +193,9 @@ function AnnotationTool(parent){
         if(!_self.elem){
             return;
         }
-        
+
         _self.elem.querySelector(".toolBtn[data-type='"+_self.curType+"']").className = "toolBtn";
-        
+
         _self.curType = mode || 'CURSOR';
         _self.curSubtype = modeSubtype || '';
 
@@ -208,7 +208,7 @@ function AnnotationTool(parent){
             // Function call to handle special functions for different annotation types
             _self.handleTextAnnotationFunctions(mode, modeSubtype);
         }
-        
+
         switch(_self.curType){
             case "CURSOR":
                 _self.dispatchEvent("setMode", {
@@ -285,22 +285,22 @@ function AnnotationTool(parent){
      */
     this.handleTextAnnotationFunctions = function(type, subtype){
 
-        if(type === "TEXT"){    
+        if(type === "TEXT") {
 
             var textSizeDiv = document.querySelector(".fontSizeInput");
-            textSizeDiv.classList.remove("hideElement"); 
+            textSizeDiv.classList.remove("hideElement");
             var textOptionsDiv = document.querySelector(".fontSizeValue");
             textOptionsDiv.classList.add("hideElement");
-            
+
             var textSizeInput = document.querySelector(".fontInput");
-            
+
             // Functions to handle the font size input functionality in the toolbar
             if(textSizeInput != null){
 
                 textSizeInput.addEventListener('focus', function (e) {
                     textOptionsDiv = document.querySelector(".fontSizeValue");
                     textOptionsDiv.classList.remove("hideElement");
-                    
+
                     var fontSizes = document.querySelectorAll(".fontSizeValue div");
                     for(var i = 0; i < fontSizes.length; i++){
                         fontSizes[i].addEventListener('click', function(e){
@@ -367,13 +367,13 @@ function AnnotationTool(parent){
             // Remove any event listeners on the fontsize input if present
             var textSizeInput = document.querySelector(".fontInput");
             if(textSizeInput != null){
-                
+
                 // Get all event listeners for textSizeInput and remove them
                 var elClone = textSizeInput.cloneNode(true);
                 textSizeInput.parentNode.replaceChild(elClone, textSizeInput);
                 textSizeInput = elClone;
             }
         }
-        
+
     }
 }
