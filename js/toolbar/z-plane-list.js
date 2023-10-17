@@ -839,7 +839,7 @@ function ZPlaneList(parent) {
             '<div class="z-plane-carousel">' +
                 '<div id="z-plane-loader" class="z-plane-loader">' +
                     '<div class="loader-container">' +
-                        '<img class="loader-image" src="./images/loader.gif">' +
+                        '<div class="loader-image"><i class="fa-solid fa-circle-notch fa-spin"></i></div>' +
                         '<div class="loader-text">Loading...</div>' +
                     '</div>' +
                 '</div >' +

@@ -343,23 +343,14 @@ input.slider{
 	background: white;
 	border: 1px solid #ccc;
 	border-radius: 7px;
-	display: block;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	align-items: center;
 }
 
 .z-planes-container .z-plane-carousel .z-plane-loader .loader-container .loader-image {
-	height: 32px;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	margin-left: 44px;
-	opacity: 0.8;
-}
-
-.z-planes-container .z-plane-carousel .z-plane-loader .loader-container .loader-text {
-	font-size: 14px;
-	margin: auto;
-	width: 100%;
-	text-align: center;
-	color: #828282;
+	font-size: 1.5em;
 }
 
 .z-planes-container .info-slider-container {
