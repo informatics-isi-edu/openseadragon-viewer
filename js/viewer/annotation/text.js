@@ -151,7 +151,18 @@ Text.prototype.createPTag = function (originalObj, isTextArea) {
      * this will make sure we're supporting multiple consecutive newlines
      */
     pText.style.whiteSpace = "pre-wrap";
-    inputValue = inputValue.replace(/\n/g, "<br />");
+
+    /**
+     * based on my testing this is not needed. also doing this throws an error in
+     * firefox when attempting to show an already saved SVG. if we decided
+     * to bring back this logic, we have to change base.js to do the following:
+     *
+     * foreignObj.outerHTML.replace('<br>', '<br \/>');
+     *
+     * that's because outerHTML returns <br> which is not a proper XHTML tag,
+     * so we have to replace it with the proper ones before exporting to svg.
+     */
+    // inputValue = inputValue.replace(/\n/g, "<br \/>");
     pText.innerHTML = inputValue;
 
     var styleObj = this.annotationUtils.styleStringToObject(originalObj.getAttribute("style"));

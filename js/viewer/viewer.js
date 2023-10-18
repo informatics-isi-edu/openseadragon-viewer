@@ -1374,6 +1374,13 @@ function Viewer(parent, config) {
             groupID = data.groupID,
             rst = [];
 
+        // If the user is drawing a new text annotation, then we need to
+        // transform it before saving the annotation
+        if(_self._lastDrawnAnnotation != null){
+            _self._lastDrawnAnnotation.transform();
+            _self._lastDrawnAnnotation = null;
+        }
+
         if(this.svgCollection.hasOwnProperty(svgID)){
             rst = this.svgCollection[svgID].exportToSVG(groupID);
         };
