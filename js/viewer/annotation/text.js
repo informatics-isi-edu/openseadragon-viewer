@@ -87,7 +87,7 @@ Text.prototype.transform = function () {
     // Transform only if the input is not empty
     else {
         var textInput = div.childNodes[0];
-        var pText = this.createPTag(textInput);
+        var pText = this.createPTag(textInput, true);
 
         var h = div.style.marginTop;
         var w = div.style.marginLeft;
@@ -132,13 +132,14 @@ Text.prototype.transform = function () {
  * @param {*} originalObj - This object is the original object that is to be replaced by the p tag.
  * The object will be a <textarea> while switching annotation tool and <p> tag from the SVG namespace
  * while importing annotations.
+ * @param {boolean} isTextArea - whether this is from text area, or it's from the already saved SVG.
  * @returns <p> tag HTML element
  */
-Text.prototype.createPTag = function (originalObj) {
+Text.prototype.createPTag = function (originalObj, isTextArea) {
 
     var _self = this;
     var pText = document.createElement("p");
-    var inputValue = originalObj.value || originalObj.innerHTML;
+    var inputValue = isTextArea ? originalObj.value : originalObj.innerHTML;
 
     /**
      * make sure the content of p tag stays withing the width, the same as textarea
@@ -155,8 +156,13 @@ Text.prototype.createPTag = function (originalObj) {
 
     var styleObj = this.annotationUtils.styleStringToObject(originalObj.getAttribute("style"));
     pText.style.fontSize = styleObj["font-size"];
-    pText.style.height = styleObj["height"];
-    pText.style.width = (originalObj.clientWidth || originalObj.width) + "px";
+
+    // if it's coming from the saved svg, just use fit-content for both width and height.
+    // the foreignObject has the proper values this will make sure the hover works properly
+    // for textarea honor the given width. and it will be adjusted later when we set the foreignObject position.
+    pText.style.height = isTextArea ? styleObj["height"] : 'fit-content';
+    pText.style.width = isTextArea ? ((originalObj.clientWidth || originalObj.width) + "px") : 'fit-content';
+
     // Copy the font color of the textarea to the p tag
     pText.style.color = styleObj["color"];
     // Adding the text-hover class to the p tag for the hover effect to highlight the text
@@ -273,7 +279,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
         importedObj.removeAttribute('id');
 
         this.setForeignObj(importedObj);
-        var pTag = this.createPTag(importedObj.childNodes[0]);
+        var pTag = this.createPTag(importedObj.querySelector('p'), false);
         // Remove the p tag in the import foreign object and add the new p tag
         // with the added functionality
         importedObj.innerHTML = "";
