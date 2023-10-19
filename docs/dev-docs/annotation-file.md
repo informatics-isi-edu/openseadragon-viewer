@@ -137,6 +137,15 @@ Since we wanted to ensure we're fully honoring the spacing, we're not using the 
 
 
 ```html
+<foreignObject stroke="<COLOR_VALUE>" width="<WIDTH_OF_THE_BOX_CONTAINING_TEXT>" height="<HEIGHT_OF_THE_BOX_CONTAINING_TEXT>"
+  class="text-foreign-object" x="<X_FOR_TOP_LEFT_CORNER_OF_TEXT>" y="<Y_FOR_TOP_LEFT_CORNER_OF_TEXT>">
+  <p
+    style="overflow-wrap: anywhere; white-space: pre-wrap;height: fit-content; width: fit-content; font-size: <FONT_SIZE>; color: <COLOR_VALUE>">
+    <TEXT_VALUE>
+  </p>
+</foreignObject>
+
+example:
 <foreignObject stroke="#d5ff00" width="580px" height="374px"
   class="text-foreign-object" x="4663" y="5973">
   <p
