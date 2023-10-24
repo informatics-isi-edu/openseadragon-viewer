@@ -149,14 +149,16 @@ example:
 <foreignObject stroke="#d5ff00" width="580px" height="374px"
   class="text-foreign-object" x="4663" y="5973">
   <p
-    style="overflow-wrap: anywhere; white-space: pre-wrap;height: fit-content; width: fit-content; font-size: 259.67px; color: rgb(213, 255, 0);">
+    style="overflow-wrap: anywhere; white-space: pre-wrap;height: fit-content; width: fit-content; font-size: 259.67px; color: #d5ff00;">
     Test
   </p>
 </foreignObject>
 ```
 
 - Ensure you've specified the `width`, `height`, `x`, and `y` of the `foreignObject`.
-- The `stroke` value on the `foreignObject` must be similar to the `color` that is added to the `p` tag. `stroke` will ensure displaying proper color. As we mentioned before, this value must be consistent with all the other drawings in this group.
+- The `stroke` value on the `foreignObject` must be similar to the `color` that is added to the `p` tag.
+  - `color` will ensure displaying proper color.
+  - As we mentioned before, the `stroke` value must be consistent with all the other drawings in this group.
 - The `font-size` must be defined on the `p` tag.
 - Other styles on the `p` tag are not needed for openseadragon-viewer as we're going to override and inject those values. But for consistency it's better if you include them in your SVG.
 

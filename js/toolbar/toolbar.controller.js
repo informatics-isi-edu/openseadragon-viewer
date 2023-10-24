@@ -44,6 +44,9 @@ function ToolbarController(parent, config){
                 // Save drawing SVG ID and group ID
                 this.annotationTool.updateDrawInfo(data);
                 this._toolbarView.renderAnnotationTool(this.annotationTool);
+
+                // make sure tooltips are displayed properly
+                tippy('[data-tippy-content]');
             }
             else{
                 this.annotationTool.updateDrawInfo({

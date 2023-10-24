@@ -72,32 +72,32 @@ function AnnotationTool(parent){
             toolElem = document.createElement("div");
             toolElem.setAttribute("class", "annotationTool flex-col");
             toolElem.innerHTML = [
-                "<span class='toolBtn' data-type='CURSOR' data-toggle='tooltip' data-placement='right' title=''>",
+                "<span class='toolBtn' data-type='CURSOR' data-tippy-placement='right' data-tippy-content='Select mode'>",
                     "<i class='fa fa-mouse-pointer'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='CHANGE_COLOR' title='Change Color'>",
+                "<span class='toolBtn' data-type='CHANGE_COLOR' data-tippy-placement='right' data-tippy-content='Change color of drawings'>",
                     "<input type='color' value='" + _self.curStroke + "' id='strokeColor'/>",
                 "</span>",
-                "<span class='toolBtn' data-type='PATH' title='Draw path'>",
+                "<span class='toolBtn' data-type='PATH' data-tippy-placement='right' data-tippy-content='Draw path'>",
                     "<i class='fas fa-pencil-alt'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='RECT' title='Draw rectangle'>",
+                "<span class='toolBtn' data-type='RECT' data-tippy-placement='right' data-tippy-content='Draw rectangle'>",
                     "<i class='fa fa-square'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='CIRCLE' title='Draw circle'>",
+                "<span class='toolBtn' data-type='CIRCLE' data-tippy-placement='right' data-tippy-content='Draw circle'>",
                     "<i class='fa fa-circle'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='LINE' title='Draw line'>",
+                "<span class='toolBtn' data-type='LINE' data-tippy-placement='right' data-tippy-content='Draw line'>",
                     "<i class='fa fa-minus'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='ARROWLINE' title='Draw arrow line'>",
+                "<span class='toolBtn' data-type='ARROWLINE' data-tippy-placement='right' data-tippy-content='Draw arrow line'>",
                     "<i class='fas fa-long-arrow-alt-right'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='POLYGON' title='Draw polygon'>",
+                "<span class='toolBtn' data-type='POLYGON' data-tippy-placement='right' data-tippy-content='Draw polygon'>",
                     "<i class='fas fa-draw-polygon'></i>",
                 "</span>",
                 "<div class='textOptions'>",
-                    "<span class='toolBtn' data-type='TEXT' title='Write text'>",
+                    "<span class='toolBtn' data-type='TEXT' data-tippy-placement='right' data-tippy-content='Write text'>",
                         "<i class='fas fa-font'></i></a>",
                     "</span>",
                     "<div class='fontSizeInput hideElement'>",
@@ -123,10 +123,10 @@ function AnnotationTool(parent){
                         "<button class='increaseFontSize'>+</button>",
                     "</div>",
                 "</div>",
-                "<span class='toolBtn' data-type='ERASER' title='Erase drawing'>",
+                "<span class='toolBtn' data-type='ERASER' data-tippy-placement='right' data-tippy-content='Erase drawing'>",
                     "<i class='fa fa-eraser'></i>",
                 "</span>",
-                "<span class='toolBtn' data-type='HELP' title='Learn how to annotate an image'>",
+                "<span class='toolBtn' data-type='HELP' data-tippy-placement='right' data-tippy-content='Learn how to annotate an image'>",
                     "<i class='fas fa-question-circle'></i></a>",
                 "</span>"
                 // "<span class='toolBtn' data-type='SAVE'>",
@@ -154,7 +154,6 @@ function AnnotationTool(parent){
                 elem.className = (elem.getAttribute("data-type") === _self.curType) ?  "toolBtn selected" : "toolBtn";
             });
         }
-
     }
 
     // Update the drawing info
