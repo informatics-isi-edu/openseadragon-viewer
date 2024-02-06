@@ -9,6 +9,34 @@ This document is a summary of code changes in openseadragon-viewer. This is the 
   - `[Fixed]`: bug fixes.
   - `[No changes]` means that Chaise hasn't been changed in the described duration.
 
+# 1/31/24
+
+- [Improved] use the latest version of fontawesome ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/pull/110))
+
+# 11/30/23
+
+- [Fixed] properly set the width/height for the textbox drawing tool ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/commit/56d88ecb65a5ef8be839c7e33d4e4178c8301972))
+- [Fixed] make sure text annotation is saved if we're calling save while there is still a text annotation that is not fully "saved" ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/commit/b58ebdf9e0e3a2baa321f33cda1dbb5b69170992))
+- [Fixed] remove the newline change since it was causing issues on Firefox this change is actually not needed based on my testing (link above)
+- [Improved] use similar tooltip throughout osd-viewer ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/commit/4ac3b46637bb6f9606cbe623e2d699c4fff19748))
+
+# 9/30/23
+
+- [Fixed] issues related to textbox drawing tool ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/pull/108))
+- [Added] `root-install` make target ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/commit/8b270b09b1f949c34da3159e627b2a5a59dade07))
+
+# 7/31/23
+
+- [No changes]
+
+# 5/31/23
+
+- [Added] support for textbox drawing tool ([link](https://github.com/informatics-isi-edu/openseadragon-viewer/pull/105)).
+
+# 3/31/23
+
+- [No changes]
+
 # 1/31/23
 - [No changes]
 
