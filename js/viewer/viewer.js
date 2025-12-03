@@ -989,7 +989,15 @@ function Viewer(parent, config) {
             _self.osd.addTiledImage({
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
-                opacity: (channel["isDisplay"] ? 1 : 0)
+                opacity: (channel["isDisplay"] ? 1 : 0),
+                error: function(event) {
+                    console.error("Failed to add tiled image:", event);
+                    _self.resetSpinner();
+                    _self.dispatchEvent('mainImageLoadFailed', {
+                        message: event.message,
+                        source: event.source
+                    });
+                }
             });
         }
 
