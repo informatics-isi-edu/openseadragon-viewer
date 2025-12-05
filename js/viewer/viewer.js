@@ -984,18 +984,36 @@ function Viewer(parent, config) {
                 });
             }
 
-
             // add the image
             _self.osd.addTiledImage({
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
                 error: function(event) {
-                    console.error("Failed to add tiled image:", event);
+                    console.error('Failed to add the tiled image.');
+                    console.error(event);
+
+                     // Try to extract HTTP status from the event
+                     let errorMessage = event.message || 'Unknown error';
+                     
+                     // extract the status code
+                     let statusCode;
+                    if (event.source && event.source.ajaxHeaders) {
+                        statusCode = event.statusCode || event.status;
+                    }
+                    if (!statusCode && event.message) {
+                        const match = event.message.match(/HTTP\s+(\d{3})/i) || 
+                                    event.message.match(/status[:\s]+(\d{3})/i);
+                        if (match) {
+                            statusCode = parseInt(match[1]);
+                        }
+                    }
+
                     _self.resetSpinner();
                     _self.dispatchEvent('mainImageLoadFailed', {
-                        message: event.message,
-                        source: event.source
+                        event: event,
+                        status: statusCode,
+                        message: errorMessage
                     });
                 }
             });
