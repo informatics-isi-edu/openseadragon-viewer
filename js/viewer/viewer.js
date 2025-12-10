@@ -94,12 +94,59 @@ function Viewer(parent, config) {
         // zoom on double click
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
-        // inform the client if any of the images failed to load
-        this.osd.world.addHandler('add-item-failed', function(event) {
-            console.error("Failed to add an item to osd", event);
+        /**
+         * inform the client if any of the images failed to load
+         * Notes:
+         *  - for iiif this would be the info.json
+         *  - another way to catch this would be using the error callback of addTiledImage
+         */
+        this.osd.addHandler('add-item-failed', function(event) {
+            console.error('Main image failed to load', event);
+            
+            // Try to extract error information from the event
+            let errorMessage = event.message || 'Unknown error';
+            let statusCode;
+            
+            // Check if there's a source with error information
+            if (event.source) {
+                statusCode = event.source.statusCode || event.source.status;
+            }
+            
+            // Try to extract status from message
+            if (!statusCode && event.message) {
+                const match = event.message.match(/HTTP\s+(\d{3})/i) || 
+                            event.message.match(/status[:\s]+(\d{3})/i);
+                if (match) {
+                    statusCode = parseInt(match[1]);
+                }
+            }
+            
             _self.resetSpinner();
-            _self.dispatchEvent('mainImageLoadFailed', {});
+            _self.dispatchEvent('mainImageLoadFailed', {
+                status: statusCode,
+                message: errorMessage
+            });
         });
+
+        /**
+         * NOTE: the following event handler can be used to catch the tile load failures.
+         * (each individual default.jpg or equivalent file that makes up the tiled image)
+         * However, this can be very noisy since each image is made up of many tiles.
+         * In the future, we could instead count the number of loaded vs failed tiles.
+         * And for example if all was failed (or more than 50%) we can report the error.
+         * Although even that might be tricky since users can zoom in/our or pan
+         * which would trigger loading of different tiles.
+         * 
+         */
+        // this.osd.world.addHandler('tile-load-failed', function (event) {
+        //     console.error("Tile failed to load", event);
+        //     // event.tile - The tile that failed
+        //     // event.tiledImage - The tiled image the tile belongs to
+        //     // event.time - Time when tile load began
+        //     // event.message - Error message
+        //     // event.tileRequest - XMLHttpRequest if available
+        //     _self.dispatchEvent('tileLoadFailed', {});
+        // });
 
         // the finalizing tasks after images are load
         var zPlaneInitialized = false;
@@ -989,33 +1036,6 @@ function Viewer(parent, config) {
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
-                error: function(event) {
-                    console.error('Failed to add the tiled image.');
-                    console.error(event);
-
-                     // Try to extract HTTP status from the event
-                     let errorMessage = event.message || 'Unknown error';
-                     
-                     // extract the status code
-                     let statusCode;
-                    if (event.source && event.source.ajaxHeaders) {
-                        statusCode = event.statusCode || event.status;
-                    }
-                    if (!statusCode && event.message) {
-                        const match = event.message.match(/HTTP\s+(\d{3})/i) || 
-                                    event.message.match(/status[:\s]+(\d{3})/i);
-                        if (match) {
-                            statusCode = parseInt(match[1]);
-                        }
-                    }
-
-                    _self.resetSpinner();
-                    _self.dispatchEvent('mainImageLoadFailed', {
-                        event: event,
-                        status: statusCode,
-                        message: errorMessage
-                    });
-                }
             });
         }
 
