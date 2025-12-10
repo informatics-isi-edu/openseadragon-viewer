@@ -94,6 +94,32 @@ function Viewer(parent, config) {
         // zoom on double click
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
+        // we have to call this regardless of whether the image loads successfully or not
+        // because we might have multi-z images where some z planes load successfully
+        // so the client should be able to continue
+        var zPlaneInitialized = false;
+        const initializeZPlane = (imageSize) => {
+            if (zPlaneInitialized) return;
+            zPlaneInitialized = true;
+
+            // if we're showing a multi-z view, we should start it
+            if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
+                // var imageSize = event.item.getContentSize()
+                var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
+                    && _self.parameters.acls.mainImage.canUpdateDefaultZIndex;
+
+                _self.dispatchEvent('initializeZPlaneList', {
+                    "totalCount": _self.parameters.zPlane.count,
+                    "minZIndex": _self.parameters.zPlane.minZIndex,
+                    "maxZIndex": _self.parameters.zPlane.maxZIndex,
+                    "mainImageZIndex": _self.parameters.mainImage.zIndex,
+                    "mainImageWidth": imageSize ? imageSize.x : undefined,
+                    "mainImageHeight": imageSize ? imageSize.y : undefined,
+                    "canUpdateDefaultZIndex": canUpdate
+                });
+            }
+        }
+
         /**
          * inform the client if any of the images failed to load
          * Notes:
@@ -102,25 +128,24 @@ function Viewer(parent, config) {
          */
         this.osd.addHandler('add-item-failed', function(event) {
             console.error('Main image failed to load', event);
-            
-            // Try to extract error information from the event
-            let errorMessage = event.message || 'Unknown error';
+
+            // extract the error information
+            let errorMessage = event.message || 'Terminal error';
             let statusCode;
-            
-            // Check if there's a source with error information
             if (event.source) {
                 statusCode = event.source.statusCode || event.source.status;
             }
-            
-            // Try to extract status from message
             if (!statusCode && event.message) {
-                const match = event.message.match(/HTTP\s+(\d{3})/i) || 
+                const match = event.message.match(/HTTP\s+(\d{3})/i) ||
                             event.message.match(/status[:\s]+(\d{3})/i);
                 if (match) {
                     statusCode = parseInt(match[1]);
                 }
             }
-            
+
+            // while this image failed, other z planes might load properly
+            initializeZPlane();
+            // hide the spinner
             _self.resetSpinner();
             _self.dispatchEvent('mainImageLoadFailed', {
                 status: statusCode,
@@ -128,50 +153,10 @@ function Viewer(parent, config) {
             });
         });
 
-        /**
-         * NOTE: the following event handler can be used to catch the tile load failures.
-         * (each individual default.jpg or equivalent file that makes up the tiled image)
-         * However, this can be very noisy since each image is made up of many tiles.
-         * In the future, we could instead count the number of loaded vs failed tiles.
-         * And for example if all was failed (or more than 50%) we can report the error.
-         * Although even that might be tricky since users can zoom in/our or pan
-         * which would trigger loading of different tiles.
-         * 
-         */
-        // this.osd.world.addHandler('tile-load-failed', function (event) {
-        //     console.error("Tile failed to load", event);
-        //     // event.tile - The tile that failed
-        //     // event.tiledImage - The tiled image the tile belongs to
-        //     // event.time - Time when tile load began
-        //     // event.message - Error message
-        //     // event.tileRequest - XMLHttpRequest if available
-        //     _self.dispatchEvent('tileLoadFailed', {});
-        // });
-
         // the finalizing tasks after images are load
-        var zPlaneInitialized = false;
         this.osd.world.addHandler('add-item', function(event) {
             // we need the aspect ratio, so we have to wait for at least one image
-            if (!zPlaneInitialized) {
-                zPlaneInitialized = true;
-
-                // if we're showing a multi-z view, we should start it
-                if (_self.parameters.zPlane && _self.parameters.zPlane.count > 1) {
-                    var imageSize = event.item.getContentSize()
-                    var canUpdate = _self.parameters.acls && _self.parameters.acls.mainImage
-                                    && _self.parameters.acls.mainImage.canUpdateDefaultZIndex;
-
-                    _self.dispatchEvent('initializeZPlaneList', {
-                        "totalCount": _self.parameters.zPlane.count,
-                        "minZIndex": _self.parameters.zPlane.minZIndex,
-                        "maxZIndex": _self.parameters.zPlane.maxZIndex,
-                        "mainImageZIndex": _self.parameters.mainImage.zIndex,
-                        "mainImageWidth": imageSize.x,
-                        "mainImageHeight": imageSize.y,
-                        "canUpdateDefaultZIndex": canUpdate
-                    });
-                }
-            }
+            initializeZPlane(event.item.getContentSize());
 
             // display a spinner while the images are loading
             event.item.addHandler('fully-loaded-change', function() {
@@ -231,6 +216,27 @@ function Viewer(parent, config) {
                 });
             }
         });
+
+
+        /**
+         * NOTE: the following event handler can be used to catch the tile load failures.
+         * (each individual default.jpg or equivalent file that makes up the tiled image)
+         * However, this can be very noisy since each image is made up of many tiles.
+         * In the future, we could instead count the number of loaded vs failed tiles.
+         * And for example if all was failed (or more than 50%) we can report the error.
+         * Although even that might be tricky since users can zoom in/our or pan
+         * which would trigger loading of different tiles.
+         *
+         */
+        // this.osd.world.addHandler('tile-load-failed', function (event) {
+        //     console.error("Tile failed to load", event);
+        //     // event.tile - The tile that failed
+        //     // event.tiledImage - The tiled image the tile belongs to
+        //     // event.time - Time when tile load began
+        //     // event.message - Error message
+        //     // event.tileRequest - XMLHttpRequest if available
+        //     _self.dispatchEvent('tileLoadFailed', {});
+        // });
     };
 
     // This function toggles _showChannelNamesOverlay
