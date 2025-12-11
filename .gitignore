@@ -1,3 +1,5 @@
 deployment-config.json
 .DS_Store
 data
+.vscode/*
+!.vscode/extensions.json
