@@ -15,9 +15,76 @@
 
 #menuContainer #navMenuContent .channelList .title-container {
     display: flex;
+    flex-direction: column;
+    padding-top: 5px;
+    position: sticky;
+    top: 0;
+    background: #1e1e1e;
+    z-index: 10;
+}
+
+#menuContainer #navMenuContent .channelList .title-header {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 5px;
+}
+
+#menuContainer #navMenuContent .channelList .search-container {
+    padding: 0px 10px;
+    position: relative;
+}
+
+#menuContainer #navMenuContent .channelList .search-input {
+    background: #2d2d2d;
+    color: #d9d6d6;
+    border: 1px solid #444;
+    padding: 6px 30px 6px 10px;
+    font-size: 14px;
+}
+
+#menuContainer #navMenuContent .channelList .search-input:focus {
+    background: #2d2d2d;
+    color: #d9d6d6;
+    border-color: #4674A7;
+    box-shadow: none;
+}
+
+#menuContainer #navMenuContent .channelList .search-input::placeholder {
+    color: #888;
+}
+
+#menuContainer #navMenuContent .channelList .input-group-addon {
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-left: none;
+    color: #888;
+}
+
+#menuContainer #navMenuContent .channelList .search-clear {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    display: none;
+    z-index: 10;
+}
+
+#menuContainer #navMenuContent .channelList .search-clear:hover {
+    color: #fff;
+}
+
+#menuContainer #navMenuContent .channelList .search-clear.visible {
+    display: block;
+}
+
+#menuContainer #navMenuContent .channelList .channel-summary {
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #888;
+    text-align: left;
 }
 
 #menuContainer #navMenuContent .channelList .title-content {
@@ -80,4 +147,12 @@
     flex-direction: column;
     box-sizing: border-box;
     flex: 1;
+    overflow-y: auto;
+}
+
+#navMenuContent .channelList .no-results-message {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
 }

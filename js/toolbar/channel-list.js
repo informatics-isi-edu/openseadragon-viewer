@@ -7,6 +7,49 @@ function ChannelList(parent) {
     this.parent = parent || null;
     this.showChannelNamesOverlay = false;
 
+    /**
+     * The current search term used to filter the channel list.
+     * Empty string means no filter is active.
+     * @type {string}
+     */
+    this._searchTerm = '';
+
+    /**
+     * Check whether a channel is excluded by the current search filter.
+     * @param {string} id - The osdItemId of the channel to check.
+     * @returns {boolean} True if the channel does not match the search term and should be skipped.
+     */
+    this._isFilteredOut = function(id) {
+        if (!_self._searchTerm) return false;
+        return _self.collection[id].name.toLowerCase().indexOf(_self._searchTerm) === -1;
+    };
+
+    /**
+     * Update the tooltips on bulk action buttons to reflect
+     * whether a search filter is active (e.g. "all channels" vs "all matching channels").
+     * Also used during initial render to create the tippy instances.
+     */
+    this._updateBulkTooltips = function() {
+        var noun = _self._searchTerm ? 'matching channels' : 'channels';
+        var tooltips = {
+            '#save-all-channels': 'Save the current settings for all ' + noun,
+            '#reset-all-channels': 'Reset settings of all ' + noun,
+            '#collapse-all-channels': 'Collapse all ' + noun + ' controls',
+            '#expand-all-channels': 'Expand all ' + noun + ' controls',
+            '#hide-all-channels': 'Hide all ' + noun,
+            '#show-all-channels': 'Display all ' + noun,
+        };
+        for (var sel in tooltips) {
+            var el = _self.elem.querySelector(sel);
+            if (!el) continue;
+            if (el._tippy) {
+                el._tippy.setContent(tooltips[sel]);
+            } else {
+                tippy(el, { content: tooltips[sel] });
+            }
+        }
+    };
+
     // Add new channel items
     this.add = function(items) {
         var id,
@@ -67,30 +110,37 @@ function ChannelList(parent) {
 
     this.expandAllChannels = function (event) {
         for (var id in _self.collection) {
+            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleExpand(event, true);
         }
     };
 
     this.collapseAllChannels = function (event) {
         for (var id in _self.collection) {
+            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleExpand(event, false);
         }
     };
 
     this.showAllChannels = function (event) {
         for (var id in _self.collection) {
+            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleDisplay(event, true);
         }
+        _self.updateChannelSummary();
     };
 
     this.hideAllChannels = function (event) {
         for (var id in _self.collection) {
+            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleDisplay(event, false);
         }
+        _self.updateChannelSummary();
     };
 
     this.resetAllChannels = function (event) {
         for (var id in _self.collection) {
+            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].resetChannelSettings(event);
         }
     };
@@ -102,6 +152,7 @@ function ChannelList(parent) {
         btn.className = "channels-control glyphicon glyphicon-refresh glyphicon-refresh-animate";
 
         for (var id in _self.collection) {
+            if (_self._isFilteredOut(id)) continue;
             if (_self.collection.hasOwnProperty(id) && _self.collection[id].acls.canUpdateConfig) {
                 data.push(_self.collection[id].saveChannelSettings(event, true));
             }
@@ -140,13 +191,98 @@ function ChannelList(parent) {
 
     }
 
+    this.filterChannels = function() {
+        var searchInput = _self.elem.querySelector('#channel-search-input');
+        var clearBtn = _self.elem.querySelector('#channel-search-clear');
+        var groupsContainer = _self.elem.querySelector('.groups');
+        var searchQuery = searchInput.value.toLowerCase().trim();
+        var matchCount = 0;
+        var noResultsMsg = _self.elem.querySelector('.no-results-message');
+
+        _self._searchTerm = searchQuery;
+
+        // Update clear button visibility
+        if (searchQuery.length > 0) {
+            clearBtn.classList.add('visible');
+        } else {
+            clearBtn.classList.remove('visible');
+        }
+
+        // Remove existing no results message if present
+        if (noResultsMsg) {
+            noResultsMsg.remove();
+        }
+
+        // Filter channels
+        for (var id in _self.collection) {
+            if (_self.collection.hasOwnProperty(id)) {
+                var item = _self.collection[id];
+                var itemName = item.name.toLowerCase();
+
+                if (searchQuery === '' || itemName.indexOf(searchQuery) !== -1) {
+                    item.elem.style.display = 'block';
+                    matchCount++;
+                } else {
+                    item.elem.style.display = 'none';
+                }
+            }
+        }
+
+        // Show empty state if no matches
+        if (matchCount === 0 && searchQuery !== '') {
+            var noResultsElem = document.createElement('div');
+            noResultsElem.className = 'no-results-message';
+            noResultsElem.textContent = 'No matching channels found';
+            groupsContainer.insertBefore(noResultsElem, groupsContainer.firstChild);
+        }
+
+        // Update summary and tooltips
+        _self.updateChannelSummary();
+        _self._updateBulkTooltips();
+    }
+
+    this.clearSearch = function() {
+        var searchInput = _self.elem.querySelector('#channel-search-input');
+        searchInput.value = '';
+        _self.filterChannels();
+    }
+
+    this.updateChannelSummary = function() {
+        var summaryElem = _self.elem.querySelector('#channel-summary');
+        if (!summaryElem) return;
+
+        var totalCount = 0;
+        var visibleCount = 0;
+        var displayedCount = 0;
+
+        for (var id in _self.collection) {
+            if (_self.collection.hasOwnProperty(id)) {
+                totalCount++;
+                var item = _self.collection[id];
+
+                if (!_self._isFilteredOut(id)) {
+                    visibleCount++;
+                    if (item.isDisplay) {
+                        displayedCount++;
+                    }
+                }
+            }
+        }
+
+        summaryElem.textContent = 'Found ' + visibleCount + ' of ' + totalCount + ' (' + displayedCount + ' Displayed)';
+    }
+
+    this.onChannelDisplayChanged = function() {
+        _self.updateChannelSummary();
+    }
+
 
     // Render the view
     this.render = function() {
 
-        var id,
-            collection = this.collection,
-            listElem = document.createElement("div");
+        const collection = this.collection;
+        const listElem = document.createElement("div");
+        let id;
 
         var channelHamburger = [
             '<span class="dropdown">',
@@ -174,18 +310,26 @@ function ChannelList(parent) {
         } else {
             listElem.innerHTML = [
                 "<div class='title-container'>",
-                    "<div class='title-content'>",
-                        "<span data-tippy-content='Hide the channel list' class='title' id='dismiss-channel-panel'>Channels</span>",
+                    "<div class='title-header'>",
+                        "<div class='title-content'>",
+                            "<span data-tippy-content='Hide the channel list' class='title' id='dismiss-channel-panel'>Channels</span>",
+                        "</div>",
+                        "<div class='all-channel-controls'>",
+                            "<span class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
+                            "<span class='channels-control fas fa-undo' id='reset-all-channels'></span>",
+                            "<span class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
+                            "<span class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
+                            "<span class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
+                            "<span class='channels-control fa fa-eye' id='show-all-channels'></span>",
+                            channelHamburger.join(''),
+                        "</div>",
                     "</div>",
-                    "<div class='all-channel-controls'>",
-                        "<span data-tippy-content='Save the current settings for all the channels' class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
-                        "<span data-tippy-content='Reset settings of all the channels' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
-                        "<span data-tippy-content='Collapse all the channel controls' class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
-                        "<span data-tippy-content='Expand all the channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
-                        "<span data-tippy-content='Hide all the channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
-                        "<span data-tippy-content='Display all the channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
-                        channelHamburger.join(''),
+                    "<div class='search-container input-group'>",
+                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Search channels...' />",
+                        "<i class='fas fa-times search-clear' id='channel-search-clear'></i>",
+                        "<span class='input-group-addon'><i class='fas fa-search'></i></span>",
                     "</div>",
+                    "<div class='channel-summary' id='channel-summary'></div>",
                 "</div>",
                 "<div class='groups'></div>"
             ].join("");
@@ -213,21 +357,38 @@ function ChannelList(parent) {
 
         this.elem = listElem;
 
-        this.elem.querySelector('#expand-all-channels').addEventListener('click', this.expandAllChannels);
+        // Initialize tooltips for bulk action buttons
+        this._updateBulkTooltips();
 
-        this.elem.querySelector('#collapse-all-channels').addEventListener('click', this.collapseAllChannels);
+        // Attach event listeners only if elements exist
+        const expandAllBtn = this.elem.querySelector('#expand-all-channels');
+        const collapseAllBtn = this.elem.querySelector('#collapse-all-channels');
+        const showAllBtn = this.elem.querySelector('#show-all-channels');
+        const hideAllBtn = this.elem.querySelector('#hide-all-channels');
+        const resetAllBtn = this.elem.querySelector('#reset-all-channels');
+        const saveAllBtn = this.elem.querySelector('#save-all-channels');
+        const dismissBtn = this.elem.querySelector("#dismiss-channel-panel");
+        const toggleChannelNamesBtn = this.elem.querySelector('#toggle-channel-names');
+        const searchInput = this.elem.querySelector('#channel-search-input');
+        const searchClear = this.elem.querySelector('#channel-search-clear');
 
-        this.elem.querySelector('#show-all-channels').addEventListener('click', this.showAllChannels);
+        if (expandAllBtn) expandAllBtn.addEventListener('click', this.expandAllChannels);
+        if (collapseAllBtn) collapseAllBtn.addEventListener('click', this.collapseAllChannels);
+        if (showAllBtn) showAllBtn.addEventListener('click', this.showAllChannels);
+        if (hideAllBtn) hideAllBtn.addEventListener('click', this.hideAllChannels);
+        if (resetAllBtn) resetAllBtn.addEventListener('click', this.resetAllChannels);
+        if (saveAllBtn) saveAllBtn.addEventListener('click', this.saveAllChannels);
+        if (dismissBtn) dismissBtn.addEventListener('click', this.onClickedMenuHandler);
+        if (toggleChannelNamesBtn) toggleChannelNamesBtn.addEventListener('click', this.toggleChannelNames);
 
-        this.elem.querySelector('#toggle-channel-names').addEventListener('click', this.toggleChannelNames);
+        // Wire up search functionality
+        if (searchInput && searchClear) {
+            searchInput.addEventListener('input', this.filterChannels);
+            searchClear.addEventListener('click', this.clearSearch);
 
-        this.elem.querySelector('#hide-all-channels').addEventListener('click', this.hideAllChannels);
-
-        this.elem.querySelector('#reset-all-channels').addEventListener('click', this.resetAllChannels);
-
-        this.elem.querySelector('#save-all-channels').addEventListener('click', this.saveAllChannels);
-
-        this.elem.querySelector("#dismiss-channel-panel").addEventListener('click', this.onClickedMenuHandler);
+            // Initialize summary
+            this.updateChannelSummary();
+        }
 
     }
 }

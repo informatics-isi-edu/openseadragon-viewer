@@ -67,6 +67,7 @@
     opacity: 1;
     display: flex;
     /* box-shadow: 0 0 5px #a29f9f; */
+    padding-bottom: 10px;
 }
 
 #menuContainer #navMenuContent .title{

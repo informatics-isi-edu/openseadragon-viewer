@@ -138,7 +138,15 @@ function ChannelItem(data) {
         })
         _self.elem.querySelector(".toggleVisibility").innerHTML = "<i class='"+_self.getIconClass("toggleDisplay")+"'></i>";
         _self.elem.querySelector(".toggleVisibility")._tippy.setContent(_self.getButtonTooltip('toggleDisplay'));
-        event.stopPropagation();
+
+        // Update channel list summary
+        if (_self.parent && _self.parent.onChannelDisplayChanged) {
+            _self.parent.onChannelDisplayChanged();
+        }
+
+        if (event && event.stopPropagation) {
+            event.stopPropagation();
+        }
     };
 
     /**
@@ -371,7 +379,7 @@ function ChannelItem(data) {
 
         // display
         if (_self.isDisplay != og.isDisplay) {
-            _self.onClickToggleDisplay(event, og.isExpand);
+            _self.onClickToggleDisplay(event, og.isDisplay);
         }
 
         // color settings

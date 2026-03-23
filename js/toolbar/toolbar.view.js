@@ -73,13 +73,13 @@ function ToolbarView(controller, config){
     // Render the annotation group menu
     this.renderChannelContent = function(channelList){
 
-        // Clear menu content
-        this._navMenuContentElem.innerHTML = "";
-        // Render channel list if it's null
+        // Render channel list if needed
         if(channelList.elem == null){
             channelList.render();
         }
-        // Append annotation list
+
+        // Clear menu content and append channel list
+        this._navMenuContentElem.innerHTML = "";
         this._navMenuContentElem.appendChild(channelList.elem);
 
         // make sure tooltips are added
@@ -102,19 +102,17 @@ function ToolbarView(controller, config){
     // Toggle menu content
     this.toggleDisplayMenuContent = function(type, object, forcedStateIsExpanded){
 
-        var expand = typeof forcedStateIsExpanded === "boolean" ? forcedStateIsExpanded : null;
-        if (expand === null) {
-            // we should toggle (so if it doesn't have expand then we have to add. or vise versa)
-            expand = this._navMenuContentElem.className.indexOf("expand") === -1;
-        }
+        const expand = typeof forcedStateIsExpanded === "boolean" ? forcedStateIsExpanded : null;
+        const currentlyExpanded = this._navMenuContentElem.className.indexOf("expand") !== -1;
+        const willExpand = expand !== null ? expand : !currentlyExpanded;
 
-        this._navMenuContentElem.className = expand ? "expand" : "";
+        this._navMenuContentElem.className = willExpand ? "expand" : "";
 
         // added to make sure the scroll is properly displayed
-        this._containerElem.className = expand ? "expand" : "";
+        this._containerElem.className = willExpand ? "expand" : "";
 
         // if it's expand, insert the content
-        if(expand){
+        if(willExpand){
             switch(type){
                 case "channelList":
                     this.renderChannelContent(object);
