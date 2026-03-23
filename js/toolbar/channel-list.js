@@ -269,7 +269,7 @@ function ChannelList(parent) {
             }
         }
 
-        summaryElem.textContent = 'Found ' + visibleCount + ' of ' + totalCount + ' (' + displayedCount + ' Displayed)';
+        summaryElem.textContent = 'Found ' + visibleCount + ' of ' + totalCount + ' (' + displayedCount + ' Displayed) channels';
     }
 
     this.onChannelDisplayChanged = function() {
