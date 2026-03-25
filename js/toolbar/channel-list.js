@@ -254,12 +254,16 @@ function ChannelList(parent) {
         var totalCount = 0;
         var visibleCount = 0;
         var displayedCount = 0;
+        let totalDisplayedCount = 0;
 
         for (var id in _self.collection) {
             if (_self.collection.hasOwnProperty(id)) {
                 totalCount++;
                 var item = _self.collection[id];
 
+                if (item.isDisplay) {
+                    totalDisplayedCount++;
+                }
                 if (!_self._isFilteredOut(id)) {
                     visibleCount++;
                     if (item.isDisplay) {
@@ -269,7 +273,16 @@ function ChannelList(parent) {
             }
         }
 
-        summaryElem.textContent = 'Found ' + visibleCount + ' of ' + totalCount + ' (' + displayedCount + ' Displayed) channels';
+        var tooltipText = displayedCount + ' channels in the search list';
+        if (displayedCount !== totalDisplayedCount) {
+            tooltipText += " (" + totalDisplayedCount + " total)";
+        }
+        tooltipText += ' are displayed in the image.';
+
+        summaryElem.innerHTML = 'Found ' + visibleCount + ' of ' + totalCount +
+            ' (<span class="displayed-count" data-tippy-content="' + tooltipText + '" data-tippy-placement="right">' +
+            displayedCount + ' Displayed</span>)';
+        tippy(summaryElem.querySelector('.displayed-count'), { maxWidth: 'none' });
     }
 
     this.onChannelDisplayChanged = function() {
@@ -325,7 +338,7 @@ function ChannelList(parent) {
                         "</div>",
                     "</div>",
                     "<div class='search-container input-group'>",
-                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Search channels...' />",
+                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Search channels' />",
                         "<i class='fas fa-times search-clear' id='channel-search-clear'></i>",
                         "<span class='input-group-addon'><i class='fas fa-search'></i></span>",
                     "</div>",
