@@ -24,32 +24,6 @@ function ChannelList(parent) {
         return _self.collection[id].name.toLowerCase().indexOf(_self._searchTerm) === -1;
     };
 
-    /**
-     * Update the tooltips on bulk action buttons to reflect
-     * whether a search filter is active (e.g. "all channels" vs "all matching channels").
-     * Also used during initial render to create the tippy instances.
-     */
-    this._updateBulkTooltips = function() {
-        var noun = _self._searchTerm ? 'matching channels' : 'channels';
-        var tooltips = {
-            '#save-all-channels': 'Save the current settings for all ' + noun,
-            '#reset-all-channels': 'Reset settings of all ' + noun,
-            '#collapse-all-channels': 'Collapse all ' + noun + ' controls',
-            '#expand-all-channels': 'Expand all ' + noun + ' controls',
-            '#hide-all-channels': 'Hide all ' + noun,
-            '#show-all-channels': 'Display all ' + noun,
-        };
-        for (var sel in tooltips) {
-            var el = _self.elem.querySelector(sel);
-            if (!el) continue;
-            if (el._tippy) {
-                el._tippy.setContent(tooltips[sel]);
-            } else {
-                tippy(el, { content: tooltips[sel] });
-            }
-        }
-    };
-
     // Add new channel items
     this.add = function(items) {
         var id,
@@ -110,21 +84,18 @@ function ChannelList(parent) {
 
     this.expandAllChannels = function (event) {
         for (var id in _self.collection) {
-            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleExpand(event, true);
         }
     };
 
     this.collapseAllChannels = function (event) {
         for (var id in _self.collection) {
-            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleExpand(event, false);
         }
     };
 
     this.showAllChannels = function (event) {
         for (var id in _self.collection) {
-            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleDisplay(event, true);
         }
         _self.updateChannelSummary();
@@ -132,7 +103,6 @@ function ChannelList(parent) {
 
     this.hideAllChannels = function (event) {
         for (var id in _self.collection) {
-            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].onClickToggleDisplay(event, false);
         }
         _self.updateChannelSummary();
@@ -140,7 +110,6 @@ function ChannelList(parent) {
 
     this.resetAllChannels = function (event) {
         for (var id in _self.collection) {
-            if (_self._isFilteredOut(id)) continue;
             _self.collection[id].resetChannelSettings(event);
         }
     };
@@ -152,7 +121,6 @@ function ChannelList(parent) {
         btn.className = "channels-control glyphicon glyphicon-refresh glyphicon-refresh-animate";
 
         for (var id in _self.collection) {
-            if (_self._isFilteredOut(id)) continue;
             if (_self.collection.hasOwnProperty(id) && _self.collection[id].acls.canUpdateConfig) {
                 data.push(_self.collection[id].saveChannelSettings(event, true));
             }
@@ -236,9 +204,8 @@ function ChannelList(parent) {
             groupsContainer.insertBefore(noResultsElem, groupsContainer.firstChild);
         }
 
-        // Update summary and tooltips
+        // Update summary
         _self.updateChannelSummary();
-        _self._updateBulkTooltips();
     }
 
     this.clearSearch = function() {
@@ -273,11 +240,12 @@ function ChannelList(parent) {
             }
         }
 
-        var tooltipText = displayedCount + ' channels in the search list';
+        const single = displayedCount === 1;
+        var tooltipText = `${displayedCount} ${single ? 'channel' : 'channels'} in the search list`;
         if (displayedCount !== totalDisplayedCount) {
-            tooltipText += " (" + totalDisplayedCount + " total)";
+            tooltipText += ` (${totalDisplayedCount} total)`;
         }
-        tooltipText += ' are displayed in the image.';
+        tooltipText += ` ${single ? 'is' : 'are'} displayed in the image.`;
 
         summaryElem.innerHTML = 'Found ' + visibleCount + ' of ' + totalCount +
             ' (<span class="displayed-count" data-tippy-content="' + tooltipText + '" data-tippy-placement="right">' +
@@ -328,12 +296,12 @@ function ChannelList(parent) {
                             "<span data-tippy-content='Hide the channel list' class='title' id='dismiss-channel-panel'>Channels</span>",
                         "</div>",
                         "<div class='all-channel-controls'>",
-                            "<span class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
-                            "<span class='channels-control fas fa-undo' id='reset-all-channels'></span>",
-                            "<span class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
-                            "<span class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
-                            "<span class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
-                            "<span class='channels-control fa fa-eye' id='show-all-channels'></span>",
+                            "<span data-tippy-content='Save the current settings for all channels' class='channels-control glyphicon glyphicon-saved' id='save-all-channels'></span>",
+                            "<span data-tippy-content='Reset settings of all channels' class='channels-control fas fa-undo' id='reset-all-channels'></span>",
+                            "<span data-tippy-content='Collapse all channel controls' class='channels-control fa fa-caret-up' id='collapse-all-channels'></span>",
+                            "<span data-tippy-content='Expand all channel controls' class='channels-control fa fa-caret-down' id='expand-all-channels'></span>",
+                            "<span data-tippy-content='Hide all channels' class='channels-control fa fa-eye-slash' id='hide-all-channels'></span>",
+                            "<span data-tippy-content='Show all channels' class='channels-control fa fa-eye' id='show-all-channels'></span>",
                             channelHamburger.join(''),
                         "</div>",
                     "</div>",
@@ -369,9 +337,6 @@ function ChannelList(parent) {
         });
 
         this.elem = listElem;
-
-        // Initialize tooltips for bulk action buttons
-        this._updateBulkTooltips();
 
         // Attach event listeners only if elements exist
         const expandAllBtn = this.elem.querySelector('#expand-all-channels');
