@@ -25,6 +25,8 @@
 
 #menuContainer.expand {
     overflow-y: auto;
+    /* Reserve space for the scrollbar so Firefox doesn't overlap content */
+    scrollbar-gutter: stable;
 }
 
 #menuContainer #navMenu{
@@ -63,10 +65,10 @@
 
 #menuContainer #navMenuContent.expand{
     width: 300px; /* 285 + 15 */
-    padding-right: 15px; /* The reserved space for scrollbar */
     opacity: 1;
     display: flex;
     /* box-shadow: 0 0 5px #a29f9f; */
+    padding-bottom: 10px;
 }
 
 #menuContainer #navMenuContent .title{

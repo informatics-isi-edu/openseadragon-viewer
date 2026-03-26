@@ -1015,8 +1015,13 @@ function Viewer(parent, config) {
                 // by default we're only channel name overlay for multi-channel images
                 _self._showChannelNamesOverlay = (params.info.length > 1);
 
-                // only show a few first
-                options["isDisplay"] = (i < _self.config.constants.MAX_NUM_DEFAULT_CHANNEL);
+                // only show the few first
+                const defVal = _self.config.constants.DEFAULT_CHANNEL_LIST;
+                const channelLimit =
+                  params.info.length > defVal.THRESHOLD
+                    ? defVal.HIGH_VOLUME_COUNT
+                    : defVal.LOW_VOLUME_COUNT;
+                options["isDisplay"] = (i < channelLimit);
 
                 // add to the list of channels
                 channel = new Channel(i, channelName, info.channelNumber, options);
