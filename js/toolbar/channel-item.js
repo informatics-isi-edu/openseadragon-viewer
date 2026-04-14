@@ -478,6 +478,7 @@ function ChannelItem(data) {
                     "<span class='channel-control-btn save-settings' data-tippy-content='Save the current settings for this channel'><i class='glyphicon glyphicon-saved'></i></span>",
                     "<span class='channel-control-btn reset-settings' data-tippy-content='Reset settings of this channel'><i class='fas fa-undo'></i></span>",
                     "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getButtonTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
+                    "<span class='channel-control-btn remove-channel' data-tippy-content='Remove this channel from the list'><i class='fas fa-times'></i></span>",
                 "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
@@ -618,6 +619,14 @@ function ChannelItem(data) {
         this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
             elem.addEventListener('click', this.onClickToggleDisplay);
         }.bind(this));
+
+        // Remove channel from the list
+        this.elem.querySelectorAll(".channelRow .remove-channel").forEach(function(elem){
+            elem.addEventListener('click', function (event) {
+                event.stopPropagation();
+                _self.parent.removeChannel(_self.osdItemId);
+            });
+        });
 
         // Open/Close the setting panel
         this.elem.querySelectorAll(".channelRow").forEach(function(elem){

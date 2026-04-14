@@ -30,7 +30,7 @@
 }
 
 #menuContainer #navMenuContent .channelList .search-container {
-    padding: 0px 10px;
+    padding: 0px 10px 10px 10px;
     position: relative;
 }
 
@@ -62,8 +62,8 @@
 
 #menuContainer #navMenuContent .channelList .search-clear {
     position: absolute;
-    right: 60px;
-    top: 50%;
+    right: 48px;
+    top: calc(50% - 5px);
     transform: translateY(-50%);
     color: #888;
     cursor: pointer;
@@ -80,11 +80,35 @@
     display: block;
 }
 
+#menuContainer #navMenuContent .channelList .channel-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+}
+
 #menuContainer #navMenuContent .channelList .channel-summary {
-    padding: 10px;
     font-size: 12px;
     color: #888;
     text-align: left;
+}
+
+#menuContainer #navMenuContent .channelList .add-channels-btn {
+    background: #2d2d2d;
+    color: #d9d6d6;
+    border: 1px solid #444;
+    padding: 3px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#menuContainer #navMenuContent .channelList .add-channels-btn:hover {
+    background: #4674A7;
+    border-color: #4674A7;
+    color: #fff;
 }
 
 #menuContainer #navMenuContent .channelList .title-content {
@@ -155,4 +179,14 @@
     text-align: center;
     color: #888;
     font-style: italic;
+}
+
+#navMenuContent .channelList .no-results-add-link {
+    color: #6fa8dc;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#navMenuContent .channelList .no-results-add-link:hover {
+    color: #fff;
 }

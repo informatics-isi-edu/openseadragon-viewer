@@ -60,6 +60,14 @@
     color: #4674A7;
 }
 
+#navMenuContent .groups .channelItem .channel-control-btn.remove-channel {
+    padding: 0 3px;
+}
+
+#navMenuContent .groups .channelItem .channel-control-btn.remove-channel:hover {
+    color: #e57373;
+}
+
 #navMenuContent .groups .channelItem .setting{
     display: flex;
     flex-direction: column;

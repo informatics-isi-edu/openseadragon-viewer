@@ -169,6 +169,10 @@ var OSDViewer = (function (_config) {
             case "updateChannelConfig":
                 window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
                 break;
+            // ask chaise to open the Image_Channel multi-select picker
+            case "showChannelSelector":
+                window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
+                break;
         }
     }
 

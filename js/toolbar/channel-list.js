@@ -200,8 +200,17 @@ function ChannelList(parent) {
         if (matchCount === 0 && searchQuery !== '') {
             var noResultsElem = document.createElement('div');
             noResultsElem.className = 'no-results-message';
-            noResultsElem.textContent = 'No matching channels found';
+            noResultsElem.innerHTML = 'No matches. Try <a href="#" class="no-results-add-link">adding</a> more channels.';
             groupsContainer.insertBefore(noResultsElem, groupsContainer.firstChild);
+
+            var addLink = noResultsElem.querySelector('.no-results-add-link');
+            if (addLink) {
+                addLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var visibleChannelIds = Object.keys(_self.collection);
+                    _self.parent.dispatchEvent('showChannelSelector', { selectedChannelIds: visibleChannelIds });
+                });
+            }
         }
 
         // Update summary
@@ -218,21 +227,19 @@ function ChannelList(parent) {
         var summaryElem = _self.elem.querySelector('#channel-summary');
         if (!summaryElem) return;
 
-        var totalCount = 0;
-        var visibleCount = 0;
+        var addedCount = 0;
         var displayedCount = 0;
         let totalDisplayedCount = 0;
 
         for (var id in _self.collection) {
             if (_self.collection.hasOwnProperty(id)) {
-                totalCount++;
+                addedCount++;
                 var item = _self.collection[id];
 
                 if (item.isDisplay) {
                     totalDisplayedCount++;
                 }
                 if (!_self._isFilteredOut(id)) {
-                    visibleCount++;
                     if (item.isDisplay) {
                         displayedCount++;
                     }
@@ -240,20 +247,42 @@ function ChannelList(parent) {
             }
         }
 
-        const single = displayedCount === 1;
-        var tooltipText = `${displayedCount} ${single ? 'channel' : 'channels'} in the search list`;
-        if (displayedCount !== totalDisplayedCount) {
-            tooltipText += ` (${totalDisplayedCount} total)`;
-        }
-        tooltipText += ` ${single ? 'is' : 'are'} displayed in the image.`;
+        // TODO: replace addedCount with the actual total from the database,
+        // fetched during the initial load (e.g. passed via osdViewerParameters).
+        var totalInDB = addedCount;
 
-        summaryElem.innerHTML = 'Found ' + visibleCount + ' of ' + totalCount +
+        var renderedSingle = displayedCount === 1;
+        var tooltipText = displayedCount + ' ' + (renderedSingle ? 'channel' : 'channels') + ' in the list';
+        if (displayedCount !== totalDisplayedCount) {
+            tooltipText += ' (' + totalDisplayedCount + ' total)';
+        }
+        tooltipText += ' ' + (renderedSingle ? 'is' : 'are') + ' rendered in the image.';
+
+        summaryElem.innerHTML = 'Added ' + addedCount + ' of ' + totalInDB +
             ' (<span class="displayed-count" data-tippy-content="' + tooltipText + '" data-tippy-placement="right">' +
-            displayedCount + ' Displayed</span>)';
+            displayedCount + ' rendered</span>)';
         tippy(summaryElem.querySelector('.displayed-count'), { maxWidth: 'none' });
     }
 
     this.onChannelDisplayChanged = function() {
+        _self.updateChannelSummary();
+    }
+
+    this.removeChannel = function(osdItemId) {
+        var item = _self.collection[osdItemId];
+        if (!item) return;
+
+        // hide it in the viewer first
+        if (item.isDisplay) {
+            item.onClickToggleDisplay(null, false);
+        }
+
+        // remove from DOM and collection
+        if (item.elem && item.elem.parentNode) {
+            item.elem.parentNode.removeChild(item.elem);
+        }
+        delete _self.collection[osdItemId];
+
         _self.updateChannelSummary();
     }
 
@@ -305,12 +334,15 @@ function ChannelList(parent) {
                             channelHamburger.join(''),
                         "</div>",
                     "</div>",
+                    "<div class='channel-summary-row' id='channel-summary-row'>",
+                        "<div class='channel-summary' id='channel-summary'></div>",
+                        "<button type='button' id='add-channels-btn' class='add-channels-btn' data-tippy-content='Add more channels to be displayed'>Add</button>",
+                    "</div>",
                     "<div class='search-container input-group'>",
-                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Search channels' />",
+                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Filter channels' />",
                         "<i class='fas fa-times search-clear' id='channel-search-clear'></i>",
                         "<span class='input-group-addon'><i class='fas fa-search'></i></span>",
                     "</div>",
-                    "<div class='channel-summary' id='channel-summary'></div>",
                 "</div>",
                 "<div class='groups'></div>"
             ].join("");
@@ -358,6 +390,17 @@ function ChannelList(parent) {
         if (saveAllBtn) saveAllBtn.addEventListener('click', this.saveAllChannels);
         if (dismissBtn) dismissBtn.addEventListener('click', this.onClickedMenuHandler);
         if (toggleChannelNamesBtn) toggleChannelNamesBtn.addEventListener('click', this.toggleChannelNames);
+
+        var openChannelSelector = function () {
+            var visibleChannelIds = Object.keys(collection);
+            _self.parent.dispatchEvent('showChannelSelector', { selectedChannelIds: visibleChannelIds });
+        };
+
+        const addChannelsBtn = this.elem.querySelector('#add-channels-btn');
+        if (addChannelsBtn) {
+            addChannelsBtn.addEventListener('click', openChannelSelector);
+            tippy(addChannelsBtn, { maxWidth: 'none' });
+        }
 
         // Wire up search functionality
         if (searchInput && searchClear) {
