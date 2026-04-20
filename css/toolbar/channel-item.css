@@ -13,7 +13,7 @@
     /* color: #c1c1c1; */
     font-size: 14px;
     cursor: pointer;
-    padding: 2px 1px 3px 10px;
+    padding: 2px 5px 3px 10px;
 }
 
 #navMenuContent .groups .channelItem .channelRow:hover{
@@ -66,6 +66,21 @@
 
 #navMenuContent .groups .channelItem .channel-control-btn.remove-channel:hover {
     color: #e57373;
+}
+
+#navMenuContent .groups .channelItem .channel-control-btn.drag-handle {
+    cursor: grab;
+    padding: 0 4px;
+}
+
+#navMenuContent .groups .channelItem.drag-ghost {
+    opacity: 0.4;
+    background: #2d2d2d;
+}
+
+#navMenuContent .groups .channelItem.drag-chosen {
+    background: #2d2d2d;
+    cursor: grabbing;
 }
 
 #navMenuContent .groups .channelItem .setting{

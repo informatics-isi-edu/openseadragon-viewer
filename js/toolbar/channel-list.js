@@ -411,5 +411,28 @@ function ChannelList(parent) {
             this.updateChannelSummary();
         }
 
+        // Drag-to-reorder via SortableJS
+        var groupsContainer = this.elem.querySelector('.groups');
+        if (groupsContainer && typeof Sortable !== 'undefined') {
+            Sortable.create(groupsContainer, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'drag-ghost',
+                chosenClass: 'drag-chosen',
+                onEnd: function (evt) {
+                    // Rebuild collection order to match the new DOM order
+                    var newCollection = {};
+                    groupsContainer.querySelectorAll('.channelItem').forEach(function (itemElem) {
+                        var id = itemElem.getAttribute('item-id');
+                        if (_self.collection[id]) {
+                            newCollection[id] = _self.collection[id];
+                        }
+                    });
+                    _self.collection = newCollection;
+                    // TODO (phase 2): propagate new order to OSD layer compositing via replaceChannelList
+                }
+            });
+        }
+
     }
 }

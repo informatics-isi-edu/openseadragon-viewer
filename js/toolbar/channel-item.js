@@ -479,6 +479,7 @@ function ChannelItem(data) {
                     "<span class='channel-control-btn reset-settings' data-tippy-content='Reset settings of this channel'><i class='fas fa-undo'></i></span>",
                     "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getButtonTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
                     "<span class='channel-control-btn remove-channel' data-tippy-content='Remove this channel from the list'><i class='fas fa-times'></i></span>",
+                    "<span class='channel-control-btn drag-handle' data-tippy-content='Drag and drop this channel to the desired position'><i class='fas fa-grip-vertical'></i></span>",
                 "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",
@@ -619,6 +620,13 @@ function ChannelItem(data) {
         this.elem.querySelectorAll(".channelRow .toggleVisibility").forEach(function(elem){
             elem.addEventListener('click', this.onClickToggleDisplay);
         }.bind(this));
+
+        // Drag handle — stop click from bubbling up to the expand/collapse row handler
+        this.elem.querySelectorAll(".channelRow .drag-handle").forEach(function(elem){
+            elem.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        });
 
         // Remove channel from the list
         this.elem.querySelectorAll(".channelRow .remove-channel").forEach(function(elem){

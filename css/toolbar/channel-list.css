@@ -30,8 +30,9 @@
 }
 
 #menuContainer #navMenuContent .channelList .search-container {
-    padding: 0px 10px 10px 10px;
     position: relative;
+    /* padding: 0px 10px 10px 10px; */
+    padding: 5px;
 }
 
 #menuContainer #navMenuContent .channelList .search-input {
@@ -62,7 +63,7 @@
 
 #menuContainer #navMenuContent .channelList .search-clear {
     position: absolute;
-    right: 48px;
+    right: 60px;
     top: calc(50% - 5px);
     transform: translateY(-50%);
     color: #888;
@@ -84,7 +85,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 10px;
+    font-size: 14px;
+    /* padding: 6px 10px;
+    padding-bottom: 15px; */
+    padding: 5px;
 }
 
 #menuContainer #navMenuContent .channelList .channel-summary {
@@ -92,13 +96,16 @@
     color: #888;
     text-align: left;
 }
+#menuContainer #navMenuContent .channelList .channel-summary .displayed-count {
+    text-decoration: underline dotted;
+}
+
 
 #menuContainer #navMenuContent .channelList .add-channels-btn {
     background: #2d2d2d;
     color: #d9d6d6;
     border: 1px solid #444;
     padding: 3px 10px;
-    font-size: 12px;
     cursor: pointer;
     border-radius: 3px;
     white-space: nowrap;
