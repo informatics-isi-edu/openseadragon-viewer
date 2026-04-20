@@ -63,8 +63,8 @@
 
 #menuContainer #navMenuContent .channelList .search-clear {
     position: absolute;
-    right: 60px;
-    top: calc(50% - 5px);
+    right: 55px;
+    top: calc(50%);
     transform: translateY(-50%);
     color: #888;
     cursor: pointer;

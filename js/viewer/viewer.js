@@ -908,7 +908,8 @@ function Viewer(parent, config) {
 
     // Load Image and Channel information
     // params: {zIndex, info: {url, channelNumber}}
-    this.loadImages = function (params) {
+    // replaceChannelInfo: when true, forces a full channel reset (used by replaceChannels flow)
+    this.loadImages = function (params, replaceChannelInfo) {
         if (typeof params != 'object' && !Array.isArray(params.info)) {
             return;
         }
@@ -921,9 +922,17 @@ function Viewer(parent, config) {
         // remove the existing images
         if (_self.osd.world.getItemCount() > 0) {
 
-            // if the number of channels between Zs didnt change
-            // (this should always be true, it's just an additional check)
-            usePreviousChannelInfo = (_self.osd.world.getItemCount() === Object.keys(_self.channels).length);
+            if (replaceChannelInfo) {
+                // full channel replacement: wipe the existing channel objects so nothing
+                // from the previous set leaks into this load (count, colors, configs, etc.)
+                _self.channels = {};
+            } else {
+                // z-plane switch: reuse channel info only if new and old channel counts all match
+                usePreviousChannelInfo = (
+                    params.info.length === Object.keys(_self.channels).length &&
+                    _self.osd.world.getItemCount() === Object.keys(_self.channels).length
+                );
+            }
 
             // remove existing images
             _self.osd.world.removeAll();
@@ -1015,13 +1024,17 @@ function Viewer(parent, config) {
                 // by default we're only channel name overlay for multi-channel images
                 _self._showChannelNamesOverlay = (params.info.length > 1);
 
-                // only show the few first
-                const defVal = _self.config.constants.DEFAULT_CHANNEL_LIST;
-                const channelLimit =
-                  params.info.length > defVal.THRESHOLD
-                    ? defVal.HIGH_VOLUME_COUNT
-                    : defVal.LOW_VOLUME_COUNT;
-                options["isDisplay"] = (i < channelLimit);
+                // when hasMore is true, only show the first channel by default
+                if (_self.parameters.hasMore) {
+                    options["isDisplay"] = (i === 0);
+                } else {
+                    const defVal = _self.config.constants.DEFAULT_CHANNEL_LIST;
+                    const channelLimit =
+                      params.info.length > defVal.THRESHOLD
+                        ? defVal.HIGH_VOLUME_COUNT
+                        : defVal.LOW_VOLUME_COUNT;
+                    options["isDisplay"] = (i < channelLimit);
+                }
 
                 // add to the list of channels
                 channel = new Channel(i, channelName, info.channelNumber, options);
@@ -1054,7 +1067,9 @@ function Viewer(parent, config) {
             // Dispatch event to toolbar to update channel list
             _self.dispatchEvent('replaceChannelList', {
                 channelList: channelList,
-                showChannelNamesOverlay: _self._showChannelNamesOverlay
+                showChannelNamesOverlay: _self._showChannelNamesOverlay,
+                hasMore: _self.parameters.hasMore,
+                totalCount: _self.parameters.totalChannelCount
             });
         }
 

@@ -13,6 +13,8 @@ function ChannelList(parent) {
      * @type {string}
      */
     this._searchTerm = '';
+    this.hasMore = false;
+    this.totalCount = 0;
 
     /**
      * Check whether a channel is excluded by the current search filter.
@@ -64,6 +66,8 @@ function ChannelList(parent) {
         this.elem = null;
         this.add(data.channelList);
         this.showChannelNamesOverlay = data.showChannelNamesOverlay;
+        this.hasMore = !!data.hasMore;
+        this.totalCount = data.totalCount || 0;
 
         this.render();
     }
@@ -196,11 +200,20 @@ function ChannelList(parent) {
             }
         }
 
-        // Show empty state if no matches
-        if (matchCount === 0 && searchQuery !== '') {
+        // Show empty state if no channels in collection, or no search matches
+        var collectionEmpty = Object.keys(_self.collection).length === 0;
+        if (matchCount === 0 && (searchQuery !== '' || collectionEmpty)) {
             var noResultsElem = document.createElement('div');
             noResultsElem.className = 'no-results-message';
-            noResultsElem.innerHTML = 'No matches. Try <a href="#" class="no-results-add-link">adding</a> more channels.';
+            if (collectionEmpty && searchQuery === '') {
+                noResultsElem.innerHTML = _self.hasMore
+                    ? 'No channels. Try <a href="#" class="no-results-add-link">adding</a> some.'
+                    : 'No channels.';
+            } else {
+                noResultsElem.innerHTML = _self.hasMore
+                    ? 'No matches. Try <a href="#" class="no-results-add-link">adding</a> more channels.'
+                    : 'No matches.';
+            }
             groupsContainer.insertBefore(noResultsElem, groupsContainer.firstChild);
 
             var addLink = noResultsElem.querySelector('.no-results-add-link');
@@ -247,9 +260,7 @@ function ChannelList(parent) {
             }
         }
 
-        // TODO: replace addedCount with the actual total from the database,
-        // fetched during the initial load (e.g. passed via osdViewerParameters).
-        var totalInDB = addedCount;
+        var totalInDB = _self.hasMore ? _self.totalCount : addedCount;
 
         var renderedSingle = displayedCount === 1;
         var tooltipText = displayedCount + ' ' + (renderedSingle ? 'channel' : 'channels') + ' in the list';
@@ -283,7 +294,7 @@ function ChannelList(parent) {
         }
         delete _self.collection[osdItemId];
 
-        _self.updateChannelSummary();
+        _self.filterChannels();
     }
 
 
@@ -334,10 +345,12 @@ function ChannelList(parent) {
                             channelHamburger.join(''),
                         "</div>",
                     "</div>",
-                    "<div class='channel-summary-row' id='channel-summary-row'>",
-                        "<div class='channel-summary' id='channel-summary'></div>",
-                        "<button type='button' id='add-channels-btn' class='add-channels-btn' data-tippy-content='Add more channels to be displayed'>Add</button>",
-                    "</div>",
+                    (this.hasMore ? [
+                        "<div class='channel-summary-row' id='channel-summary-row'>",
+                            "<div class='channel-summary' id='channel-summary'></div>",
+                            "<button type='button' id='add-channels-btn' class='add-channels-btn' data-tippy-content='Add more channels to be displayed'>Add</button>",
+                        "</div>",
+                    ].join('') : ''),
                     "<div class='search-container input-group'>",
                         "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Filter channels' />",
                         "<i class='fas fa-times search-clear' id='channel-search-clear'></i>",

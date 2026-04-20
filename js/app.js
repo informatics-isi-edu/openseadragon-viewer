@@ -185,6 +185,14 @@ var OSDViewer = (function (_config) {
                 case 'initializeViewer':
                     viewer.init(utils, data);
                     break;
+                case 'replaceChannels':
+                    // Update channel metadata then reload images; loadImages will dispatch
+                    // replaceChannelList internally to refresh the toolbar UI.
+                    viewer.parameters.channels = data.channels;
+                    viewer.parameters.hasMore = data.hasMore;
+                    viewer.parameters.totalChannelCount = data.totalChannelCount;
+                    viewer.loadImages(data.mainImage, true);
+                    break;
                 case 'updateZPlaneList':
                     toolbar && toolbar.updateZPlaneList(data);
                     break;
