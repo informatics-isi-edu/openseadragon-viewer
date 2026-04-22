@@ -52,7 +52,7 @@ var _config = {
         constants: {
             DEFAULT_CHANNEL_LIST: {
                 /**
-                 * Threshold: the minimum number of pixels required for a channel to be considered "high volume".
+                 * Threshold: the minimum number of channels required for an image to be considered "high volume".
                  */
                 THRESHOLD: 10,
                 /**

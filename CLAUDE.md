@@ -36,7 +36,7 @@ Deploy env vars (all must have trailing `/`):
 
 - **Channels** (`js/viewer/channel/`) — Multi-channel image compositing with per-channel color filters. `channel.js` manages individual channel state; `channel-filter.js` handles hue/intensity filtering.
 - **Annotations** (`js/viewer/annotation/`) — SVG-based drawing system. `annotation-group.js` groups annotations; `annotation-svg.js` manages the SVG overlay. Shape types (rect, circle, polygon, polyline, line, arrowline, path, text) each extend `base.js`.
-- **Toolbar components** (`js/toolbar/`) — `channel-list.js`/`channel-item.js` for channel UI, `annotation-tool.js` for drawing tools, `z-plane-list.js` for z-axis navigation.
+- **Toolbar components** (`js/toolbar/`) — `channel-list.js`/`channel-item.js` for channel UI, `annotation-tool.js` for drawing tools, `z-plane-list.js` for z-axis navigation. `ChannelList` owns a `collection` dict (`osdItemId → ChannelItem`). `hasMore` (more channels exist in the backend than are loaded) gates the remove-channel button, "Add channels" button, and empty-state copy; `totalCount` is the backend total used in the counter display. Each `ChannelItem` carries an `acls` object; `acls.canUpdateConfig` gates the save-settings button.
 
 ### Communication Pattern
 
@@ -44,4 +44,8 @@ OSD viewer communicates with its parent (Chaise) via `window.postMessage`. The `
 
 ### Vendor Libraries
 
-All in `vendor/`, no package manager. Key deps: OpenSeadragon, D3.js, jQuery 3.4.1, Bootstrap, Tippy.js (tooltips), noUiSlider, Font Awesome.
+All in `vendor/`, no package manager. Key deps: OpenSeadragon, D3.js, jQuery 3.4.1, Bootstrap, Tippy.js (tooltips), noUiSlider, SortableJS (drag-to-reorder in channel list), Font Awesome.
+
+### CSS
+
+CSS files mirror the JS component structure — `css/toolbar/channel-item.css` corresponds to `js/toolbar/channel-item.js`, etc. Toolbar styles are scoped under `#navMenuContent`; viewer styles under `#openseadragonDiv`.

@@ -21500,6 +21500,8 @@ function onTileLoad( tiledImage, tile, time, image, errorMsg, tileRequest ) {
     if ( time < tiledImage.lastResetTime ) {
         $.console.log( "Ignoring tile %s loaded before reset: %s", tile, tile.url );
         tile.loading = false;
+        // NOTE: The following is added by DERIVA developers:
+        tiledImage._needsDraw = true; // ensure OSD re-requests this tile on the next frame
         return;
     }
 

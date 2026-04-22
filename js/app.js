@@ -169,6 +169,10 @@ var OSDViewer = (function (_config) {
             case "updateChannelConfig":
                 window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
                 break;
+            // ask chaise to open the Image_Channel multi-select picker
+            case "showChannelSelector":
+                window.parent.postMessage({ messageType: type, content: data }, window.location.origin);
+                break;
         }
     }
 
@@ -180,6 +184,14 @@ var OSDViewer = (function (_config) {
             switch (messageType) {
                 case 'initializeViewer':
                     viewer.init(utils, data);
+                    break;
+                case 'replaceChannels':
+                    // Update channel metadata then reload images; loadImages will dispatch
+                    // replaceChannelList internally to refresh the toolbar UI.
+                    viewer.parameters.channels = data.channels;
+                    viewer.parameters.hasMore = data.hasMore;
+                    viewer.parameters.totalChannelCount = data.totalChannelCount;
+                    viewer.loadImages(data.mainImage, true);
                     break;
                 case 'updateZPlaneList':
                     toolbar && toolbar.updateZPlaneList(data);

@@ -13,6 +13,8 @@ function ChannelList(parent) {
      * @type {string}
      */
     this._searchTerm = '';
+    this.hasMore = false;
+    this.totalCount = 0;
 
     /**
      * Check whether a channel is excluded by the current search filter.
@@ -60,10 +62,35 @@ function ChannelList(parent) {
     }
 
     this.replaceList = function(data) {
+        var prevExpand = {};
+        for (var id in this.collection) {
+            var item = this.collection[id];
+            prevExpand[item.number] = item.isExpand;
+        }
+
         this.collection = {};
         this.elem = null;
         this.add(data.channelList);
+
+        // Restore expand state and fix originalSettings to DB baseline
+        data.channelList.forEach(function(channelData) {
+            var newItem = _self.collection[channelData.osdItemId];
+            if (!newItem) return;
+
+            if (prevExpand[newItem.number] !== undefined) {
+                newItem.isExpand = prevExpand[newItem.number];
+            }
+
+            // Constructor set originalSettings from live values; restore the DB baseline
+            // so the reset button continues to reset to what's in the database
+            if (channelData.dbOriginalConfig) {
+                Object.assign(newItem.originalSettings, channelData.dbOriginalConfig);
+            }
+        });
+
         this.showChannelNamesOverlay = data.showChannelNamesOverlay;
+        this.hasMore = !!data.hasMore;
+        this.totalCount = data.totalCount || 0;
 
         this.render();
     }
@@ -196,12 +223,31 @@ function ChannelList(parent) {
             }
         }
 
-        // Show empty state if no matches
-        if (matchCount === 0 && searchQuery !== '') {
+        // Show empty state if no channels in collection, or no search matches
+        var collectionEmpty = Object.keys(_self.collection).length === 0;
+        var canAddMore = _self.hasMore && Object.keys(_self.collection).length < _self.totalCount;
+        if (matchCount === 0 && (searchQuery !== '' || collectionEmpty)) {
             var noResultsElem = document.createElement('div');
             noResultsElem.className = 'no-results-message';
-            noResultsElem.textContent = 'No matching channels found';
+            if (collectionEmpty && searchQuery === '') {
+                noResultsElem.innerHTML = canAddMore
+                    ? 'No channels added. Try <a href="#" class="no-results-add-link">adding</a> some.'
+                    : 'No channels available.';
+            } else {
+                noResultsElem.innerHTML = canAddMore
+                    ? 'No results found. Try <a href="#" class="no-results-add-link">adding</a> more channels.'
+                    : 'No results found.';
+            }
             groupsContainer.insertBefore(noResultsElem, groupsContainer.firstChild);
+
+            var addLink = noResultsElem.querySelector('.no-results-add-link');
+            if (addLink) {
+                addLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var visibleChannelIds = Object.keys(_self.collection);
+                    _self.parent.dispatchEvent('showChannelSelector', { selectedChannelIds: visibleChannelIds });
+                });
+            }
         }
 
         // Update summary
@@ -218,21 +264,19 @@ function ChannelList(parent) {
         var summaryElem = _self.elem.querySelector('#channel-summary');
         if (!summaryElem) return;
 
-        var totalCount = 0;
-        var visibleCount = 0;
+        var addedCount = 0;
         var displayedCount = 0;
         let totalDisplayedCount = 0;
 
         for (var id in _self.collection) {
             if (_self.collection.hasOwnProperty(id)) {
-                totalCount++;
+                addedCount++;
                 var item = _self.collection[id];
 
                 if (item.isDisplay) {
                     totalDisplayedCount++;
                 }
                 if (!_self._isFilteredOut(id)) {
-                    visibleCount++;
                     if (item.isDisplay) {
                         displayedCount++;
                     }
@@ -240,21 +284,47 @@ function ChannelList(parent) {
             }
         }
 
-        const single = displayedCount === 1;
-        var tooltipText = `${displayedCount} ${single ? 'channel' : 'channels'} in the search list`;
-        if (displayedCount !== totalDisplayedCount) {
-            tooltipText += ` (${totalDisplayedCount} total)`;
-        }
-        tooltipText += ` ${single ? 'is' : 'are'} displayed in the image.`;
+        var totalInDB = _self.hasMore ? _self.totalCount : addedCount;
 
-        summaryElem.innerHTML = 'Found ' + visibleCount + ' of ' + totalCount +
-            ' (<span class="displayed-count" data-tippy-content="' + tooltipText + '" data-tippy-placement="right">' +
-            displayedCount + ' Displayed</span>)';
-        tippy(summaryElem.querySelector('.displayed-count'), { maxWidth: 'none' });
+        var renderedSingle = displayedCount === 1;
+        var tooltipText = displayedCount + ' ' + (renderedSingle ? 'channel' : 'channels') + ' in the list';
+        if (displayedCount !== totalDisplayedCount) {
+            tooltipText += ' (' + totalDisplayedCount + ' total)';
+        }
+        tooltipText += ' ' + (renderedSingle ? 'is' : 'are') + ' rendered in the image.';
+
+        summaryElem.innerHTML = [
+            `Added ${addedCount} of ${totalInDB} (${displayedCount} rendered)`,
+            `<i class="fas fa-info-circle"></i>`
+        ].join('');
+
+        tippy(summaryElem.querySelector('.fa-info-circle'), {
+            content: tooltipText,
+            placement: 'right',
+            maxWidth: 'none'
+        });
     }
 
     this.onChannelDisplayChanged = function() {
         _self.updateChannelSummary();
+    }
+
+    this.removeChannel = function(osdItemId) {
+        var item = _self.collection[osdItemId];
+        if (!item) return;
+
+        // hide it in the viewer first
+        if (item.isDisplay) {
+            item.onClickToggleDisplay(null, false);
+        }
+
+        // remove from DOM and collection
+        if (item.elem && item.elem.parentNode) {
+            item.elem.parentNode.removeChild(item.elem);
+        }
+        delete _self.collection[osdItemId];
+
+        _self.filterChannels();
     }
 
 
@@ -281,7 +351,7 @@ function ChannelList(parent) {
         ]
 
         listElem.setAttribute("class", "channelList");
-        if (collection, Object.keys(collection).length === 0 && collection.constructor === Object) {
+        if (Object.keys(collection).length === 0 && collection.constructor === Object && !this.hasMore) {
             listElem.innerHTML = [
                 "<div class='title-container'>",
                     "<span class='title'>Channels</span>",
@@ -305,12 +375,17 @@ function ChannelList(parent) {
                             channelHamburger.join(''),
                         "</div>",
                     "</div>",
+                    (this.hasMore ? [
+                        "<div class='channel-summary-row' id='channel-summary-row'>",
+                            "<div class='channel-summary' id='channel-summary'></div>",
+                            "<button type='button' id='add-channels-btn' class='add-channels-btn' data-tippy-content='Add more channels to be displayed'>Add</button>",
+                        "</div>",
+                    ].join('') : ''),
                     "<div class='search-container input-group'>",
-                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Search channels' />",
+                        "<input type='text' id='channel-search-input' class='form-control search-input' placeholder='Filter channels' />",
                         "<i class='fas fa-times search-clear' id='channel-search-clear'></i>",
                         "<span class='input-group-addon'><i class='fas fa-search'></i></span>",
                     "</div>",
-                    "<div class='channel-summary' id='channel-summary'></div>",
                 "</div>",
                 "<div class='groups'></div>"
             ].join("");
@@ -359,13 +434,45 @@ function ChannelList(parent) {
         if (dismissBtn) dismissBtn.addEventListener('click', this.onClickedMenuHandler);
         if (toggleChannelNamesBtn) toggleChannelNamesBtn.addEventListener('click', this.toggleChannelNames);
 
+        var openChannelSelector = function () {
+            var visibleChannelIds = Object.keys(collection);
+            _self.parent.dispatchEvent('showChannelSelector', { selectedChannelIds: visibleChannelIds });
+        };
+
+        const addChannelsBtn = this.elem.querySelector('#add-channels-btn');
+        if (addChannelsBtn) {
+            addChannelsBtn.addEventListener('click', openChannelSelector);
+            tippy(addChannelsBtn, { maxWidth: 'none' });
+        }
+
         // Wire up search functionality
         if (searchInput && searchClear) {
             searchInput.addEventListener('input', this.filterChannels);
             searchClear.addEventListener('click', this.clearSearch);
 
-            // Initialize summary
-            this.updateChannelSummary();
+            this.filterChannels();
+        }
+
+        // Drag-to-reorder via SortableJS
+        var groupsContainer = this.elem.querySelector('.groups');
+        if (groupsContainer && typeof Sortable !== 'undefined') {
+            Sortable.create(groupsContainer, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'drag-ghost',
+                chosenClass: 'drag-chosen',
+                onEnd: function (evt) {
+                    // Rebuild collection order to match the new DOM order
+                    var newCollection = {};
+                    groupsContainer.querySelectorAll('.channelItem').forEach(function (itemElem) {
+                        var id = itemElem.getAttribute('item-id');
+                        if (_self.collection[id]) {
+                            newCollection[id] = _self.collection[id];
+                        }
+                    });
+                    _self.collection = newCollection;
+                }
+            });
         }
 
     }
