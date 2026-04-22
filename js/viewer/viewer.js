@@ -193,14 +193,23 @@ function Viewer(parent, config) {
                   _self.resetScalebar(meterScaleInPixels);
                 }
 
-                // apply the intiial channel filters
-                for(var key in _self.channels){
+                // apply the initial channel filters in one batched setFilterOptions call
+                // to avoid resetting items N times (once per channel) which leaves many
+                // in-flight tiles stale and can prevent the spinner from ever hiding
+                for (var key in _self.channels) {
                     var channel = _self.channels[key];
-                    _self.setItemChannel({
-                        id : channel.id,
-                        init: true
-                    });
+                    var item = _self.osd.world.getItemAt(channel.id);
+                    if (!channel || !item) continue;
+                    _self.filters[channel.id] = {
+                        items: [item],
+                        processors: channel.getFiltersList(true)
+                    };
                 }
+                var allFilters = [];
+                for (var key in _self.filters) {
+                    allFilters.push(_self.filters[key]);
+                }
+                _self.osd.setFilterOptions({ filters: allFilters });
 
                 // render the channel names
                 _self.renderChannelNamesOverlay();
@@ -923,8 +932,20 @@ function Viewer(parent, config) {
         if (_self.osd.world.getItemCount() > 0) {
 
             if (replaceChannelInfo) {
-                // full channel replacement: wipe the existing channel objects so nothing
-                // from the previous set leaks into this load (count, colors, configs, etc.)
+                // Snapshot per-channel UI state so we can restore it after the rebuild
+                var prevChannelState = {};
+                for (var key in _self.channels) {
+                    var ch = _self.channels[key];
+                    prevChannelState[ch.number] = {
+                        isDisplay: ch.isDisplay,
+                        blackLevel: ch.blackLevel,
+                        whiteLevel: ch.whiteLevel,
+                        gamma: ch.gamma,
+                        saturation: ch.saturation,
+                        hue: ch.hue,
+                        displayGreyscale: ch.displayGreyscale
+                    };
+                }
                 _self.channels = {};
             } else {
                 // z-plane switch: reuse channel info only if new and old channel counts all match
@@ -1024,8 +1045,12 @@ function Viewer(parent, config) {
                 // by default we're only channel name overlay for multi-channel images
                 _self._showChannelNamesOverlay = (params.info.length > 1);
 
-                // when hasMore is true, only show the first channel by default
-                if (_self.parameters.hasMore) {
+                var prev = prevChannelState ? prevChannelState[info.channelNumber] : null;
+                if (prev) {
+                    // Preserve visibility from the previous set
+                    options["isDisplay"] = prev.isDisplay;
+                } else if (_self.parameters.hasMore) {
+                    // Initial load with hasMore: only show the first channel by default
                     options["isDisplay"] = (i === 0);
                 } else {
                     const defVal = _self.config.constants.DEFAULT_CHANNEL_LIST;
@@ -1039,6 +1064,29 @@ function Viewer(parent, config) {
                 // add to the list of channels
                 channel = new Channel(i, channelName, info.channelNumber, options);
 
+                // Restore live color config for channels that existed before the replace.
+                // Capture the DB baseline first (right after construction) so the toolbar
+                // can keep originalSettings pointed at DB values despite the live override.
+                var dbOriginalConfig = null;
+                if (prev) {
+                    dbOriginalConfig = {
+                        blackLevel: channel.blackLevel,
+                        whiteLevel: channel.whiteLevel,
+                        gamma: channel.gamma,
+                        saturation: channel.saturation,
+                        hue: channel.hue,
+                        displayGreyscale: channel.displayGreyscale
+                    };
+                    channel.setMultiple({
+                        blackLevel: prev.blackLevel,
+                        whiteLevel: prev.whiteLevel,
+                        gamma: prev.gamma,
+                        saturation: prev.saturation,
+                        hue: prev.hue,
+                        displayGreyscale: prev.displayGreyscale
+                    });
+                }
+
                 _self.channels[i] = channel;
                 channelList.push({
                     number: info.channelNumber,
@@ -1051,7 +1099,8 @@ function Viewer(parent, config) {
                     displayGreyscale : channel['displayGreyscale'],
                     osdItemId: channel["id"],
                     isDisplay: channel["isDisplay"],
-                    acls: options['acls']
+                    acls: options['acls'],
+                    dbOriginalConfig: dbOriginalConfig
                 });
             }
 
@@ -1061,6 +1110,12 @@ function Viewer(parent, config) {
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
             });
+        }
+
+        // No images were added — hide the spinner immediately since no tile events will fire
+        if (params.info.length === 0) {
+            _self.resetSpinner();
+            _self.renderChannelNamesOverlay();
         }
 
         if (!usePreviousChannelInfo) {
@@ -1596,8 +1651,7 @@ function Viewer(parent, config) {
             return;
         }
 
-        var svgAnnotation = this.svgCollection[svgID],
-            savedState = this.savedAnnotationGroupStates[svgID][groupID];
+        var svgAnnotation = this.svgCollection[svgID];
 
         // if this a already saved group, just remove it since it will be added by the following code
         if (svgAnnotation.groups[groupID]) {
@@ -1621,7 +1675,7 @@ function Viewer(parent, config) {
          *   (foreignObject of text) needs a SVG element to work.
          */
         var svgFile = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svgFile.innerHTML = savedState;
+        svgFile.innerHTML = this.savedAnnotationGroupStates[svgID][groupID];
 
         svgAnnotation.parseSVGNodes(svgFile.childNodes);
 
@@ -1629,6 +1683,6 @@ function Viewer(parent, config) {
         this.resizeSVG();
 
         // delete the saved state
-        delete savedState;
+        delete this.savedAnnotationGroupStates[svgID][groupID];
     }
 }

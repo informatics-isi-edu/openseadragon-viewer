@@ -479,7 +479,7 @@ function ChannelItem(data) {
                     "<span class='channel-control-btn reset-settings' data-tippy-content='Reset settings of this channel'><i class='fas fa-undo'></i></span>",
                     "<span class='channel-control-btn toggleVisibility' data-tippy-content='" + this.getButtonTooltip('toggleDisplay') + "' data-type='visibility'><i class='"+this.getIconClass("toggleDisplay")+"'></i></span>",
                     (_self.parent.hasMore ? "<span class='channel-control-btn remove-channel' data-tippy-content='Remove this channel from the list'><i class='fas fa-times'></i></span>" : ""),
-                    (_self.parent.hasMore ? "<span class='channel-control-btn drag-handle' data-tippy-content='Drag and drop this channel to the desired position'><i class='fas fa-grip-vertical'></i></span>" : ""),
+                    (Object.keys(_self.parent.collection).length > 1 ? "<span class='channel-control-btn drag-handle' data-tippy-content='Drag and drop this channel to the desired position'><i class='fas fa-grip-vertical'></i></span>" : ""),
                 "</span>",
             "</div>",
             "<div class='setting" + (!this.isExpand ? " collapse" : "") + "'>",

@@ -62,9 +62,32 @@ function ChannelList(parent) {
     }
 
     this.replaceList = function(data) {
+        var prevExpand = {};
+        for (var id in this.collection) {
+            var item = this.collection[id];
+            prevExpand[item.number] = item.isExpand;
+        }
+
         this.collection = {};
         this.elem = null;
         this.add(data.channelList);
+
+        // Restore expand state and fix originalSettings to DB baseline
+        data.channelList.forEach(function(channelData) {
+            var newItem = _self.collection[channelData.osdItemId];
+            if (!newItem) return;
+
+            if (prevExpand[newItem.number] !== undefined) {
+                newItem.isExpand = prevExpand[newItem.number];
+            }
+
+            // Constructor set originalSettings from live values; restore the DB baseline
+            // so the reset button continues to reset to what's in the database
+            if (channelData.dbOriginalConfig) {
+                Object.assign(newItem.originalSettings, channelData.dbOriginalConfig);
+            }
+        });
+
         this.showChannelNamesOverlay = data.showChannelNamesOverlay;
         this.hasMore = !!data.hasMore;
         this.totalCount = data.totalCount || 0;
@@ -202,17 +225,18 @@ function ChannelList(parent) {
 
         // Show empty state if no channels in collection, or no search matches
         var collectionEmpty = Object.keys(_self.collection).length === 0;
+        var canAddMore = _self.hasMore && Object.keys(_self.collection).length < _self.totalCount;
         if (matchCount === 0 && (searchQuery !== '' || collectionEmpty)) {
             var noResultsElem = document.createElement('div');
             noResultsElem.className = 'no-results-message';
             if (collectionEmpty && searchQuery === '') {
-                noResultsElem.innerHTML = _self.hasMore
-                    ? 'No channels. Try <a href="#" class="no-results-add-link">adding</a> some.'
-                    : 'No channels.';
+                noResultsElem.innerHTML = canAddMore
+                    ? 'No channels added. Try <a href="#" class="no-results-add-link">adding</a> some.'
+                    : 'No channels available.';
             } else {
-                noResultsElem.innerHTML = _self.hasMore
-                    ? 'No matches. Try <a href="#" class="no-results-add-link">adding</a> more channels.'
-                    : 'No matches.';
+                noResultsElem.innerHTML = canAddMore
+                    ? 'No results found. Try <a href="#" class="no-results-add-link">adding</a> more channels.'
+                    : 'No results found.';
             }
             groupsContainer.insertBefore(noResultsElem, groupsContainer.firstChild);
 
@@ -269,10 +293,16 @@ function ChannelList(parent) {
         }
         tooltipText += ' ' + (renderedSingle ? 'is' : 'are') + ' rendered in the image.';
 
-        summaryElem.innerHTML = 'Added ' + addedCount + ' of ' + totalInDB +
-            ' (<span class="displayed-count" data-tippy-content="' + tooltipText + '" data-tippy-placement="right">' +
-            displayedCount + ' rendered</span>)';
-        tippy(summaryElem.querySelector('.displayed-count'), { maxWidth: 'none' });
+        summaryElem.innerHTML = [
+            `Added ${addedCount} of ${totalInDB} (${displayedCount} rendered)`,
+            `<i class="fas fa-info-circle"></i>`
+        ].join('');
+
+        tippy(summaryElem.querySelector('.fa-info-circle'), {
+            content: tooltipText,
+            placement: 'right',
+            maxWidth: 'none'
+        });
     }
 
     this.onChannelDisplayChanged = function() {
@@ -321,7 +351,7 @@ function ChannelList(parent) {
         ]
 
         listElem.setAttribute("class", "channelList");
-        if (collection, Object.keys(collection).length === 0 && collection.constructor === Object) {
+        if (Object.keys(collection).length === 0 && collection.constructor === Object && !this.hasMore) {
             listElem.innerHTML = [
                 "<div class='title-container'>",
                     "<span class='title'>Channels</span>",
@@ -420,8 +450,7 @@ function ChannelList(parent) {
             searchInput.addEventListener('input', this.filterChannels);
             searchClear.addEventListener('click', this.clearSearch);
 
-            // Initialize summary
-            this.updateChannelSummary();
+            this.filterChannels();
         }
 
         // Drag-to-reorder via SortableJS
@@ -442,7 +471,6 @@ function ChannelList(parent) {
                         }
                     });
                     _self.collection = newCollection;
-                    // TODO (phase 2): propagate new order to OSD layer compositing via replaceChannelList
                 }
             });
         }
