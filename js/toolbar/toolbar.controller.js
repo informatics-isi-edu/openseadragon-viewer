@@ -99,6 +99,15 @@ function ToolbarController(parent, config){
         }
     }
 
+    this.addToChannelList = function(data) {
+        this.channelList.addToList(data);
+        this._toolbarView.renderChannelContent(this.channelList, true);
+        if (Array.isArray(data.channelList) && data.channelList.length > 0) {
+            this.onClickedMenuHandler('channelList', true);
+            this.dispatchEvent('showChannelList');
+        }
+    };
+
     this.updateChannelConfigDone = function (data) {
         this.channelList.saveAllChannelsDone(data);
     }

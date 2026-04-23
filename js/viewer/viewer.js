@@ -1130,6 +1130,88 @@ function Viewer(parent, config) {
 
     }
 
+    // Append new channels and their images without clearing existing ones.
+    // Called in response to the 'addChannels' postMessage from Chaise.
+    this.addImages = function (params, hideByDefault) {
+        if (typeof params !== 'object' || !Array.isArray(params.info)) return;
+
+        var startIndex = Object.keys(_self.channels).length;
+        var channelList = [];
+
+        _self.resetSpinner(true);
+        _self._showChannelNamesOverlay = (startIndex + params.info.length) > 1;
+
+        for (var i = 0; i < params.info.length; i++) {
+            var info = params.info[i];
+            var osdIndex = startIndex + i;
+            var channelInfo = _self.getChannelInfo(info.channelNumber);
+
+            var channelName = channelInfo.channelName ? channelInfo.channelName : '';
+            if (channelInfo.aliasName) channelName = channelInfo.aliasName;
+            if (typeof channelName !== 'string' || channelName.length === 0) channelName = osdIndex.toString();
+
+            var options = {};
+            if (typeof channelInfo.pseudoColor === 'string') {
+                var hexToRGB = _self._utils.colorHexToRGB(channelInfo.pseudoColor);
+                options.pseudoColor = hexToRGB ? hexToRGB : channelInfo.pseudoColor;
+            }
+            if (typeof channelInfo.isRGB === 'boolean') options.isRGB = channelInfo.isRGB;
+            if (typeof channelInfo.channelConfig === 'object' && channelInfo.channelConfig != null) options.channelConfig = channelInfo.channelConfig;
+            if (typeof channelInfo.acls === 'object' && channelInfo.acls != null) options.acls = channelInfo.acls;
+            options.isMultiChannel = true;
+            options.isDisplay = !hideByDefault;
+
+            var channel = new Channel(osdIndex, channelName, info.channelNumber, options);
+            _self.channels[osdIndex] = channel;
+
+            channelList.push({
+                number: info.channelNumber,
+                name: channel.name,
+                blackLevel: channel.blackLevel,
+                whiteLevel: channel.whiteLevel,
+                gamma: channel.gamma,
+                saturation: channel.saturation,
+                hue: channel.hue,
+                displayGreyscale: channel.displayGreyscale,
+                osdItemId: channel.id,
+                isDisplay: channel.isDisplay,
+                acls: options.acls,
+            });
+
+            var tileSource;
+            var url = info.url;
+            if (url.indexOf('ImageProperties.xml') !== -1) {
+                var xmlString = _self._utils.getUrlContent(url);
+                var imgPath = url.replace('/ImageProperties.xml', '');
+                var xmlDoc = new DOMParser().parseFromString(xmlString.trim(), 'application/xml');
+                xmlDoc = xmlDoc.getElementsByTagName('IMAGE_PROPERTIES')[0];
+                tileSource = _self.buildTileSource(xmlDoc, imgPath);
+            } else if (url.indexOf('info.json') !== -1) {
+                tileSource = url;
+            } else {
+                tileSource = { type: 'image', url: url };
+            }
+
+            _self.osd.addTiledImage({
+                tileSource: tileSource,
+                compositeOperation: 'lighter',
+                opacity: (channel["isDisplay"] ? 1 : 0),
+            });
+        }
+
+        if (params.info.length === 0 || hideByDefault) {
+            _self.resetSpinner();
+            _self.renderChannelNamesOverlay();
+        }
+
+        _self.dispatchEvent('addToChannelList', {
+            channelList: channelList,
+            showChannelNamesOverlay: _self._showChannelNamesOverlay,
+            hasMore: _self.parameters.hasMore,
+            totalCount: _self.parameters.totalChannelCount,
+        });
+    };
+
     // Show tooltip when mouse over the annotation on Openseadragon viewer
     this.onMouseoverShowTooltip = function(data){
 
