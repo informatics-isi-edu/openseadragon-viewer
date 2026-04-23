@@ -26,7 +26,7 @@ function ChannelList(parent) {
         return _self.collection[id].name.toLowerCase().indexOf(_self._searchTerm) === -1;
     };
 
-    // Add new channel items
+    // Add new channel items to this.collection. DOM rendering is the caller's responsibility.
     this.add = function(items) {
         var id,
             item,
@@ -52,11 +52,6 @@ function ChannelList(parent) {
                 });
 
                 this.collection[id] = item;
-
-                if (this.elem != null) {
-                    item.render();
-                    this.elem.querySelector(".groups").appendChild(item.elem);
-                }
             }
         }
     }
@@ -94,6 +89,14 @@ function ChannelList(parent) {
 
         this.render();
     }
+
+    this.addToList = function(data) {
+        this.add(data.channelList);
+        this.showChannelNamesOverlay = data.showChannelNamesOverlay;
+        this.hasMore = !!data.hasMore;
+        this.totalCount = data.totalCount || 0;
+        this.render();
+    };
 
     this.updateList = function (items) {
         this.add(items);
@@ -294,7 +297,7 @@ function ChannelList(parent) {
         tooltipText += ' ' + (renderedSingle ? 'is' : 'are') + ' rendered in the image.';
 
         summaryElem.innerHTML = [
-            `Added ${addedCount} of ${totalInDB} (${displayedCount} rendered)`,
+            `Added ${addedCount} of ${totalInDB} (${totalDisplayedCount} rendered)`,
             `<i class="fas fa-info-circle"></i>`
         ].join('');
 
@@ -325,6 +328,8 @@ function ChannelList(parent) {
         delete _self.collection[osdItemId];
 
         _self.filterChannels();
+        // channelNumber is included so app.js can remove this channel from viewer.parameters.channels
+        _self.dispatchEvent('channelRemoved', { osdItemId: osdItemId, channelNumber: item.number });
     }
 
 

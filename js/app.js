@@ -101,6 +101,17 @@ var OSDViewer = (function (_config) {
             case "updateGroupInfo":
                 toolbar && toolbar.updateDrawingGroupId(data);
                 break;
+            case "channelRemoved":
+                // Keep viewer.parameters.channels in sync: removing a channel here prevents
+                // getChannelInfo() from finding a stale entry if the same channel is re-added,
+                // which would cause duplicate matches and fall back to a wrong (index-based) name.
+                if (viewer && viewer.parameters && Array.isArray(viewer.parameters.channels) && data.channelNumber != null) {
+                    viewer.parameters.channels = viewer.parameters.channels.filter(function(ch) {
+                        return ch.channelNumber != data.channelNumber;
+                    });
+                }
+                window.parent.postMessage({messageType: type, content: data}, window.location.origin);
+                break;
             case "hideChannelList":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
                 break;
@@ -112,6 +123,9 @@ var OSDViewer = (function (_config) {
                 break;
             case "replaceChannelList":
                 toolbar && toolbar.replaceChannelList(data);
+                break;
+            case "addToChannelList":
+                toolbar && toolbar.addToChannelList(data);
                 break;
             case "onChangeStrokeScale":
                 window.parent.postMessage({messageType: type, content: data}, window.location.origin);
@@ -192,6 +206,13 @@ var OSDViewer = (function (_config) {
                     viewer.parameters.hasMore = data.hasMore;
                     viewer.parameters.totalChannelCount = data.totalChannelCount;
                     viewer.loadImages(data.mainImage, true);
+                    break;
+                case 'addChannels':
+                    // Append new channels without clearing existing ones.
+                    viewer.parameters.channels = (viewer.parameters.channels || []).concat(data.channels);
+                    viewer.parameters.hasMore = data.hasMore;
+                    viewer.parameters.totalChannelCount = data.totalChannelCount;
+                    viewer.addImages(data.mainImage, true);
                     break;
                 case 'updateZPlaneList':
                     toolbar && toolbar.updateZPlaneList(data);
