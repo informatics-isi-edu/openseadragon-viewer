@@ -235,6 +235,15 @@ var OSDViewer = (function (_config) {
                 case 'homeView':
                     viewer.resetHomeView();
                     break;
+                case 'rotate':
+                    // data is the optional content object: { degrees: number }.
+                    // Defaults to -90 (one counterclockwise step) when omitted.
+                    var rotateDegrees = data && typeof data.degrees === 'number' ? data.degrees : -90;
+                    viewer.rotateBy(rotateDegrees);
+                    break;
+                case 'resetRotation':
+                    viewer.resetRotation();
+                    break;
                 case 'downloadView':
                     viewer.exportViewToJPG(data);
                     break;

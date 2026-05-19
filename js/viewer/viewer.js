@@ -1109,6 +1109,8 @@ function Viewer(parent, config) {
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
+                // TODO: rotation - per-image rotation (clockwise, around top-left)
+                degrees: 0,
             });
         }
 
@@ -1196,6 +1198,8 @@ function Viewer(parent, config) {
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
+                // TODO: rotation - per-image rotation (clockwise, around top-left)
+                degrees: 0,
             });
         }
 
@@ -1486,6 +1490,73 @@ function Viewer(parent, config) {
     this.resetHomeView = function () {
         this.osd.viewport.goHome();
         this.osd.viewport.applyConstraints();
+    }
+
+    // Rotate the OSD viewport by the given delta in degrees. Positive values are
+    // clockwise; negative values counterclockwise. Note: this only rotates the
+    // scene. SVG annotation overlays don't follow yet (TODO).
+    //
+    // Two implementations below: animated (smooth tween) and instant (snap).
+    // Toggle by commenting/uncommenting the bodies. Keep exactly one active.
+    this.rotateBy = function (degrees) {
+        // --- animated ---
+        // var current = this.osd.viewport.getRotation();
+        // this._animateRotation(current, current + degrees, 300);
+
+        // --- instant (snap) ---
+        var current = this.osd.viewport.getRotation();
+        this.osd.viewport.setRotation(current + degrees);
+        this.osd.viewport.applyConstraints();
+    }
+
+    // Reset the OSD viewport rotation back to 0 degrees. Same two-mode pattern
+    // as rotateBy: keep exactly one body active.
+    this.resetRotation = function () {
+        // --- animated (shortest path back to 0; e.g. 270° animates +90° through
+        // 360 instead of going the long way back) ---
+        // var current = this.osd.viewport.getRotation();
+        // var target = current > 180 ? 360 : 0;
+        // this._animateRotation(current, target, 300);
+
+        // --- instant (snap) ---
+        this.osd.viewport.setRotation(0);
+        this.osd.viewport.applyConstraints();
+    }
+
+    // requestAnimationFrame handle for the in-progress rotation tween, if any.
+    this._rotationAnimationFrame = null;
+
+    // Smoothly tween the OSD viewport rotation from `from` to `to` over
+    // `duration` ms using an ease-out cubic. OSD 2.4.2 has no built-in viewport
+    // rotation animation, so we drive it manually.
+    this._animateRotation = function (from, to, duration) {
+        var _self = this;
+
+        // cancel any in-progress tween so back-to-back clicks don't fight
+        if (this._rotationAnimationFrame) {
+            cancelAnimationFrame(this._rotationAnimationFrame);
+            this._rotationAnimationFrame = null;
+        }
+
+        var start = performance.now();
+        var ease = function (t) { return 1 - Math.pow(1 - t, 3); };
+
+        var step = function (now) {
+            var t = Math.min((now - start) / duration, 1);
+            var angle = from + (to - from) * ease(t);
+            // setRotation internally normalizes via positiveModulo, so passing
+            // values outside [0, 360) (e.g. -45 or 370) still produces smooth
+            // visual rotation across the 0/360 boundary.
+            _self.osd.viewport.setRotation(angle);
+            if (t < 1) {
+                _self._rotationAnimationFrame = requestAnimationFrame(step);
+            } else {
+                _self._rotationAnimationFrame = null;
+                _self.osd.viewport.applyConstraints();
+            }
+        };
+
+        this._rotationAnimationFrame = requestAnimationFrame(step);
     }
 
     /**
