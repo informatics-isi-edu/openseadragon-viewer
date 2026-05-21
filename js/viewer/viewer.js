@@ -1682,29 +1682,27 @@ function Viewer(parent, config) {
                 "rotate(" + rotation + "deg) " +
                 "translate(" + (-scrTL.x) + "px, " + (-scrTL.y) + "px)";
 
-            // Counter-rotate each text annotation so the text stays upright
-            // regardless of viewport rotation. Combined with the parent SVG's
-            // rotate(R) the net visual rotation is 0, while the anchor stays
-            // glued to the rotated image coordinate.
+            // Counter-rotate the EDITABLE text wrappers (.text-foreign-object-div)
+            // so the user can always type left-to-right regardless of viewport
+            // rotation. The pivot is at the text content's top-left (offset
+            // inward from the wrapper's top-left by padding + border) so that
+            // on finalize the visible position doesn't jump.
             //
-            // The rotation pivot has to point at the text-content's top-left
-            // in both states:
-            //   - editing: wrapper is .text-foreign-object-div, whose top-left
-            //     is OUTSIDE the text content by (padding + border). Pivot
-            //     must be at that inward offset.
-            //   - finalized: wrapper is a bare <p>, whose top-left IS the
-            //     text content. Pivot is at 0 0.
-            // Aligning the pivot keeps the text from jumping on finalize.
+            // Finalized text (<p>) is intentionally NOT touched here.
+            // text.js#transform() bakes a `rotate(-R0)` into the <p> at the
+            // moment of finalize, where R0 is the viewport rotation at that
+            // moment. Combined with the parent SVG's current rotation R, the
+            // visible rotation of the text is (R - R0) — so it's "stickied"
+            // to the image's orientation at creation time and rotates with
+            // subsequent viewport changes like any other shape annotation.
             var textForeignObjects = svgs[i].querySelectorAll(".text-foreign-object");
             for (var j = 0; j < textForeignObjects.length; j++) {
                 var inner = textForeignObjects[j].firstElementChild;
                 if (!inner || !inner.style) continue;
-                var originX = 0, originY = 0;
-                if (inner.classList && inner.classList.contains("text-foreign-object-div")) {
-                    var cs = getComputedStyle(inner);
-                    originX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0);
-                    originY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0);
-                }
+                if (!inner.classList || !inner.classList.contains("text-foreign-object-div")) continue;
+                var cs = getComputedStyle(inner);
+                var originX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0);
+                var originY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0);
                 inner.style.transformOrigin = originX + "px " + originY + "px";
                 inner.style.transform = "rotate(" + (-rotation) + "deg)";
             }
