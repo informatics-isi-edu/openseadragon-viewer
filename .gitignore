@@ -3,3 +3,6 @@ deployment-config.json
 data
 .vscode/*
 !.vscode/extensions.json
+
+# Claude Code user-local settings (personal permissions, env vars, etc.)
+.claude/settings.local.json

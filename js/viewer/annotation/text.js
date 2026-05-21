@@ -77,16 +77,21 @@ Text.prototype.positionAnnotation = function (point) {
 Text.prototype.transform = function () {
 
     var foreignObj = this.getForeignObj();
-    var div = foreignObj.childNodes[0];
-    const hasValue = div && div.childNodes[0] && div.childNodes[0].value && div.childNodes[0].value.trim() != "";
+    // Locate the wrapper and the input by class rather than child index. With
+    // nested contenteditable elements, browsers insert placeholder text / <br>
+    // nodes during focus that shift childNodes[0] away from the expected
+    // element — which previously made hasValue false and silently deleted the
+    // user's text on finalize.
+    var div = foreignObj.querySelector(".text-foreign-object-div");
+    var textInput = foreignObj.querySelector(".text-foreign-object-input");
+    const hasValue = textInput && textInput.innerText && textInput.innerText.trim() != "";
 
-    // if the textarea is empty, just remove the foreignObject
+    // if the input field is empty, just remove the foreignObject
     if (!hasValue) {
         foreignObj.parentNode.removeChild(foreignObj);
     }
     // Transform only if the input is not empty
     else {
-        var textInput = div.childNodes[0];
         var pText = this.createPTag(textInput, true);
 
         var h = div.style.marginTop;
@@ -124,6 +129,14 @@ Text.prototype.transform = function () {
         foreignObj.appendChild(pText);
         pText.style.height = "fit-content";
         pText.style.width = "fit-content";
+
+        // Carry over the counter-rotation that kept the editable wrapper
+        // upright. Without this, the freshly finalized <p> would briefly show
+        // rotated until the next resizeSVG/animation event runs.
+        var viewerParent = this.parent.parent.parent;
+        var rotation = viewerParent.osd.viewport.getRotation();
+        pText.style.transformOrigin = "0 0";
+        pText.style.transform = "rotate(" + (-rotation) + "deg)";
     }
 }
 
@@ -139,7 +152,11 @@ Text.prototype.createPTag = function (originalObj, isTextArea) {
 
     var _self = this;
     var pText = document.createElement("p");
-    var inputValue = isTextArea ? originalObj.value : originalObj.innerHTML;
+    // For the live editable input field (a contenteditable <div>) read innerText
+    // to preserve plain text content and avoid pulling in any browser-injected markup.
+    // For imported/saved annotations the originalObj is already a <p>, so innerHTML
+    // is the right read.
+    var inputValue = isTextArea ? originalObj.innerText : originalObj.innerHTML;
 
     /**
      * make sure the content of p tag stays withing the width, the same as textarea
@@ -303,7 +320,13 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     var svgForeignObj = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
     var textOuterDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-    var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
+    // Use a contenteditable <div> (not <textarea>) for the input field. Native
+    // form widgets like <textarea> are rendered by the browser/OS in a way
+    // that bypasses CSS transforms on ancestor SVGs, so the text content
+    // wouldn't rotate with the rest of the annotation overlay when the
+    // viewport is rotated. A plain <div> is a regular DOM node and follows
+    // the parent .annotationSVG's CSS transform correctly.
+    var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
     this.setForeignObj(svgForeignObj);
 
     fontSize = document.querySelector(".fontInput").value;
@@ -311,10 +334,13 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
 
     // Set the attributes of the foreign object, div and textarea
     textInput.setAttribute("class", "text-foreign-object-input");
-    // Make the text area editable inside the foreign object in SVG by setting the contentEditable attribute
-    textOuterDiv.setAttribute("contentEditable", "true");
+    // Only the inner input div is editable. Previously textOuterDiv and the
+    // foreignObject were also contentEditable, which meant clicks in their
+    // padding/border landed there and typed text ended up outside the styled
+    // input field (no font-size / color inherited). With only textInput
+    // contenteditable, focus always lands in the input regardless of where the
+    // user clicks within the wrapper.
     textInput.setAttribute("contentEditable", "true");
-    svgForeignObj.setAttribute("contentEditable", "true");
     svgForeignObj.setAttribute("stroke", this._attrs["stroke"]);
     // Set the font color same as the stroke color
     textInput.style.color = this._attrs["stroke"];
@@ -346,11 +372,13 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
      * Add event listeners to the textarea for input
      * - update the the height
      */
-    textInput.addEventListener("keydown", function (e) {
-        prev = this.textHeight;
-        this.style.height = (this.scrollHeight) + "px";
+    // Auto-resize the input field to fit its content as the user types.
+    // Use the `input` event (fires after the keystroke is applied, unlike
+    // `keydown` which fires before — so scrollHeight is accurate here).
+    textInput.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
         this.textHeight = this.scrollHeight;
-        textInput.innerHTML = textInput.value;
     });
 
     /*
@@ -367,9 +395,29 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     }
     this.initDragElement();
 
+    // <textarea> has an intrinsic height (one row of its font). A <div> does
+    // not — when empty it collapses to zero height and the user wouldn't see
+    // an input area to click into. Initialize textHeight to one line's worth
+    // of height (font-size × line-height) so the input is visible immediately
+    // and so descenders ('p', 'g', etc.) aren't clipped by a too-tight height.
+    var lineHeight = 1.4;
+    var oneLineHeight = this._attrs["font-size"] * lineHeight;
+    if (!this.textHeight) {
+        this.textHeight = oneLineHeight;
+    }
     textInput.style.height = this.textHeight + "px";
-    textInput.style.overflowY = "hidden";
+    textInput.style.minHeight = oneLineHeight + "px";
+    textInput.style.lineHeight = lineHeight;
     textInput.style.fontSize = this._attrs["font-size"] + "px";
+    // contenteditable <div> shows a thicker default focus ring than <textarea>;
+    // suppress it (the textOuterDiv's border already signals the active text annotation).
+    textInput.style.outline = "none";
+    textInput.style.whiteSpace = "pre-wrap";
+    textInput.style.wordBreak = "break-word";
+    textInput.style.cursor = "text";
+    // Don't constrain overflow on the input — auto-resize keeps it at content
+    // height; clipping descenders would just look like the bug above.
+    textInput.style.overflow = "visible";
     /* Set the border and padding of the div oustide the textarea
     * to create area for dragging the text annotation.
     * The padding is set to 4 times the stroke width to create a draggable area for the div
@@ -378,7 +426,30 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     textOuterDiv.style.borderWidth = (this.parent.getStrokeScale() * this._ratio) + "px";
     textOuterDiv.style.borderStyle = "solid";
     textOuterDiv.style.borderColor = this._attrs["stroke"];
-    textInput.setAttribute("wrap", "hard");
+
+    // Counter-rotate the wrapper so the text reads upright regardless of
+    // viewport rotation. resizeSVG also applies this on every rotation change;
+    // doing it here ensures the very first paint is correct (before any
+    // animation event fires).
+    //
+    // The rotation pivot is set at the text content's top-left, which is
+    // offset by (padding + border) inward from textOuterDiv's own top-left.
+    // After finalize, the <p> tag IS at that offset point (foreignObject is
+    // moved to absorb the offset). Keeping the pivot at the same screen
+    // location across edit/finalize avoids a position jump when the user
+    // clicks away to commit the text.
+    var viewerParent = this.parent.parent.parent;
+    var initialRotation = viewerParent.osd.viewport.getRotation();
+    var paddingPx = this.parent.getStrokeScale() * this._ratio * 4;
+    var borderPx = this.parent.getStrokeScale() * this._ratio;
+    var pivotOffset = paddingPx + borderPx;
+    textOuterDiv.style.transformOrigin = pivotOffset + "px " + pivotOffset + "px";
+    textOuterDiv.style.transform = "rotate(" + (-initialRotation) + "deg)";
+
+    // Focus the input immediately so the user can start typing without a
+    // second click. Defer to the next tick so the element is fully inserted
+    // into the DOM (focus() on a detached element is a no-op in some browsers).
+    setTimeout(function () { textInput.focus(); }, 0);
 }
 
 /**
@@ -391,9 +462,12 @@ Text.prototype.changeFontSize = function (fontSize) {
     this._attrs["font-size"] = this._ratio * fontSize;
 
     var foreignObj = this.getForeignObj();
-    var divCont = foreignObj.childNodes[0];
-    if(divCont == null) return;
-    var textInput = divCont.childNodes[0];
+    if (!foreignObj) return;
+    // Locate the input field by class rather than child index. With nested
+    // contenteditable elements, browsers can insert placeholder text/<br>
+    // nodes during focus, which knocks `childNodes[0]` off the expected node.
+    var textInput = foreignObj.querySelector(".text-foreign-object-input");
+    if (!textInput || !textInput.style) return;
     textInput.style.fontSize = this._ratio * fontSize + "px";
     textInput.style.height = "1px";
     textInput.style.height = textInput.scrollHeight + "px";
@@ -458,9 +532,27 @@ Text.prototype.initDragElement = function () {
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
+
+        // Screen-space drag delta (positive = pointer moved right/down).
+        var deltaScreenX = -pos1;
+        var deltaScreenY = -pos2;
+
+        // The viewport may be rotated. The text's margin (marginLeft/marginTop)
+        // is in the SVG's local coord system, which is rotated by R relative
+        // to the screen. To make the text follow the pointer in screen space
+        // we have to rotate the screen-space delta by -R into margin-space.
+        // Without this, a right-drag at R=90 would move the text down (and
+        // similar gibberish at 180/270).
+        var rotation = _self.parent.parent.parent.osd.viewport.getRotation();
+        var rad = rotation * Math.PI / 180;
+        var cosR = Math.cos(rad);
+        var sinR = Math.sin(rad);
+        var deltaMarginX =  cosR * deltaScreenX + sinR * deltaScreenY;
+        var deltaMarginY = -sinR * deltaScreenX + cosR * deltaScreenY;
+
         // Set the element's new position:
-        divCont.style.marginLeft = divCont.offsetLeft - _self._ratio * pos1 + "px";
-        divCont.style.marginTop = divCont.offsetTop - _self._ratio * pos2 + "px";
+        divCont.style.marginLeft = (divCont.offsetLeft + _self._ratio * deltaMarginX) + "px";
+        divCont.style.marginTop  = (divCont.offsetTop  + _self._ratio * deltaMarginY) + "px";
     }
 
     // This function is called when the user stops dragging the element
@@ -519,7 +611,9 @@ Text.prototype.initResizeElement = function () {
         divCont.style.position = "absolute";
         // Change the width of the text input based on the mouse movement
         divCont.style.width = startWidth + _self._ratio * (e.clientX - startX) + "px";
-        var textArea = divCont.querySelector("textarea");
+        // The input field used to be a <textarea>; it is now a contenteditable
+        // <div>. Match on the class name so this keeps working either way.
+        var textArea = divCont.querySelector(".text-foreign-object-input");
         textArea.style.height = "1px";
         textArea.style.height = textArea.scrollHeight + "px";
 

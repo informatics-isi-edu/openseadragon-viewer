@@ -91,6 +91,10 @@ function Viewer(parent, config) {
         // after each change, make sure svgs are properly positioned
         this.osd.addHandler('animation', this.resizeSVG);
 
+        // setRotation does not animate a spring, so it does not fire 'animation'.
+        // Subscribe to 'rotate' so the overlay follows viewport rotation.
+        this.osd.addHandler('rotate', this.resizeSVG);
+
         // zoom on double click
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
@@ -1500,13 +1504,13 @@ function Viewer(parent, config) {
     // Toggle by commenting/uncommenting the bodies. Keep exactly one active.
     this.rotateBy = function (degrees) {
         // --- animated ---
-        // var current = this.osd.viewport.getRotation();
-        // this._animateRotation(current, current + degrees, 300);
+        var current = this.osd.viewport.getRotation();
+        this._animateRotation(current, current + degrees, 300);
 
         // --- instant (snap) ---
-        var current = this.osd.viewport.getRotation();
-        this.osd.viewport.setRotation(current + degrees);
-        this.osd.viewport.applyConstraints();
+        // var current = this.osd.viewport.getRotation();
+        // this.osd.viewport.setRotation(current + degrees);
+        // this.osd.viewport.applyConstraints();
     }
 
     // Reset the OSD viewport rotation back to 0 degrees. Same two-mode pattern
@@ -1514,13 +1518,13 @@ function Viewer(parent, config) {
     this.resetRotation = function () {
         // --- animated (shortest path back to 0; e.g. 270° animates +90° through
         // 360 instead of going the long way back) ---
-        // var current = this.osd.viewport.getRotation();
-        // var target = current > 180 ? 360 : 0;
-        // this._animateRotation(current, target, 300);
+        var current = this.osd.viewport.getRotation();
+        var target = current > 180 ? 360 : 0;
+        this._animateRotation(current, target, 300);
 
         // --- instant (snap) ---
-        this.osd.viewport.setRotation(0);
-        this.osd.viewport.applyConstraints();
+        // this.osd.viewport.setRotation(0);
+        // this.osd.viewport.applyConstraints();
     }
 
     // requestAnimationFrame handle for the in-progress rotation tween, if any.
@@ -1622,29 +1626,120 @@ function Viewer(parent, config) {
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
             var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
-            // console.log(viewBox);
-            var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
-            var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
-            // var topLeft = {x: _self.osd.world.getItemAt(1).getBounds(true).x + _self.osd.world.getItemAt(0).getBounds(true).x, y : 0 };
-            // var bottomRight = {x: topLeft.x + size.x, y : topLeft.y + size.y};
 
-            // not ignoring the reference point and the scale is provided
-            if(scale){
-                if(!ignoreReferencePoint){
-                    topLeft.x = topLeft.x / scale;
-                    topLeft.y = topLeft.y / scale;
+            // Image-space rectangle this SVG covers. We project three corners (TL, TR, BL)
+            // so the SVG can be sized along the image's natural axes regardless of viewport
+            // rotation. With only two opposing corners (TL, BR), width/height go negative
+            // under 90°/270° rotations.
+            var imgTL = ignoreReferencePoint ? {x: 0, y: 0} : {x: viewBox[0], y: viewBox[1]};
+            var imgBR = ignoreDimension
+                ? {x: size.x, y: size.y}
+                : {x: imgTL.x + viewBox[2], y: imgTL.y + viewBox[3]};
+
+            // Legacy SVG-import path: viewBox stored in pre-scaled coords.
+            if (scale) {
+                if (!ignoreReferencePoint) {
+                    imgTL.x = imgTL.x / scale;
+                    imgTL.y = imgTL.y / scale;
                 }
-                if(!ignoreDimension){
-                    bottomRight.x = bottomRight.x / scale;
-                    bottomRight.y = bottomRight.y / scale;
+                if (!ignoreDimension) {
+                    imgBR.x = imgBR.x / scale;
+                    imgBR.y = imgBR.y / scale;
                 }
             }
-            topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
-            bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
-            svgs[i].setAttribute("x", topLeft.x + "px");
-            svgs[i].setAttribute("y", topLeft.y + "px");
-            svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
-            svgs[i].setAttribute("height", bottomRight.y - topLeft.y + "px");
+            var imgTR = {x: imgBR.x, y: imgTL.y};
+            var imgBL = {x: imgTL.x, y: imgBR.y};
+
+            // imageToViewerElementCoordinates is rotation-aware: it returns the rotated
+            // on-screen position of each image-space corner.
+            var scrTL = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(imgTL.x, imgTL.y));
+            var scrTR = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(imgTR.x, imgTR.y));
+            var scrBL = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(imgBL.x, imgBL.y));
+
+            // Rotation is rigid (preserves distances), so distances between these
+            // projected corners equal the on-screen width/height of the un-rotated image.
+            var width = Math.hypot(scrTR.x - scrTL.x, scrTR.y - scrTL.y);
+            var height = Math.hypot(scrBL.x - scrTL.x, scrBL.y - scrTL.y);
+            var rotation = _self.osd.viewport.getRotation();
+
+            // Place the SVG at the image's rotated top-left on screen, size it along the
+            // image's natural axes, then rotate around that same point so the SVG aligns
+            // with the rotated image. Shape geometry inside (image-coord viewBox) is
+            // unchanged. At rotation === 0 this is identical to the previous behavior.
+            //
+            // Rotation pivot is encoded directly into the transform via translate/rotate/
+            // translate rather than `transform-origin`: nested <svg> elements interpret
+            // `transform-box: view-box` differently across browsers (Firefox uses the
+            // parent SVG's viewport, Chromium uses the element's own), which makes
+            // `transform-origin: 0 0` land on the wrong point. The translate trick
+            // pivots around (scrTL.x, scrTL.y) regardless of those defaults.
+            svgs[i].setAttribute("x", scrTL.x + "px");
+            svgs[i].setAttribute("y", scrTL.y + "px");
+            svgs[i].setAttribute("width", width + "px");
+            svgs[i].setAttribute("height", height + "px");
+            svgs[i].style.transform =
+                "translate(" + scrTL.x + "px, " + scrTL.y + "px) " +
+                "rotate(" + rotation + "deg) " +
+                "translate(" + (-scrTL.x) + "px, " + (-scrTL.y) + "px)";
+
+            // Counter-rotate each text annotation so the text stays upright
+            // regardless of viewport rotation. Combined with the parent SVG's
+            // rotate(R) the net visual rotation is 0, while the anchor stays
+            // glued to the rotated image coordinate.
+            //
+            // The rotation pivot has to point at the text-content's top-left
+            // in both states:
+            //   - editing: wrapper is .text-foreign-object-div, whose top-left
+            //     is OUTSIDE the text content by (padding + border). Pivot
+            //     must be at that inward offset.
+            //   - finalized: wrapper is a bare <p>, whose top-left IS the
+            //     text content. Pivot is at 0 0.
+            // Aligning the pivot keeps the text from jumping on finalize.
+            var textForeignObjects = svgs[i].querySelectorAll(".text-foreign-object");
+            for (var j = 0; j < textForeignObjects.length; j++) {
+                var inner = textForeignObjects[j].firstElementChild;
+                if (!inner || !inner.style) continue;
+                var originX = 0, originY = 0;
+                if (inner.classList && inner.classList.contains("text-foreign-object-div")) {
+                    var cs = getComputedStyle(inner);
+                    originX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0);
+                    originY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0);
+                }
+                inner.style.transformOrigin = originX + "px " + originY + "px";
+                inner.style.transform = "rotate(" + (-rotation) + "deg)";
+            }
+
+            // TODO(rotation-debug): remove after rotation overlay is verified
+            if (window.__rotationDebug) {
+                var r = function(v){ return Math.round(v * 100) / 100; };
+                var bbox = svgs[i].getBoundingClientRect();
+                var cs = getComputedStyle(svgs[i]);
+                var parentBbox = svgs[i].parentNode && svgs[i].parentNode.getBoundingClientRect
+                    ? svgs[i].parentNode.getBoundingClientRect()
+                    : null;
+                console.log(
+                    "[resizeSVG]",
+                    "idx=" + i,
+                    "rot=" + rotation,
+                    "imgTL=(" + r(imgTL.x) + "," + r(imgTL.y) + ")",
+                    "imgBR=(" + r(imgBR.x) + "," + r(imgBR.y) + ")",
+                    "scrTL=(" + r(scrTL.x) + "," + r(scrTL.y) + ")",
+                    "scrTR=(" + r(scrTR.x) + "," + r(scrTR.y) + ")",
+                    "scrBL=(" + r(scrBL.x) + "," + r(scrBL.y) + ")",
+                    "w=" + r(width),
+                    "h=" + r(height),
+                    "bbox=(" + r(bbox.x) + "," + r(bbox.y) + ") " + r(bbox.width) + "x" + r(bbox.height),
+                    "parentBbox=" + (parentBbox ? "(" + r(parentBbox.x) + "," + r(parentBbox.y) + ") " + r(parentBbox.width) + "x" + r(parentBbox.height) : "n/a"),
+                    "tBox=" + cs.transformBox,
+                    "tOrig=" + cs.transformOrigin,
+                    "t=" + cs.transform,
+                    "overflow=" + cs.overflow,
+                    "parentOverflow=" + (svgs[i].parentNode ? getComputedStyle(svgs[i].parentNode).overflow : "n/a"),
+                    "visibility=" + cs.visibility,
+                    "display=" + cs.display,
+                    "shapeCount=" + svgs[i].querySelectorAll("g, rect, circle, polygon, polyline, path, line, foreignObject").length
+                );
+            }
         }
     }
 
