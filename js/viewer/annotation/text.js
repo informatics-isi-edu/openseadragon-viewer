@@ -97,9 +97,6 @@ Text.prototype.transform = function () {
         var h = div.style.marginTop;
         var w = div.style.marginLeft;
 
-        foreignObj.setAttribute('width', pText.style.width);
-        foreignObj.setAttribute('height', pText.style.height);
-
         var divPadding = window.getComputedStyle(div, null).getPropertyValue('padding');
         // We obtain the padding and border of the div element to position the p tag correctly
         // Both properties have been defined in pixels while creating the textarea
@@ -127,6 +124,17 @@ Text.prototype.transform = function () {
         foreignObj.setAttribute("tabindex", -1);
         foreignObj.innerHTML = "";
         foreignObj.appendChild(pText);
+
+        // Size the foreignObject to fit pText exactly. We measure pText after
+        // it's in the DOM (so layout reflects the real <p>, not the contenteditable
+        // <div> it replaced) and use offsetWidth/Height because they ignore CSS
+        // transforms — getBoundingClientRect would return a rotated AABB at
+        // non-zero viewport rotation. offsetWidth/Height are integer-rounded
+        // (floor), so +1 covers the sub-pixel rounding.
+        pText.style.width = "max-content";
+        pText.style.height = "auto";
+        foreignObj.setAttribute('width', (pText.offsetWidth + 1) + 'px');
+        foreignObj.setAttribute('height', (pText.offsetHeight + 1) + 'px');
         pText.style.height = "fit-content";
         pText.style.width = "fit-content";
 
@@ -193,6 +201,25 @@ Text.prototype.createPTag = function (originalObj, isTextArea) {
 
     // Copy the font color of the textarea to the p tag
     pText.style.color = styleObj["color"];
+
+    // For imported (saved) text, preserve the rotation that was baked in at
+    // finalize time. transform() in this file applies `rotate(-R0)` to the
+    // <p> at finalize so subsequent viewport rotation produces a visible
+    // rotation of (R - R0) — i.e. the text is "stickied" to the image's
+    // orientation at creation time. Without copying it here, reload paths
+    // through createPTag drop the transform and the text appears un-rotated.
+    //
+    // Only the imported case needs this; transform() applies the transform
+    // itself after createPTag returns for the live finalize path.
+    if (!isTextArea) {
+        if (styleObj["transform"]) {
+            pText.style.transform = styleObj["transform"];
+        }
+        if (styleObj["transform-origin"]) {
+            pText.style.transformOrigin = styleObj["transform-origin"];
+        }
+    }
+
     // Adding the text-hover class to the p tag for the hover effect to highlight the text
     pText.classList.add("text-hover");
 

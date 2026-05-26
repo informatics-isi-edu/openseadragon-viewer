@@ -25,20 +25,23 @@ AnnotationUtils.prototype.styleObjectToString = function (styleObject) {
  * @return {object} the returned object is a key (eg style property like 'font-size') and value (eg '20px') pair
  */
 AnnotationUtils.prototype.styleStringToObject = function (styleString) {
-	styleString = styleString || '';
-	styleString = styleString.replace(/\s/g, '');
-	if (styleString[styleString.length - 1] == ';') {
-		styleString = styleString.slice(0, styleString.length - 1);
+	// Trim only the outer string and split into declarations; whitespace *within*
+	// a value (e.g. `transform-origin: 0px 0px`) must be preserved or the browser
+	// rejects the value and falls back to the default.
+	styleString = (styleString || '').trim();
+	if (styleString.endsWith(';')) {
+		styleString = styleString.slice(0, -1);
 	}
 
 	var styleObject = {};
+	var declarations = styleString.split(';');
 
-	styleString = styleString.split(';');
-
-	for (i = 0; i < styleString.length; i++) {
-		var property, value;
-		[property, value] = styleString[i].split(':')
-		if (value) {
+	for (var i = 0; i < declarations.length; i++) {
+		var idx = declarations[i].indexOf(':');
+		if (idx === -1) continue;
+		var property = declarations[i].slice(0, idx).trim();
+		var value = declarations[i].slice(idx + 1).trim();
+		if (property && value) {
 			styleObject[property] = value;
 		}
 	}
