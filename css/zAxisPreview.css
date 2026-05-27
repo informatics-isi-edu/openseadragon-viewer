@@ -14,10 +14,11 @@
 
 .z-planes-container .z-plane-slider {
 	height: 25px;
-	width: 400px;
+	width: auto;
 	text-align: center;
 	font-size: 14px;
 	display: flex;
+	align-items: center;
 	justify-content: center;
 	padding-top: 5px;
 	position: relative;
@@ -193,10 +194,20 @@ input.slider{
 	border-left: 1px solid black;
 }
 
-.z-planes-container .z-plane-info-container .update-thumbnails-btn {
+.z-planes-container .z-plane-slider .update-thumbnails-btn {
+	height: 21px;
+	margin-left: 10px;
+	padding: 0 8px;
+	background-color: rgb(70, 116, 167);
 	color: white;
-	margin-right: 5px;
 	border: 1px solid black;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .z-planes-container .z-plane-info-container .info-buttom-container:last-child {
@@ -277,8 +288,17 @@ input.slider{
 }
 
 
+.z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-thumb-wrapper {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
 .z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-image {
 	height: 100%;
+	transform-origin: center;
 }
 
 .z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-id {

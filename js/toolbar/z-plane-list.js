@@ -136,18 +136,15 @@ function ZPlaneList(parent) {
             _self._updateThumbnailWidth();
         }
 
-        // On viewport rotation, only refresh the CURRENT (main) image's
-        // thumbnail — refreshing every thumbnail would hammer the IIIF server
-        // and is rarely what the user actually wants. Thumbnails for other
-        // z-planes keep whatever rotation they were last fetched at; users can
-        // refresh them individually by clicking on them (which makes them the
-        // new main image), or in bulk via the "Update all thumbnails" button.
+        // CSS rotation is free, so refresh every thumbnail on viewport rotate.
         var osdViewer = _self.parent.parent && _self.parent.parent.viewer
             ? _self.parent.parent.viewer.osd
             : null;
         if (osdViewer) {
             osdViewer.addHandler('rotate', function () {
-                _self._updateMainImageThumbnail();
+                _self._updateAllThumbnails();
+                // previous: only the main image refreshed (kept fetch cost low)
+                // _self._updateMainImageThumbnail();
             });
         }
 
@@ -460,7 +457,11 @@ function ZPlaneList(parent) {
     };
 
     /**
-     * Given an index, will return the appropriate thumbnail image
+     * Given an index, will return the appropriate thumbnail image.
+     * The URL is rotation-independent: the same un-rotated IIIF image serves
+     * every rotation, and the actual rotation is applied client-side via CSS
+     * transform on the <img>. This keeps the browser image cache warm across
+     * rotations and removes the round-trip on rotate events.
      * TODO should be moved to somewhere more appropriate
      */
     this._getThumbnailURL = function (index) {
@@ -470,30 +471,36 @@ function ZPlaneList(parent) {
 
         var firstURL = _self.collection[index].info[0].url;
         var height = _self._thumbnailProperties.height;
-        // Each collection item carries its own thumbnailRotation (set when the
-        // item was added or last refreshed). Thumbnails for other z-planes keep
-        // their old rotation until explicitly refreshed.
-        var rotation = (typeof _self.collection[index].thumbnailRotation === 'number')
-            ? _self.collection[index].thumbnailRotation
-            : _self._getCurrentRotation();
-        var width = _self._getThumbnailWidthForRotation(rotation);
+        var nativeWidth = _self._getThumbnailWidthForRotation(0);
 
         // if iiif, use the api to get it
         // NOTE this is hacky and should be documented as an assumption
         // we're assuming that we can use the same iiif server as info.json location
         // and we're ignoring the @id attribute inside the info.json
         if (firstURL.indexOf("info.json") !== -1) {
-            // IIIF size is applied BEFORE rotation, so a 90°/270° rotation
-            // transposes the output. To get an output of `width × height` after
-            // rotation, ask the server for `height,width` at 90°/270° (and
-            // `width,height` at 0°/180°).
-            var urlW = (rotation === 90 || rotation === 270) ? height : width;
-            var urlH = (rotation === 90 || rotation === 270) ? width  : height;
-            return firstURL.replace("/info.json", "") + "/full/" + urlW + "," + urlH + "/" + rotation + "/default.jpg";
+            return firstURL.replace("/info.json", "") + "/full/" + nativeWidth + "," + height + "/0/default.jpg";
         }
 
         // use the default
         return "./images/placeholder.png";
+    }
+
+    /**
+     * CSS transform string that produces the rotated thumbnail visual from
+     * the un-rotated <img>. For 90°/270° we also need to scale (height stays
+     * fixed across rotations, so the rotated image is scaled down by 1/aspect).
+     */
+    this._getThumbnailTransform = function (rotation) {
+        if (rotation === 0) return '';
+        if (rotation === 180) return 'rotate(180deg)';
+        // 90°/270°: rotate then scale so the visual fits the thumbnail row
+        // height. If main image dimensions aren't known yet, skip the scale —
+        // the thumbnail will look slightly off until init completes.
+        if (!_self._mainImageWidth || !_self._mainImageHeight) {
+            return 'rotate(' + rotation + 'deg)';
+        }
+        var aspect = _self._mainImageWidth / _self._mainImageHeight;
+        return 'rotate(' + rotation + 'deg) scale(' + (1 / aspect) + ')';
     }
 
     /**
@@ -541,17 +548,19 @@ function ZPlaneList(parent) {
      */
     this._refreshSingleThumbnailDOM = function (index) {
         if (index < 0 || index >= _self.collection.length) return;
-        var newURL = _self._getThumbnailURL(index);
         var rotation = (typeof _self.collection[index].thumbnailRotation === 'number')
             ? _self.collection[index].thumbnailRotation
             : _self._getCurrentRotation();
-        var newWidth = _self._getThumbnailWidthForRotation(rotation);
-        var imgs = _self._zPlaneContainer
-            ? _self._zPlaneContainer.querySelectorAll('.z-plane-image')
-            : document.querySelectorAll('.z-plane-image');
+        var wrapperWidth = _self._getThumbnailWidthForRotation(rotation);
+        var transform = _self._getThumbnailTransform(rotation);
+        var container = _self._zPlaneContainer || document;
+        var wrappers = container.querySelectorAll('.z-plane-thumb-wrapper');
+        var imgs = container.querySelectorAll('.z-plane-image');
+        if (wrappers[index]) {
+            wrappers[index].style.width = wrapperWidth + 'px';
+        }
         if (imgs[index]) {
-            imgs[index].src = newURL;
-            imgs[index].style.width = newWidth + 'px';
+            imgs[index].style.transform = transform;
         }
     }
 
@@ -658,22 +667,34 @@ function ZPlaneList(parent) {
 
             var carousel = '';
 
+            var nativeWidth = _self._getThumbnailWidthForRotation(0);
+            var thumbHeight = _self._thumbnailProperties.height;
+            var maxWidth = _self._thumbnailProperties.maxWidth;
+
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
-                // Width is per-item now: different thumbnails can be at
-                // different rotations, and their aspect ratios (and therefore
-                // widths) differ. Height stays fixed across the row.
+                // Per-item rotation drives the wrapper width and the inner
+                // <img>'s CSS transform. The <img> itself is always at the
+                // un-rotated native size; the wrapper is the rotated AABB.
                 var itemRotation = (typeof _self.collection[i].thumbnailRotation === 'number')
                     ? _self.collection[i].thumbnailRotation
                     : _self._getCurrentRotation();
-                var itemWidth = _self._getThumbnailWidthForRotation(itemRotation);
+                var wrapperWidth = _self._getThumbnailWidthForRotation(itemRotation);
+                var transform = _self._getThumbnailTransform(itemRotation);
+                var wrapperStyles = [
+                    "width:" + wrapperWidth + "px",
+                    "height:" + thumbHeight + "px",
+                    "max-width:" + maxWidth + "px"
+                ];
                 var imgStyles = [
-                    "width:" + itemWidth + "px",
-                    "height:" + _self._thumbnailProperties.height + "px",
-                    "max-width:" + _self._thumbnailProperties.maxWidth + "px"
+                    "width:" + nativeWidth + "px",
+                    "height:" + thumbHeight + "px",
+                    "transform:" + transform
                 ];
                 carousel += '' +
                     '<div class="z-plane" data-collection-index="' + i + '" data-z-index="' + _self.collection[i].zIndex + '">' +
-                        '<img src="' + _self._getThumbnailURL(i) + '" style="' + imgStyles.join(";") + '" class="z-plane-image">' +
+                        '<div class="z-plane-thumb-wrapper" style="' + wrapperStyles.join(";") + '">' +
+                            '<img src="' + _self._getThumbnailURL(i) + '" style="' + imgStyles.join(";") + '" class="z-plane-image">' +
+                        '</div>' +
                         '<div class="z-plane-id">' +
                             (_self.collection[i].zIndex).toString() +
                         '</div>' +
@@ -700,14 +721,6 @@ function ZPlaneList(parent) {
         var jumpButtom = '<button id="z-index-jump-button" class="info-buttom-container" data-tippy-placement="top" data-tippy-content="Jump to the given Z index">' +
                             '<i class="glyphicon glyphicon-share-alt jump-to-button"></i>' +
                         '</button>';
-        // Manual "refresh every thumbnail to the current viewport rotation"
-        // button. Sits to the left of the Z-index input so it's discoverable
-        // alongside the other z-plane controls. Temporary — added so we can
-        // discuss the refresh model before deciding on the final UX.
-        var updateAllThumbnailsButton =
-            '<button id="update-all-thumbnails" class="info-buttom-container btn update-thumbnails-btn" data-tippy-placement="top" data-tippy-content="Update all thumbnails to the current rotation">' +
-                '<i class="fas fa-sync update-all-thumbnails-button"></i>' +
-            '</button>';
         var updateButton = '';
 
         if (_self.canUpdateDefaultZIndex == true) {
@@ -717,7 +730,6 @@ function ZPlaneList(parent) {
                             '</button>';
         }
         zPlaneInfo.innerHTML = '' +
-            updateAllThumbnailsButton +
             'Z index: <input id="main-image-z-index" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" class="main-image-z-index" value="' + _self.mainImageZIndex + '" placeholder="' + _self.mainImageZIndex + '">' +
             '<span>' +
                 jumpButtom +
@@ -726,11 +738,6 @@ function ZPlaneList(parent) {
             '<span>(' + _self.totalCount + ' generated, default Z=<span id="current-default-z-index">' + _self.defaultZIndex + '</span>)</span>';
 
         _self._renderUpdateDefaultZButton();
-
-        var updateAllBtn = zPlaneInfo.querySelector('#update-all-thumbnails');
-        if (updateAllBtn) {
-            updateAllBtn.addEventListener('click', _self._updateAllThumbnails);
-        }
 
         var inputChangedPromise = null;
         var inputEl = zPlaneInfo.querySelector('#main-image-z-index');
@@ -812,8 +819,17 @@ function ZPlaneList(parent) {
                     '<div class="down-arrow" id="slider-tooltip-arrow"></div>' +
                 '</div>' +
                 '<div class="min-max">'+_self.sliderRange.max+'</div>' +
-                '<button class="circular-button" id="slider-next-button" data-tippy-placement="top" data-tippy-content="Next Z index"><i class="glyphicon glyphicon-triangle-right right"></i></button>' ;
+                '<button class="circular-button" id="slider-next-button" data-tippy-placement="top" data-tippy-content="Next Z index"><i class="glyphicon glyphicon-triangle-right right"></i></button>' +
+                '<button id="update-all-thumbnails" class="update-thumbnails-btn" data-tippy-placement="top" data-tippy-content="Update all thumbnails to the current rotation">' +
+                    '<i class="fas fa-sync update-all-thumbnails-button"></i>' +
+                    '<span>Update Thumbnails</span>' +
+                '</button>';
         zPlaneSlider.innerHTML = slider;
+
+        var updateAllBtn = zPlaneSlider.querySelector('#update-all-thumbnails');
+        if (updateAllBtn) {
+            updateAllBtn.addEventListener('click', _self._updateAllThumbnails);
+        }
 
         var slider = zPlaneSlider.querySelector('#z-index-slider');
         if (slider) {
