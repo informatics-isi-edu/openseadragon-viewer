@@ -242,7 +242,9 @@ var OSDViewer = (function (_config) {
                     viewer.rotateBy(rotateDegrees);
                     break;
                 case 'resetRotation':
-                    viewer.resetRotation();
+                    // optional content { degrees }: the saved default to return to (0 if omitted)
+                    var resetDegrees = data && typeof data.degrees === 'number' ? data.degrees : 0;
+                    viewer.resetRotation(resetDegrees);
                     break;
                 case 'downloadView':
                     viewer.exportViewToJPG(data);
