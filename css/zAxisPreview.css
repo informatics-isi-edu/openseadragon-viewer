@@ -271,6 +271,7 @@ input.slider{
 }
 
 
+/* centers the thumbnail and clips it to the box (e.g. when rotated) */
 .z-planes-container .z-plane-carousel .z-plane-container .z-plane .z-plane-thumb-wrapper {
 	height: 100%;
 	display: flex;

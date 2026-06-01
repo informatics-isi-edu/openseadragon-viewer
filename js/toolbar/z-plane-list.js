@@ -130,7 +130,7 @@ function ZPlaneList(parent) {
         // Cache the main image dimensions so we can recompute the thumbnail
         // width when the viewport rotation changes (the rotated image's
         // aspect ratio is the inverse of the original).
-        if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
+        if (data.mainImageWidth > 0 && data.mainImageHeight > 0) {
             _self._mainImageWidth = data.mainImageWidth;
             _self._mainImageHeight = data.mainImageHeight;
             _self._updateThumbnailWidth();
@@ -600,9 +600,11 @@ function ZPlaneList(parent) {
             var thumbHeight = _self._thumbnailProperties.height;
             var maxWidth = _self._thumbnailProperties.maxWidth;
 
-            // Every thumbnail tracks the current viewport rotation. The <img>
-            // is always at the un-rotated native size; the wrapper is the
-            // rotated AABB and the inner <img> gets the CSS transform.
+            /*
+             * Thumbnails track the viewport rotation. A CSS transform doesn't change the
+             * layout box, so the <img> gets the transform at native size while the wrapper
+             * is sized to the rotated AABB — keeping the carousel layout gap-free and clipped.
+             */
             var rotation = _self._getCurrentRotation();
             var wrapperWidth = _self._getThumbnailWidthForRotation(rotation);
             var transform = _self._getThumbnailTransform(rotation);

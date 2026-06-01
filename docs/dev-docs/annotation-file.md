@@ -6,9 +6,11 @@ In this document, we will go over what the output SVG for each drawing tool look
 - [Drawings](#drawings)
   - [Path](#path)
   - [Rectangle](#rectangle)
+  - [Circle](#circle)
   - [Line](#line)
   - [Arrow line](#arrow-line)
   - [Polygon](#polygon)
+  - [Polyline](#polyline)
   - [Text](#text)
 
 
@@ -75,6 +77,18 @@ example:
 - The `x`, `y`, `width`, and `height` are required for drawing the rectangle. Refer to [this page](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect) for more information.
 - `fill="None"` and `stroke` will ensure displaying proper color. As we mentioned before, this value must be consistent with all the other drawings in this group.
 
+### Circle
+
+```html
+<circle cx="<CENTER_X_VALUE>" cy="<CENTER_Y_VALUE>" r="<RADIUS>" fill="None" stroke="<COLOR_VALUE>"></circle>
+
+example:
+<circle cx="223.0991430260047" cy="138.40684101654847" r="48.989762789621246" fill="None" stroke="#d5ff00"></circle>
+```
+
+- The `cx`, `cy`, and `r` are required for drawing the circle. Refer to [this page](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle) for more information.
+- `fill="None"` and `stroke` will ensure displaying proper color. As we mentioned before, this value must be consistent with all the other drawings in this group.
+
 ### Line
 
 ```html
@@ -131,6 +145,20 @@ example:
 - `fill="None"` and `stroke` will ensure displaying proper color. As we mentioned before, this value must be consistent with all the other drawings in this group.
 
 
+### Polyline
+
+A polyline is like a polygon but the path is left open (the last point is not connected back to the first).
+
+```html
+<polyline fill="None" stroke="<COLOR_VALUE>" points="<POINT_X_AND_Y_COMBO>"></polyline>
+
+example:
+<polyline fill="None" stroke="#d5ff00" points="130.1237071513002,431.6493794326241 251.90115248226948,391.31567671394794 231.10121158392434,447.7095153664302"></polyline>
+```
+- The `points` are required for drawing the polyline. Refer to [this page](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline) for more information.
+- `fill="None"` and `stroke` will ensure displaying proper color. As we mentioned before, this value must be consistent with all the other drawings in this group.
+
+
 ### Text
 
 Since we wanted to ensure we're fully honoring the spacing, we're not using the SVG's `text` element but instead `foreignObject` with a `p` tag inside it. The following is an example of it:
@@ -161,4 +189,17 @@ example:
   - As we mentioned before, the `stroke` value must be consistent with all the other drawings in this group.
 - The `font-size` must be defined on the `p` tag.
 - Other styles on the `p` tag are not needed for openseadragon-viewer as we're going to override and inject those values. But for consistency it's better if you include them in your SVG.
+- The live editor uses a `contenteditable` `<div>`, but the saved format is always `foreignObject > p` as shown above.
+
+#### Rotation
+
+If the annotation was created while the viewport was rotated, the `p` tag also carries an inline rotation so the text stays "stuck" to the image orientation it was created in:
+
+```html
+<p style="... transform: rotate(-90deg); transform-origin: 0 0;">Test</p>
+```
+
+- `transform: rotate(-R0deg)` where `R0` is the viewport rotation (in degrees) at creation time, and `transform-origin: 0 0`.
+- This is optional: omit it (or use `rotate(0deg)`) for text that was created with no rotation.
+- On import these values are preserved as-is. Note that, unlike text, the shape drawings above store **no** rotation. They are kept in image-space coordinates and re-rotated dynamically by the viewer. See [annotation-tool.md](annotation-tool.md#rotation) for the full behavior.
 

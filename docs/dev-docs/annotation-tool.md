@@ -24,6 +24,10 @@ This document will summarize the implementation details related to annotation to
   - [Notable Updates](#notable-updates)
   - [Fixes and Adjustments](#fixes-and-adjustments)
   - [Additional Resources](#additional-resources-1)
+- [Rotation](#rotation)
+  - [Shapes](#shapes)
+  - [Text](#text-rotation)
+  - [Export to image](#export-to-image)
 
 
 ## Text Annotation
@@ -56,19 +60,21 @@ Users can place the annotation anywhere on the image with a simple mouse click. 
 
 **Code Logic:**
 
-With the text annotation mode enabled, a user's click on the canvas checks for any previously drawn text annotation. If one exists, we transform the previous annotation into a text (`<p>` tag). This transformation involves removing the `div` containing the input textarea and appending the `p` tag with the same attributes and styling as the textarea to the foreign object. We then create a new text annotation object, and new mouse trackers are added to listen for the user's click event to place the annotation on the image. The `onMouseClickToDraw` function in `viewer.js` handles these functionalities.
+With the text annotation mode enabled, a user's click on the canvas checks for any previously drawn text annotation. If one exists, we transform the previous annotation into a text (`<p>` tag). This transformation involves removing the editable input and appending a `p` tag with the same attributes and styling to the foreign object. We then create a new text annotation object, and new mouse trackers are added to listen for the user's click event to place the annotation on the image. The `onMouseClickToDraw` function in `viewer.js` handles these functionalities.
+
+> **Note on the editable input.** The live editor is a `contenteditable` `<div>` (`.text-foreign-object-input`), not a `<textarea>`. The DOM is `foreignObject > div.text-foreign-object-div > div.text-foreign-object-input`. A plain `<div>` is used because native form widgets like `<textarea>` are rendered in a way that bypasses CSS transforms on ancestor SVGs, so their text would not rotate with the rest of the annotation overlay (see [Rotation](#rotation)). The finalized/saved annotation is always a `<p>`.
 
 #### Text Input Interaction
 
 Once the annotation is positioned, the user can interact with it in several ways:
 
-1. **Text Entry**: Users can input their desired text into the text area.
-2. **Annotation Movement**: Users can relocate the annotation across the canvas by clicking and dragging the text area borders.
+1. **Text Entry**: Users can input their desired text into the text input.
+2. **Annotation Movement**: Users can relocate the annotation across the canvas by clicking and dragging the wrapper borders.
 3. **Text Box Resizing**: Users can adjust the horizontal dimensions of the text box by dragging the resize control.
 
 **Code Logic:**
 
-The `text.js` file contains all the functions that handle text interaction. For text entry, the textarea manages the input functionality. Event listeners on the input event adjust the textarea's height after each input change to accommodate the text as it shifts to a new line. The drag functionality, or annotation movement, is handled by the event handlers on the `mouseover` event of the `div` containing the textarea. The application performs basic arithmetic computation to accurately adjust the `div`'s position. The resize control handles the text box resizing, listening for the same event and adjusting the width of the `div` containing the textarea accordingly. These functionalities are elaborated in detail within the code comments.
+The `text.js` file contains all the functions that handle text interaction. For text entry, the contenteditable input `<div>` manages the input functionality; an `input` event listener adjusts its height after each change so it grows as the text wraps to a new line. The drag functionality, or annotation movement, is handled by `onmousedown`/`onpointerdown` on the wrapper `div` (`.text-foreign-object-div`); the actual move then listens on document-level `pointermove`/`pointerup` so the drag stays valid even when the cursor leaves the div, and the application performs basic arithmetic to adjust the `div`'s position. The resize control handles the text box resizing via a `mousedown` listener, adjusting the width of the wrapper `div` accordingly. These functionalities are elaborated in detail within the code comments.
 
 
 
@@ -143,3 +149,47 @@ For a more comprehensive understanding and deeper insights into the Arrow Line A
 2. [OpenSeadragon Viewer Pull Request #100](https://github.com/informatics-isi-edu/openseadragon-viewer/pull/100)
 
 These links can provide further context and discussions that were crucial to the design and implementation of the Arrow Line Annotation feature.
+
+
+
+## Rotation
+
+The viewport can be rotated, and the annotation overlay rotates with it. Rotation is driven by OpenSeadragon's viewport: `viewer.rotateBy(degrees)` applies a relative rotation and `viewer.resetRotation(degrees)` sets an absolute one (both in `viewer.js`). These are triggered by the `rotate` and `resetRotation` `postMessage`s from Chaise (routed in `app.js`). An initial rotation can be persisted through `imageConfig.rotate`, which is applied at load time (before annotations are imported) so the overlay is positioned correctly from the first paint.
+
+Whenever the viewport changes (zoom, pan, or rotate), the `resizeSVG` function in `viewer.js` repositions and re-transforms every `.annotationSVG` overlay. For rotation it sets a single CSS transform on each `.annotationSVG`:
+
+```js
+// rotate the overlay around its screen-space top-left corner
+svg.style.transform =
+  "translate(" + scrTL.x + "px, " + scrTL.y + "px) " +
+  "rotate(" + rotation + "deg) " +
+  "translate(" + (-scrTL.x) + "px, " + (-scrTL.y) + "px)";
+```
+
+The triple `translate → rotate → translate` rotates around the overlay's screen-space top-left (canvas/CSS rotation otherwise pivots on the origin).
+
+### Shapes
+
+`rect`, `circle`, `line`, `path`, `polygon`, `polyline`, and `arrowline` need no per-shape handling. Their geometry stays in image-space coordinates (the SVG `viewBox`), and the single CSS transform on the parent `.annotationSVG` rotates them all together. Because the rotation lives only in CSS on the overlay element, it is **not** written into the saved SVG: shape coordinates are stored un-rotated and are re-rotated dynamically on each load.
+
+### Text (rotation)
+
+Text is the exception, because its content lives in a `foreignObject` and is meant to stay readable.
+
+- **While editing:** the editable wrapper (`.text-foreign-object-div`) is counter-rotated with `rotate(-R)` (where `R` is the current viewport rotation), so the user always types upright regardless of how the image is rotated. `resizeSVG` re-applies this counter-rotation on every rotation change.
+- **On finalize:** when the annotation is committed to a `<p>`, `transform()` bakes `rotate(-R0)` plus `transform-origin: 0 0` into the `<p>`'s inline style, where `R0` is the viewport rotation at creation time. The net visible rotation then becomes `R - R0`, so the text "sticks" to the image's orientation at the moment it was created: create text at `R0 = 90°` and it stays aligned to that orientation as the viewport keeps rotating.
+- **On import:** the baked `transform`/`transform-origin` are read from the saved style and re-applied in `createPTag`, so a reloaded annotation keeps its original orientation instead of being recomputed against the current rotation.
+
+Unlike shapes, this rotation **is** persisted: the saved `<p>` carries the inline `transform`. See [annotation-file.md](annotation-file.md#text) for the saved format.
+
+### Export to image
+
+Exporting a screenshot (`exportViewToJPG` in `viewer.js`) rasterizes the OSD canvas plus every annotation SVG into one image. CSS transforms set by `resizeSVG` do not survive `XMLSerializer`, so each SVG is cloned with its transform stripped (`svgClone.style.transform = ''`) and the rotation is re-applied on the 2D canvas context with the same pivot technique:
+
+```js
+newCtx.translate(dims[0], dims[1]);
+newCtx.rotate(rotationRad);          // getRotation() is degrees; canvas wants radians
+newCtx.translate(-dims[0], -dims[1]);
+```
+
+Text orientation is already correct because the baked `<p>` transform travels with the serialized SVG. The export also inlines computed font properties onto each `<p>` and forces `overflow: visible` on cloned `foreignObject`s, since the external CSS that normally provides those is not available during standalone rasterization.

@@ -736,6 +736,7 @@ function Viewer(parent, config) {
         var pixelRatio = self._utils.queryForRetina(newCanvas);
         // Snapshot rotation once so all SVGs are drawn against a consistent value.
         var rotation = _self.osd.viewport.getRotation();
+        // getRotation() is in degrees; canvas rotate() (below) takes radians.
         var rotationRad = rotation * Math.PI / 180;
         // External CSS isn't applied during standalone rasterization, so inline
         // these resolved styles onto each <p> before serializing.
@@ -779,7 +780,13 @@ function Viewer(parent, config) {
                     dims.push(Number(svgAttr) * pixelRatio);
                 });
 
-                // Rotate around the SVG's screen-space top-left (matches the DOM transform that resizeSVG sets).
+                /*
+                 * In the live DOM each annotation is rotated around its top-left corner.
+                 * Reproduce that here so the rasterized output matches. ctx.rotate() always
+                 * rotates around the canvas origin (0,0), so to rotate around the SVG's
+                 * top-left instead we move that corner to the origin (translate by dims),
+                 * rotate, then move it back. restore() (below) undoes all three.
+                 */
                 if (rotation !== 0) {
                     newCtx.save();
                     newCtx.translate(dims[0], dims[1]);
@@ -1138,8 +1145,6 @@ function Viewer(parent, config) {
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
-                // TODO: rotation - per-image rotation (clockwise, around top-left)
-                degrees: 0,
             });
         }
 
@@ -1227,8 +1232,6 @@ function Viewer(parent, config) {
                 tileSource: tileSource,
                 compositeOperation: 'lighter',
                 opacity: (channel["isDisplay"] ? 1 : 0),
-                // TODO: rotation - per-image rotation (clockwise, around top-left)
-                degrees: 0,
             });
         }
 
