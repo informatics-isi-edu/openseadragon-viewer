@@ -694,7 +694,7 @@ function Viewer(parent, config) {
 
         var channelArray = [];
         if (_self._showChannelNamesOverlay) {
-            for (id in this.channels) {
+            for (var id in this.channels) {
                 if (this.channels[id].isDisplay) {
                     channelArray.push([this.channels[id].name, this.channels[id].getOverlayColor()]);
                 }

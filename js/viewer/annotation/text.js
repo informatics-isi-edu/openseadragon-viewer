@@ -358,7 +358,7 @@ Text.prototype.addTextBox = function (groupId, importedObj) {
     var textInput = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
     this.setForeignObj(svgForeignObj);
 
-    fontSize = document.querySelector(".fontInput").value;
+    var fontSize = document.querySelector(".fontInput").value;
     this.changeFontSize(fontSize);
 
     // Set the attributes of the foreign object, div and textarea
@@ -507,7 +507,7 @@ Text.prototype.changeFontSize = function (fontSize) {
  */
 Text.prototype.initDragElement = function () {
 
-    pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     var foreignObj = this.getForeignObj();
     var divCont = foreignObj.childNodes[0];
@@ -592,7 +592,7 @@ Text.prototype.initResizeElement = function () {
     var startX, startY, startWidth, startHeight;
 
     // Create the resize element for the text input
-    bottomright = document.createElement("div");
+    var bottomright = document.createElement("div");
     bottomright.className = "text-foreign-object-resizer-right";
     divCont.appendChild(bottomright);
 
@@ -608,7 +608,7 @@ Text.prototype.initResizeElement = function () {
     // Function to intialize the resize movement of the text input
     function initDrag(e) {
         e.stopImmediatePropagation();
-        resizer = e.target.className;
+        var resizer = e.target.className;
 
         startX = e.clientX;
         startY = e.clientY;

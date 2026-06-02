@@ -476,21 +476,39 @@ function ZPlaneList(parent) {
     }
 
     /**
-     * CSS transform string that produces the rotated thumbnail visual from
-     * the un-rotated <img>. For 90°/270° we also need to scale (height stays
-     * fixed across rotations, so the rotated image is scaled down by 1/aspect).
+     * Geometry for a thumbnail at an arbitrary rotation. The <img> is rendered
+     * un-rotated at native size (thumbH tall), then CSS-transformed about its
+     * center. The carousel row height is fixed at thumbH, so we scale the
+     * rotated image so its axis-aligned bounding box is thumbH tall; the
+     * wrapper takes that box's width. Right angles fall out of this exactly
+     * (e.g. 90°/270° give width = thumbH / aspect, scale = 1 / aspect).
+     * @param {number} rotation degrees (any value, not just multiples of 90)
+     * @returns {{width:number, scale:number}}
+     */
+    this._getThumbnailRotationGeometry = function (rotation) {
+        if (!_self._mainImageWidth || !_self._mainImageHeight) {
+            return { width: _self._thumbnailProperties.width, scale: 1 };
+        }
+        var thumbH = _self._thumbnailProperties.height;
+        var nativeW = thumbH * (_self._mainImageWidth / _self._mainImageHeight);
+        var rad = rotation * Math.PI / 180;
+        // clamp FP noise (cos(90°) is ~6e-17, not 0) so right angles stay exact
+        var cos = Math.abs(Math.cos(rad)); if (cos < 1e-9) cos = 0;
+        var sin = Math.abs(Math.sin(rad)); if (sin < 1e-9) sin = 0;
+        // axis-aligned bounding box of the rotated native image
+        var bboxW = nativeW * cos + thumbH * sin;
+        var bboxH = nativeW * sin + thumbH * cos;
+        var scale = thumbH / bboxH; // bring the rotated height back to thumbH
+        return { width: Math.ceil(bboxW * scale), scale: scale };
+    }
+
+    /**
+     * CSS transform that rotates the native <img> and scales it so the rotated
+     * image's bounding box fits the fixed thumbnail row height.
      */
     this._getThumbnailTransform = function (rotation) {
         if (rotation === 0) return '';
-        if (rotation === 180) return 'rotate(180deg)';
-        // 90°/270°: rotate then scale so the visual fits the thumbnail row
-        // height. If main image dimensions aren't known yet, skip the scale —
-        // the thumbnail will look slightly off until init completes.
-        if (!_self._mainImageWidth || !_self._mainImageHeight) {
-            return 'rotate(' + rotation + 'deg)';
-        }
-        var aspect = _self._mainImageWidth / _self._mainImageHeight;
-        return 'rotate(' + rotation + 'deg) scale(' + (1 / aspect) + ')';
+        return 'rotate(' + rotation + 'deg) scale(' + _self._getThumbnailRotationGeometry(rotation).scale + ')';
     }
 
     /**
@@ -506,20 +524,12 @@ function ZPlaneList(parent) {
     }
 
     /**
-     * Returns the thumbnail width (in CSS pixels) for a given rotation. At
-     * 90°/270° the rotated image's aspect ratio is the inverse of the
-     * original, so the width is recomputed accordingly. Height stays fixed
-     * at `_thumbnailProperties.height` for all rotations to keep the row
-     * height consistent across mixed-rotation thumbnails.
+     * Thumbnail wrapper width (CSS px) for a given rotation. Height stays fixed
+     * at `_thumbnailProperties.height` so the carousel row height is consistent
+     * across mixed-rotation thumbnails.
      */
     this._getThumbnailWidthForRotation = function (rotation) {
-        if (!_self._mainImageWidth || !_self._mainImageHeight) {
-            return _self._thumbnailProperties.width;
-        }
-        var ratio = (rotation === 90 || rotation === 270)
-            ? (_self._mainImageHeight / _self._mainImageWidth)
-            : (_self._mainImageWidth / _self._mainImageHeight);
-        return Math.ceil(_self._thumbnailProperties.height * ratio);
+        return _self._getThumbnailRotationGeometry(rotation).width;
     }
 
     /**
