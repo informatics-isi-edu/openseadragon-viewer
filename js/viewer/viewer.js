@@ -91,6 +91,10 @@ function Viewer(parent, config) {
         // after each change, make sure svgs are properly positioned
         this.osd.addHandler('animation', this.resizeSVG);
 
+        // setRotation does not animate a spring, so it does not fire 'animation'.
+        // Subscribe to 'rotate' so the overlay follows viewport rotation.
+        this.osd.addHandler('rotate', this.resizeSVG);
+
         // zoom on double click
         this.osd.addHandler('canvas-double-click', this.zoomIn.bind(this));
 
@@ -674,14 +678,11 @@ function Viewer(parent, config) {
     }
 
     /**
-     * Export the displayed view of osd viewer to a jpg file.
-     * Apart from the osd canvas, it will also add the svg overlays
-     * This function will trigger a browser download after processing is done.
-     * The messages that will be displatched by this function:
-     *  - `downloadViewDone`: when download is done.
-     *  - `downloadViewError`: if we encounter an error.
+     * Export the displayed view (osd canvas + svg annotation overlays) to a
+     * jpg file and trigger a browser download. Dispatches `downloadViewDone`
+     * on success, `downloadViewError` on failure.
      *
-     * @param {String=} fileName - the name of the file that will be downloaded
+     * @param {String=} fileName
      */
     this.exportViewToJPG = function (fileName) {
         fileName = fileName ? (fileName + ".jpg") : ("osd_" + Date.parse(new Date()) + ".jpg");
@@ -689,26 +690,20 @@ function Viewer(parent, config) {
         var self = this,
             canvas, newCanvas, newCtx, rawImg, errored = false,
             svgProcessedCount = 0, svgTotalCount = 0,
-            svgAttrs = ["x", "y", "width", "height"], svgDimension = [], svgAttr;
+            svgAttrs = ["x", "y", "width", "height"], svgAttr;
 
         var channelArray = [];
-
         if (_self._showChannelNamesOverlay) {
-            for (id in this.channels) {
+            for (var id in this.channels) {
                 if (this.channels[id].isDisplay) {
-                    channelArray.push([this.channels[id].name, this.channels[id].getOverlayColor()])
+                    channelArray.push([this.channels[id].name, this.channels[id].getOverlayColor()]);
                 }
             }
         }
 
-        // add watermark and download the file
         var finalize = function () {
             if (errored) return;
-
-            // add the water mark to the image
             self._utils.addWaterMark2Canvas(newCanvas, self.parameters.waterMark, self.osd.scalebarInstance, channelArray);
-
-            // turn it into an image
             rawImg = newCanvas.toDataURL("image/jpeg", 1);
             if (rawImg) {
                 self._utils.downloadAsFile(fileName, rawImg, "image/jpeg");
@@ -717,22 +712,18 @@ function Viewer(parent, config) {
                 // TODO proper error object
                 self.dispatchEvent('downloadViewError', new Error("Empty image"));
             }
-        }
+        };
 
-        // get the displayed osd canvas
         if (this.osd.scalebarInstance.pixelsPerMeter) {
             canvas = this.osd.scalebarInstance.getImageWithScalebarAsCanvas();
         } else {
             canvas = self.osd.drawer.canvas;
         }
 
-        // create a canvas the same size as the displayed osd canvas
         newCanvas = document.createElement("canvas");
         newCanvas.width = canvas.width;
         newCanvas.height = canvas.height;
         newCtx = newCanvas.getContext("2d");
-
-        // add the osd canvas content to the new canvas
         newCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
 
         if (!_self.svg) {
@@ -740,53 +731,91 @@ function Viewer(parent, config) {
             return;
         }
 
-        // add the svg overlays to the new canvas by converting them to image
         // TODO should be refactored
         var svgs = _self.svg.querySelectorAll(".annotationSVG");
         var pixelRatio = self._utils.queryForRetina(newCanvas);
+        // Snapshot rotation once so all SVGs are drawn against a consistent value.
+        var rotation = _self.osd.viewport.getRotation();
+        // getRotation() is in degrees; canvas rotate() (below) takes radians.
+        var rotationRad = rotation * Math.PI / 180;
+        // External CSS isn't applied during standalone rasterization, so inline
+        // these resolved styles onto each <p> before serializing.
+        var TEXT_FONT_PROPS = ['font-family', 'font-weight', 'font-style', 'line-height'];
+
         svgs.forEach(function (svg) {
             svgTotalCount++;
+
+            // resizeSVG's CSS transform pivots around screen-space coords that
+            // don't exist outside the live DOM; strip it and re-apply rotation
+            // via the canvas context below.
+            var svgClone = svg.cloneNode(true);
+            svgClone.style.transform = '';
+
+            var origPs = svg.querySelectorAll('foreignObject p');
+            var clonePs = svgClone.querySelectorAll('foreignObject p');
+            for (var pi = 0; pi < origPs.length && pi < clonePs.length; pi++) {
+                var cs = getComputedStyle(origPs[pi]);
+                for (var fi = 0; fi < TEXT_FONT_PROPS.length; fi++) {
+                    clonePs[pi].style.setProperty(TEXT_FONT_PROPS[fi], cs.getPropertyValue(TEXT_FONT_PROPS[fi]));
+                }
+            }
+
+            // foreignObject defaults to overflow:hidden; the live CSS rule
+            // setting it visible isn't available standalone.
+            var clonedFOs = svgClone.querySelectorAll('foreignObject');
+            for (var fo = 0; fo < clonedFOs.length; fo++) {
+                clonedFOs[fo].setAttribute('overflow', 'visible');
+            }
+
+            var dims = [];
             var img = new Image();
             img.onload = function(e) {
                 if (errored) return;
 
                 svgAttrs.forEach(function (attrName) {
                     svgAttr = svg.getAttribute(attrName);
-                    if (svgAttr == null) {
-                        svgAttr = 0;
-                    }
-                    if (typeof svgAttr === "string") {
-                        svgAttr = svgAttr.replace("px", "");
-                    }
-                    // osd is property handling pixel ratio, so we don't need to change the canvas settings.
-                    // instead while drawing the annotation manually on top of the canvas, we should take care of pixelRatio
-                    svgDimension.push(Number(svgAttr) * pixelRatio);
+                    if (svgAttr == null) svgAttr = 0;
+                    if (typeof svgAttr === "string") svgAttr = svgAttr.replace("px", "");
+                    // osd handles its own pixelRatio; we apply it manually when drawing the annotation.
+                    dims.push(Number(svgAttr) * pixelRatio);
                 });
 
-                // add the image to new canvas
-                newCtx.drawImage(e.target, svgDimension[0], svgDimension[1], svgDimension[2], svgDimension[3]);
+                /*
+                 * In the live DOM each annotation is rotated around its top-left corner.
+                 * Reproduce that here so the rasterized output matches. ctx.rotate() always
+                 * rotates around the canvas origin (0,0), so to rotate around the SVG's
+                 * top-left instead we move that corner to the origin (translate by dims),
+                 * rotate, then move it back. restore() (below) undoes all three.
+                 */
+                if (rotation !== 0) {
+                    newCtx.save();
+                    newCtx.translate(dims[0], dims[1]);
+                    newCtx.rotate(rotationRad);
+                    newCtx.translate(-dims[0], -dims[1]);
+                }
 
-                svgProcessedCount++
+                newCtx.drawImage(e.target, dims[0], dims[1], dims[2], dims[3]);
+
+                if (rotation !== 0) newCtx.restore();
+
+                svgProcessedCount++;
                 if (svgProcessedCount === svgTotalCount) {
                     finalize();
                 }
             };
             img.onerror = function (message, source, lineno, colno, error) {
                 console.log(error);
-
-                // only one error message is enough.
                 if (errored) return;
                 errored = true;
-
                 // TODO proper error object
                 self.dispatchEvent('downloadViewError', error);
-            }
-            // NOTE source has to be defined after onload and onerror
+            };
+            // src must be set after onload/onerror
             img.src = null;
-            img.src = "data:image/svg+xml;utf8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+            img.src = "data:image/svg+xml;utf8," + encodeURIComponent(new XMLSerializer().serializeToString(svgClone));
         });
 
-        // in case there wasn't any svg overlays
+        // no svg overlays
         if (svgProcessedCount === svgTotalCount) {
             finalize();
         }
@@ -836,6 +865,13 @@ function Viewer(parent, config) {
     this.loadAfterOSDInit = function(){
         // Only execute it once when Openseadragon is done loading
         if (!_self.isInitLoad) {
+
+            // apply the saved default rotation (if any). done before importing
+            // annotations so the 'rotate' event positions the overlay correctly.
+            if (_self.parameters.imageConfig && typeof _self.parameters.imageConfig.rotate === 'number') {
+                _self.osd.viewport.setRotation(_self.parameters.imageConfig.rotate);
+                _self.osd.viewport.applyConstraints();
+            }
 
             // Check if need to pan to a specific location (if x, y, z are not null)
             if (_self.parameters.x && _self.parameters.y && _self.parameters.z) {
@@ -1489,6 +1525,28 @@ function Viewer(parent, config) {
     }
 
     /**
+     * Rotate the OSD viewport by the given delta in degrees. Positive values are
+     * clockwise, negative counterclockwise. The annotation overlay follows via
+     * the 'rotate' event handler (resizeSVG).
+     * @param {number} degrees the delta to rotate by
+     */
+    this.rotateBy = function (degrees) {
+        var current = this.osd.viewport.getRotation();
+        this.osd.viewport.setRotation(current + degrees);
+        this.osd.viewport.applyConstraints();
+    }
+
+    /**
+     * Reset the OSD viewport rotation to the given absolute degrees (the saved
+     * default; defaults to 0 when omitted).
+     * @param {number} [degrees=0] the absolute rotation to snap to
+     */
+    this.resetRotation = function (degrees) {
+        this.osd.viewport.setRotation(degrees || 0);
+        this.osd.viewport.applyConstraints();
+    }
+
+    /**
      * This function reads the URL param zoomLineThickness, and decides which stroke-width scale function to select
      * log = the thickness vaires according to the log of the current zoom level. Since at each zoom in/out the zoom level changes by a factor of 2, i.e. it changes exponentially, therefore using a log approach provides linear change in line-thickness with respect to each zoom in/out click.
      * default = using the original function, i.e. mapping the line thickness linearly with the total zoom levels avaibale in the OSD
@@ -1518,62 +1576,80 @@ function Viewer(parent, config) {
 
     // Resize Annotation SVGs
     this.resizeSVG = function(){
-        // this might be called while we're changing the main image
+        // may be called while the main image is being swapped out
         if (_self.osd.world.getItemCount() == 0) return;
 
         var svgs = _self.svg.querySelectorAll(".annotationSVG"),
-            // upperLeftPoint,
-            // bottomRightPoint,
             i,
             w = _self.osd.world.getItemAt(0),
-            size = w.getContentSize(),
-            strokeScale = null;
+            size = w.getContentSize();
 
-        // removed the if condition because the function would need to change if the window has been resized
         _self.strokeWidthScale = _self.getStrokeWidthScaleFunction();
-
-        strokeScale = _self.strokeWidthScale(_self.osd.viewport.getZoom())
+        var strokeScale = _self.strokeWidthScale(_self.osd.viewport.getZoom());
         _self.changeStrokeScale(strokeScale);
-        _self.dispatchEvent("onChangeStrokeScale", {
-            "strokeScale" : strokeScale
-        });
+        _self.dispatchEvent("onChangeStrokeScale", { "strokeScale" : strokeScale });
+
+        var rotation = _self.osd.viewport.getRotation();
 
         for(i = 0; i < svgs.length; i++){
-            // upperLeftPoint = svgs[i].getAttribute("upperLeftPoint").split(",") || [];
-            // bottomRightPoint = svgs[i].getAttribute("bottomRightPoint").split(",") || [];
-            // if(upperLeftPoint.length == 0 || bottomRightPoint.length == 0){
-            //     continue;
-            // }
-            // upperLeftPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+upperLeftPoint[0], +upperLeftPoint[1]), true);
-            // bottomRightPoint = _self.osd.viewport.pixelFromPoint(new OpenSeadragon.Point(+bottomRightPoint[0], +bottomRightPoint[1]), true);
-
             var ignoreReferencePoint = svgs[i].getAttribute("ignoreReferencePoint") == "false" ? false : true;
             var ignoreDimension = svgs[i].getAttribute("ignoreDimension") == "false" ? false : true;
             var scale = svgs[i].getAttribute("scale") ? parseFloat(svgs[i].getAttribute("scale")) : false;
-            var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value});
-            // console.log(viewBox);
-            var topLeft = ignoreReferencePoint ? {x: 0, y : 0 } : {x: viewBox[0], y : viewBox[1] };
-            var bottomRight = ignoreDimension ? {x: size.x, y : size.y } : {x: topLeft.x + viewBox[2], y : topLeft.y + viewBox[3]};
-            // var topLeft = {x: _self.osd.world.getItemAt(1).getBounds(true).x + _self.osd.world.getItemAt(0).getBounds(true).x, y : 0 };
-            // var bottomRight = {x: topLeft.x + size.x, y : topLeft.y + size.y};
+            var viewBox = svgs[i].getAttribute("viewBox").split(" ").map(function(value){ return +value; });
 
-            // not ignoring the reference point and the scale is provided
-            if(scale){
-                if(!ignoreReferencePoint){
-                    topLeft.x = topLeft.x / scale;
-                    topLeft.y = topLeft.y / scale;
+            var imgTL = ignoreReferencePoint ? {x: 0, y: 0} : {x: viewBox[0], y: viewBox[1]};
+            var imgBR = ignoreDimension
+                ? {x: size.x, y: size.y}
+                : {x: imgTL.x + viewBox[2], y: imgTL.y + viewBox[3]};
+
+            // legacy SVG-import path with a pre-scaled viewBox
+            if (scale) {
+                if (!ignoreReferencePoint) {
+                    imgTL.x = imgTL.x / scale;
+                    imgTL.y = imgTL.y / scale;
                 }
-                if(!ignoreDimension){
-                    bottomRight.x = bottomRight.x / scale;
-                    bottomRight.y = bottomRight.y / scale;
+                if (!ignoreDimension) {
+                    imgBR.x = imgBR.x / scale;
+                    imgBR.y = imgBR.y / scale;
                 }
             }
-            topLeft = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(topLeft.x, topLeft.y));
-            bottomRight = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(bottomRight.x, bottomRight.y));
-            svgs[i].setAttribute("x", topLeft.x + "px");
-            svgs[i].setAttribute("y", topLeft.y + "px");
-            svgs[i].setAttribute("width", bottomRight.x - topLeft.x + "px");
-            svgs[i].setAttribute("height", bottomRight.y - topLeft.y + "px");
+
+            // Project three corners so width/height stay positive at every rotation —
+            // with only two opposing corners they go negative at 90°/270°.
+            var imgTR = {x: imgBR.x, y: imgTL.y};
+            var imgBL = {x: imgTL.x, y: imgBR.y};
+            var scrTL = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(imgTL.x, imgTL.y));
+            var scrTR = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(imgTR.x, imgTR.y));
+            var scrBL = w.imageToViewerElementCoordinates(new OpenSeadragon.Point(imgBL.x, imgBL.y));
+            var width = Math.hypot(scrTR.x - scrTL.x, scrTR.y - scrTL.y);
+            var height = Math.hypot(scrBL.x - scrTL.x, scrBL.y - scrTL.y);
+
+            // Pivot is encoded as translate/rotate/translate rather than transform-origin
+            // because nested <svg> elements treat `transform-box: view-box` inconsistently
+            // across browsers; the translate trick pivots around (scrTL.x, scrTL.y) anyway.
+            svgs[i].setAttribute("x", scrTL.x + "px");
+            svgs[i].setAttribute("y", scrTL.y + "px");
+            svgs[i].setAttribute("width", width + "px");
+            svgs[i].setAttribute("height", height + "px");
+            svgs[i].style.transform =
+                "translate(" + scrTL.x + "px, " + scrTL.y + "px) " +
+                "rotate(" + rotation + "deg) " +
+                "translate(" + (-scrTL.x) + "px, " + (-scrTL.y) + "px)";
+
+            // Counter-rotate the editable text wrapper so typing stays left-to-right.
+            // Finalized text (<p>) is intentionally skipped — its own inline rotate(-R0)
+            // keeps it stickied to the image's orientation at creation time.
+            var textForeignObjects = svgs[i].querySelectorAll(".text-foreign-object");
+            for (var j = 0; j < textForeignObjects.length; j++) {
+                var inner = textForeignObjects[j].firstElementChild;
+                if (!inner || !inner.style) continue;
+                if (!inner.classList || !inner.classList.contains("text-foreign-object-div")) continue;
+                var cs = getComputedStyle(inner);
+                var originX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.borderLeftWidth) || 0);
+                var originY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0);
+                inner.style.transformOrigin = originX + "px " + originY + "px";
+                inner.style.transform = "rotate(" + (-rotation) + "deg)";
+            }
         }
     }
 

@@ -127,9 +127,24 @@ function ZPlaneList(parent) {
      */
     this.init = function (data) {
 
-        // change the width to be based on the image
-        if (data.mainImageWidth > 0 & data.mainImageHeight > 0) {
-            _self._thumbnailProperties.width = Math.ceil(_self._thumbnailProperties.height * (data.mainImageWidth / data.mainImageHeight));
+        // Cache the main image dimensions so we can recompute the thumbnail
+        // width when the viewport rotation changes (the rotated image's
+        // aspect ratio is the inverse of the original).
+        if (data.mainImageWidth > 0 && data.mainImageHeight > 0) {
+            _self._mainImageWidth = data.mainImageWidth;
+            _self._mainImageHeight = data.mainImageHeight;
+            _self._updateThumbnailWidth();
+        }
+
+        // CSS rotation is free, so re-render every thumbnail on viewport rotate.
+        var osdViewer = _self.parent.parent && _self.parent.parent.viewer
+            ? _self.parent.parent.viewer.osd
+            : null;
+        if (osdViewer) {
+            osdViewer.addHandler('rotate', function () {
+                _self._updateThumbnailWidth();
+                _self._renderZPlaneCarousel();
+            });
         }
 
         _self._currentRequestID = -1;
@@ -432,7 +447,11 @@ function ZPlaneList(parent) {
     };
 
     /**
-     * Given an index, will return the appropriate thumbnail image
+     * Given an index, will return the appropriate thumbnail image.
+     * The URL is rotation-independent: the same un-rotated IIIF image serves
+     * every rotation, and the actual rotation is applied client-side via CSS
+     * transform on the <img>. This keeps the browser image cache warm across
+     * rotations and removes the round-trip on rotate events.
      * TODO should be moved to somewhere more appropriate
      */
     this._getThumbnailURL = function (index) {
@@ -441,20 +460,85 @@ function ZPlaneList(parent) {
         }
 
         var firstURL = _self.collection[index].info[0].url;
-
-        var width = _self._thumbnailProperties.width,
-            height = _self._thumbnailProperties.height;
+        var height = _self._thumbnailProperties.height;
+        var nativeWidth = _self._getThumbnailWidthForRotation(0);
 
         // if iiif, use the api to get it
         // NOTE this is hacky and should be documented as an assumption
         // we're assuming that we can use the same iiif server as info.json location
         // and we're ignoring the @id attribute inside the info.json
         if (firstURL.indexOf("info.json") !== -1) {
-            return firstURL.replace("/info.json", "") + "/full/" + width + "," + height + "/0/default.jpg";
+            return firstURL.replace("/info.json", "") + "/full/" + nativeWidth + "," + height + "/0/default.jpg";
         }
 
         // use the default
         return "./images/placeholder.png";
+    }
+
+    /**
+     * Geometry for a thumbnail at an arbitrary rotation. The <img> is rendered
+     * un-rotated at native size (thumbH tall), then CSS-transformed about its
+     * center. The carousel row height is fixed at thumbH, so we scale the
+     * rotated image so its axis-aligned bounding box is thumbH tall; the
+     * wrapper takes that box's width. Right angles fall out of this exactly
+     * (e.g. 90°/270° give width = thumbH / aspect, scale = 1 / aspect).
+     * @param {number} rotation degrees (any value, not just multiples of 90)
+     * @returns {{width:number, scale:number}}
+     */
+    this._getThumbnailRotationGeometry = function (rotation) {
+        if (!_self._mainImageWidth || !_self._mainImageHeight) {
+            return { width: _self._thumbnailProperties.width, scale: 1 };
+        }
+        var thumbH = _self._thumbnailProperties.height;
+        var nativeW = thumbH * (_self._mainImageWidth / _self._mainImageHeight);
+        var rad = rotation * Math.PI / 180;
+        // clamp FP noise (cos(90°) is ~6e-17, not 0) so right angles stay exact
+        var cos = Math.abs(Math.cos(rad)); if (cos < 1e-9) cos = 0;
+        var sin = Math.abs(Math.sin(rad)); if (sin < 1e-9) sin = 0;
+        // axis-aligned bounding box of the rotated native image
+        var bboxW = nativeW * cos + thumbH * sin;
+        var bboxH = nativeW * sin + thumbH * cos;
+        var scale = thumbH / bboxH; // bring the rotated height back to thumbH
+        return { width: Math.ceil(bboxW * scale), scale: scale };
+    }
+
+    /**
+     * CSS transform that rotates the native <img> and scales it so the rotated
+     * image's bounding box fits the fixed thumbnail row height.
+     */
+    this._getThumbnailTransform = function (rotation) {
+        if (rotation === 0) return '';
+        return 'rotate(' + rotation + 'deg) scale(' + _self._getThumbnailRotationGeometry(rotation).scale + ')';
+    }
+
+    /**
+     * Reads the current viewport rotation in degrees from the OSD viewer.
+     * Returns 0 if the viewer isn't accessible yet (during early init).
+     */
+    this._getCurrentRotation = function () {
+        try {
+            return _self.parent.parent.viewer.osd.viewport.getRotation();
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Thumbnail wrapper width (CSS px) for a given rotation. Height stays fixed
+     * at `_thumbnailProperties.height` so the carousel row height is consistent
+     * across mixed-rotation thumbnails.
+     */
+    this._getThumbnailWidthForRotation = function (rotation) {
+        return _self._getThumbnailRotationGeometry(rotation).width;
+    }
+
+    /**
+     * Recomputes `_thumbnailProperties.width` based on the current viewport
+     * rotation. Used as a layout estimate for page-size calculations and for
+     * the default width of any thumbnails whose rotation isn't yet known.
+     */
+    this._updateThumbnailWidth = function () {
+        _self._thumbnailProperties.width = _self._getThumbnailWidthForRotation(_self._getCurrentRotation());
     }
 
     /**
@@ -520,17 +604,37 @@ function ZPlaneList(parent) {
                 zPlaneContainer.style.justifyContent = 'center';
             }
 
-            var carousel = '',
-                imgStyles = [
-                    "width:" + _self._thumbnailProperties.width + "px",
-                    "height:" + _self._thumbnailProperties.height + "px",
-                    "max-width:" + _self._thumbnailProperties.maxWidth + "px"
-                ]
+            var carousel = '';
+
+            var nativeWidth = _self._getThumbnailWidthForRotation(0);
+            var thumbHeight = _self._thumbnailProperties.height;
+            var maxWidth = _self._thumbnailProperties.maxWidth;
+
+            /*
+             * Thumbnails track the viewport rotation. A CSS transform doesn't change the
+             * layout box, so the <img> gets the transform at native size while the wrapper
+             * is sized to the rotated AABB — keeping the carousel layout gap-free and clipped.
+             */
+            var rotation = _self._getCurrentRotation();
+            var wrapperWidth = _self._getThumbnailWidthForRotation(rotation);
+            var transform = _self._getThumbnailTransform(rotation);
 
             for (var i = 0; i < Math.min(_self.pageSize, _self.collection.length); i++) {
+                var wrapperStyles = [
+                    "width:" + wrapperWidth + "px",
+                    "height:" + thumbHeight + "px",
+                    "max-width:" + maxWidth + "px"
+                ];
+                var imgStyles = [
+                    "width:" + nativeWidth + "px",
+                    "height:" + thumbHeight + "px",
+                    "transform:" + transform
+                ];
                 carousel += '' +
                     '<div class="z-plane" data-collection-index="' + i + '" data-z-index="' + _self.collection[i].zIndex + '">' +
-                        '<img src="' + _self._getThumbnailURL(i) + '" style="' + imgStyles.join(";") + '" class="z-plane-image">' +
+                        '<div class="z-plane-thumb-wrapper" style="' + wrapperStyles.join(";") + '">' +
+                            '<img src="' + _self._getThumbnailURL(i) + '" style="' + imgStyles.join(";") + '" class="z-plane-image">' +
+                        '</div>' +
                         '<div class="z-plane-id">' +
                             (_self.collection[i].zIndex).toString() +
                         '</div>' +
@@ -655,7 +759,7 @@ function ZPlaneList(parent) {
                     '<div class="down-arrow" id="slider-tooltip-arrow"></div>' +
                 '</div>' +
                 '<div class="min-max">'+_self.sliderRange.max+'</div>' +
-                '<button class="circular-button" id="slider-next-button" data-tippy-placement="top" data-tippy-content="Next Z index"><i class="glyphicon glyphicon-triangle-right right"></i></button>' ;
+                '<button class="circular-button" id="slider-next-button" data-tippy-placement="top" data-tippy-content="Next Z index"><i class="glyphicon glyphicon-triangle-right right"></i></button>';
         zPlaneSlider.innerHTML = slider;
 
         var slider = zPlaneSlider.querySelector('#z-index-slider');
